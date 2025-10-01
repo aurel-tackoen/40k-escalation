@@ -22,6 +22,16 @@
           </select>
         </div>
       </div>
+      
+      <!-- Escalation Guide -->
+      <div class="bg-blue-900 border border-blue-700 rounded-lg p-4 mb-4">
+        <h4 class="text-blue-200 font-semibold mb-2">📋 How to Escalate Your Army</h4>
+        <div class="text-blue-300 text-sm space-y-1">
+          <p><strong>Method 1:</strong> Click the <span class="bg-blue-800 px-2 py-1 rounded text-xs">⬆️ Escalate</span> button on any army card to copy it to the next round</p>
+          <p><strong>Method 2:</strong> When building a new army, select a higher round and use the "📋 Copy Army" feature</p>
+          <p><strong>Tip:</strong> After copying, add new units to reach the higher point limit for the new round</p>
+        </div>
+      </div>
     </div>
 
     <!-- Army Builder Form -->
@@ -182,19 +192,32 @@
         </div>
 
         <!-- Copy from Previous Round -->
-        <div v-if="!editingArmy && currentArmy.round > 1" class="bg-gray-700 p-4 rounded-lg">
+        <div v-if="!editingArmy && currentArmy.round > 1" class="bg-gradient-to-r from-blue-800 to-blue-700 p-4 rounded-lg border border-blue-600">
           <div class="flex justify-between items-center">
             <div>
-              <h6 class="font-semibold text-yellow-500">Copy from Previous Round</h6>
-              <p class="text-sm text-gray-400">Start with your Round {{ currentArmy.round - 1 }} army list</p>
+              <h6 class="font-semibold text-blue-200 flex items-center">
+                <span class="mr-2">📋</span>
+                Copy from Previous Round
+              </h6>
+              <p class="text-sm text-blue-300 mt-1">
+                Start with your <strong>Round {{ currentArmy.round - 1 }}</strong> army list and add new units
+              </p>
+              <p v-if="hasPreviousRoundArmy" class="text-xs text-blue-400 mt-1">
+                Found {{ getPreviousArmyUnits() }} units from {{ getPreviousArmyName() }}
+              </p>
             </div>
             <button 
               type="button" 
               @click="copyFromPreviousRound"
-              class="btn-secondary"
+              :class="[
+                'px-4 py-2 rounded-lg font-semibold transition-colors',
+                hasPreviousRoundArmy 
+                  ? 'bg-blue-500 text-white hover:bg-blue-400' 
+                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+              ]"
               :disabled="!hasPreviousRoundArmy"
             >
-              {{ hasPreviousRoundArmy ? 'Copy Army' : 'No Previous Army' }}
+              {{ hasPreviousRoundArmy ? '📋 Copy Army' : 'No Previous Army' }}
             </button>
           </div>
         </div>
@@ -277,6 +300,14 @@
                   {{ army.isValid ? 'Valid' : 'Invalid' }}
                 </div>
                 <div class="flex space-x-1">
+                  <button 
+                    v-if="canEscalateArmy(army)"
+                    @click="escalateArmy(army)"
+                    class="text-blue-400 hover:text-blue-300 text-sm px-2 py-1 bg-blue-900 rounded"
+                    title="Escalate to Next Round"
+                  >
+                    ⬆️ Escalate
+                  </button>
                   <button 
                     @click="editArmy(army)"
                     class="text-yellow-500 hover:text-yellow-400 text-sm"
@@ -496,6 +527,45 @@ export default {
         this.currentArmy.name = `${previousArmy.name} (Round ${this.currentArmy.round})`
         this.calculateTotal()
       }
+    },
+    escalateArmy(army) {
+      const nextRound = army.round + 1
+      const nextRoundData = this.rounds.find(r => r.number === nextRound)
+      
+      if (nextRoundData) {
+        this.currentArmy = {
+          playerId: army.playerId,
+          round: nextRound,
+          name: `${army.name} (Round ${nextRound})`,
+          totalPoints: army.totalPoints,
+          units: JSON.parse(JSON.stringify(army.units)),
+          isValid: army.totalPoints <= nextRoundData.pointLimit
+        }
+        this.editingArmy = false
+        this.showBuilder = true
+      }
+    },
+    canEscalateArmy(army) {
+      const nextRound = army.round + 1
+      const hasNextRound = this.rounds.some(r => r.number === nextRound)
+      const hasNextRoundArmy = this.armies.some(a => 
+        a.playerId === army.playerId && a.round === nextRound
+      )
+      return hasNextRound && !hasNextRoundArmy
+    },
+    getPreviousArmyUnits() {
+      const previousArmy = this.armies.find(army => 
+        army.playerId === this.currentArmy.playerId && 
+        army.round === this.currentArmy.round - 1
+      )
+      return previousArmy ? previousArmy.units.length : 0
+    },
+    getPreviousArmyName() {
+      const previousArmy = this.armies.find(army => 
+        army.playerId === this.currentArmy.playerId && 
+        army.round === this.currentArmy.round - 1
+      )
+      return previousArmy ? previousArmy.name : ''
     },
     saveArmyList() {
       if (this.isValidArmy) {
