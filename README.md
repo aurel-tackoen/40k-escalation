@@ -22,6 +22,14 @@ A comprehensive web application for managing Warhammer 40k escalation leagues, b
 - Support for different mission types and rounds
 - Add detailed match notes and track game history
 
+### 🏗️ Army List Management
+- Build and manage army lists for each round
+- Add units with names, point costs, and equipment
+- Validate armies against round point limits
+- Copy armies from previous rounds for easy escalation
+- Track army evolution across rounds
+- Visual army validation status
+
 ### 📊 Standings & Analytics
 - Real-time leaderboard based on wins and victory points
 - Head-to-head records between players
@@ -84,6 +92,15 @@ The built application will be in the `dist/` directory.
 2. Fill in player details including name and faction
 3. Players will appear in the roster with initial stats
 
+### Building Army Lists
+
+1. Navigate to the **Army Lists** tab
+2. Click "Build New Army" to start creating an army list
+3. Select player, round, and army name
+4. Add units with their point costs and equipment
+5. Use "Copy from Previous Round" to build escalated armies
+6. Validate against point limits and save
+
 ### Recording Matches
 
 1. Switch to the **Matches** tab
@@ -100,6 +117,7 @@ The **Dashboard** provides:
 - Live standings table
 - Recent match results
 - Round information
+- Army list completion status
 
 ## Game Rules Integration
 

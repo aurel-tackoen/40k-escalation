@@ -1,0 +1,543 @@
+<template>
+  <div class="space-y-8">
+    <!-- Army Builder Header -->
+    <div class="card">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h3 class="text-2xl font-bold text-yellow-500">Army List Manager</h3>
+          <p class="text-gray-300 mt-2">Build and manage army lists for each round of the escalation league.</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <select v-model="selectedRound" class="input-field w-auto">
+            <option value="">All Rounds</option>
+            <option v-for="round in rounds" :key="round.number" :value="round.number">
+              Round {{ round.number }} ({{ round.pointLimit }}pts)
+            </option>
+          </select>
+          <select v-model="selectedPlayer" class="input-field w-auto">
+            <option value="">All Players</option>
+            <option v-for="player in players" :key="player.id" :value="player.id">
+              {{ player.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Army Builder Form -->
+    <div class="card" v-if="showBuilder">
+      <div class="flex justify-between items-center mb-6">
+        <h4 class="text-xl font-bold text-yellow-500">
+          {{ editingArmy ? 'Edit' : 'Build' }} Army List
+        </h4>
+        <button @click="cancelBuilder" class="text-gray-400 hover:text-gray-200">
+          <span class="text-xl">✕</span>
+        </button>
+      </div>
+
+      <form @submit.prevent="saveArmyList" class="space-y-6">
+        <!-- Basic Army Info -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">Player</label>
+            <select v-model="currentArmy.playerId" required class="input-field" :disabled="editingArmy">
+              <option value="">Select Player</option>
+              <option v-for="player in players" :key="player.id" :value="player.id">
+                {{ player.name }} ({{ player.faction }})
+              </option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">Round</label>
+            <select v-model="currentArmy.round" required class="input-field" :disabled="editingArmy">
+              <option value="">Select Round</option>
+              <option v-for="round in rounds" :key="round.number" :value="round.number">
+                Round {{ round.number }} - {{ round.name }} ({{ round.pointLimit }}pts)
+              </option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">Army Name</label>
+            <input 
+              v-model="currentArmy.name"
+              type="text" 
+              required
+              class="input-field"
+              placeholder="e.g., Strike Force Alpha"
+            />
+          </div>
+        </div>
+
+        <!-- Point Summary -->
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-6">
+              <div>
+                <span class="text-sm text-gray-400">Total Points:</span>
+                <span class="text-xl font-bold text-yellow-500 ml-2">{{ currentArmy.totalPoints }}</span>
+              </div>
+              <div>
+                <span class="text-sm text-gray-400">Point Limit:</span>
+                <span class="text-lg text-gray-200 ml-2">{{ currentRoundLimit }}</span>
+              </div>
+              <div>
+                <span class="text-sm text-gray-400">Remaining:</span>
+                <span 
+                  :class="[
+                    'text-lg font-semibold ml-2',
+                    remainingPoints >= 0 ? 'text-green-400' : 'text-red-400'
+                  ]"
+                >
+                  {{ remainingPoints }}
+                </span>
+              </div>
+            </div>
+            <div 
+              :class="[
+                'px-3 py-1 rounded-full text-sm font-semibold',
+                isValidArmy ? 'bg-green-500 text-green-900' : 'bg-red-500 text-red-900'
+              ]"
+            >
+              {{ isValidArmy ? 'Valid' : 'Invalid' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Unit Builder -->
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <h5 class="text-lg font-semibold text-yellow-500">Units</h5>
+            <button type="button" @click="addUnit" class="btn-primary">
+              Add Unit
+            </button>
+          </div>
+
+          <!-- Units List -->
+          <div class="space-y-3">
+            <div 
+              v-for="(unit, index) in currentArmy.units" 
+              :key="unit.id || index"
+              class="bg-gray-700 border border-gray-600 rounded-lg p-4"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <div class="md:col-span-2">
+                  <label class="block text-xs text-gray-400 mb-1">Unit Name</label>
+                  <input 
+                    v-model="unit.name"
+                    type="text" 
+                    required
+                    class="input-field text-sm"
+                    placeholder="e.g., Tactical Squad"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Type</label>
+                  <select v-model="unit.type" required class="input-field text-sm">
+                    <option value="">Type</option>
+                    <option value="HQ">HQ</option>
+                    <option value="Troops">Troops</option>
+                    <option value="Elites">Elites</option>
+                    <option value="Fast Attack">Fast Attack</option>
+                    <option value="Heavy Support">Heavy Support</option>
+                    <option value="Flyer">Flyer</option>
+                    <option value="Dedicated Transport">Dedicated Transport</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Points</label>
+                  <input 
+                    v-model.number="unit.points"
+                    type="number" 
+                    min="0"
+                    required
+                    class="input-field text-sm"
+                    @input="calculateTotal"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Equipment</label>
+                  <input 
+                    v-model="unit.equipment"
+                    type="text" 
+                    class="input-field text-sm"
+                    placeholder="Optional"
+                  />
+                </div>
+                <div class="flex items-end">
+                  <button 
+                    type="button"
+                    @click="removeUnit(index)"
+                    class="btn-secondary text-sm px-3 py-2"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="currentArmy.units.length === 0" class="text-center py-8 text-gray-400 bg-gray-700 rounded-lg">
+            <p>No units added yet. Click "Add Unit" to start building your army.</p>
+          </div>
+        </div>
+
+        <!-- Copy from Previous Round -->
+        <div v-if="!editingArmy && currentArmy.round > 1" class="bg-gray-700 p-4 rounded-lg">
+          <div class="flex justify-between items-center">
+            <div>
+              <h6 class="font-semibold text-yellow-500">Copy from Previous Round</h6>
+              <p class="text-sm text-gray-400">Start with your Round {{ currentArmy.round - 1 }} army list</p>
+            </div>
+            <button 
+              type="button" 
+              @click="copyFromPreviousRound"
+              class="btn-secondary"
+              :disabled="!hasPreviousRoundArmy"
+            >
+              {{ hasPreviousRoundArmy ? 'Copy Army' : 'No Previous Army' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex space-x-4">
+          <button 
+            type="submit" 
+            class="btn-primary"
+            :disabled="!isValidArmy"
+          >
+            {{ editingArmy ? 'Update' : 'Save' }} Army List
+          </button>
+          <button type="button" @click="cancelBuilder" class="btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Army Lists Grid -->
+    <div class="space-y-6">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-bold text-yellow-500">Army Lists</h3>
+        <button @click="startNewArmy" class="btn-primary">
+          Build New Army
+        </button>
+      </div>
+
+      <!-- Round Tabs -->
+      <div class="flex space-x-2 overflow-x-auto">
+        <button
+          @click="selectedRound = ''"
+          :class="[
+            'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap',
+            selectedRound === '' 
+              ? 'bg-yellow-500 text-gray-900' 
+              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+          ]"
+        >
+          All Rounds
+        </button>
+        <button
+          v-for="round in rounds"
+          :key="round.number"
+          @click="selectedRound = round.number"
+          :class="[
+            'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap',
+            selectedRound === round.number 
+              ? 'bg-yellow-500 text-gray-900' 
+              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+          ]"
+        >
+          Round {{ round.number }} ({{ round.pointLimit }}pts)
+        </button>
+      </div>
+
+      <!-- Army Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div 
+          v-for="army in filteredArmies" 
+          :key="army.id"
+          class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden hover:border-yellow-500 transition-colors"
+        >
+          <!-- Army Header -->
+          <div class="p-4 border-b border-gray-700">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="text-lg font-semibold text-gray-100">{{ army.name }}</h4>
+                <p class="text-sm text-gray-400">{{ getPlayerName(army.playerId) }}</p>
+                <p class="text-xs text-gray-500">Round {{ army.round }} • {{ getRoundName(army.round) }}</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div 
+                  :class="[
+                    'px-2 py-1 rounded text-xs font-semibold',
+                    army.isValid ? 'bg-green-500 text-green-900' : 'bg-red-500 text-red-900'
+                  ]"
+                >
+                  {{ army.isValid ? 'Valid' : 'Invalid' }}
+                </div>
+                <div class="flex space-x-1">
+                  <button 
+                    @click="editArmy(army)"
+                    class="text-yellow-500 hover:text-yellow-400 text-sm"
+                    title="Edit Army"
+                  >
+                    ✏️
+                  </button>
+                  <button 
+                    @click="confirmDeleteArmy(army)"
+                    class="text-red-400 hover:text-red-300 text-sm"
+                    title="Delete Army"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Army Stats -->
+          <div class="p-4">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <span class="text-2xl font-bold text-yellow-500">{{ army.totalPoints }}</span>
+                <span class="text-gray-400 text-sm">/ {{ getRoundLimit(army.round) }} pts</span>
+              </div>
+              <div class="text-right">
+                <div class="text-sm text-gray-400">{{ army.units.length }} units</div>
+                <div class="text-xs text-gray-500">Modified {{ formatDate(army.lastModified) }}</div>
+              </div>
+            </div>
+
+            <!-- Units Summary -->
+            <div class="space-y-2">
+              <h6 class="text-sm font-semibold text-gray-300">Units:</h6>
+              <div class="space-y-1 max-h-32 overflow-y-auto">
+                <div 
+                  v-for="unit in army.units" 
+                  :key="unit.id"
+                  class="flex justify-between items-center text-sm"
+                >
+                  <span class="text-gray-200">{{ unit.name }}</span>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">{{ unit.type }}</span>
+                    <span class="text-yellow-500 font-semibold">{{ unit.points }}pts</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="filteredArmies.length === 0" class="text-center py-12 text-gray-400">
+        <div class="text-6xl mb-4">⚔️</div>
+        <p class="text-lg">No army lists found</p>
+        <p class="text-sm">{{ selectedRound ? `No armies for Round ${selectedRound}` : 'Start building your first army list!' }}</p>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="armyToDelete" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-gray-800 border border-gray-600 rounded-lg p-6 max-w-md w-full mx-4">
+        <h4 class="text-xl font-bold text-yellow-500 mb-4">Confirm Deletion</h4>
+        <p class="text-gray-300 mb-6">
+          Are you sure you want to delete <strong>{{ armyToDelete.name }}</strong>? 
+          This action cannot be undone.
+        </p>
+        <div class="flex space-x-4">
+          <button @click="deleteArmyConfirmed" class="btn-secondary flex-1">
+            Delete Army
+          </button>
+          <button @click="armyToDelete = null" class="btn-primary flex-1">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'ArmyListsView',
+  props: {
+    players: {
+      type: Array,
+      required: true
+    },
+    armies: {
+      type: Array,
+      required: true
+    },
+    currentRound: {
+      type: Number,
+      required: true
+    },
+    rounds: {
+      type: Array,
+      required: true
+    }
+  },
+  emits: ['save-army', 'delete-army'],
+  data() {
+    return {
+      showBuilder: false,
+      editingArmy: false,
+      selectedRound: '',
+      selectedPlayer: '',
+      armyToDelete: null,
+      currentArmy: {
+        playerId: null,
+        round: null,
+        name: '',
+        totalPoints: 0,
+        units: [],
+        isValid: false
+      }
+    }
+  },
+  computed: {
+    filteredArmies() {
+      let filtered = this.armies
+      
+      if (this.selectedRound) {
+        filtered = filtered.filter(army => army.round === this.selectedRound)
+      }
+      
+      if (this.selectedPlayer) {
+        filtered = filtered.filter(army => army.playerId === this.selectedPlayer)
+      }
+      
+      return filtered.sort((a, b) => {
+        if (a.round !== b.round) return b.round - a.round
+        return new Date(b.lastModified) - new Date(a.lastModified)
+      })
+    },
+    currentRoundLimit() {
+      if (!this.currentArmy.round) return 0
+      const round = this.rounds.find(r => r.number === this.currentArmy.round)
+      return round ? round.pointLimit : 0
+    },
+    remainingPoints() {
+      return this.currentRoundLimit - this.currentArmy.totalPoints
+    },
+    isValidArmy() {
+      return this.currentArmy.units.length > 0 && 
+             this.currentArmy.totalPoints <= this.currentRoundLimit &&
+             this.currentArmy.totalPoints > 0
+    },
+    hasPreviousRoundArmy() {
+      if (!this.currentArmy.playerId || !this.currentArmy.round) return false
+      return this.armies.some(army => 
+        army.playerId === this.currentArmy.playerId && 
+        army.round === this.currentArmy.round - 1
+      )
+    }
+  },
+  methods: {
+    startNewArmy() {
+      this.currentArmy = {
+        playerId: null,
+        round: this.currentRound,
+        name: '',
+        totalPoints: 0,
+        units: [],
+        isValid: false
+      }
+      this.editingArmy = false
+      this.showBuilder = true
+    },
+    editArmy(army) {
+      this.currentArmy = JSON.parse(JSON.stringify(army))
+      this.editingArmy = true
+      this.showBuilder = true
+    },
+    cancelBuilder() {
+      this.showBuilder = false
+      this.editingArmy = false
+      this.currentArmy = {
+        playerId: null,
+        round: null,
+        name: '',
+        totalPoints: 0,
+        units: [],
+        isValid: false
+      }
+    },
+    addUnit() {
+      const newUnit = {
+        id: Date.now(),
+        name: '',
+        points: 0,
+        type: '',
+        equipment: ''
+      }
+      this.currentArmy.units.push(newUnit)
+    },
+    removeUnit(index) {
+      this.currentArmy.units.splice(index, 1)
+      this.calculateTotal()
+    },
+    calculateTotal() {
+      this.currentArmy.totalPoints = this.currentArmy.units.reduce((sum, unit) => {
+        return sum + (unit.points || 0)
+      }, 0)
+      this.currentArmy.isValid = this.isValidArmy
+    },
+    copyFromPreviousRound() {
+      const previousArmy = this.armies.find(army => 
+        army.playerId === this.currentArmy.playerId && 
+        army.round === this.currentArmy.round - 1
+      )
+      
+      if (previousArmy) {
+        this.currentArmy.units = JSON.parse(JSON.stringify(previousArmy.units))
+        this.currentArmy.name = `${previousArmy.name} (Round ${this.currentArmy.round})`
+        this.calculateTotal()
+      }
+    },
+    saveArmyList() {
+      if (this.isValidArmy) {
+        this.$emit('save-army', { ...this.currentArmy })
+        this.cancelBuilder()
+      }
+    },
+    confirmDeleteArmy(army) {
+      this.armyToDelete = army
+    },
+    deleteArmyConfirmed() {
+      if (this.armyToDelete) {
+        this.$emit('delete-army', this.armyToDelete.playerId, this.armyToDelete.round)
+        this.armyToDelete = null
+      }
+    },
+    getPlayerName(playerId) {
+      const player = this.players.find(p => p.id === playerId)
+      return player ? player.name : 'Unknown Player'
+    },
+    getRoundName(roundNumber) {
+      const round = this.rounds.find(r => r.number === roundNumber)
+      return round ? round.name : `Round ${roundNumber}`
+    },
+    getRoundLimit(roundNumber) {
+      const round = this.rounds.find(r => r.number === roundNumber)
+      return round ? round.pointLimit : 0
+    },
+    formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      })
+    }
+  },
+  watch: {
+    'currentArmy.units': {
+      handler() {
+        this.calculateTotal()
+      },
+      deep: true
+    }
+  }
+}
+</script>

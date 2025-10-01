@@ -23,10 +23,19 @@ This is a Vue.js application for managing Warhammer 40k escalation leagues with 
 
 ## Components Created
 - App.vue - Main application shell with navigation
-- DashboardView.vue - League overview and standings
+- DashboardView.vue - League overview and standings with army status
 - PlayersView.vue - Player registration and management  
+- ArmyListsView.vue - Complete army list builder and manager
 - MatchesView.vue - Match recording and history
 - LeagueSetupView.vue - League configuration and rules
+
+## Latest Updates
+- ✅ **Army Management System** - Complete army list builder
+- ✅ **Unit Management** - Add/edit/remove units with points and equipment
+- ✅ **Round-based Army Building** - Separate armies for each escalation round
+- ✅ **Army Validation** - Point limit checking and validation status
+- ✅ **Copy from Previous Round** - Easy army escalation between rounds
+- ✅ **Army Overview Dashboard** - Visual army completion tracking
 
 ## Running the Application
 1. Navigate to project directory: `cd /Users/aurel/Documents/works/40k-escalation`

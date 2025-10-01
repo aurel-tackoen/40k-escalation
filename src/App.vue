@@ -32,12 +32,24 @@
     <main class="container mx-auto px-4 py-8">
       <!-- Dashboard Tab -->
       <div v-if="activeTab === 'dashboard'" class="space-y-8">
-        <DashboardView :league="currentLeague" :players="players" :matches="matches" />
+        <DashboardView :league="currentLeague" :players="players" :matches="matches" :armies="armies" />
       </div>
 
       <!-- Players Tab -->
       <div v-if="activeTab === 'players'" class="space-y-8">
         <PlayersView :players="players" @add-player="addPlayer" @remove-player="removePlayer" />
+      </div>
+
+      <!-- Army Lists Tab -->
+      <div v-if="activeTab === 'armies'" class="space-y-8">
+        <ArmyListsView 
+          :players="players" 
+          :armies="armies" 
+          :current-round="currentLeague.currentRound"
+          :rounds="currentLeague.rounds"
+          @save-army="saveArmy" 
+          @delete-army="deleteArmy" 
+        />
       </div>
 
       <!-- Matches Tab -->
@@ -56,6 +68,7 @@
 <script>
 import DashboardView from './components/DashboardView.vue'
 import PlayersView from './components/PlayersView.vue'
+import ArmyListsView from './components/ArmyListsView.vue'
 import MatchesView from './components/MatchesView.vue'
 import LeagueSetupView from './components/LeagueSetupView.vue'
 
@@ -64,6 +77,7 @@ export default {
   components: {
     DashboardView,
     PlayersView,
+    ArmyListsView,
     MatchesView,
     LeagueSetupView
   },
@@ -73,6 +87,7 @@ export default {
       tabs: [
         { id: 'dashboard', name: 'Dashboard' },
         { id: 'players', name: 'Players' },
+        { id: 'armies', name: 'Army Lists' },
         { id: 'matches', name: 'Matches' },
         { id: 'setup', name: 'League Setup' }
       ],
@@ -145,6 +160,35 @@ export default {
           datePlayed: '2025-10-12',
           notes: 'Magnus dominated the psychic phase'
         }
+      ],
+      armies: [
+        {
+          id: 1,
+          playerId: 1,
+          round: 1,
+          name: "Magnus's Psychic Legion",
+          totalPoints: 500,
+          units: [
+            { id: 1, name: "Magnus the Red", points: 350, type: "HQ", equipment: "" },
+            { id: 2, name: "Rubric Marines", points: 150, type: "Troops", equipment: "Inferno Boltguns" }
+          ],
+          isValid: true,
+          lastModified: "2025-10-01"
+        },
+        {
+          id: 2,
+          playerId: 2,
+          round: 1,
+          name: "Ultramarines Strike Force",
+          totalPoints: 485,
+          units: [
+            { id: 1, name: "Captain in Terminator Armour", points: 95, type: "HQ", equipment: "Thunder Hammer & Storm Shield" },
+            { id: 2, name: "Tactical Squad", points: 140, type: "Troops", equipment: "Boltguns" },
+            { id: 3, name: "Terminator Squad", points: 250, type: "Elites", equipment: "Power Fists & Storm Bolters" }
+          ],
+          isValid: true,
+          lastModified: "2025-10-02"
+        }
       ]
     }
   },
@@ -199,6 +243,31 @@ export default {
     },
     updateLeague(league) {
       this.currentLeague = { ...league }
+    },
+    saveArmy(army) {
+      const existingIndex = this.armies.findIndex(a => 
+        a.playerId === army.playerId && a.round === army.round
+      )
+      
+      if (existingIndex !== -1) {
+        this.armies[existingIndex] = {
+          ...army,
+          id: this.armies[existingIndex].id,
+          lastModified: new Date().toISOString().split('T')[0]
+        }
+      } else {
+        const newArmy = {
+          ...army,
+          id: this.armies.length + 1,
+          lastModified: new Date().toISOString().split('T')[0]
+        }
+        this.armies.push(newArmy)
+      }
+    },
+    deleteArmy(playerId, round) {
+      this.armies = this.armies.filter(a => 
+        !(a.playerId === playerId && a.round === round)
+      )
     }
   }
 }

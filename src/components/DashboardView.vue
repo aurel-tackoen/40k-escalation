@@ -15,6 +15,11 @@
           <p class="text-2xl font-bold">{{ players.length }}</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-yellow-500">Army Lists</h3>
+          <p class="text-2xl font-bold">{{ currentRoundArmies }}</p>
+          <p class="text-sm text-gray-400">for current round</p>
+        </div>
+        <div class="bg-gray-700 p-4 rounded-lg">
           <h3 class="text-lg font-semibold text-yellow-500">Matches Played</h3>
           <p class="text-2xl font-bold">{{ matches.length }}</p>
         </div>
@@ -31,6 +36,7 @@
               <th class="text-left py-3 px-4 text-yellow-500">Rank</th>
               <th class="text-left py-3 px-4 text-yellow-500">Player</th>
               <th class="text-left py-3 px-4 text-yellow-500">Faction</th>
+              <th class="text-center py-3 px-4 text-yellow-500">Army</th>
               <th class="text-center py-3 px-4 text-yellow-500">W</th>
               <th class="text-center py-3 px-4 text-yellow-500">L</th>
               <th class="text-center py-3 px-4 text-yellow-500">D</th>
@@ -50,6 +56,18 @@
               </td>
               <td class="py-3 px-4 font-semibold">{{ player.name }}</td>
               <td class="py-3 px-4 text-gray-300">{{ player.faction }}</td>
+              <td class="py-3 px-4 text-center">
+                <span 
+                  :class="[
+                    'inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold',
+                    hasCurrentRoundArmy(player.id) 
+                      ? 'bg-green-500 text-green-900' 
+                      : 'bg-red-500 text-red-900'
+                  ]"
+                >
+                  {{ hasCurrentRoundArmy(player.id) ? '✓' : '✗' }}
+                </span>
+              </td>
               <td class="py-3 px-4 text-center text-green-400 font-bold">{{ player.wins }}</td>
               <td class="py-3 px-4 text-center text-red-400 font-bold">{{ player.losses }}</td>
               <td class="py-3 px-4 text-center text-yellow-400 font-bold">{{ player.draws }}</td>
@@ -115,6 +133,10 @@ export default {
     matches: {
       type: Array,
       required: true
+    },
+    armies: {
+      type: Array,
+      default: () => []
     }
   },
   computed: {
@@ -134,6 +156,9 @@ export default {
       return [...this.matches]
         .sort((a, b) => new Date(b.datePlayed) - new Date(a.datePlayed))
         .slice(0, 5)
+    },
+    currentRoundArmies() {
+      return this.armies.filter(army => army.round === this.league.currentRound).length
     }
   },
   methods: {
@@ -147,6 +172,11 @@ export default {
         day: 'numeric',
         year: 'numeric'
       })
+    },
+    hasCurrentRoundArmy(playerId) {
+      return this.armies.some(army => 
+        army.playerId === playerId && army.round === this.league.currentRound
+      )
     }
   }
 }
