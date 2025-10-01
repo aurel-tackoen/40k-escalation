@@ -1,9 +1,18 @@
 @import './base.css';
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@source "./src/**/*.{vue,js,ts,jsx,tsx}";
+@source "./index.html";
+
+@theme {
+  --color-wh-gold: #C9B037;
+  --color-wh-red: #8B0000;
+  --color-wh-dark: #1A1A1A;
+  --color-wh-skull: #F5F5DC;
+  
+  --font-family-gothic: Cinzel, serif;
+}
 
 @layer base {
   body {
