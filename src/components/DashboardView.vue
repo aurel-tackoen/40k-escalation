@@ -1,0 +1,153 @@
+<template>
+  <div class="space-y-8">
+    <!-- League Overview -->
+    <div class="card">
+      <h2 class="text-3xl font-gothic font-bold text-yellow-500 mb-4">{{ league.name }}</h2>
+      <p class="text-gray-300 mb-4">{{ league.description }}</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-yellow-500">Current Round</h3>
+          <p class="text-2xl font-bold">{{ currentRound.name }}</p>
+          <p class="text-sm text-gray-400">{{ currentRound.pointLimit }} points</p>
+        </div>
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-yellow-500">Players</h3>
+          <p class="text-2xl font-bold">{{ players.length }}</p>
+        </div>
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-yellow-500">Matches Played</h3>
+          <p class="text-2xl font-bold">{{ matches.length }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current Standings -->
+    <div class="card">
+      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Current Standings</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-gray-600">
+              <th class="text-left py-3 px-4 text-yellow-500">Rank</th>
+              <th class="text-left py-3 px-4 text-yellow-500">Player</th>
+              <th class="text-left py-3 px-4 text-yellow-500">Faction</th>
+              <th class="text-center py-3 px-4 text-yellow-500">W</th>
+              <th class="text-center py-3 px-4 text-yellow-500">L</th>
+              <th class="text-center py-3 px-4 text-yellow-500">D</th>
+              <th class="text-center py-3 px-4 text-yellow-500">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              v-for="(player, index) in sortedPlayers" 
+              :key="player.id"
+              class="border-b border-gray-700 hover:bg-gray-700 transition-colors"
+            >
+              <td class="py-3 px-4">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500 text-gray-900 font-bold">
+                  {{ index + 1 }}
+                </span>
+              </td>
+              <td class="py-3 px-4 font-semibold">{{ player.name }}</td>
+              <td class="py-3 px-4 text-gray-300">{{ player.faction }}</td>
+              <td class="py-3 px-4 text-center text-green-400 font-bold">{{ player.wins }}</td>
+              <td class="py-3 px-4 text-center text-red-400 font-bold">{{ player.losses }}</td>
+              <td class="py-3 px-4 text-center text-yellow-400 font-bold">{{ player.draws }}</td>
+              <td class="py-3 px-4 text-center text-yellow-500 font-bold">{{ player.totalPoints }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Matches -->
+    <div class="card">
+      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Recent Matches</h3>
+      <div class="space-y-4">
+        <div 
+          v-for="match in recentMatches" 
+          :key="match.id"
+          class="bg-gray-700 p-4 rounded-lg"
+        >
+          <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+              <span class="text-sm text-gray-400">{{ formatDate(match.datePlayed) }}</span>
+              <span class="text-sm bg-yellow-500 text-gray-900 px-2 py-1 rounded">{{ match.mission }}</span>
+            </div>
+            <span class="text-sm text-gray-400">Round {{ match.round }}</span>
+          </div>
+          <div class="mt-2 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+              <span class="font-semibold">{{ getPlayerName(match.player1Id) }}</span>
+              <span class="text-yellow-500 font-bold">{{ match.player1Points }}</span>
+              <span class="text-gray-400">vs</span>
+              <span class="text-yellow-500 font-bold">{{ match.player2Points }}</span>
+              <span class="font-semibold">{{ getPlayerName(match.player2Id) }}</span>
+            </div>
+            <div v-if="match.winnerId" class="text-green-400 font-semibold">
+              🏆 {{ getPlayerName(match.winnerId) }}
+            </div>
+            <div v-else class="text-yellow-400 font-semibold">
+              🤝 Draw
+            </div>
+          </div>
+          <div v-if="match.notes" class="mt-2 text-sm text-gray-400 italic">
+            "{{ match.notes }}"
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'DashboardView',
+  props: {
+    league: {
+      type: Object,
+      required: true
+    },
+    players: {
+      type: Array,
+      required: true
+    },
+    matches: {
+      type: Array,
+      required: true
+    }
+  },
+  computed: {
+    currentRound() {
+      return this.league.rounds.find(r => r.number === this.league.currentRound) || this.league.rounds[0]
+    },
+    sortedPlayers() {
+      return [...this.players].sort((a, b) => {
+        // Sort by wins first, then by total points
+        if (a.wins !== b.wins) {
+          return b.wins - a.wins
+        }
+        return b.totalPoints - a.totalPoints
+      })
+    },
+    recentMatches() {
+      return [...this.matches]
+        .sort((a, b) => new Date(b.datePlayed) - new Date(a.datePlayed))
+        .slice(0, 5)
+    }
+  },
+  methods: {
+    getPlayerName(playerId) {
+      const player = this.players.find(p => p.id === playerId)
+      return player ? player.name : 'Unknown Player'
+    },
+    formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      })
+    }
+  }
+}
+</script>
