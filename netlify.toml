@@ -8,6 +8,12 @@
   # Specify Node.js version explicitly
   NODE_VERSION = "20.19.0"
 
+[functions]
+  # Directory for Netlify Functions (auto-detected by Nuxt)
+  directory = ".netlify/functions-internal"
+  # Set longer timeout for database queries
+  node_bundler = "esbuild"
+
 # Route API requests to Netlify Functions
 [[redirects]]
   from = "/api/*"
