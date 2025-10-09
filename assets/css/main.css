@@ -2,8 +2,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-@source "./src/**/*.{vue,js,ts,jsx,tsx}";
-@source "./index.html";
+@source "../pages/**/*.{vue,js,ts}";
+@source "../components/**/*.{vue,js,ts}";
+@source "../layouts/**/*.{vue,js,ts}";
+@source "../app.vue";
 
 @theme {
   --color-wh-gold: #C9B037;
