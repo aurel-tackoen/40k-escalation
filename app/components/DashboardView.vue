@@ -2,8 +2,8 @@
   <div class="space-y-8">
     <!-- League Overview -->
     <div class="card">
-      <h2 class="text-3xl font-gothic font-bold text-yellow-500 mb-4">{{ league.name }}</h2>
-      <p class="text-gray-300 mb-4">{{ league.description }}</p>
+      <h2 class="text-3xl font-gothic font-bold text-yellow-500 mb-4">{{ league?.name || 'League' }}</h2>
+      <p class="text-gray-300 mb-4">{{ league?.description || '' }}</p>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-gray-700 p-4 rounded-lg">
           <h3 class="text-lg font-semibold text-yellow-500">Current Round</h3>
@@ -141,6 +141,9 @@ export default {
   },
   computed: {
     currentRound() {
+      if (!this.league || !this.league.rounds || this.league.rounds.length === 0) {
+        return { name: 'N/A', pointLimit: 0 }
+      }
       return this.league.rounds.find(r => r.number === this.league.currentRound) || this.league.rounds[0]
     },
     sortedPlayers() {
@@ -158,6 +161,7 @@ export default {
         .slice(0, 5)
     },
     currentRoundArmies() {
+      if (!this.league) return 0
       return this.armies.filter(army => army.round === this.league.currentRound).length
     }
   },
@@ -174,6 +178,7 @@ export default {
       })
     },
     hasCurrentRoundArmy(playerId) {
+      if (!this.league) return false
       return this.armies.some(army => 
         army.playerId === playerId && army.round === this.league.currentRound
       )

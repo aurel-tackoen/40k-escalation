@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     
     return {
       success: true,
-      players: allPlayers,
+      data: allPlayers,
       count: allPlayers.length
     }
   } catch (error) {

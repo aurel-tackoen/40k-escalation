@@ -17,16 +17,20 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    // Insert player
+    // Insert player with stats
     const newPlayer = await db.insert(players).values({
       name: body.name,
       email: body.email,
-      faction: body.faction || null
+      faction: body.faction || null,
+      wins: body.wins || 0,
+      losses: body.losses || 0,
+      draws: body.draws || 0,
+      totalPoints: body.totalPoints || 0
     }).returning()
     
     return {
       success: true,
-      player: newPlayer[0]
+      data: newPlayer[0]
     }
   } catch (error) {
     console.error('Error creating player:', error)
