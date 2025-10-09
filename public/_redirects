@@ -1,2 +1,2 @@
-/api/*    /.netlify/functions/server    200
-/*        /index.html                   200
+/api/*    /.netlify/functions-internal/server/:splat    200
+/*        /index.html                                   200

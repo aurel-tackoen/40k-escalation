@@ -3,21 +3,20 @@
   command = "npm run build"
   # Netlify automatically detects the output directory
   publish = "dist"
+  
+[functions]
+  directory = ".netlify/functions-internal"
+  node_bundler = "none"
+  included_files = ["**"]
 
 [build.environment]
   # Specify Node.js version explicitly
   NODE_VERSION = "20.19.0"
 
-[functions]
-  # Directory for Netlify Functions (auto-detected by Nuxt)
-  directory = ".netlify/functions-internal"
-  # Set longer timeout for database queries
-  node_bundler = "esbuild"
-
 # Route API requests to Netlify Functions
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/server"
+  to = "/.netlify/functions-internal/server/:splat"
   status = 200
 
 # SPA fallback - route all other requests to index.html
