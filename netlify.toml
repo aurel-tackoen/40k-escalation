@@ -4,12 +4,12 @@
   # Output directory for static files
   publish = ".output/public"
 
+[build.environment]
+  # Specify Node.js version explicitly
+  NODE_VERSION = "20.19.0"
+
 # Redirect all routes to index.html for SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# Environment variables (configure these in Netlify dashboard)
-# [build.environment]
-#   NODE_VERSION = "20"

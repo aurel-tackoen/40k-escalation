@@ -14,6 +14,10 @@ export default defineNuxtConfig({
     '@pinia/nuxt'
   ],
 
+  nitro: {
+    preset: 'static',
+  },
+
   postcss: {
     plugins: {
       '@tailwindcss/postcss': {},
