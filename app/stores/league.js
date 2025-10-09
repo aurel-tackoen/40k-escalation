@@ -105,8 +105,18 @@ export const useLeagueStore = defineStore('league', {
     },
 
     async removePlayer(playerId) {
-      // TODO: Create DELETE endpoint
-      this.players = this.players.filter(p => p.id !== playerId)
+      try {
+        const response = await $fetch(`/api/players?id=${playerId}`, {
+          method: 'DELETE'
+        })
+        if (response.success) {
+          this.players = this.players.filter(p => p.id !== playerId)
+        }
+        return response
+      } catch (error) {
+        console.error('Error removing player:', error)
+        throw error
+      }
     },
 
     async addMatch(match) {
@@ -128,8 +138,19 @@ export const useLeagueStore = defineStore('league', {
     },
 
     async updateLeague(league) {
-      // TODO: Create PUT endpoint
-      this.currentLeague = { ...league }
+      try {
+        const response = await $fetch(`/api/leagues?id=${league.id}`, {
+          method: 'PUT',
+          body: league
+        })
+        if (response.success) {
+          this.currentLeague = response.data
+        }
+        return response
+      } catch (error) {
+        console.error('Error updating league:', error)
+        throw error
+      }
     },
 
     async saveArmy(army) {
@@ -157,10 +178,20 @@ export const useLeagueStore = defineStore('league', {
     },
 
     async deleteArmy(playerId, round) {
-      // TODO: Create DELETE endpoint
-      this.armies = this.armies.filter(a => 
-        !(a.playerId === playerId && a.round === round)
-      )
+      try {
+        const response = await $fetch(`/api/armies?playerId=${playerId}&round=${round}`, {
+          method: 'DELETE'
+        })
+        if (response.success) {
+          this.armies = this.armies.filter(a => 
+            !(a.playerId === playerId && a.round === round)
+          )
+        }
+        return response
+      } catch (error) {
+        console.error('Error deleting army:', error)
+        throw error
+      }
     }
   }
 })
