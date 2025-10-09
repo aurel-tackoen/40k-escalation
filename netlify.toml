@@ -6,24 +6,9 @@
   
 [functions]
   directory = ".netlify/functions-internal"
-  node_bundler = "none"
-  included_files = ["**"]
 
 [build.environment]
   # Specify Node.js version explicitly
   NODE_VERSION = "20.19.0"
 
-# Route API requests to Netlify Functions
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions-internal/server/:splat"
-  status = 200
-
-# SPA fallback - route all other requests to index.html
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# No redirects needed - Netlify preset handles routing automatically
-# The renderer function will handle all routes
+# No custom redirects - let Nuxt/Nitro handle all routing

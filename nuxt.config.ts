@@ -3,8 +3,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   
-  // SPA mode - no server-side rendering
-  ssr: false,
+  // Enable SSR for proper server function routing
+  ssr: true,
+  
+  // But use SPA routing after initial load
+  routeRules: {
+    '/**': { ssr: false }
+  },
 
   future: {
     compatibilityVersion: 4,
@@ -16,13 +21,6 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'netlify',
-    // Ensure proper SPA handling
-    serveStatic: true,
-    compressPublicAssets: true,
-    // Prerender the index.html for SPA mode
-    prerender: {
-      routes: ['/']
-    }
   },
 
   app: {
