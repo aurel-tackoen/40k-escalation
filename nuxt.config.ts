@@ -15,7 +15,7 @@ export default defineNuxtConfig({
   ],
 
   nitro: {
-    preset: 'netlify',
+    preset: 'netlify'
   },
 
   postcss: {

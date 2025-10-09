@@ -1,15 +1,12 @@
 [build]
-  # Build command for Nuxt SPA
-  command = "npm run generate"
-  # Output directory for static files
-  publish = ".output/public"
+  # Build command for Nuxt with Netlify preset
+  command = "npm run build"
+  # Netlify automatically detects the output directory
+  publish = "dist"
 
 [build.environment]
   # Specify Node.js version explicitly
   NODE_VERSION = "20.19.0"
 
-# Redirect all routes to index.html for SPA routing
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# No redirects needed - Netlify preset handles routing automatically
+# The renderer function will handle all routes
