@@ -67,6 +67,46 @@ Preview production build:
 npm run preview
 ```
 
+## 🚀 Deployment to Netlify
+
+This project is ready for Netlify deployment. The repository includes:
+- `netlify.toml` - Netlify build configuration
+- `.nvmrc` - Node.js version specification
+- `_redirects` - SPA routing fallback rules
+
+### Deploy Options
+
+**Option 1: Deploy via Netlify UI**
+1. Push your code to GitHub/GitLab/Bitbucket
+2. Log in to [Netlify](https://app.netlify.com)
+3. Click "Add new site" → "Import an existing project"
+4. Connect your repository
+5. Netlify will auto-detect the settings from `netlify.toml`
+6. Click "Deploy site"
+
+**Option 2: Deploy via Netlify CLI**
+```bash
+# Install Netlify CLI
+npm install -g netlify-cli
+
+# Login to Netlify
+netlify login
+
+# Deploy to production
+netlify deploy --prod
+```
+
+**Build Settings** (auto-configured in `netlify.toml`):
+- Build command: `npm run generate`
+- Publish directory: `.output/public`
+- Node version: 18 (from `.nvmrc`)
+
+### Environment Variables
+If your app uses environment variables, configure them in Netlify:
+1. Go to Site settings → Environment variables
+2. Add any required variables (e.g., `DATABASE_URL`, `JWT_SECRET`)
+3. Redeploy the site
+
 ## 🎯 Usage Guide
 
 ### Managing Players

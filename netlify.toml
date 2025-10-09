@@ -1,0 +1,15 @@
+[build]
+  # Build command for Nuxt SPA
+  command = "npm run generate"
+  # Output directory for static files
+  publish = ".output/public"
+
+# Redirect all routes to index.html for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables (configure these in Netlify dashboard)
+# [build.environment]
+#   NODE_VERSION = "18"
