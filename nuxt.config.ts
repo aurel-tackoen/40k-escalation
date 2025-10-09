@@ -15,7 +15,19 @@ export default defineNuxtConfig({
   ],
 
   nitro: {
-    preset: 'netlify'
+    preset: 'netlify',
+    // Ensure proper SPA handling
+    serveStatic: true,
+    compressPublicAssets: true,
+    // Prerender the index.html for SPA mode
+    prerender: {
+      routes: ['/']
+    }
+  },
+
+  app: {
+    // Set base URL for client-side routing
+    baseURL: '/',
   },
 
   postcss: {

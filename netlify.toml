@@ -8,5 +8,17 @@
   # Specify Node.js version explicitly
   NODE_VERSION = "20.19.0"
 
+# Route API requests to Netlify Functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server"
+  status = 200
+
+# SPA fallback - route all other requests to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 # No redirects needed - Netlify preset handles routing automatically
 # The renderer function will handle all routes
