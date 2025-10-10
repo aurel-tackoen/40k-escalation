@@ -11,14 +11,14 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const playerId = parseInt(query.playerId as string)
     const round = parseInt(query.round as string)
-    
+
     if (!playerId || isNaN(playerId) || !round || isNaN(round)) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Valid player ID and round are required'
       })
     }
-    
+
     // Delete the army
     const deleted = await db.delete(armies)
       .where(
@@ -28,21 +28,21 @@ export default defineEventHandler(async (event) => {
         )
       )
       .returning()
-    
+
     if (deleted.length === 0) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Army not found'
       })
     }
-    
+
     return {
       success: true,
       data: deleted[0]
     }
   } catch (error) {
     console.error('Error deleting army:', error)
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to delete army',
