@@ -120,7 +120,7 @@
   <div class="space-y-8">
     <!-- League Settings -->
     <div class="card">
-      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">League Configuration</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">League Configuration</h3>
       <form @submit.prevent="saveLeague" class="space-y-6">
         <!-- Basic Information -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -183,7 +183,7 @@
 
     <!-- Round Configuration -->
     <div class="card">
-      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Round Configuration</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Round Configuration</h3>
 
       <div class="space-y-4">
         <div
@@ -256,7 +256,7 @@
 
     <!-- Scoring Rules -->
     <div class="card">
-      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Scoring & Rules</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Scoring & Rules</h3>
 
       <div class="space-y-6">
         <div class="bg-gray-700 p-4 rounded-lg">
@@ -301,7 +301,7 @@
 
     <!-- Export/Import -->
     <div class="card">
-      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Data Management</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Data Management</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-gray-700 p-4 rounded-lg">

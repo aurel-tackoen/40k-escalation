@@ -97,7 +97,7 @@
   <div class="space-y-8">
     <!-- Add Player Form -->
     <div class="card">
-      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Add New Player</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Add New Player</h3>
       <form @submit.prevent="submitPlayer" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -142,7 +142,7 @@
 
     <!-- Players List -->
     <div class="card">
-      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Registered Players</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Registered Players</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
           v-for="player in players"

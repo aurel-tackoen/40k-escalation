@@ -133,7 +133,7 @@
   <div class="space-y-8">
     <!-- Add Match Form -->
     <div class="card">
-      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Record New Match</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Record New Match</h3>
       <form @submit.prevent="submitMatch" class="space-y-6">
         <!-- Players Selection -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -292,7 +292,7 @@
 
     <!-- Match History -->
     <div class="card">
-      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Match History</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Match History</h3>
 
       <!-- Filter Controls -->
       <div class="mb-6 flex space-x-4">

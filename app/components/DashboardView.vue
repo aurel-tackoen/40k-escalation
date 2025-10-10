@@ -71,10 +71,10 @@
 </script>
 
 <template>
-  <div class="space-y-8">
+  <div class="flex flex-col gap-8">
     <!-- League Overview -->
     <div class="card">
-      <h2 class="text-3xl font-gothic font-bold text-yellow-500 mb-4">{{ league?.name || 'League' }}</h2>
+      <h2 class="text-3xl font-serif font-bold text-yellow-500">{{ league?.name || 'League' }}</h2>
       <p class="text-gray-300 mb-4">{{ league?.description || '' }}</p>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-gray-700 p-4 rounded-lg">
@@ -102,7 +102,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Current Standings -->
       <div class="card">
-        <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Current Standings</h3>
+        <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-2">Current Standings</h3>
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
@@ -149,7 +149,7 @@
 
     <!-- Recent Matches -->
     <div class="card">
-      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Recent Matches</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Recent Matches</h3>
       <div class="space-y-4">
         <div
           v-for="match in recentMatches"

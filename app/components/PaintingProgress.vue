@@ -27,7 +27,7 @@
 
 <template>
   <div class="bg-gray-800 border border-gray-600 rounded-lg p-6">
-    <h3 class="text-xl font-bold text-yellow-500 mb-2 m-0">🎨 Painting Leaderboard</h3>
+    <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-2">Painting Leaderboard</h3>
     <p class="text-gray-400 text-sm mb-4 m-0">Round {{ currentRound }}</p>
 
     <div v-if="leaderboard.length === 0" class="text-center py-8 text-gray-400 text-sm">
