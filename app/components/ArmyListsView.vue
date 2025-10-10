@@ -1,7 +1,14 @@
 <script setup>
-  import { ref, computed, watch } from 'vue'
-  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush } from 'lucide-vue-next'
+  import { ref, computed, watch, toRef } from 'vue'
+  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, Download } from 'lucide-vue-next'
   import { usePaintingStats } from '~/composables/usePaintingStats'
+  import { usePlayerLookup } from '~/composables/usePlayerLookup'
+  import { useFormatting } from '~/composables/useFormatting'
+  import { useRoundLookup } from '~/composables/useRoundLookup'
+  import { useConfirmation } from '~/composables/useConfirmation'
+  import { useArmyManagement } from '~/composables/useArmyManagement'
+  import { useArrayFiltering } from '~/composables/useArrayFiltering'
+  import { useDataExport } from '~/composables/useDataExport'
 
   // Composables
   const {
@@ -31,6 +38,35 @@
     }
   })
 
+  const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
+  const { formatDateShort } = useFormatting()
+  const { getRoundName, getRoundLimit } = useRoundLookup(toRef(props, 'rounds'))
+  const {
+    item: armyToDelete,
+    confirm: confirmDeleteArmy,
+    execute: deleteArmyConfirmed
+  } = useConfirmation((army) => {
+    emit('delete-army', army.playerId, army.round)
+  })
+  const {
+    calculateArmyTotal,
+    isValidArmy: checkValidArmy,
+    canEscalateArmy,
+    hasPreviousRoundArmy: checkPreviousRoundArmy,
+    getPreviousArmy,
+    copyArmyToNextRound
+  } = useArmyManagement(toRef(props, 'armies'), toRef(props, 'rounds'))
+
+  const {
+    sortByField,
+    filterByMultipleCriteria
+  } = useArrayFiltering(toRef(props, 'armies'))
+
+  const {
+    downloadCSV,
+    formatForExport
+  } = useDataExport()
+
   // Emits
   const emit = defineEmits(['save-army', 'delete-army'])
 
@@ -39,7 +75,6 @@
   const editingArmy = ref(false)
   const selectedRound = ref('')
   const selectedPlayer = ref('')
-  const armyToDelete = ref(null)
   const currentArmy = ref({
     playerId: null,
     round: null,
@@ -49,22 +84,25 @@
     isValid: false
   })
 
-  // Computed properties
+  // Computed properties using useArrayFiltering
   const filteredArmies = computed(() => {
     let filtered = props.armies
 
-    if (selectedRound.value) {
-      filtered = filtered.filter(army => army.round === selectedRound.value)
+    // Apply filters using composable
+    const filters = {}
+    if (selectedRound.value) filters.round = selectedRound.value
+    if (selectedPlayer.value) filters.playerId = selectedPlayer.value
+
+    if (Object.keys(filters).length > 0) {
+      filtered = filterByMultipleCriteria(filtered, filters)
     }
 
-    if (selectedPlayer.value) {
-      filtered = filtered.filter(army => army.playerId === selectedPlayer.value)
-    }
-
-    return filtered.sort((a, b) => {
-      if (a.round !== b.round) return b.round - a.round
-      return new Date(b.lastModified) - new Date(a.lastModified)
-    })
+    // Sort by round (desc) then lastModified (desc)
+    return sortByField(
+      sortByField(filtered, 'lastModified', 'desc'),
+      'round',
+      'desc'
+    )
   })
 
   const currentRoundLimit = computed(() => {
@@ -78,17 +116,11 @@
   })
 
   const isValidArmy = computed(() => {
-    return currentArmy.value.units.length > 0 &&
-      currentArmy.value.totalPoints <= currentRoundLimit.value &&
-      currentArmy.value.totalPoints > 0
+    return checkValidArmy(currentArmy.value, currentRoundLimit.value)
   })
 
   const hasPreviousRoundArmy = computed(() => {
-    if (!currentArmy.value.playerId || !currentArmy.value.round) return false
-    return props.armies.some(army =>
-      army.playerId === currentArmy.value.playerId &&
-      army.round === currentArmy.value.round - 1
-    )
+    return checkPreviousRoundArmy(currentArmy.value.playerId, currentArmy.value.round)
   })
 
   // Methods
@@ -139,21 +171,17 @@
 
   const removeUnit = (index) => {
     currentArmy.value.units.splice(index, 1)
-    calculateTotal()
+    currentArmy.value.totalPoints = calculateArmyTotal(currentArmy.value.units)
+    currentArmy.value.isValid = isValidArmy.value
   }
 
   const calculateTotal = () => {
-    currentArmy.value.totalPoints = currentArmy.value.units.reduce((sum, unit) => {
-      return sum + (unit.points || 0)
-    }, 0)
+    currentArmy.value.totalPoints = calculateArmyTotal(currentArmy.value.units)
     currentArmy.value.isValid = isValidArmy.value
   }
 
   const copyFromPreviousRound = () => {
-    const previousArmy = props.armies.find(army =>
-      army.playerId === currentArmy.value.playerId &&
-      army.round === currentArmy.value.round - 1
-    )
+    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
 
     if (previousArmy) {
       currentArmy.value.units = JSON.parse(JSON.stringify(previousArmy.units))
@@ -164,44 +192,19 @@
 
   const escalateArmy = (army) => {
     const nextRound = army.round + 1
-    const nextRoundData = props.rounds.find(r => r.number === nextRound)
 
-    if (nextRoundData) {
-      currentArmy.value = {
-        playerId: army.playerId,
-        round: nextRound,
-        name: `${army.name} (Round ${nextRound})`,
-        totalPoints: army.totalPoints,
-        units: JSON.parse(JSON.stringify(army.units)),
-        isValid: army.totalPoints <= nextRoundData.pointLimit
-      }
-      editingArmy.value = false
-      showBuilder.value = true
-    }
-  }
-
-  const canEscalateArmy = (army) => {
-    const nextRound = army.round + 1
-    const hasNextRound = props.rounds.some(r => r.number === nextRound)
-    const hasNextRoundArmy = props.armies.some(a =>
-      a.playerId === army.playerId && a.round === nextRound
-    )
-    return hasNextRound && !hasNextRoundArmy
+    currentArmy.value = copyArmyToNextRound(army, nextRound)
+    editingArmy.value = false
+    showBuilder.value = true
   }
 
   const getPreviousArmyUnits = () => {
-    const previousArmy = props.armies.find(army =>
-      army.playerId === currentArmy.value.playerId &&
-      army.round === currentArmy.value.round - 1
-    )
+    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
     return previousArmy ? previousArmy.units.length : 0
   }
 
   const getPreviousArmyName = () => {
-    const previousArmy = props.armies.find(army =>
-      army.playerId === currentArmy.value.playerId &&
-      army.round === currentArmy.value.round - 1
-    )
+    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
     return previousArmy ? previousArmy.name : ''
   }
 
@@ -212,37 +215,19 @@
     }
   }
 
-  const confirmDeleteArmy = (army) => {
-    armyToDelete.value = army
-  }
-
-  const deleteArmyConfirmed = () => {
-    if (armyToDelete.value) {
-      emit('delete-army', armyToDelete.value.playerId, armyToDelete.value.round)
-      armyToDelete.value = null
-    }
-  }
-
-  const getPlayerName = (playerId) => {
-    const player = props.players.find(p => p.id === playerId)
-    return player ? player.name : 'Unknown Player'
-  }
-
-  const getRoundName = (roundNumber) => {
-    const round = props.rounds.find(r => r.number === roundNumber)
-    return round ? round.name : `Round ${roundNumber}`
-  }
-
-  const getRoundLimit = (roundNumber) => {
-    const round = props.rounds.find(r => r.number === roundNumber)
-    return round ? round.pointLimit : 0
-  }
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
+  const exportArmies = () => {
+    const exportData = formatForExport(filteredArmies.value, {
+      'Player': (army) => getPlayerName(army.playerId),
+      'Army Name': 'name',
+      'Round': (army) => `Round ${army.round}`,
+      'Total Points': 'totalPoints',
+      'Point Limit': (army) => getRoundLimit(army.round),
+      'Units': (army) => army.units.length,
+      'Valid': (army) => army.isValid ? 'Yes' : 'No',
+      'Last Modified': (army) => formatDateShort(army.lastModified)
     })
+
+    downloadCSV(exportData, 'army-lists')
   }
 
   // Watchers
@@ -537,10 +522,16 @@
     <div class="space-y-6">
       <div class="flex justify-between items-center">
         <h3 class="text-2xl font-bold font-serif text-yellow-500">Army Lists</h3>
-        <button @click="startNewArmy" class="btn-primary flex items-center gap-2">
-          <Plus :size="20" />
-          Build New Army
-        </button>
+        <div class="flex gap-2">
+          <button @click="exportArmies" class="btn-secondary flex items-center gap-2">
+            <Download :size="20" />
+            Export CSV
+          </button>
+          <button @click="startNewArmy" class="btn-primary flex items-center gap-2">
+            <Plus :size="20" />
+            Build New Army
+          </button>
+        </div>
       </div>
 
       <!-- Round Tabs -->
@@ -633,7 +624,7 @@
               </div>
               <div class="text-right">
                 <div class="text-sm text-gray-400">{{ army.units.length }} units</div>
-                <div class="text-xs text-gray-500">Modified {{ formatDate(army.lastModified) }}</div>
+                <div class="text-xs text-gray-500">Modified {{ formatDateShort(army.lastModified) }}</div>
               </div>
             </div>
 
@@ -716,7 +707,7 @@
           This action cannot be undone.
         </p>
         <div class="flex space-x-4">
-          <button @click="deleteArmyConfirmed" class="btn-secondary flex-1">
+          <button @click="deleteArmyConfirmed()" class="btn-secondary flex-1">
             Delete Army
           </button>
           <button @click="armyToDelete = null" class="btn-primary flex-1">

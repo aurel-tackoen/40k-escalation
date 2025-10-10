@@ -1,18 +1,14 @@
 <script setup>
-  import { ref } from 'vue'
-  import { UserPlus, X, TrendingUp, Mail, Shield, Trophy, Paintbrush } from 'lucide-vue-next'
+  import { UserPlus, X, TrendingUp, Mail, Shield, Trophy, Paintbrush, Download } from 'lucide-vue-next'
   import { factions } from '~/data/factions'
   import { usePaintingStats } from '~/composables/usePaintingStats'
-
-  // Composables
-  const {
-    getPlayerPaintingStats,
-    getPaintProgressClass,
-    getPaintPercentageColor
-  } = usePaintingStats()
+  import { usePlayerStats } from '~/composables/usePlayerStats'
+  import { useConfirmation } from '~/composables/useConfirmation'
+  import { useFormManagement } from '~/composables/useFormManagement'
+  import { useDataExport } from '~/composables/useDataExport'
 
   // Props
-  defineProps({
+  const props = defineProps({
     players: {
       type: Array,
       required: true
@@ -30,46 +26,56 @@
   // Emits
   const emit = defineEmits(['add-player', 'remove-player'])
 
-  // Reactive data
-  const newPlayer = ref({
+  // Composables
+  const {
+    getPlayerPaintingStats,
+    getPaintProgressClass,
+    getPaintPercentageColor
+  } = usePaintingStats()
+
+  const { getWinPercentage } = usePlayerStats()
+
+  const {
+    item: playerToRemove,
+    confirm: confirmRemoval,
+    execute: removePlayer
+  } = useConfirmation((player) => {
+    emit('remove-player', player.id)
+  })
+
+  const {
+    formData: newPlayer,
+    resetForm,
+    isFormValid
+  } = useFormManagement({
     name: '',
     faction: '',
     email: ''
   })
 
-  const playerToRemove = ref(null)
+  const { downloadCSV, formatForExport } = useDataExport()
 
   // Methods
   const submitPlayer = () => {
-    if (newPlayer.value.name && newPlayer.value.faction) {
+    if (isFormValid(['name', 'faction'])) {
       emit('add-player', { ...newPlayer.value })
       resetForm()
     }
   }
 
-  const resetForm = () => {
-    newPlayer.value = {
-      name: '',
-      faction: '',
-      email: ''
-    }
-  }
+  const exportPlayers = () => {
+    const exportData = formatForExport(props.players, {
+      'Name': 'name',
+      'Faction': 'faction',
+      'Email': 'email',
+      'Wins': 'wins',
+      'Losses': 'losses',
+      'Draws': 'draws',
+      'Points': 'points',
+      'Win %': (player) => `${getWinPercentage(player)}%`
+    })
 
-  const confirmRemoval = (player) => {
-    playerToRemove.value = player
-  }
-
-  const removePlayer = () => {
-    if (playerToRemove.value) {
-      emit('remove-player', playerToRemove.value.id)
-      playerToRemove.value = null
-    }
-  }
-
-  const getWinPercentage = (player) => {
-    const totalGames = player.wins + player.losses + player.draws
-    if (totalGames === 0) return 0
-    return (player.wins / totalGames) * 100
+    downloadCSV(exportData, 'player-standings')
   }
 </script>
 
@@ -77,9 +83,15 @@
   <div class="space-y-8">
     <!-- Players List -->
     <div class="card">
-      <div class="flex items-center gap-2 mb-6">
-        <Trophy :size="24" class="text-yellow-500" />
-        <h3 class="text-2xl font-serif font-bold text-yellow-500">Registered Players</h3>
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center gap-2">
+          <Trophy :size="24" class="text-yellow-500" />
+          <h3 class="text-2xl font-serif font-bold text-yellow-500">Registered Players</h3>
+        </div>
+        <button @click="exportPlayers" class="btn-secondary flex items-center gap-2">
+          <Download :size="18" />
+          Export CSV
+        </button>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
@@ -225,7 +237,7 @@
           This action cannot be undone and all their match history will be lost.
         </p>
         <div class="flex space-x-4">
-          <button @click="removePlayer" class="btn-secondary flex-1">
+          <button @click="removePlayer()" class="btn-secondary flex-1">
             Remove Player
           </button>
           <button @click="playerToRemove = null" class="btn-primary flex-1">

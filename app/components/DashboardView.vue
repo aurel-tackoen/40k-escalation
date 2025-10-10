@@ -1,7 +1,10 @@
 <script setup>
-  import { computed } from 'vue'
+  import { computed, toRef } from 'vue'
   import { Trophy, Users, Shield, Swords, Calendar, Target } from 'lucide-vue-next'
   import PaintingProgress from './PaintingProgress.vue'
+  import { usePlayerLookup } from '~/composables/usePlayerLookup'
+  import { useFormatting } from '~/composables/useFormatting'
+  import { usePlayerStats } from '~/composables/usePlayerStats'
 
   // Props
   const props = defineProps({
@@ -27,6 +30,11 @@
     }
   })
 
+  // Composables
+  const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
+  const { formatDate } = useFormatting()
+  const { sortPlayersByStandings } = usePlayerStats()
+
   // Computed properties
   const currentRound = computed(() => {
     if (!props.league || !props.league.rounds || props.league.rounds.length === 0) {
@@ -36,13 +44,7 @@
   })
 
   const sortedPlayers = computed(() => {
-    return [...props.players].sort((a, b) => {
-      // Sort by wins first, then by total points
-      if (a.wins !== b.wins) {
-        return b.wins - a.wins
-      }
-      return b.totalPoints - a.totalPoints
-    })
+    return sortPlayersByStandings(props.players)
   })
 
   const recentMatches = computed(() => {
@@ -55,20 +57,6 @@
     if (!props.league) return 0
     return props.armies.filter(army => army.round === props.league.currentRound).length
   })
-
-  // Methods
-  const getPlayerName = (playerId) => {
-    const player = props.players.find(p => p.id === playerId)
-    return player ? player.name : 'Unknown Player'
-  }
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })
-  }
 </script>
 
 <template>

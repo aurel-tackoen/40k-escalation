@@ -1,7 +1,11 @@
 <script setup>
-  import { ref, computed } from 'vue'
-  import { Plus, Filter, Calendar, Target, Users, Trophy, X } from 'lucide-vue-next'
+  import { ref, computed, toRef } from 'vue'
+  import { Plus, Filter, Calendar, Target, Users, Trophy, X, Download, Flame, TrendingUp } from 'lucide-vue-next'
   import { missions } from '~/data/missions'
+  import { usePlayerLookup } from '~/composables/usePlayerLookup'
+  import { useFormatting } from '~/composables/useFormatting'
+  import { useMatchResults } from '~/composables/useMatchResults'
+  import { useDataExport } from '~/composables/useDataExport'
 
   // Props
   const props = defineProps({
@@ -14,6 +18,19 @@
       required: true
     }
   })
+
+  // Composables
+  const { getPlayerName, getPlayerFaction } = usePlayerLookup(toRef(props, 'players'))
+  const { formatDate } = useFormatting()
+
+  const {
+    determineWinner,
+    getMatchStatus,
+    isCloseMatch,
+    getWinStreak
+  } = useMatchResults(toRef(props, 'matches'))
+
+  const { exportMatchHistory } = useDataExport()
 
   // Emits
   const emit = defineEmits(['add-match'])
@@ -99,22 +116,51 @@
       newMatch.value.datePlayed
   }
 
-  const getPlayerName = (playerId) => {
-    const player = props.players.find(p => p.id === playerId)
-    return player ? player.name : 'Unknown Player'
-  }
+  // Export matches function
+  const exportMatches = () => {
+    const exportData = props.matches.map(match => {
+      const winner = determineWinner(match.player1Points, match.player2Points, match.player1Id, match.player2Id)
+      const status = getMatchStatus(match.player1Points, match.player2Points)
 
-  const getPlayerFaction = (playerId) => {
-    const player = props.players.find(p => p.id === playerId)
-    return player ? player.faction : 'Unknown Faction'
-  }
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+      return {
+        'Date': formatDate(match.datePlayed),
+        'Round': match.round,
+        'Mission': match.mission,
+        'Player 1': getPlayerName(match.player1Id),
+        'Player 1 Faction': getPlayerFaction(match.player1Id),
+        'Player 1 Points': match.player1Points,
+        'Player 2': getPlayerName(match.player2Id),
+        'Player 2 Faction': getPlayerFaction(match.player2Id),
+        'Player 2 Points': match.player2Points,
+        'Winner': winner ? getPlayerName(winner) : 'Draw',
+        'Point Difference': Math.abs(match.player1Points - match.player2Points),
+        'Match Type': status,
+        'Notes': match.notes || ''
+      }
     })
+
+    exportMatchHistory(exportData, 'match-history')
+  }
+
+  // Get match quality badge
+  const getMatchQualityBadge = (match) => {
+    if (isCloseMatch(match.player1Points, match.player2Points)) {
+      return { text: 'Close Game!', class: 'bg-orange-500 text-white', icon: Flame }
+    }
+    const diff = Math.abs(match.player1Points - match.player2Points)
+    if (diff >= 20) {
+      return { text: 'Decisive Victory', class: 'bg-purple-500 text-white', icon: TrendingUp }
+    }
+    return null
+  }
+
+  // Get player win streak for display
+  const getPlayerStreak = (playerId) => {
+    const streak = getWinStreak(playerId)
+    if (streak >= 3) {
+      return { count: streak, text: `${streak} Win Streak!` }
+    }
+    return null
   }
 </script>
 
@@ -286,9 +332,19 @@
 
     <!-- Match History -->
     <div class="card">
-      <div class="flex items-center gap-2 mb-6">
-        <Trophy :size="24" class="text-yellow-500" />
-        <h3 class="text-2xl font-serif font-bold text-yellow-500">Match History</h3>
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center gap-2">
+          <Trophy :size="24" class="text-yellow-500" />
+          <h3 class="text-2xl font-serif font-bold text-yellow-500">Match History</h3>
+        </div>
+        <button
+          @click="exportMatches"
+          class="btn-secondary flex items-center gap-2"
+          :disabled="matches.length === 0"
+        >
+          <Download :size="18" />
+          Export CSV
+        </button>
       </div>
 
       <!-- Filter Controls -->
@@ -331,6 +387,12 @@
               </span>
               <span class="text-sm bg-gray-600 text-gray-300 px-2 py-1 rounded">{{ match.mission }}</span>
             </div>
+            <!-- Match Quality Badge -->
+            <div v-if="getMatchQualityBadge(match)" class="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold"
+                 :class="getMatchQualityBadge(match).class">
+              <component :is="getMatchQualityBadge(match).icon" :size="14" />
+              {{ getMatchQualityBadge(match).text }}
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -339,6 +401,11 @@
               <div class="font-semibold text-lg">{{ getPlayerName(match.player1Id) }}</div>
               <div class="text-sm text-gray-400">{{ getPlayerFaction(match.player1Id) }}</div>
               <div class="text-2xl font-bold text-yellow-500 mt-2">{{ match.player1Points }}</div>
+              <!-- Win Streak Badge -->
+              <div v-if="getPlayerStreak(match.player1Id)" class="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white rounded-full text-xs font-bold">
+                <Flame :size="12" />
+                {{ getPlayerStreak(match.player1Id).text }}
+              </div>
             </div>
 
             <!-- VS and Result -->
@@ -357,6 +424,11 @@
               <div class="font-semibold text-lg">{{ getPlayerName(match.player2Id) }}</div>
               <div class="text-sm text-gray-400">{{ getPlayerFaction(match.player2Id) }}</div>
               <div class="text-2xl font-bold text-yellow-500 mt-2">{{ match.player2Points }}</div>
+              <!-- Win Streak Badge -->
+              <div v-if="getPlayerStreak(match.player2Id)" class="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white rounded-full text-xs font-bold">
+                <Flame :size="12" />
+                {{ getPlayerStreak(match.player2Id).text }}
+              </div>
             </div>
           </div>
 

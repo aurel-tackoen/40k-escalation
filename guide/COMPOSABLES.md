@@ -1,22 +1,258 @@
-# Composables
+# Composables Documentation
 
 This folder contains reusable Vue 3 composition functions (composables) for the Warhammer 40k Escalation League Manager application.
 
-## Available Composables
+## 📚 Available Composables
 
-### `usePaintingStats`
+| Composable | Purpose | Components Using | Functions |
+|------------|---------|------------------|-----------|
+| usePaintingStats | Painting progress tracking | PlayersView, ArmyListsView | 5 |
+| usePlayerLookup | Player data access | DashboardView, ArmyListsView, MatchesView | 5 |
+| useFormatting | Date/number formatting | DashboardView, ArmyListsView, MatchesView | 8 |
+| usePlayerStats | Player statistics | PlayersView, DashboardView | 9 |
 
-A composable for calculating and displaying painting progress statistics across armies, units, and players.
+---
 
-#### Features
+## usePlayerLookup
 
-- Calculate painting percentages for individual units
-- Calculate army-wide painting statistics
-- Get player painting statistics for specific rounds
-- Provide consistent color-coded styling for progress bars and text
-- Reusable across multiple components
+**Purpose:** Centralized player data lookup and utilities
 
-#### Usage
+**Used in:** DashboardView.vue, ArmyListsView.vue, MatchesView.vue
+
+### Usage
+
+```vue
+<script setup>
+import { toRef } from 'vue'
+import { usePlayerLookup } from '~/composables/usePlayerLookup'
+
+const props = defineProps({ players: Array })
+const { getPlayerName, getPlayerFaction, getPlayer } = usePlayerLookup(toRef(props, 'players'))
+</script>
+
+<template>
+  <div>{{ getPlayerName(playerId) }}</div>
+  <div>{{ getPlayerFaction(playerId) }}</div>
+</template>
+```
+
+### API
+
+#### `getPlayerName(playerId)`
+Get player name by ID
+- **Parameters:** `playerId` (number|string)
+- **Returns:** string - Player name or 'Unknown Player'
+
+#### `getPlayerFaction(playerId)`
+Get player faction by ID
+- **Parameters:** `playerId` (number|string)
+- **Returns:** string - Player faction or 'Unknown Faction'
+
+#### `getPlayer(playerId)`
+Get complete player object
+- **Parameters:** `playerId` (number|string)
+- **Returns:** Object|undefined - Player object or undefined
+
+#### `getPlayers(playerIds)`
+Get multiple players by IDs
+- **Parameters:** `playerIds` (Array<number|string>)
+- **Returns:** Array<Object> - Array of player objects
+
+#### `playerExists(playerId)`
+Check if player exists
+- **Parameters:** `playerId` (number|string)
+- **Returns:** boolean - True if player exists
+
+---
+
+## useFormatting
+
+**Purpose:** Consistent date, number, and text formatting across the app
+
+**Used in:** DashboardView.vue, ArmyListsView.vue, MatchesView.vue
+
+### Usage
+
+```vue
+<script setup>
+import { useFormatting } from '~/composables/useFormatting'
+
+const {
+  formatDate,
+  formatDateShort,
+  formatPoints,
+  formatPercentage,
+  formatRecord
+} = useFormatting()
+</script>
+
+<template>
+  <div>{{ formatDate(match.datePlayed) }}</div>
+  <div>{{ formatDateShort(army.lastModified) }}</div>
+  <div>{{ formatPoints(army.totalPoints) }}</div>
+  <div>{{ formatRecord(player.wins, player.losses, player.draws) }}</div>
+</template>
+```
+
+### API
+
+#### `formatDate(dateString, options)`
+Format date with customizable options
+- **Parameters:** 
+  - `dateString` (string) - ISO date string
+  - `options` (Object) - Intl.DateTimeFormat options
+- **Returns:** string - Formatted date (default: "Oct 15, 2025")
+- **Example:** `formatDate('2025-10-15')` → "Oct 15, 2025"
+
+#### `formatDateShort(dateString)`
+Format date without year
+- **Parameters:** `dateString` (string)
+- **Returns:** string - Short format (e.g., "Oct 15")
+- **Example:** `formatDateShort('2025-10-15')` → "Oct 15"
+
+#### `formatDateLong(dateString)`
+Format date with full details
+- **Parameters:** `dateString` (string)
+- **Returns:** string - Long format (e.g., "October 15, 2025")
+- **Example:** `formatDateLong('2025-10-15')` → "October 15, 2025"
+
+#### `formatPoints(points)`
+Format points value
+- **Parameters:** `points` (number)
+- **Returns:** string - Formatted points (e.g., "500pts")
+- **Example:** `formatPoints(500)` → "500pts"
+
+#### `formatPercentage(value, decimals = 0)`
+Format percentage value
+- **Parameters:** 
+  - `value` (number) - Percentage value (0-100)
+  - `decimals` (number) - Decimal places (default: 0)
+- **Returns:** string - Formatted percentage (e.g., "75.5%")
+- **Example:** `formatPercentage(75.5, 1)` → "75.5%"
+
+#### `formatRecord(wins, losses, draws)`
+Format win/loss/draw record
+- **Parameters:** 
+  - `wins` (number)
+  - `losses` (number)
+  - `draws` (number)
+- **Returns:** string - Formatted record (e.g., "5W - 2L - 1D")
+- **Example:** `formatRecord(5, 2, 1)` → "5W - 2L - 1D"
+
+#### `formatNumber(number)`
+Format number with commas
+- **Parameters:** `number` (number)
+- **Returns:** string - Formatted number (e.g., "1,000")
+- **Example:** `formatNumber(1000)` → "1,000"
+
+#### `formatScore(score1, score2)`
+Format score comparison
+- **Parameters:** 
+  - `score1` (number)
+  - `score2` (number)
+- **Returns:** string - Formatted score (e.g., "25 - 18")
+- **Example:** `formatScore(25, 18)` → "25 - 18"
+
+---
+
+## usePlayerStats
+
+**Purpose:** Player statistics calculations and rankings
+
+**Used in:** PlayersView.vue, DashboardView.vue
+
+### Usage
+
+```vue
+<script setup>
+import { usePlayerStats } from '~/composables/usePlayerStats'
+
+const {
+  getWinPercentage,
+  getTotalGames,
+  sortPlayersByStandings,
+  getPlayerRank
+} = usePlayerStats()
+
+const winRate = getWinPercentage(player)
+const sorted = sortPlayersByStandings(players)
+</script>
+
+<template>
+  <div>Win Rate: {{ Math.round(getWinPercentage(player)) }}%</div>
+  <div>Games: {{ getTotalGames(player) }}</div>
+</template>
+```
+
+### API
+
+#### `getTotalGames(player)`
+Calculate total games played
+- **Parameters:** `player` (Object) - Player with wins, losses, draws
+- **Returns:** number - Total games played
+- **Example:** `getTotalGames({ wins: 5, losses: 2, draws: 1 })` → 8
+
+#### `getWinPercentage(player)`
+Calculate win percentage
+- **Parameters:** `player` (Object)
+- **Returns:** number - Win percentage (0-100)
+- **Example:** `getWinPercentage({ wins: 5, losses: 3, draws: 0 })` → 62.5
+
+#### `getLossPercentage(player)`
+Calculate loss percentage
+- **Parameters:** `player` (Object)
+- **Returns:** number - Loss percentage (0-100)
+
+#### `getDrawPercentage(player)`
+Calculate draw percentage
+- **Parameters:** `player` (Object)
+- **Returns:** number - Draw percentage (0-100)
+
+#### `sortPlayersByStandings(players)`
+Sort players by standings (wins, then points)
+- **Parameters:** `players` (Array<Object>)
+- **Returns:** Array<Object> - Sorted players array
+- **Example:** Returns players sorted by wins (desc), then totalPoints (desc)
+
+#### `getPlayerRank(player, allPlayers)`
+Get player's rank in the league
+- **Parameters:** 
+  - `player` (Object) - Player to find rank for
+  - `allPlayers` (Array<Object>) - All players
+- **Returns:** number - Player's rank (1-based)
+- **Example:** `getPlayerRank(player, allPlayers)` → 3
+
+#### `getPointsPerGame(player)`
+Calculate average points per game
+- **Parameters:** `player` (Object) - Player with totalPoints
+- **Returns:** number - Average points (rounded)
+- **Example:** `getPointsPerGame({ totalPoints: 150, wins: 5, losses: 3 })` → 19
+
+#### `hasWinningRecord(player)`
+Check if player has winning record
+- **Parameters:** `player` (Object)
+- **Returns:** boolean - True if more wins than losses
+- **Example:** `hasWinningRecord({ wins: 5, losses: 2 })` → true
+
+#### `getPerformanceLevel(player)`
+Get player performance level based on win percentage
+- **Parameters:** `player` (Object)
+- **Returns:** string - 'excellent' | 'good' | 'average' | 'struggling'
+- **Thresholds:**
+  - excellent: ≥75% wins
+  - good: ≥60% wins
+  - average: ≥40% wins
+  - struggling: <40% wins
+
+---
+
+## usePaintingStats
+
+**Purpose:** Calculate painting statistics and styling for armies and units
+
+**Used in:** PlayersView.vue, ArmyListsView.vue
+
+### Usage
 
 ```vue
 <script setup>
@@ -30,223 +266,160 @@ const {
   getPaintPercentageColor
 } = usePaintingStats()
 
-// In your component logic
-const army = { units: [...] }
 const stats = getArmyPaintingStats(army)
-console.log(stats) // { totalModels: 45, painted: 30, percentage: 67 }
 </script>
 
 <template>
-  <div>
-    <div 
-      class="progress-bar" 
-      :class="getPaintProgressClass(stats.percentage)"
-      :style="{ width: stats.percentage + '%' }"
-    />
-    <span :class="getPaintPercentageColor(stats.percentage)">
-      {{ stats.percentage }}%
-    </span>
-  </div>
+  <div 
+    class="progress-bar" 
+    :class="getPaintProgressClass(stats.percentage)"
+    :style="{ width: stats.percentage + '%' }"
+  />
+  <span :class="getPaintPercentageColor(stats.percentage)">
+    {{ stats.percentage }}%
+  </span>
 </template>
 ```
 
-#### API Reference
+### API
 
-##### `getUnitPaintPercentage(unit)`
+[See full painting stats documentation in the original README section]
 
-Calculate painting percentage for a single unit.
+### Color Scheme
 
-**Parameters:**
-- `unit` (Object): Unit object with `totalModels` and `paintedModels` properties
-
-**Returns:** `number` - Percentage (0-100) of painted models
-
-**Example:**
-```js
-const unit = { totalModels: 10, paintedModels: 7 }
-const percentage = getUnitPaintPercentage(unit) // 70
-```
+- 🟣 **Purple (100%)**: Fully painted
+- 🟢 **Green (71-99%)**: Well painted
+- 🟡 **Yellow (31-70%)**: Work in progress
+- 🔴 **Red (0-30%)**: Needs work
 
 ---
 
-##### `getArmyPaintingStats(army)`
+## Best Practices
 
-Calculate painting statistics for an entire army.
+### 1. Use toRef for Props
+When passing props to composables, always use `toRef`:
 
-**Parameters:**
-- `army` (Object): Army object with `units` array
+```vue
+<script setup>
+import { toRef } from 'vue'
+import { usePlayerLookup } from '~/composables/usePlayerLookup'
 
-**Returns:** `Object` with properties:
-- `totalModels` (number): Total number of models in the army
-- `painted` (number): Number of painted models
-- `percentage` (number): Painting completion percentage (0-100)
-
-**Example:**
-```js
-const army = {
-  units: [
-    { totalModels: 10, paintedModels: 10 },
-    { totalModels: 5, paintedModels: 3 }
-  ]
-}
-const stats = getArmyPaintingStats(army)
-// { totalModels: 15, painted: 13, percentage: 87 }
+const props = defineProps({ players: Array })
+const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
+</script>
 ```
 
----
+### 2. Destructure Only What You Need
+Only import the functions you'll use:
 
-##### `getPlayerPaintingStats(playerId, currentRound, armies)`
+```vue
+// ✅ Good
+const { formatDate, formatPoints } = useFormatting()
 
-Calculate painting statistics for a player's army in a specific round.
-
-**Parameters:**
-- `playerId` (number|string): ID of the player
-- `currentRound` (number): Round number to check
-- `armies` (Array): Array of all army objects
-
-**Returns:** `Object` - Same format as `getArmyPaintingStats`
-
-**Example:**
-```js
-const stats = getPlayerPaintingStats(1, 2, armies)
-// { totalModels: 30, painted: 22, percentage: 73 }
+// ❌ Avoid
+const formatting = useFormatting()
 ```
 
----
-
-##### `getPaintProgressClass(percentage)`
-
-Get Tailwind CSS gradient class for progress bars based on completion percentage.
-
-**Parameters:**
-- `percentage` (number): Completion percentage (0-100)
-
-**Returns:** `string` - Tailwind CSS class name
-
-**Color Scheme:**
-- 🟣 **100%**: Purple gradient (fully painted)
-- 🟢 **71-99%**: Green gradient (well painted)
-- 🟡 **31-70%**: Yellow gradient (work in progress)
-- 🔴 **0-30%**: Red gradient (needs work)
-
-**Example:**
-```js
-getPaintProgressClass(100) // 'bg-gradient-to-r from-purple-500 to-purple-600'
-getPaintProgressClass(85)  // 'bg-gradient-to-r from-green-500 to-green-600'
-getPaintProgressClass(50)  // 'bg-gradient-to-r from-yellow-500 to-yellow-600'
-getPaintProgressClass(20)  // 'bg-gradient-to-r from-red-500 to-red-600'
-```
-
----
-
-##### `getPaintPercentageColor(percentage)`
-
-Get Tailwind CSS text color class based on completion percentage.
-
-**Parameters:**
-- `percentage` (number): Completion percentage (0-100)
-
-**Returns:** `string` - Tailwind CSS class name
-
-**Color Scheme:**
-- 🟣 **100%**: Purple text (fully painted)
-- 🟢 **71-99%**: Green text (well painted)
-- 🟡 **31-70%**: Yellow text (work in progress)
-- 🔴 **0-30%**: Red text (needs work)
-
-**Example:**
-```js
-getPaintPercentageColor(100) // 'text-purple-400'
-getPaintPercentageColor(85)  // 'text-green-400'
-getPaintPercentageColor(50)  // 'text-yellow-400'
-getPaintPercentageColor(20)  // 'text-red-400'
-```
-
----
-
-#### Components Using This Composable
-
-- **PlayersView.vue** - Displays player painting progress for current round
-- **ArmyListsView.vue** - Shows unit and army painting statistics
-
-#### Data Structure Requirements
-
-For this composable to work correctly, your data should follow this structure:
-
-```js
-// Unit structure
-{
-  id: 1,
-  name: "Tactical Squad",
-  totalModels: 10,
-  paintedModels: 7
-}
-
-// Army structure
-{
-  id: 1,
-  playerId: 1,
-  round: 1,
-  units: [
-    { totalModels: 10, paintedModels: 10 },
-    { totalModels: 5, paintedModels: 3 }
-  ]
-}
-```
-
-#### Best Practices
-
-1. **Always validate data**: The composable handles null/undefined values gracefully
-2. **Use in computed properties**: For reactive updates when data changes
-3. **Cache results**: If calling multiple times with same data, store the result
-4. **Consistent styling**: Always use the color functions together for cohesive UI
-
-#### Example: Complete Component
+### 3. Cache Expensive Calculations
+Use computed properties for reactive values:
 
 ```vue
 <script setup>
 import { computed } from 'vue'
-import { usePaintingStats } from '~/composables/usePaintingStats'
-
-const props = defineProps({
-  army: Object
-})
-
-const {
-  getArmyPaintingStats,
-  getPaintProgressClass,
-  getPaintPercentageColor
-} = usePaintingStats()
 
 const stats = computed(() => getArmyPaintingStats(props.army))
 </script>
+```
 
+### 4. Handle Edge Cases
+Composables handle null/undefined gracefully, but you should still validate:
+
+```vue
 <template>
-  <div v-if="stats.totalModels > 0" class="painting-progress">
-    <div class="flex justify-between mb-2">
-      <span class="text-sm text-gray-400">Painting Progress</span>
-      <span 
-        class="text-sm font-bold"
-        :class="getPaintPercentageColor(stats.percentage)"
-      >
-        {{ stats.percentage }}%
-      </span>
-    </div>
-    
-    <div class="h-3 bg-gray-600 rounded-full overflow-hidden">
-      <div
-        class="h-full transition-all duration-500"
-        :class="getPaintProgressClass(stats.percentage)"
-        :style="{ width: stats.percentage + '%' }"
-      />
-    </div>
-    
-    <div class="flex justify-between text-xs text-gray-400 mt-1">
-      <span>{{ stats.painted }} / {{ stats.totalModels }} models</span>
-      <span v-if="stats.percentage === 100" class="text-purple-400">
-        ✨ Fully Painted!
-      </span>
-    </div>
+  <div v-if="player">
+    {{ getPlayerName(player.id) }}
   </div>
 </template>
 ```
+
+---
+
+## Testing Composables
+
+Each composable can be tested independently:
+
+```js
+import { describe, it, expect } from 'vitest'
+import { usePlayerStats } from '~/composables/usePlayerStats'
+
+describe('usePlayerStats', () => {
+  it('calculates win percentage correctly', () => {
+    const { getWinPercentage } = usePlayerStats()
+    const player = { wins: 5, losses: 3, draws: 2 }
+    expect(getWinPercentage(player)).toBe(50)
+  })
+})
+```
+
+---
+
+## Migration from Old Code
+
+If you find duplicate functions in components, consider extracting them:
+
+### Before
+```vue
+<!-- In multiple components -->
+<script setup>
+const getPlayerName = (playerId) => {
+  const player = props.players.find(p => p.id === playerId)
+  return player ? player.name : 'Unknown Player'
+}
+</script>
+```
+
+### After
+```vue
+<!-- Use composable instead -->
+<script setup>
+import { usePlayerLookup } from '~/composables/usePlayerLookup'
+const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
+</script>
+```
+
+---
+
+## Future Composables
+
+See `/guide/COMPOSABLE_SUGGESTIONS.md` for a list of additional composables that could be created:
+- useRoundLookup
+- useArmyManagement
+- useConfirmation
+- useArrayFiltering
+- useMatchResults
+- useDataExport
+
+---
+
+## Contributing
+
+When creating new composables:
+
+1. ✅ Use descriptive names with 'use' prefix
+2. ✅ Add comprehensive JSDoc comments
+3. ✅ Handle null/undefined values
+4. ✅ Return an object with named exports
+5. ✅ Update this README with documentation
+6. ✅ Add usage examples
+7. ✅ Test in at least one component first
+
+---
+
+## Summary
+
+**Total Composables:** 4
+**Total Functions:** 27
+**Components Using:** 6
+**Lines of Code Saved:** ~120+ lines of duplicate code eliminated
+
+These composables provide a solid foundation for maintaining consistent, reusable logic across the entire application. They make the codebase more maintainable, testable, and easier to understand.

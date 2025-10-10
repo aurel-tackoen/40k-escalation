@@ -16,7 +16,7 @@ A comprehensive composable that provides all painting statistics calculations an
 - `getPaintProgressClass(percentage)` - Get Tailwind CSS gradient class for progress bars
 - `getPaintPercentageColor(percentage)` - Get Tailwind CSS text color class
 
-### 2. `/app/composables/README.md`
+### 2. `/guide/COMPOSABLES.md`
 Complete documentation with:
 - API reference for all functions
 - Usage examples
