@@ -95,51 +95,6 @@
 
 <template>
   <div class="space-y-8">
-    <!-- Add Player Form -->
-    <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Add New Player</h3>
-      <form @submit.prevent="submitPlayer" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Player Name</label>
-            <input
-              v-model="newPlayer.name"
-              type="text"
-              required
-              class="input-field"
-              placeholder="Enter player name"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Faction</label>
-            <select v-model="newPlayer.faction" required class="input-field">
-              <option value="">Select Faction</option>
-              <option v-for="faction in factions" :key="faction" :value="faction">
-                {{ faction }}
-              </option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-yellow-500 mb-2">Email (Optional)</label>
-          <input
-            v-model="newPlayer.email"
-            type="email"
-            class="input-field"
-            placeholder="player@email.com"
-          />
-        </div>
-        <div class="flex space-x-4">
-          <button type="submit" class="btn-primary">
-            Add Player
-          </button>
-          <button type="button" @click="resetForm" class="btn-secondary">
-            Reset
-          </button>
-        </div>
-      </form>
-    </div>
-
     <!-- Players List -->
     <div class="card">
       <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Registered Players</h3>
@@ -156,7 +111,7 @@
             </div>
             <button
               @click="confirmRemoval(player)"
-              class="text-red-400 hover:text-red-300 transition-colors"
+              class="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
               title="Remove Player"
             >
               ✕
@@ -201,6 +156,51 @@
         <p class="text-lg">No players registered yet.</p>
         <p class="text-sm">Add your first player above to get started!</p>
       </div>
+    </div>
+
+    <!-- Add Player Form -->
+    <div class="card">
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Add New Player</h3>
+      <form @submit.prevent="submitPlayer" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">Player Name</label>
+            <input
+              v-model="newPlayer.name"
+              type="text"
+              required
+              class="input-field"
+              placeholder="Enter player name"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">Faction</label>
+            <select v-model="newPlayer.faction" required class="input-field">
+              <option value="">Select Faction</option>
+              <option v-for="faction in factions" :key="faction" :value="faction">
+                {{ faction }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-yellow-500 mb-2">Email (Optional)</label>
+          <input
+            v-model="newPlayer.email"
+            type="email"
+            class="input-field"
+            placeholder="player@email.com"
+          />
+        </div>
+        <div class="flex space-x-4">
+          <button type="submit" class="btn-primary">
+            Add Player
+          </button>
+          <button type="button" @click="resetForm" class="btn-secondary">
+            Reset
+          </button>
+        </div>
+      </form>
     </div>
 
     <!-- Confirmation Modal -->

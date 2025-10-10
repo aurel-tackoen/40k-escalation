@@ -280,7 +280,7 @@
     <div class="card">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h3 class="text-2xl font-bold text-yellow-500">Army List Manager</h3>
+          <h3 class="text-2xl font-bold font-serif text-yellow-500">Army List Manager</h3>
           <p class="text-gray-300 mt-2">Build and manage army lists for each round of the escalation league.</p>
         </div>
         <div class="flex items-center space-x-4">
@@ -300,9 +300,9 @@
       </div>
 
       <!-- Escalation Guide -->
-      <div class="bg-blue-900 border border-blue-700 rounded-lg p-4 mb-4">
-        <h4 class="text-blue-200 font-semibold mb-2">📋 How to Escalate Your Army</h4>
-        <div class="text-blue-300 text-sm space-y-1">
+      <div class="bg-yellow-900 border border-yellow-700 rounded-lg p-4 mb-4">
+        <h4 class="text-yellow-200 font-semibold mb-2">📋 How to Escalate Your Army</h4>
+        <div class="text-yellow-300 text-sm space-y-1">
           <p><strong>Method 1:</strong> Click the <span class="bg-blue-800 px-2 py-1 rounded text-xs">⬆️ Escalate</span> button on any army card to copy it to the next round</p>
           <p><strong>Method 2:</strong> When building a new army, select a higher round and use the "📋 Copy Army" feature</p>
           <p><strong>Tip:</strong> After copying, add new units to reach the higher point limit for the new round</p>
@@ -451,7 +451,7 @@
                   />
                 </div>
                 <div>
-                  <label class="block text-xs text-gray-400 mb-1">🎨 Painted</label>
+                  <label class="block text-xs text-gray-400 mb-1">Painted</label>
                   <input
                     v-model.number="unit.paintedModels"
                     type="number"
@@ -543,7 +543,7 @@
     <!-- Army Lists Grid -->
     <div class="space-y-6">
       <div class="flex justify-between items-center">
-        <h3 class="text-xl font-bold text-yellow-500">Army Lists</h3>
+        <h3 class="text-2xl font-bold font-serif text-yellow-500">Army Lists</h3>
         <button @click="startNewArmy" class="btn-primary">
           Build New Army
         </button>
@@ -608,14 +608,14 @@
                     class="text-blue-400 hover:text-blue-300 text-sm px-2 py-1 bg-blue-900 rounded"
                     title="Escalate to Next Round"
                   >
-                    ⬆️ Escalate
+                    ⬆ Escalate
                   </button>
                   <button
                     @click="editArmy(army)"
                     class="text-yellow-500 hover:text-yellow-400 text-sm"
                     title="Edit Army"
                   >
-                    ✏️
+                    ✏️ Edit
                   </button>
                   <button
                     @click="confirmDeleteArmy(army)"
@@ -669,7 +669,7 @@
             <!-- Units Summary -->
             <div class="space-y-2">
               <h6 class="text-sm font-semibold text-gray-300">Units:</h6>
-              <div class="space-y-2 max-h-48 overflow-y-auto">
+              <div class="space-y-2 max-h-64 overflow-y-auto">
                 <div
                   v-for="unit in army.units"
                   :key="unit.id"
