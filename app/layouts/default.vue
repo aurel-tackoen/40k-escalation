@@ -42,6 +42,7 @@ const tabs = [
   { path: '/dashboard', name: 'Dashboard' },
   { path: '/players', name: 'Players' },
   { path: '/armies', name: 'Army Lists' },
+  { path: '/painting', name: '🎨 Painting' },
   { path: '/matches', name: 'Matches' },
   { path: '/setup', name: 'League Setup' }
 ]

@@ -64,6 +64,19 @@ export const armies = pgTable('armies', {
     createdAt: timestamp().defaultNow().notNull()
 });
 
+// Painting progress table
+export const paintingProgress = pgTable('painting_progress', {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    playerId: integer().references(() => players.id).notNull(),
+    round: integer().notNull(),
+    unitName: varchar({ length: 255 }).notNull(),
+    totalModels: integer().notNull(),
+    paintedModels: integer().notNull(),
+    points: integer().notNull(),
+    lastUpdated: timestamp().defaultNow().notNull(),
+    createdAt: timestamp().defaultNow().notNull()
+});
+
 // Legacy posts table (can be removed later)
 export const posts = pgTable('posts', {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
