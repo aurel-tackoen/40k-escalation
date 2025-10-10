@@ -6,7 +6,6 @@ export const useLeagueStore = defineStore('league', {
     players: [],
     matches: [],
     armies: [],
-    paintingProgress: [],
     loading: false,
     error: null
   }),
@@ -14,71 +13,35 @@ export const useLeagueStore = defineStore('league', {
   getters: {
     league: (state) => state.currentLeague,
     
-    // Calculate painting statistics for a player at a specific round
-    getPaintingStats: (state) => (playerId, round) => {
-      const army = state.armies.find(a => a.playerId === playerId && a.round === round)
-      if (!army) return null
-
-      const progress = state.paintingProgress.filter(p => 
-        p.playerId === playerId && p.round === round
-      )
-
-      const totalModels = progress.reduce((sum, unit) => sum + unit.totalModels, 0)
-      const paintedModels = progress.reduce((sum, unit) => sum + unit.paintedModels, 0)
-      const paintedPercentage = totalModels > 0 ? (paintedModels / totalModels) * 100 : 0
-
-      // Calculate painted points (proportional to painted models)
-      const paintedPoints = progress.reduce((sum, unit) => {
-        const unitPercentage = unit.totalModels > 0 ? unit.paintedModels / unit.totalModels : 0
-        return sum + (unit.points * unitPercentage)
-      }, 0)
-
-      return {
-        totalModels,
-        paintedModels,
-        paintedPercentage: Math.round(paintedPercentage * 10) / 10,
-        paintedPoints: Math.round(paintedPoints),
-        totalPoints: army.points || 0,
-        isFullyPainted: paintedPercentage === 100,
-        units: progress
-      }
-    },
-
-    // Get painting leaderboard for current round
+    // Calculate painting leaderboard from army data
     paintingLeaderboard: (state) => {
       const leaderboard = []
       const currentRound = state.currentLeague?.currentRound || 1
       
       state.players.forEach(player => {
-        const stats = state.getPaintingStats(player.id, currentRound)
+        const army = state.armies.find(a => a.playerId === player.id && a.round === currentRound)
         
-        if (stats && stats.totalModels > 0) {
-          leaderboard.push({
-            playerId: player.id,
-            playerName: player.name,
-            faction: player.faction,
-            ...stats
-          })
+        if (army && army.units) {
+          const unitsWithModels = army.units.filter(u => u.totalModels > 0)
+          
+          if (unitsWithModels.length > 0) {
+            const totalModels = unitsWithModels.reduce((sum, u) => sum + (u.totalModels || 0), 0)
+            const painted = unitsWithModels.reduce((sum, u) => sum + (u.paintedModels || 0), 0)
+            const percentage = totalModels > 0 ? Math.round((painted / totalModels) * 100) : 0
+            
+            leaderboard.push({
+              playerId: player.id,
+              playerName: player.name,
+              faction: player.faction,
+              totalModels,
+              painted,
+              percentage
+            })
+          }
         }
       })
 
-      return leaderboard.sort((a, b) => b.paintedPercentage - a.paintedPercentage)
-    },
-
-    // Get overall painting progress across all rounds
-    getOverallPaintingStats: (state) => (playerId) => {
-      const progress = state.paintingProgress.filter(p => p.playerId === playerId)
-      
-      const totalModels = progress.reduce((sum, unit) => sum + unit.totalModels, 0)
-      const paintedModels = progress.reduce((sum, unit) => sum + unit.paintedModels, 0)
-      const paintedPercentage = totalModels > 0 ? (paintedModels / totalModels) * 100 : 0
-
-      return {
-        totalModels,
-        paintedModels,
-        paintedPercentage: Math.round(paintedPercentage * 10) / 10,
-        isFullyPainted: paintedPercentage === 100
-      }
+      return leaderboard.sort((a, b) => b.percentage - a.percentage)
     }
   },
 
@@ -147,29 +110,12 @@ export const useLeagueStore = defineStore('league', {
       }
     },
 
-    async fetchPaintingProgress() {
-      this.loading = true
-      this.error = null
-      try {
-        const response = await $fetch('/api/painting-progress')
-        if (response.success) {
-          this.paintingProgress = response.data
-        }
-      } catch (error) {
-        this.error = error.message
-        console.error('Error fetching painting progress:', error)
-      } finally {
-        this.loading = false
-      }
-    },
-
     async fetchAll() {
       await Promise.all([
         this.fetchLeague(),
         this.fetchPlayers(),
         this.fetchMatches(),
-        this.fetchArmies(),
-        this.fetchPaintingProgress()
+        this.fetchArmies()
       ])
     },
 
@@ -275,51 +221,6 @@ export const useLeagueStore = defineStore('league', {
         return response
       } catch (error) {
         console.error('Error deleting army:', error)
-        throw error
-      }
-    },
-
-    async updatePaintingProgress(progressData) {
-      // progressData: { playerId, round, unitName, totalModels, paintedModels, points }
-      try {
-        const response = await $fetch('/api/painting-progress', {
-          method: 'POST',
-          body: progressData
-        })
-        if (response.success) {
-          const existingIndex = this.paintingProgress.findIndex(p =>
-            p.playerId === progressData.playerId && 
-            p.round === progressData.round && 
-            p.unitName === progressData.unitName
-          )
-
-          if (existingIndex !== -1) {
-            this.paintingProgress[existingIndex] = response.data
-          } else {
-            this.paintingProgress.push(response.data)
-          }
-        }
-        return response
-      } catch (error) {
-        console.error('Error updating painting progress:', error)
-        throw error
-      }
-    },
-
-    async deletePaintingProgress(playerId, round, unitName) {
-      try {
-        const response = await $fetch(
-          `/api/painting-progress?playerId=${playerId}&round=${round}&unitName=${encodeURIComponent(unitName)}`,
-          { method: 'DELETE' }
-        )
-        if (response.success) {
-          this.paintingProgress = this.paintingProgress.filter(p =>
-            !(p.playerId === playerId && p.round === round && p.unitName === unitName)
-          )
-        }
-        return response
-      } catch (error) {
-        console.error('Error deleting painting progress:', error)
         throw error
       }
     }

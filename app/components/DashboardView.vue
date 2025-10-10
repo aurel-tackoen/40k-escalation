@@ -26,55 +26,52 @@
       </div>
     </div>
 
-    <!-- Current Standings -->
-    <div class="card">
-      <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Current Standings</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="border-b border-gray-600">
-              <th class="text-left py-3 px-4 text-yellow-500">Rank</th>
-              <th class="text-left py-3 px-4 text-yellow-500">Player</th>
-              <th class="text-left py-3 px-4 text-yellow-500">Faction</th>
-              <th class="text-center py-3 px-4 text-yellow-500">Army</th>
-              <th class="text-center py-3 px-4 text-yellow-500">W</th>
-              <th class="text-center py-3 px-4 text-yellow-500">L</th>
-              <th class="text-center py-3 px-4 text-yellow-500">D</th>
-              <th class="text-center py-3 px-4 text-yellow-500">Points</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr 
-              v-for="(player, index) in sortedPlayers" 
-              :key="player.id"
-              class="border-b border-gray-700 hover:bg-gray-700 transition-colors"
-            >
-              <td class="py-3 px-4">
-                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500 text-gray-900 font-bold">
-                  {{ index + 1 }}
-                </span>
-              </td>
-              <td class="py-3 px-4 font-semibold">{{ player.name }}</td>
-              <td class="py-3 px-4 text-gray-300">{{ player.faction }}</td>
-              <td class="py-3 px-4 text-center">
-                <span 
-                  :class="[
-                    'inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold',
-                    hasCurrentRoundArmy(player.id) 
-                      ? 'bg-green-500 text-green-900' 
-                      : 'bg-red-500 text-red-900'
-                  ]"
-                >
-                  {{ hasCurrentRoundArmy(player.id) ? '✓' : '✗' }}
-                </span>
-              </td>
-              <td class="py-3 px-4 text-center text-green-400 font-bold">{{ player.wins }}</td>
-              <td class="py-3 px-4 text-center text-red-400 font-bold">{{ player.losses }}</td>
-              <td class="py-3 px-4 text-center text-yellow-400 font-bold">{{ player.draws }}</td>
-              <td class="py-3 px-4 text-center text-yellow-500 font-bold">{{ player.totalPoints }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Two Column Layout for Standings and Painting -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Current Standings -->
+      <div class="card">
+        <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Current Standings</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-600">
+                <th class="text-left py-3 px-4 text-yellow-500">Rank</th>
+                <th class="text-left py-3 px-4 text-yellow-500">Player</th>
+                <th class="text-center py-3 px-4 text-yellow-500">W-L-D</th>
+                <th class="text-center py-3 px-4 text-yellow-500">Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr 
+                v-for="(player, index) in sortedPlayers" 
+                :key="player.id"
+                class="border-b border-gray-700 hover:bg-gray-700 transition-colors"
+              >
+                <td class="py-3 px-4">
+                  <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500 text-gray-900 font-bold text-sm">
+                    {{ index + 1 }}
+                  </span>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="font-semibold">{{ player.name }}</div>
+                  <div class="text-xs text-gray-400">{{ player.faction }}</div>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <span class="text-green-400 font-bold">{{ player.wins }}</span>-<span class="text-red-400 font-bold">{{ player.losses }}</span>-<span class="text-yellow-400 font-bold">{{ player.draws }}</span>
+                </td>
+                <td class="py-3 px-4 text-center text-yellow-500 font-bold text-lg">{{ player.totalPoints }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Painting Leaderboard -->
+      <div>
+        <PaintingProgress 
+          :leaderboard="paintingLeaderboard"
+          :currentRound="league?.currentRound || 1"
+        />
       </div>
     </div>
 
@@ -119,8 +116,13 @@
 </template>
 
 <script>
+import PaintingProgress from './PaintingProgress.vue'
+
 export default {
   name: 'DashboardView',
+  components: {
+    PaintingProgress
+  },
   props: {
     league: {
       type: Object,
@@ -135,6 +137,10 @@ export default {
       required: true
     },
     armies: {
+      type: Array,
+      default: () => []
+    },
+    paintingLeaderboard: {
       type: Array,
       default: () => []
     }

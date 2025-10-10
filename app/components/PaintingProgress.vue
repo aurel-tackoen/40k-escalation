@@ -1,97 +1,64 @@
 <template>
-  <div class="painting-progress">
-    <h3>Painting Progress</h3>
+  <div class="painting-leaderboard">
+    <h3>🎨 Painting Leaderboard</h3>
+    <p class="subtitle">Round {{ currentRound }}</p>
     
-    <div v-if="stats" class="progress-summary">
-      <div class="stat-card">
-        <div class="stat-label">Models Painted</div>
-        <div class="stat-value">{{ stats.paintedModels }} / {{ stats.totalModels }}</div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-label">Completion</div>
-        <div class="stat-value">
-          <span :class="getPercentageClass(stats.paintedPercentage)">
-            {{ stats.paintedPercentage }}%
-          </span>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-label">Painted Points</div>
-        <div class="stat-value">{{ stats.paintedPoints }} / {{ stats.totalPoints }}</div>
-      </div>
-      
-      <div v-if="stats.isFullyPainted" class="fully-painted-badge">
-        🎨 Fully Painted!
-      </div>
+    <div v-if="leaderboard.length === 0" class="empty-state">
+      No painting progress tracked yet. Add model counts to your army lists to track painting!
     </div>
 
-    <div class="progress-bar">
+    <div v-else class="leaderboard-list">
       <div 
-        class="progress-fill" 
-        :style="{ width: stats?.paintedPercentage + '%' }"
-        :class="getPercentageClass(stats?.paintedPercentage || 0)"
-      ></div>
-    </div>
-
-    <div v-if="stats?.units && stats.units.length > 0" class="units-list">
-      <h4>Unit Details</h4>
-      <div v-for="unit in stats.units" :key="unit.unitName" class="unit-item">
-        <div class="unit-header">
-          <span class="unit-name">{{ unit.unitName }}</span>
-          <span class="unit-points">{{ unit.points }} pts</span>
+        v-for="(entry, index) in leaderboard" 
+        :key="entry.playerId"
+        class="leaderboard-item"
+      >
+        <div class="rank-badge">
+          <span v-if="index === 0">🥇</span>
+          <span v-else-if="index === 1">🥈</span>
+          <span v-else-if="index === 2">🥉</span>
+          <span v-else class="rank-number">#{{ index + 1 }}</span>
         </div>
-        <div class="unit-progress">
-          <span class="models-count">
-            {{ unit.paintedModels }} / {{ unit.totalModels }} models
-          </span>
-          <div class="unit-progress-bar">
+        
+        <div class="player-info">
+          <div class="player-name">{{ entry.playerName }}</div>
+          <div class="player-faction">{{ entry.faction }}</div>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-stats">
+            <span class="models-count">{{ entry.painted }} / {{ entry.totalModels }} models</span>
+            <span class="percentage" :class="getPercentageClass(entry.percentage)">
+              {{ entry.percentage }}%
+            </span>
+          </div>
+          <div class="progress-bar">
             <div 
-              class="unit-progress-fill" 
-              :style="{ width: getUnitPercentage(unit) + '%' }"
-              :class="getPercentageClass(getUnitPercentage(unit))"
+              class="progress-fill" 
+              :style="{ width: entry.percentage + '%' }"
+              :class="getPercentageClass(entry.percentage)"
             ></div>
           </div>
+          <div v-if="entry.percentage === 100" class="fully-painted">
+            ✨ Fully Painted!
+          </div>
         </div>
-        <button 
-          v-if="editable" 
-          @click="$emit('edit-unit', unit)"
-          class="edit-btn"
-        >
-          Edit
-        </button>
       </div>
     </div>
-
-    <button 
-      v-if="editable && !stats?.units?.length" 
-      @click="$emit('add-unit')"
-      class="add-unit-btn"
-    >
-      + Add Unit Progress
-    </button>
   </div>
 </template>
 
 <script setup>
 const props = defineProps({
-  stats: {
-    type: Object,
-    default: null
+  leaderboard: {
+    type: Array,
+    required: true
   },
-  editable: {
-    type: Boolean,
-    default: false
+  currentRound: {
+    type: Number,
+    default: 1
   }
 })
-
-defineEmits(['edit-unit', 'add-unit'])
-
-const getUnitPercentage = (unit) => {
-  if (!unit.totalModels) return 0
-  return Math.round((unit.paintedModels / unit.totalModels) * 100)
-}
 
 const getPercentageClass = (percentage) => {
   if (percentage === 100) return 'complete'
@@ -102,178 +69,141 @@ const getPercentageClass = (percentage) => {
 </script>
 
 <style scoped>
-.painting-progress {
+.painting-leaderboard {
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
   padding: 1.5rem;
-  background: #f9f9f9;
-  border-radius: 8px;
-  margin: 1rem 0;
 }
 
 h3 {
-  margin: 0 0 1rem 0;
-  color: #333;
+  margin: 0 0 0.5rem 0;
+  color: #fbbf24;
+  font-size: 1.25rem;
+  font-weight: bold;
 }
 
-.progress-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.stat-card {
-  background: white;
-  padding: 1rem;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.stat-label {
+.subtitle {
+  color: #9ca3af;
   font-size: 0.875rem;
-  color: #666;
-  margin-bottom: 0.5rem;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-}
-
-.fully-painted-badge {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1rem;
-  border-radius: 6px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.125rem;
-  grid-column: 1 / -1;
-}
-
-.progress-bar {
-  height: 30px;
-  background: #e0e0e0;
-  border-radius: 15px;
-  overflow: hidden;
-  margin-bottom: 1.5rem;
-}
-
-.progress-fill {
-  height: 100%;
-  transition: width 0.3s ease, background-color 0.3s ease;
-  border-radius: 15px;
-}
-
-.progress-fill.low,
-.unit-progress-fill.low {
-  background: linear-gradient(90deg, #ef4444, #dc2626);
-}
-
-.progress-fill.medium,
-.unit-progress-fill.medium {
-  background: linear-gradient(90deg, #f59e0b, #d97706);
-}
-
-.progress-fill.high,
-.unit-progress-fill.high {
-  background: linear-gradient(90deg, #10b981, #059669);
-}
-
-.progress-fill.complete,
-.unit-progress-fill.complete {
-  background: linear-gradient(90deg, #8b5cf6, #7c3aed);
-}
-
-.stat-value .low { color: #ef4444; }
-.stat-value .medium { color: #f59e0b; }
-.stat-value .high { color: #10b981; }
-.stat-value .complete { color: #8b5cf6; }
-
-.units-list {
-  margin-top: 1.5rem;
-}
-
-.units-list h4 {
   margin: 0 0 1rem 0;
-  color: #555;
 }
 
-.unit-item {
-  background: white;
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.leaderboard-item {
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 0.5rem;
   padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: border-color 0.2s;
 }
 
-.unit-header {
+.leaderboard-item:hover {
+  border-color: #fbbf24;
+}
+
+.rank-badge {
+  font-size: 1.5rem;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.rank-number {
+  color: #9ca3af;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.player-info {
+  min-width: 120px;
+}
+
+.player-name {
+  font-weight: 600;
+  color: #f3f4f6;
+  font-size: 0.9rem;
+}
+
+.player-faction {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.progress-section {
+  flex: 1;
+}
+
+.progress-stats {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
-}
-
-.unit-name {
-  font-weight: 600;
-  color: #333;
-}
-
-.unit-points {
-  color: #666;
-  font-size: 0.875rem;
-}
-
-.unit-progress {
-  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
 }
 
 .models-count {
-  font-size: 0.875rem;
-  color: #666;
-  display: block;
-  margin-bottom: 0.25rem;
+  color: #9ca3af;
 }
 
-.unit-progress-bar {
-  height: 20px;
-  background: #e0e0e0;
-  border-radius: 10px;
+.percentage {
+  font-weight: bold;
+  font-size: 0.875rem;
+}
+
+.percentage.low { color: #ef4444; }
+.percentage.medium { color: #f59e0b; }
+.percentage.high { color: #10b981; }
+.percentage.complete { color: #a78bfa; }
+
+.progress-bar {
+  height: 8px;
+  background: #1f2937;
+  border-radius: 4px;
   overflow: hidden;
 }
 
-.unit-progress-fill {
+.progress-fill {
   height: 100%;
-  transition: width 0.3s ease;
-  border-radius: 10px;
-}
-
-.edit-btn,
-.add-unit-btn {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
+  transition: width 0.5s ease;
   border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
+}
+
+.progress-fill.low {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.progress-fill.medium {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.progress-fill.high {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.progress-fill.complete {
+  background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+}
+
+.fully-painted {
   margin-top: 0.5rem;
-  transition: background 0.2s;
-}
-
-.edit-btn:hover,
-.add-unit-btn:hover {
-  background: #2563eb;
-}
-
-.add-unit-btn {
-  width: 100%;
-  padding: 1rem;
-  font-size: 1rem;
-  background: #10b981;
-}
-
-.add-unit-btn:hover {
-  background: #059669;
+  color: #a78bfa;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: right;
 }
 </style>

@@ -129,7 +129,7 @@
               :key="unit.id || index"
               class="bg-gray-700 border border-gray-600 rounded-lg p-4"
             >
-              <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
                 <div class="md:col-span-2">
                   <label class="block text-xs text-gray-400 mb-1">Unit Name</label>
                   <input 
@@ -165,12 +165,24 @@
                   />
                 </div>
                 <div>
-                  <label class="block text-xs text-gray-400 mb-1">Equipment</label>
+                  <label class="block text-xs text-gray-400 mb-1">Total Models</label>
                   <input 
-                    v-model="unit.equipment"
-                    type="text" 
+                    v-model.number="unit.totalModels"
+                    type="number" 
+                    min="1"
                     class="input-field text-sm"
-                    placeholder="Optional"
+                    placeholder="e.g., 10"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">🎨 Painted</label>
+                  <input 
+                    v-model.number="unit.paintedModels"
+                    type="number" 
+                    min="0"
+                    :max="unit.totalModels || 999"
+                    class="input-field text-sm"
+                    placeholder="0"
                   />
                 </div>
                 <div class="flex items-end">
@@ -181,6 +193,20 @@
                   >
                     Remove
                   </button>
+                </div>
+              </div>
+              <!-- Painting Progress Bar -->
+              <div v-if="unit.totalModels > 0" class="mt-3">
+                <div class="flex justify-between text-xs text-gray-400 mb-1">
+                  <span>Painting Progress</span>
+                  <span>{{ unit.paintedModels || 0 }} / {{ unit.totalModels }} ({{ getUnitPaintPercentage(unit) }}%)</span>
+                </div>
+                <div class="h-2 bg-gray-600 rounded-full overflow-hidden">
+                  <div 
+                    class="h-full transition-all duration-300"
+                    :class="getPaintProgressClass(getUnitPaintPercentage(unit))"
+                    :style="{ width: getUnitPaintPercentage(unit) + '%' }"
+                  ></div>
                 </div>
               </div>
             </div>
@@ -340,19 +366,61 @@
               </div>
             </div>
 
+            <!-- Painting Progress Summary -->
+            <div v-if="getArmyPaintingStats(army).totalModels > 0" class="mb-4 p-3 bg-gray-700 rounded-lg border border-gray-600">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-semibold text-gray-300">🎨 Painting Progress</span>
+                <span 
+                  class="text-sm font-bold"
+                  :class="getPaintPercentageColor(getArmyPaintingStats(army).percentage)"
+                >
+                  {{ getArmyPaintingStats(army).percentage }}%
+                </span>
+              </div>
+              <div class="h-3 bg-gray-600 rounded-full overflow-hidden mb-2">
+                <div 
+                  class="h-full transition-all duration-500"
+                  :class="getPaintProgressClass(getArmyPaintingStats(army).percentage)"
+                  :style="{ width: getArmyPaintingStats(army).percentage + '%' }"
+                ></div>
+              </div>
+              <div class="flex justify-between text-xs text-gray-400">
+                <span>{{ getArmyPaintingStats(army).painted }} / {{ getArmyPaintingStats(army).totalModels }} models</span>
+                <span v-if="getArmyPaintingStats(army).percentage === 100" class="text-purple-400 font-semibold">✨ Fully Painted!</span>
+              </div>
+            </div>
+
             <!-- Units Summary -->
             <div class="space-y-2">
               <h6 class="text-sm font-semibold text-gray-300">Units:</h6>
-              <div class="space-y-1 max-h-32 overflow-y-auto">
+              <div class="space-y-2 max-h-48 overflow-y-auto">
                 <div 
                   v-for="unit in army.units" 
                   :key="unit.id"
-                  class="flex justify-between items-center text-sm"
+                  class="text-sm bg-gray-700 p-2 rounded"
                 >
-                  <span class="text-gray-200">{{ unit.name }}</span>
-                  <div class="flex items-center space-x-2">
-                    <span class="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">{{ unit.type }}</span>
-                    <span class="text-yellow-500 font-semibold">{{ unit.points }}pts</span>
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="text-gray-200 font-medium">{{ unit.name }}</span>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xs text-gray-400 bg-gray-600 px-2 py-1 rounded">{{ unit.type }}</span>
+                      <span class="text-yellow-500 font-semibold">{{ unit.points }}pts</span>
+                    </div>
+                  </div>
+                  <!-- Unit Painting Progress -->
+                  <div v-if="unit.totalModels > 0" class="mt-2">
+                    <div class="flex justify-between text-xs text-gray-400 mb-1">
+                      <span>🎨 {{ unit.paintedModels || 0 }} / {{ unit.totalModels }} painted</span>
+                      <span :class="getPaintPercentageColor(getUnitPaintPercentage(unit))">
+                        {{ getUnitPaintPercentage(unit) }}%
+                      </span>
+                    </div>
+                    <div class="h-1.5 bg-gray-600 rounded-full overflow-hidden">
+                      <div 
+                        class="h-full transition-all"
+                        :class="getPaintProgressClass(getUnitPaintPercentage(unit))"
+                        :style="{ width: getUnitPaintPercentage(unit) + '%' }"
+                      ></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -502,7 +570,9 @@ export default {
         name: '',
         points: 0,
         type: '',
-        equipment: ''
+        equipment: '',
+        totalModels: 0,
+        paintedModels: 0
       }
       this.currentArmy.units.push(newUnit)
     },
@@ -599,6 +669,35 @@ export default {
         month: 'short',
         day: 'numeric'
       })
+    },
+    getUnitPaintPercentage(unit) {
+      if (!unit.totalModels || unit.totalModels === 0) return 0
+      const painted = unit.paintedModels || 0
+      return Math.round((painted / unit.totalModels) * 100)
+    },
+    getArmyPaintingStats(army) {
+      const unitsWithModels = army.units.filter(u => u.totalModels > 0)
+      if (unitsWithModels.length === 0) {
+        return { totalModels: 0, painted: 0, percentage: 0 }
+      }
+      
+      const totalModels = unitsWithModels.reduce((sum, u) => sum + (u.totalModels || 0), 0)
+      const painted = unitsWithModels.reduce((sum, u) => sum + (u.paintedModels || 0), 0)
+      const percentage = totalModels > 0 ? Math.round((painted / totalModels) * 100) : 0
+      
+      return { totalModels, painted, percentage }
+    },
+    getPaintProgressClass(percentage) {
+      if (percentage === 100) return 'bg-gradient-to-r from-purple-500 to-purple-600'
+      if (percentage >= 71) return 'bg-gradient-to-r from-green-500 to-green-600'
+      if (percentage >= 31) return 'bg-gradient-to-r from-yellow-500 to-yellow-600'
+      return 'bg-gradient-to-r from-red-500 to-red-600'
+    },
+    getPaintPercentageColor(percentage) {
+      if (percentage === 100) return 'text-purple-400'
+      if (percentage >= 71) return 'text-green-400'
+      if (percentage >= 31) return 'text-yellow-400'
+      return 'text-red-400'
     }
   },
   watch: {

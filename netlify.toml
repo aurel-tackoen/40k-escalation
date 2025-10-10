@@ -11,4 +11,8 @@
   # Specify Node.js version explicitly
   NODE_VERSION = "20.19.0"
 
+# Disable AI Gateway if not needed
+[ai]
+  enabled = false
+
 # No custom redirects - let Nuxt/Nitro handle all routing

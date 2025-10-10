@@ -14,7 +14,8 @@
       :league="league" 
       :players="players" 
       :matches="matches" 
-      :armies="armies" 
+      :armies="armies"
+      :paintingLeaderboard="leagueStore.paintingLeaderboard"
     />
   </div>
 </template>
