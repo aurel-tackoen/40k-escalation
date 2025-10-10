@@ -8,7 +8,7 @@ export default defineConfig([
   {
     ignores: [
       ".nuxt/**",
-      ".output/**", 
+      ".output/**",
       "dist/**",
       "node_modules/**",
       "migrations/**",
