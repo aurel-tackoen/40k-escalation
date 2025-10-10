@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-const route = useRoute()
+const _route = useRoute()
 
 const tabs = [
   { path: '/dashboard', name: 'Dashboard' },

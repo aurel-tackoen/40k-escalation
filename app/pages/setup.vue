@@ -1,3 +1,12 @@
+<script setup>
+const leagueStore = useLeagueStore()
+const { currentLeague: league, loading } = storeToRefs(leagueStore)
+
+onMounted(async () => {
+  await leagueStore.fetchLeague()
+})
+</script>
+
 <template>
   <div class="space-y-8">
     <div v-if="loading" class="text-center py-8">
@@ -10,12 +19,3 @@
     />
   </div>
 </template>
-
-<script setup>
-const leagueStore = useLeagueStore()
-const { currentLeague: league, loading } = storeToRefs(leagueStore)
-
-onMounted(async () => {
-  await leagueStore.fetchLeague()
-})
-</script>

@@ -315,7 +315,7 @@ export default {
           } else {
             alert('Invalid file format. Please select a valid league export file.')
           }
-        } catch (error) {
+        } catch (_error) {
           alert('Error reading file. Please ensure it\'s a valid JSON file.')
         }
       }

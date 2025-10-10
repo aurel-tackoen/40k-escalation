@@ -1,11 +1,3 @@
-<template>
-  <div>
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-  </div>
-</template>
-
 <script setup>
 import '~/assets/css/main.css'
 // Set page title and meta
@@ -19,3 +11,11 @@ useHead({
   ]
 })
 </script>
+
+<template>
+  <div>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </div>
+</template>

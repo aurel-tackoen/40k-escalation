@@ -4,5 +4,32 @@
     "tsconfig.json": "tsconfig.*.json, env.d.ts",
     "vite.config.*": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*",
     "package.json": "package-lock.json, pnpm*, .yarnrc*, yarn*, .eslint*, eslint*, .oxlint*, oxlint*, .prettier*, prettier*, .editorconfig"
-  }
+  },
+  "eslint.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports.biome": "explicit",
+    "source.fixAll.biome": "explicit",
+  },
+  "peacock.remoteColor": "#b8860b",
+  "editor.formatOnSave": true,
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#daa520",
+    "activityBar.background": "#daa520",
+    "activityBar.foreground": "#2d2d2d",
+    "activityBar.inactiveForeground": "#2d2d2d99",
+    "activityBarBadge.background": "#b8860b",
+    "activityBarBadge.foreground": "#ffffff",
+    "commandCenter.border": "#2d2d2d99",
+    "sash.hoverBorder": "#daa520",
+    "statusBar.background": "#b8860b",
+    "statusBar.foreground": "#ffffff",
+    "statusBarItem.hoverBackground": "#daa520",
+    "statusBarItem.remoteBackground": "#b8860b",
+    "statusBarItem.remoteForeground": "#ffffff",
+    "titleBar.activeBackground": "#b8860b",
+    "titleBar.activeForeground": "#ffffff",
+    "titleBar.inactiveBackground": "#b8860b99",
+    "titleBar.inactiveForeground": "#ffffff99"
+  },
 }

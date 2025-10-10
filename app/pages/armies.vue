@@ -1,3 +1,16 @@
+<script setup>
+const leagueStore = useLeagueStore()
+const { currentLeague: league, players, armies, loading } = storeToRefs(leagueStore)
+
+onMounted(async () => {
+  await Promise.all([
+    leagueStore.fetchLeague(),
+    leagueStore.fetchPlayers(),
+    leagueStore.fetchArmies()
+  ])
+})
+</script>
+
 <template>
   <div class="space-y-8">
     <div v-if="loading" class="text-center py-8">
@@ -14,16 +27,3 @@
     />
   </div>
 </template>
-
-<script setup>
-const leagueStore = useLeagueStore()
-const { currentLeague: league, players, armies, loading } = storeToRefs(leagueStore)
-
-onMounted(async () => {
-  await Promise.all([
-    leagueStore.fetchLeague(),
-    leagueStore.fetchPlayers(),
-    leagueStore.fetchArmies()
-  ])
-})
-</script>

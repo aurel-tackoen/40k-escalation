@@ -1,3 +1,13 @@
+<script setup>
+const leagueStore = useLeagueStore()
+const { currentLeague: league, players, matches, armies, loading, error } = storeToRefs(leagueStore)
+
+// Fetch all data when component mounts
+onMounted(async () => {
+  await leagueStore.fetchAll()
+})
+</script>
+
 <template>
   <div class="space-y-8">
     <div v-if="loading" class="text-center py-8">
@@ -19,13 +29,3 @@
     />
   </div>
 </template>
-
-<script setup>
-const leagueStore = useLeagueStore()
-const { currentLeague: league, players, matches, armies, loading, error } = storeToRefs(leagueStore)
-
-// Fetch all data when component mounts
-onMounted(async () => {
-  await leagueStore.fetchAll()
-})
-</script>
