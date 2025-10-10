@@ -2,6 +2,14 @@
 
 This is a Vue.js application for managing Warhammer 40k escalation leagues with Tailwind CSS styling.
 
+For all .vue files, keep the order of sections as:
+1. `<script setup>`
+2. `<template>`
+3. `<style>`
+4. `<style scoped>`
+
+For all .vue files, use composition API with `<script setup>` syntax.
+
 ## Progress Checklist
 
 - [x] Verify that the copilot-instructions.md file in the .github directory is created.
