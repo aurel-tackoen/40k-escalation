@@ -12,7 +12,7 @@
   } = usePaintingStats()
 
   // Props
-  const props = defineProps({
+  defineProps({
     players: {
       type: Array,
       required: true
