@@ -1,12 +1,21 @@
 <script setup>
   import { ref } from 'vue'
-  import { UserPlus, X, TrendingUp, Mail, Shield, Trophy } from 'lucide-vue-next'
+  import { UserPlus, X, TrendingUp, Mail, Shield, Trophy, Paintbrush } from 'lucide-vue-next'
+  import { factions } from '~/data/factions'
 
   // Props
-  defineProps({
+  const props = defineProps({
     players: {
       type: Array,
       required: true
+    },
+    armies: {
+      type: Array,
+      default: () => []
+    },
+    currentRound: {
+      type: Number,
+      default: 1
     }
   })
 
@@ -21,44 +30,6 @@
   })
 
   const playerToRemove = ref(null)
-
-  const factions = ref([
-    'Space Marines',
-    'Chaos Space Marines',
-    'Imperial Guard',
-    'Orks',
-    'Eldar',
-    'Dark Eldar',
-    'Tau Empire',
-    'Necrons',
-    'Tyranids',
-    'Blood Angels',
-    'Dark Angels',
-    'Space Wolves',
-    'Ultramarines',
-    'Imperial Fists',
-    'Iron Hands',
-    'Raven Guard',
-    'Salamanders',
-    'White Scars',
-    'Grey Knights',
-    'Deathwatch',
-    'Adeptus Custodes',
-    'Sisters of Battle',
-    'Thousand Sons',
-    'Death Guard',
-    'World Eaters',
-    'Emperor\'s Children',
-    'Iron Warriors',
-    'Alpha Legion',
-    'Night Lords',
-    'Word Bearers',
-    'Black Legion',
-    'Craftworld Eldar',
-    'Harlequins',
-    'Ynnari',
-    'Leagues of Votann'
-  ])
 
   // Methods
   const submitPlayer = () => {
@@ -91,6 +62,40 @@
     const totalGames = player.wins + player.losses + player.draws
     if (totalGames === 0) return 0
     return (player.wins / totalGames) * 100
+  }
+
+  const getPlayerPaintingStats = (playerId) => {
+    const army = props.armies.find(a => a.playerId === playerId && a.round === props.currentRound)
+
+    if (!army || !army.units) {
+      return { totalModels: 0, painted: 0, percentage: 0 }
+    }
+
+    const unitsWithModels = army.units.filter(u => u.totalModels > 0)
+
+    if (unitsWithModels.length === 0) {
+      return { totalModels: 0, painted: 0, percentage: 0 }
+    }
+
+    const totalModels = unitsWithModels.reduce((sum, u) => sum + (u.totalModels || 0), 0)
+    const painted = unitsWithModels.reduce((sum, u) => sum + (u.paintedModels || 0), 0)
+    const percentage = totalModels > 0 ? Math.round((painted / totalModels) * 100) : 0
+
+    return { totalModels, painted, percentage }
+  }
+
+  const getPaintProgressClass = (percentage) => {
+    if (percentage === 100) return 'bg-gradient-to-r from-purple-500 to-purple-600'
+    if (percentage >= 71) return 'bg-gradient-to-r from-green-500 to-green-600'
+    if (percentage >= 31) return 'bg-gradient-to-r from-yellow-500 to-yellow-600'
+    return 'bg-gradient-to-r from-red-500 to-red-600'
+  }
+
+  const getPaintPercentageColor = (percentage) => {
+    if (percentage === 100) return 'text-purple-400'
+    if (percentage >= 71) return 'text-green-400'
+    if (percentage >= 31) return 'text-yellow-400'
+    return 'text-red-400'
   }
 </script>
 
@@ -149,7 +154,7 @@
 
           <!-- Player Performance Chart -->
           <div class="mt-4 pt-3 border-t border-gray-600">
-            <div class="flex items-center space-x-2 text-xs">
+            <div class="flex items-center space-x-2 text-xs mb-3">
               <TrendingUp :size="14" class="text-gray-400" />
               <div class="flex-1 bg-gray-600 rounded-full h-2">
                 <div
@@ -158,6 +163,25 @@
                 ></div>
               </div>
               <span class="text-gray-400 min-w-max">{{ Math.round(getWinPercentage(player)) }}% wins</span>
+            </div>
+
+            <!-- Painting Progress -->
+            <div v-if="getPlayerPaintingStats(player.id).totalModels > 0" class="flex items-center space-x-2 text-xs">
+              <Paintbrush :size="14" class="text-gray-400" />
+              <div class="flex-1 bg-gray-600 rounded-full h-2">
+                <div
+                  class="rounded-full h-2 transition-all duration-300"
+                  :class="getPaintProgressClass(getPlayerPaintingStats(player.id).percentage)"
+                  :style="{ width: getPlayerPaintingStats(player.id).percentage + '%' }"
+                ></div>
+              </div>
+              <span class="min-w-max" :class="getPaintPercentageColor(getPlayerPaintingStats(player.id).percentage)">
+                {{ getPlayerPaintingStats(player.id).painted }}/{{ getPlayerPaintingStats(player.id).totalModels }}
+              </span>
+            </div>
+            <div v-else class="flex items-center space-x-2 text-xs text-gray-500 italic">
+              <Paintbrush :size="14" />
+              <span>No army data for current round</span>
             </div>
           </div>
         </div>

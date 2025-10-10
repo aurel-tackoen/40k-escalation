@@ -1,9 +1,11 @@
 <script setup>
   const leagueStore = useLeagueStore()
-  const { players, loading } = storeToRefs(leagueStore)
+  const { players, armies, league, loading } = storeToRefs(leagueStore)
 
   onMounted(async () => {
     await leagueStore.fetchPlayers()
+    await leagueStore.fetchArmies()
+    await leagueStore.fetchLeague()
   })
 </script>
 
@@ -15,6 +17,8 @@
     <PlayersView
       v-else
       :players="players"
+      :armies="armies"
+      :currentRound="league?.currentRound || 1"
       @add-player="leagueStore.addPlayer"
       @remove-player="leagueStore.removePlayer"
     />

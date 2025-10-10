@@ -1,6 +1,7 @@
 <script setup>
   import { ref, computed } from 'vue'
   import { Plus, Filter, Calendar, Target, Users, Trophy, X } from 'lucide-vue-next'
+  import { missions } from '~/data/missions'
 
   // Props
   const props = defineProps({
@@ -32,19 +33,6 @@
 
   const filterRound = ref('')
   const filterPlayer = ref('')
-
-  const missions = ref([
-    'Purge the Enemy',
-    'Secure and Control',
-    'The Scouring',
-    'Big Guns Never Tire',
-    'Crusade',
-    'Emperor\'s Will',
-    'Relic',
-    'Vanguard Strike',
-    'Dawn of War',
-    'Hammer and Anvil'
-  ])
 
   // Computed properties
   const filteredMatches = computed(() => {
