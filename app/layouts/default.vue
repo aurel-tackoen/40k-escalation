@@ -1,3 +1,13 @@
+<script setup>
+  const tabs = [
+    { path: '/dashboard', name: 'Dashboard' },
+    { path: '/players', name: 'Players' },
+    { path: '/armies', name: 'Army Lists' },
+    { path: '/matches', name: 'Matches' },
+    { path: '/setup', name: 'League Setup' }
+  ]
+</script>
+
 <template>
   <div id="app" class="min-h-screen bg-gray-900 text-gray-100">
     <!-- Header -->
@@ -10,8 +20,8 @@
             </NuxtLink>
           </div>
           <nav class="flex flex-wrap space-x-2 md:space-x-6">
-            <NuxtLink 
-              v-for="tab in tabs" 
+            <NuxtLink
+              v-for="tab in tabs"
               :key="tab.path"
               :to="tab.path"
               class="px-4 py-2 rounded-lg font-semibold transition-colors"
@@ -34,15 +44,3 @@
     </main>
   </div>
 </template>
-
-<script setup>
-const _route = useRoute()
-
-const tabs = [
-  { path: '/dashboard', name: 'Dashboard' },
-  { path: '/players', name: 'Players' },
-  { path: '/armies', name: 'Army Lists' },
-  { path: '/matches', name: 'Matches' },
-  { path: '/setup', name: 'League Setup' }
-]
-</script>
