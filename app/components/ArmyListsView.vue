@@ -1,5 +1,6 @@
 <script setup>
   import { ref, computed, watch } from 'vue'
+  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush } from 'lucide-vue-next'
 
   // Props
   const props = defineProps({
@@ -280,22 +281,31 @@
     <div class="card">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h3 class="text-2xl font-bold font-serif text-yellow-500">Army List Manager</h3>
+          <div class="flex items-center gap-2">
+            <Shield :size="28" class="text-yellow-500" />
+            <h3 class="text-2xl font-bold font-serif text-yellow-500">Army List Manager</h3>
+          </div>
           <p class="text-gray-300 mt-2">Build and manage army lists for each round of the escalation league.</p>
         </div>
         <div class="flex items-center space-x-4">
-          <select v-model="selectedRound" class="input-field w-auto">
-            <option value="">All Rounds</option>
-            <option v-for="round in rounds" :key="round.number" :value="round.number">
-              Round {{ round.number }} ({{ round.pointLimit }}pts)
-            </option>
-          </select>
-          <select v-model="selectedPlayer" class="input-field w-auto">
-            <option value="">All Players</option>
-            <option v-for="player in players" :key="player.id" :value="player.id">
-              {{ player.name }}
-            </option>
-          </select>
+          <div class="flex items-center gap-2">
+            <Filter :size="18" class="text-yellow-500" />
+            <select v-model="selectedRound" class="input-field w-auto">
+              <option value="">All Rounds</option>
+              <option v-for="round in rounds" :key="round.number" :value="round.number">
+                Round {{ round.number }} ({{ round.pointLimit }}pts)
+              </option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <Users :size="18" class="text-yellow-500" />
+            <select v-model="selectedPlayer" class="input-field w-auto">
+              <option value="">All Players</option>
+              <option v-for="player in players" :key="player.id" :value="player.id">
+                {{ player.name }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -313,11 +323,13 @@
     <!-- Army Builder Form -->
     <div class="card" v-if="showBuilder">
       <div class="flex justify-between items-center mb-6">
-        <h4 class="text-xl font-bold text-yellow-500">
+        <h4 class="text-xl font-bold text-yellow-500 flex items-center gap-2">
+          <Edit v-if="editingArmy" :size="20" />
+          <Plus v-else :size="20" />
           {{ editingArmy ? 'Edit' : 'Build' }} Army List
         </h4>
         <button @click="cancelBuilder" class="text-gray-400 hover:text-gray-200">
-          <span class="text-xl">✕</span>
+          <X :size="24" />
         </button>
       </div>
 
@@ -393,7 +405,8 @@
         <div class="space-y-4">
           <div class="flex justify-between items-center">
             <h5 class="text-lg font-semibold text-yellow-500">Units</h5>
-            <button type="button" @click="addUnit" class="btn-primary">
+            <button type="button" @click="addUnit" class="btn-primary flex items-center gap-2">
+              <Plus :size="18" />
               Add Unit
             </button>
           </div>
@@ -465,8 +478,9 @@
                   <button
                     type="button"
                     @click="removeUnit(index)"
-                    class="btn-secondary text-sm px-3 py-2"
+                    class="btn-secondary text-sm px-3 py-2 flex items-center gap-1"
                   >
+                    <Trash2 :size="16" />
                     Remove
                   </button>
                 </div>
@@ -474,7 +488,10 @@
               <!-- Painting Progress Bar -->
               <div v-if="unit.totalModels > 0" class="mt-3">
                 <div class="flex justify-between text-xs text-gray-400 mb-1">
-                  <span>Painting Progress</span>
+                  <span class="flex items-center gap-1">
+                    <Paintbrush :size="12" />
+                    Painting Progress
+                  </span>
                   <span>{{ unit.paintedModels || 0 }} / {{ unit.totalModels }} ({{ getUnitPaintPercentage(unit) }}%)</span>
                 </div>
                 <div class="h-2 bg-gray-600 rounded-full overflow-hidden">
@@ -497,8 +514,8 @@
         <div v-if="!editingArmy && currentArmy.round > 1" class="bg-gradient-to-r from-blue-800 to-blue-700 p-4 rounded-lg border border-blue-600">
           <div class="flex justify-between items-center">
             <div>
-              <h6 class="font-semibold text-blue-200 flex items-center">
-                <span class="mr-2">📋</span>
+              <h6 class="font-semibold text-blue-200 flex items-center gap-2">
+                <Copy :size="18" />
                 Copy from Previous Round
               </h6>
               <p class="text-sm text-blue-300 mt-1">
@@ -544,7 +561,8 @@
     <div class="space-y-6">
       <div class="flex justify-between items-center">
         <h3 class="text-2xl font-bold font-serif text-yellow-500">Army Lists</h3>
-        <button @click="startNewArmy" class="btn-primary">
+        <button @click="startNewArmy" class="btn-primary flex items-center gap-2">
+          <Plus :size="20" />
           Build New Army
         </button>
       </div>
@@ -605,24 +623,25 @@
                   <button
                     v-if="canEscalateArmy(army)"
                     @click="escalateArmy(army)"
-                    class="text-blue-400 hover:text-blue-300 text-sm px-2 py-1 bg-blue-900 rounded"
+                    class="text-blue-400 hover:text-blue-300 text-sm px-2 py-1 bg-blue-900 rounded flex items-center gap-1"
                     title="Escalate to Next Round"
                   >
-                    ⬆ Escalate
+                    <TrendingUp :size="16" />
+                    Escalate
                   </button>
                   <button
                     @click="editArmy(army)"
-                    class="text-yellow-500 hover:text-yellow-400 text-sm"
+                    class="text-yellow-500 hover:text-yellow-400 text-sm px-2 py-1"
                     title="Edit Army"
                   >
-                    ✏️ Edit
+                    <Edit :size="18" />
                   </button>
                   <button
                     @click="confirmDeleteArmy(army)"
-                    class="text-red-400 hover:text-red-300 text-sm"
+                    class="text-red-400 hover:text-red-300 text-sm px-2 py-1"
                     title="Delete Army"
                   >
-                    🗑️
+                    <Trash2 :size="18" />
                   </button>
                 </div>
               </div>

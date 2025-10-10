@@ -1,5 +1,6 @@
 <script setup>
   import { ref } from 'vue'
+  import { UserPlus, X, TrendingUp, Mail, Shield, Trophy } from 'lucide-vue-next'
 
   // Props
   defineProps({
@@ -97,7 +98,10 @@
   <div class="space-y-8">
     <!-- Players List -->
     <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Registered Players</h3>
+      <div class="flex items-center gap-2 mb-6">
+        <Trophy :size="24" class="text-yellow-500" />
+        <h3 class="text-2xl font-serif font-bold text-yellow-500">Registered Players</h3>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
           v-for="player in players"
@@ -107,14 +111,17 @@
           <div class="flex justify-between items-start mb-3">
             <div>
               <h4 class="text-lg font-semibold text-gray-100">{{ player.name }}</h4>
-              <p class="text-sm text-yellow-500">{{ player.faction }}</p>
+              <div class="flex items-center gap-1 text-sm text-yellow-500">
+                <Shield :size="14" />
+                <p>{{ player.faction }}</p>
+              </div>
             </div>
             <button
               @click="confirmRemoval(player)"
               class="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
               title="Remove Player"
             >
-              ✕
+              <X :size="20" />
             </button>
           </div>
 
@@ -132,7 +139,10 @@
               <span class="text-yellow-500 font-bold">{{ player.totalPoints }}</span>
             </div>
             <div v-if="player.email" class="flex justify-between text-sm">
-              <span class="text-gray-400">Email:</span>
+              <span class="text-gray-400 flex items-center gap-1">
+                <Mail :size="14" />
+                Email:
+              </span>
               <span class="text-gray-300 text-xs">{{ player.email }}</span>
             </div>
           </div>
@@ -140,6 +150,7 @@
           <!-- Player Performance Chart -->
           <div class="mt-4 pt-3 border-t border-gray-600">
             <div class="flex items-center space-x-2 text-xs">
+              <TrendingUp :size="14" class="text-gray-400" />
               <div class="flex-1 bg-gray-600 rounded-full h-2">
                 <div
                   class="bg-yellow-500 rounded-full h-2 transition-all duration-300"
@@ -160,7 +171,10 @@
 
     <!-- Add Player Form -->
     <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Add New Player</h3>
+      <div class="flex items-center gap-2 mb-6">
+        <UserPlus :size="24" class="text-yellow-500" />
+        <h3 class="text-2xl font-serif font-bold text-yellow-500">Add New Player</h3>
+      </div>
       <form @submit.prevent="submitPlayer" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -193,7 +207,8 @@
           />
         </div>
         <div class="flex space-x-4">
-          <button type="submit" class="btn-primary">
+          <button type="submit" class="btn-primary flex items-center gap-2">
+            <UserPlus :size="18" />
             Add Player
           </button>
           <button type="button" @click="resetForm" class="btn-secondary">

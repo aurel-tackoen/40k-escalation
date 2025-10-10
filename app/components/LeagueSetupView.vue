@@ -1,5 +1,6 @@
 <script setup>
   import { ref, watch } from 'vue'
+  import { Save, Plus, Trash2, Download, Upload, Settings as SettingsIcon } from 'lucide-vue-next'
 
   // Props
   const props = defineProps({
@@ -120,7 +121,10 @@
   <div class="space-y-8">
     <!-- League Settings -->
     <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">League Configuration</h3>
+      <div class="flex items-center gap-2 mb-6">
+        <SettingsIcon :size="28" class="text-yellow-500" />
+        <h3 class="text-2xl font-serif font-bold text-yellow-500">League Configuration</h3>
+      </div>
       <form @submit.prevent="saveLeague" class="space-y-6">
         <!-- Basic Information -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -175,7 +179,8 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-primary">
+        <button type="submit" class="btn-primary flex items-center gap-2">
+          <Save :size="18" />
           Save League Settings
         </button>
       </form>
@@ -199,7 +204,7 @@
               class="text-red-400 hover:text-red-300 transition-colors"
               title="Remove Round"
             >
-              Remove
+              <Trash2 :size="20" />
             </button>
           </div>
 
@@ -249,7 +254,8 @@
         </div>
       </div>
 
-      <button @click="addRound" class="btn-secondary mt-4">
+      <button @click="addRound" class="btn-secondary mt-4 flex items-center gap-2">
+        <Plus :size="18" />
         Add New Round
       </button>
     </div>
@@ -307,7 +313,8 @@
         <div class="bg-gray-700 p-4 rounded-lg">
           <h4 class="text-lg font-semibold text-yellow-500 mb-3">Export League Data</h4>
           <p class="text-gray-300 mb-4">Download all league data as JSON for backup or sharing.</p>
-          <button @click="exportData" class="btn-primary">
+          <button @click="exportData" class="btn-primary flex items-center gap-2">
+            <Download :size="18" />
             Export Data
           </button>
         </div>
@@ -322,7 +329,8 @@
             @change="importData"
             class="hidden"
           />
-          <button @click="fileInput.click()" class="btn-secondary">
+          <button @click="fileInput.click()" class="btn-secondary flex items-center gap-2">
+            <Upload :size="18" />
             Import Data
           </button>
         </div>

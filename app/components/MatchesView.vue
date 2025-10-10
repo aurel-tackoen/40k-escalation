@@ -1,5 +1,6 @@
 <script setup>
   import { ref, computed } from 'vue'
+  import { Plus, Filter, Calendar, Target, Users, Trophy, X } from 'lucide-vue-next'
 
   // Props
   const props = defineProps({
@@ -133,7 +134,10 @@
   <div class="space-y-8">
     <!-- Add Match Form -->
     <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Record New Match</h3>
+      <div class="flex items-center gap-2 mb-6">
+        <Plus :size="24" class="text-yellow-500" />
+        <h3 class="text-2xl font-serif font-bold text-yellow-500">Record New Match</h3>
+      </div>
       <form @submit.prevent="submitMatch" class="space-y-6">
         <!-- Players Selection -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -280,10 +284,12 @@
         </div>
 
         <div class="flex space-x-4">
-          <button type="submit" class="btn-primary">
+          <button type="submit" class="btn-primary flex items-center gap-2">
+            <Plus :size="18" />
             Record Match
           </button>
-          <button type="button" @click="resetForm" class="btn-secondary">
+          <button type="button" @click="resetForm" class="btn-secondary flex items-center gap-2">
+            <X :size="18" />
             Reset Form
           </button>
         </div>
@@ -292,22 +298,31 @@
 
     <!-- Match History -->
     <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Match History</h3>
+      <div class="flex items-center gap-2 mb-6">
+        <Trophy :size="24" class="text-yellow-500" />
+        <h3 class="text-2xl font-serif font-bold text-yellow-500">Match History</h3>
+      </div>
 
       <!-- Filter Controls -->
-      <div class="mb-6 flex space-x-4">
-        <select v-model="filterRound" class="input-field w-auto">
-          <option value="">All Rounds</option>
-          <option value="1">Round 1</option>
-          <option value="2">Round 2</option>
-          <option value="3">Round 3</option>
-        </select>
-        <select v-model="filterPlayer" class="input-field w-auto">
-          <option value="">All Players</option>
-          <option v-for="player in players" :key="player.id" :value="player.id">
-            {{ player.name }}
-          </option>
-        </select>
+      <div class="mb-6 flex flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+          <Filter :size="18" class="text-yellow-500" />
+          <select v-model="filterRound" class="input-field w-auto">
+            <option value="">All Rounds</option>
+            <option value="1">Round 1</option>
+            <option value="2">Round 2</option>
+            <option value="3">Round 3</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <Users :size="18" class="text-yellow-500" />
+          <select v-model="filterPlayer" class="input-field w-auto">
+            <option value="">All Players</option>
+            <option v-for="player in players" :key="player.id" :value="player.id">
+              {{ player.name }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div class="space-y-4">
@@ -318,10 +333,14 @@
         >
           <div class="flex justify-between items-center mb-3">
             <div class="flex items-center space-x-4">
-              <span class="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-sm font-semibold">
+              <span class="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                <Target :size="14" />
                 Round {{ match.round }}
               </span>
-              <span class="text-sm text-gray-400">{{ formatDate(match.datePlayed) }}</span>
+              <span class="text-sm text-gray-400 flex items-center gap-1">
+                <Calendar :size="14" />
+                {{ formatDate(match.datePlayed) }}
+              </span>
               <span class="text-sm bg-gray-600 text-gray-300 px-2 py-1 rounded">{{ match.mission }}</span>
             </div>
           </div>

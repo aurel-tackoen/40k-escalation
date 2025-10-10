@@ -1,10 +1,12 @@
 <script setup>
+  import { LayoutDashboard, Users, Shield, Swords, Settings } from 'lucide-vue-next'
+
   const tabs = [
-    { path: '/dashboard', name: 'Dashboard' },
-    { path: '/players', name: 'Players' },
-    { path: '/armies', name: 'Army Lists' },
-    { path: '/matches', name: 'Matches' },
-    { path: '/setup', name: 'League Setup' }
+    { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
+    { path: '/players', name: 'Players', icon: Users },
+    { path: '/armies', name: 'Army Lists', icon: Shield },
+    { path: '/matches', name: 'Matches', icon: Swords },
+    { path: '/setup', name: 'League Setup', icon: Settings }
   ]
 </script>
 
@@ -54,8 +56,11 @@
               <!-- Animated background gradient (only show on non-active) -->
               <span v-if="$route.path !== tab.path" class="absolute inset-0 bg-gradient-to-r from-yellow-600/0 via-yellow-600/20 to-yellow-600/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out pointer-events-none"></span>
 
-              <!-- Button text -->
-              <span class="relative z-10">{{ tab.name }}</span>
+              <!-- Button text with icon -->
+              <span class="relative z-10 flex items-center gap-2">
+                <component :is="tab.icon" :size="18" :stroke-width="2.5" />
+                <span>{{ tab.name }}</span>
+              </span>
 
               <!-- Bottom border accent (only show on non-active) -->
               <span v-if="$route.path !== tab.path" class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600 -translate-x-1/2 group-hover:w-full transition-all duration-300 pointer-events-none"></span>

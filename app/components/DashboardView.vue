@@ -1,5 +1,6 @@
 <script setup>
   import { computed } from 'vue'
+  import { Trophy, Users, Shield, Swords, Calendar, Target } from 'lucide-vue-next'
   import PaintingProgress from './PaintingProgress.vue'
 
   // Props
@@ -78,21 +79,33 @@
       <p class="text-gray-300 mb-4">{{ league?.description || '' }}</p>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-gray-700 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-yellow-500">Current Round</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <Calendar :size="20" class="text-yellow-500" />
+            <h3 class="text-lg font-semibold text-yellow-500">Current Round</h3>
+          </div>
           <p class="text-2xl font-bold">{{ currentRound.name }}</p>
           <p class="text-sm text-gray-400">{{ currentRound.pointLimit }} points</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-yellow-500">Players</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <Users :size="20" class="text-yellow-500" />
+            <h3 class="text-lg font-semibold text-yellow-500">Players</h3>
+          </div>
           <p class="text-2xl font-bold">{{ players.length }}</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-yellow-500">Army Lists</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <Shield :size="20" class="text-yellow-500" />
+            <h3 class="text-lg font-semibold text-yellow-500">Army Lists</h3>
+          </div>
           <p class="text-2xl font-bold">{{ currentRoundArmies }}</p>
           <p class="text-sm text-gray-400">for current round</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-yellow-500">Matches Played</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <Swords :size="20" class="text-yellow-500" />
+            <h3 class="text-lg font-semibold text-yellow-500">Matches Played</h3>
+          </div>
           <p class="text-2xl font-bold">{{ matches.length }}</p>
         </div>
       </div>
@@ -102,7 +115,10 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Current Standings -->
       <div class="card">
-        <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-2">Current Standings</h3>
+        <div class="flex items-center gap-2 mb-4">
+          <Trophy :size="24" class="text-yellow-500" />
+          <h3 class="text-2xl font-serif font-bold text-yellow-500">Current Standings</h3>
+        </div>
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
@@ -149,7 +165,10 @@
 
     <!-- Recent Matches -->
     <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Recent Matches</h3>
+      <div class="flex items-center gap-2 mb-6">
+        <Target :size="24" class="text-yellow-500" />
+        <h3 class="text-2xl font-serif font-bold text-yellow-500">Recent Matches</h3>
+      </div>
       <div class="space-y-4">
         <div
           v-for="match in recentMatches"
