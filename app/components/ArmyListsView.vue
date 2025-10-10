@@ -1,6 +1,15 @@
 <script setup>
   import { ref, computed, watch } from 'vue'
   import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush } from 'lucide-vue-next'
+  import { usePaintingStats } from '~/composables/usePaintingStats'
+
+  // Composables
+  const {
+    getUnitPaintPercentage,
+    getArmyPaintingStats,
+    getPaintProgressClass,
+    getPaintPercentageColor
+  } = usePaintingStats()
 
   // Props
   const props = defineProps({
@@ -234,39 +243,6 @@
       month: 'short',
       day: 'numeric'
     })
-  }
-
-  const getUnitPaintPercentage = (unit) => {
-    if (!unit.totalModels || unit.totalModels === 0) return 0
-    const painted = unit.paintedModels || 0
-    return Math.round((painted / unit.totalModels) * 100)
-  }
-
-  const getArmyPaintingStats = (army) => {
-    const unitsWithModels = army.units.filter(u => u.totalModels > 0)
-    if (unitsWithModels.length === 0) {
-      return { totalModels: 0, painted: 0, percentage: 0 }
-    }
-
-    const totalModels = unitsWithModels.reduce((sum, u) => sum + (u.totalModels || 0), 0)
-    const painted = unitsWithModels.reduce((sum, u) => sum + (u.paintedModels || 0), 0)
-    const percentage = totalModels > 0 ? Math.round((painted / totalModels) * 100) : 0
-
-    return { totalModels, painted, percentage }
-  }
-
-  const getPaintProgressClass = (percentage) => {
-    if (percentage === 100) return 'bg-gradient-to-r from-purple-500 to-purple-600'
-    if (percentage >= 71) return 'bg-gradient-to-r from-green-500 to-green-600'
-    if (percentage >= 31) return 'bg-gradient-to-r from-yellow-500 to-yellow-600'
-    return 'bg-gradient-to-r from-red-500 to-red-600'
-  }
-
-  const getPaintPercentageColor = (percentage) => {
-    if (percentage === 100) return 'text-purple-400'
-    if (percentage >= 71) return 'text-green-400'
-    if (percentage >= 31) return 'text-yellow-400'
-    return 'text-red-400'
   }
 
   // Watchers
