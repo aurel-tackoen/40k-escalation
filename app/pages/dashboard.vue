@@ -1,11 +1,11 @@
 <script setup>
-const leagueStore = useLeagueStore()
-const { currentLeague: league, players, matches, armies, loading, error } = storeToRefs(leagueStore)
+  const leagueStore = useLeagueStore()
+  const { currentLeague: league, players, matches, armies, loading, error } = storeToRefs(leagueStore)
 
-// Fetch all data when component mounts
-onMounted(async () => {
-  await leagueStore.fetchAll()
-})
+  // Fetch all data when component mounts
+  onMounted(async () => {
+    await leagueStore.fetchAll()
+  })
 </script>
 
 <template>
@@ -19,11 +19,11 @@ onMounted(async () => {
     <div v-else-if="!league" class="text-center py-8">
       No league data available. Please set up a league first.
     </div>
-    <DashboardView 
+    <DashboardView
       v-else
-      :league="league" 
-      :players="players" 
-      :matches="matches" 
+      :league="league"
+      :players="players"
+      :matches="matches"
       :armies="armies"
       :paintingLeaderboard="leagueStore.paintingLeaderboard"
     />

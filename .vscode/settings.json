@@ -1,18 +1,9 @@
 {
-  "explorer.fileNesting.enabled": true,
-  "explorer.fileNesting.patterns": {
-    "tsconfig.json": "tsconfig.*.json, env.d.ts",
-    "vite.config.*": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*",
-    "package.json": "package-lock.json, pnpm*, .yarnrc*, yarn*, .eslint*, eslint*, .oxlint*, oxlint*, .prettier*, prettier*, .editorconfig"
-  },
   "eslint.enable": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.organizeImports.biome": "explicit",
-    "source.fixAll.biome": "explicit",
+    "source.fixAll.eslint": "explicit"
   },
-  "peacock.remoteColor": "#b8860b",
-  "editor.formatOnSave": true,
+  "peacock.remoteColor": "#daa520",
   "workbench.colorCustomizations": {
     "activityBar.activeBackground": "#daa520",
     "activityBar.background": "#daa520",
@@ -31,5 +22,5 @@
     "titleBar.activeForeground": "#ffffff",
     "titleBar.inactiveBackground": "#b8860b99",
     "titleBar.inactiveForeground": "#ffffff99"
-  },
+  }
 }

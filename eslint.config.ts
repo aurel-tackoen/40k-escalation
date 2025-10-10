@@ -54,7 +54,18 @@ export default defineConfig([
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/triple-slash-reference": "off",
       "@typescript-eslint/ban-ts-comment": "warn",
-      "vue/multi-word-component-names": "off"
+      "vue/multi-word-component-names": "off",
+      "indent": ["error", 2, { "SwitchCase": 1 }],
+      "vue/script-indent": ["error", 2, { "baseIndent": 1, "switchCase": 1 }],
+      "vue/html-indent": ["error", 2],
+      "no-trailing-spaces": "error",
+      "eol-last": ["error", "always"]
+    }
+  },
+  {
+    files: ["*.vue", "**/*.vue"],
+    rules: {
+      "indent": "off"
     }
   }
 ]);

@@ -12,23 +12,23 @@ export const useLeagueStore = defineStore('league', {
 
   getters: {
     league: (state) => state.currentLeague,
-    
+
     // Calculate painting leaderboard from army data
     paintingLeaderboard: (state) => {
       const leaderboard = []
       const currentRound = state.currentLeague?.currentRound || 1
-      
+
       state.players.forEach(player => {
         const army = state.armies.find(a => a.playerId === player.id && a.round === currentRound)
-        
+
         if (army && army.units) {
           const unitsWithModels = army.units.filter(u => u.totalModels > 0)
-          
+
           if (unitsWithModels.length > 0) {
             const totalModels = unitsWithModels.reduce((sum, u) => sum + (u.totalModels || 0), 0)
             const painted = unitsWithModels.reduce((sum, u) => sum + (u.paintedModels || 0), 0)
             const percentage = totalModels > 0 ? Math.round((painted / totalModels) * 100) : 0
-            
+
             leaderboard.push({
               playerId: player.id,
               playerName: player.name,
@@ -191,10 +191,10 @@ export const useLeagueStore = defineStore('league', {
           body: army
         })
         if (response.success) {
-          const existingIndex = this.armies.findIndex(a => 
+          const existingIndex = this.armies.findIndex(a =>
             a.playerId === army.playerId && a.round === army.round
           )
-          
+
           if (existingIndex !== -1) {
             this.armies[existingIndex] = response.data
           } else {
@@ -214,7 +214,7 @@ export const useLeagueStore = defineStore('league', {
           method: 'DELETE'
         })
         if (response.success) {
-          this.armies = this.armies.filter(a => 
+          this.armies = this.armies.filter(a =>
             !(a.playerId === playerId && a.round === round)
           )
         }

@@ -1,10 +1,10 @@
 <script setup>
-const leagueStore = useLeagueStore()
-const { players, loading } = storeToRefs(leagueStore)
+  const leagueStore = useLeagueStore()
+  const { players, loading } = storeToRefs(leagueStore)
 
-onMounted(async () => {
-  await leagueStore.fetchPlayers()
-})
+  onMounted(async () => {
+    await leagueStore.fetchPlayers()
+  })
 </script>
 
 <template>
@@ -12,11 +12,11 @@ onMounted(async () => {
     <div v-if="loading" class="text-center py-8">
       Loading players...
     </div>
-    <PlayersView 
+    <PlayersView
       v-else
-      :players="players" 
-      @add-player="leagueStore.addPlayer" 
-      @remove-player="leagueStore.removePlayer" 
+      :players="players"
+      @add-player="leagueStore.addPlayer"
+      @remove-player="leagueStore.removePlayer"
     />
   </div>
 </template>
