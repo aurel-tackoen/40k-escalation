@@ -1,3 +1,75 @@
+<script setup>
+  import { computed } from 'vue'
+  import PaintingProgress from './PaintingProgress.vue'
+
+  // Props
+  const props = defineProps({
+    league: {
+      type: Object,
+      required: true
+    },
+    players: {
+      type: Array,
+      required: true
+    },
+    matches: {
+      type: Array,
+      required: true
+    },
+    armies: {
+      type: Array,
+      default: () => []
+    },
+    paintingLeaderboard: {
+      type: Array,
+      default: () => []
+    }
+  })
+
+  // Computed properties
+  const currentRound = computed(() => {
+    if (!props.league || !props.league.rounds || props.league.rounds.length === 0) {
+      return { name: 'N/A', pointLimit: 0 }
+    }
+    return props.league.rounds.find(r => r.number === props.league.currentRound) || props.league.rounds[0]
+  })
+
+  const sortedPlayers = computed(() => {
+    return [...props.players].sort((a, b) => {
+      // Sort by wins first, then by total points
+      if (a.wins !== b.wins) {
+        return b.wins - a.wins
+      }
+      return b.totalPoints - a.totalPoints
+    })
+  })
+
+  const recentMatches = computed(() => {
+    return [...props.matches]
+      .sort((a, b) => new Date(b.datePlayed) - new Date(a.datePlayed))
+      .slice(0, 5)
+  })
+
+  const currentRoundArmies = computed(() => {
+    if (!props.league) return 0
+    return props.armies.filter(army => army.round === props.league.currentRound).length
+  })
+
+  // Methods
+  const getPlayerName = (playerId) => {
+    const player = props.players.find(p => p.id === playerId)
+    return player ? player.name : 'Unknown Player'
+  }
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
+</script>
+
 <template>
   <div class="space-y-8">
     <!-- League Overview -->
@@ -42,8 +114,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr 
-                v-for="(player, index) in sortedPlayers" 
+              <tr
+                v-for="(player, index) in sortedPlayers"
                 :key="player.id"
                 class="border-b border-gray-700 hover:bg-gray-700 transition-colors"
               >
@@ -68,7 +140,7 @@
 
       <!-- Painting Leaderboard -->
       <div>
-        <PaintingProgress 
+        <PaintingProgress
           :leaderboard="paintingLeaderboard"
           :currentRound="league?.currentRound || 1"
         />
@@ -79,8 +151,8 @@
     <div class="card">
       <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Recent Matches</h3>
       <div class="space-y-4">
-        <div 
-          v-for="match in recentMatches" 
+        <div
+          v-for="match in recentMatches"
           :key="match.id"
           class="bg-gray-700 p-4 rounded-lg"
         >
@@ -114,81 +186,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import PaintingProgress from './PaintingProgress.vue'
-
-export default {
-  name: 'DashboardView',
-  components: {
-    PaintingProgress
-  },
-  props: {
-    league: {
-      type: Object,
-      required: true
-    },
-    players: {
-      type: Array,
-      required: true
-    },
-    matches: {
-      type: Array,
-      required: true
-    },
-    armies: {
-      type: Array,
-      default: () => []
-    },
-    paintingLeaderboard: {
-      type: Array,
-      default: () => []
-    }
-  },
-  computed: {
-    currentRound() {
-      if (!this.league || !this.league.rounds || this.league.rounds.length === 0) {
-        return { name: 'N/A', pointLimit: 0 }
-      }
-      return this.league.rounds.find(r => r.number === this.league.currentRound) || this.league.rounds[0]
-    },
-    sortedPlayers() {
-      return [...this.players].sort((a, b) => {
-        // Sort by wins first, then by total points
-        if (a.wins !== b.wins) {
-          return b.wins - a.wins
-        }
-        return b.totalPoints - a.totalPoints
-      })
-    },
-    recentMatches() {
-      return [...this.matches]
-        .sort((a, b) => new Date(b.datePlayed) - new Date(a.datePlayed))
-        .slice(0, 5)
-    },
-    currentRoundArmies() {
-      if (!this.league) return 0
-      return this.armies.filter(army => army.round === this.league.currentRound).length
-    }
-  },
-  methods: {
-    getPlayerName(playerId) {
-      const player = this.players.find(p => p.id === playerId)
-      return player ? player.name : 'Unknown Player'
-    },
-    formatDate(dateString) {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      })
-    },
-    hasCurrentRoundArmy(playerId) {
-      if (!this.league) return false
-      return this.armies.some(army => 
-        army.playerId === playerId && army.round === this.league.currentRound
-      )
-    }
-  }
-}
-</script>

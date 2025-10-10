@@ -1,3 +1,134 @@
+<script setup>
+  import { ref, computed } from 'vue'
+
+  // Props
+  const props = defineProps({
+    matches: {
+      type: Array,
+      required: true
+    },
+    players: {
+      type: Array,
+      required: true
+    }
+  })
+
+  // Emits
+  const emit = defineEmits(['add-match'])
+
+  // Reactive data
+  const newMatch = ref({
+    player1Id: null,
+    player2Id: null,
+    player1Points: null,
+    player2Points: null,
+    round: null,
+    mission: '',
+    datePlayed: new Date().toISOString().split('T')[0],
+    winnerId: null,
+    notes: ''
+  })
+
+  const filterRound = ref('')
+  const filterPlayer = ref('')
+
+  const missions = ref([
+    'Purge the Enemy',
+    'Secure and Control',
+    'The Scouring',
+    'Big Guns Never Tire',
+    'Crusade',
+    'Emperor\'s Will',
+    'Relic',
+    'Vanguard Strike',
+    'Dawn of War',
+    'Hammer and Anvil'
+  ])
+
+  // Computed properties
+  const filteredMatches = computed(() => {
+    let filtered = [...props.matches].sort((a, b) => new Date(b.datePlayed) - new Date(a.datePlayed))
+
+    if (filterRound.value) {
+      filtered = filtered.filter(match => match.round === parseInt(filterRound.value))
+    }
+
+    if (filterPlayer.value) {
+      const playerId = parseInt(filterPlayer.value)
+      filtered = filtered.filter(match =>
+        match.player1Id === playerId || match.player2Id === playerId
+      )
+    }
+
+    return filtered
+  })
+
+  // Methods
+  const submitMatch = () => {
+    if (isValidMatch()) {
+      // Determine winner based on points if not explicitly set
+      if (newMatch.value.winnerId === undefined) {
+        if (newMatch.value.player1Points > newMatch.value.player2Points) {
+          newMatch.value.winnerId = newMatch.value.player1Id
+        } else if (newMatch.value.player2Points > newMatch.value.player1Points) {
+          newMatch.value.winnerId = newMatch.value.player2Id
+        } else {
+          newMatch.value.winnerId = null // Draw
+        }
+      }
+
+      emit('add-match', { ...newMatch.value })
+      resetForm()
+    }
+  }
+
+  const resetForm = () => {
+    newMatch.value = {
+      player1Id: null,
+      player2Id: null,
+      player1Points: null,
+      player2Points: null,
+      round: null,
+      mission: '',
+      datePlayed: new Date().toISOString().split('T')[0],
+      winnerId: null,
+      notes: ''
+    }
+  }
+
+  const setWinner = (playerId) => {
+    newMatch.value.winnerId = playerId
+  }
+
+  const isValidMatch = () => {
+    return newMatch.value.player1Id &&
+      newMatch.value.player2Id &&
+      newMatch.value.player1Points !== null &&
+      newMatch.value.player2Points !== null &&
+      newMatch.value.round &&
+      newMatch.value.mission &&
+      newMatch.value.datePlayed
+  }
+
+  const getPlayerName = (playerId) => {
+    const player = props.players.find(p => p.id === playerId)
+    return player ? player.name : 'Unknown Player'
+  }
+
+  const getPlayerFaction = (playerId) => {
+    const player = props.players.find(p => p.id === playerId)
+    return player ? player.faction : 'Unknown Faction'
+  }
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
+</script>
+
 <template>
   <div class="space-y-8">
     <!-- Add Match Form -->
@@ -10,9 +141,9 @@
             <label class="block text-sm font-semibold text-yellow-500 mb-2">Player 1</label>
             <select v-model="newMatch.player1Id" required class="input-field">
               <option value="">Select Player 1</option>
-              <option 
-                v-for="player in players" 
-                :key="player.id" 
+              <option
+                v-for="player in players"
+                :key="player.id"
                 :value="player.id"
                 :disabled="newMatch.player2Id === player.id"
               >
@@ -21,9 +152,9 @@
             </select>
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">Player 1 Victory Points</label>
-              <input 
+              <input
                 v-model.number="newMatch.player1Points"
-                type="number" 
+                type="number"
                 min="0"
                 max="45"
                 required
@@ -32,14 +163,14 @@
               />
             </div>
           </div>
-          
+
           <div class="space-y-4">
             <label class="block text-sm font-semibold text-yellow-500 mb-2">Player 2</label>
             <select v-model="newMatch.player2Id" required class="input-field">
               <option value="">Select Player 2</option>
-              <option 
-                v-for="player in players" 
-                :key="player.id" 
+              <option
+                v-for="player in players"
+                :key="player.id"
                 :value="player.id"
                 :disabled="newMatch.player1Id === player.id"
               >
@@ -48,9 +179,9 @@
             </select>
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">Player 2 Victory Points</label>
-              <input 
+              <input
                 v-model.number="newMatch.player2Points"
-                type="number" 
+                type="number"
                 min="0"
                 max="45"
                 required
@@ -83,9 +214,9 @@
           </div>
           <div>
             <label class="block text-sm font-semibold text-yellow-500 mb-2">Date Played</label>
-            <input 
+            <input
               v-model="newMatch.datePlayed"
-              type="date" 
+              type="date"
               required
               class="input-field"
             />
@@ -140,7 +271,7 @@
         <!-- Notes -->
         <div>
           <label class="block text-sm font-semibold text-yellow-500 mb-2">Match Notes (Optional)</label>
-          <textarea 
+          <textarea
             v-model="newMatch.notes"
             class="input-field"
             rows="3"
@@ -162,7 +293,7 @@
     <!-- Match History -->
     <div class="card">
       <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Match History</h3>
-      
+
       <!-- Filter Controls -->
       <div class="mb-6 flex space-x-4">
         <select v-model="filterRound" class="input-field w-auto">
@@ -180,8 +311,8 @@
       </div>
 
       <div class="space-y-4">
-        <div 
-          v-for="match in filteredMatches" 
+        <div
+          v-for="match in filteredMatches"
           :key="match.id"
           class="bg-gray-700 border border-gray-600 rounded-lg p-4"
         >
@@ -194,7 +325,7 @@
               <span class="text-sm bg-gray-600 text-gray-300 px-2 py-1 rounded">{{ match.mission }}</span>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
             <!-- Player 1 -->
             <div class="text-center">
@@ -202,7 +333,7 @@
               <div class="text-sm text-gray-400">{{ getPlayerFaction(match.player1Id) }}</div>
               <div class="text-2xl font-bold text-yellow-500 mt-2">{{ match.player1Points }}</div>
             </div>
-            
+
             <!-- VS and Result -->
             <div class="text-center">
               <div class="text-gray-400 text-sm mb-2">VS</div>
@@ -213,7 +344,7 @@
                 🤝 Draw
               </div>
             </div>
-            
+
             <!-- Player 2 -->
             <div class="text-center">
               <div class="font-semibold text-lg">{{ getPlayerName(match.player2Id) }}</div>
@@ -235,126 +366,3 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  name: 'MatchesView',
-  props: {
-    matches: {
-      type: Array,
-      required: true
-    },
-    players: {
-      type: Array,
-      required: true
-    }
-  },
-  emits: ['add-match'],
-  data() {
-    return {
-      newMatch: {
-        player1Id: null,
-        player2Id: null,
-        player1Points: null,
-        player2Points: null,
-        round: null,
-        mission: '',
-        datePlayed: new Date().toISOString().split('T')[0],
-        winnerId: null,
-        notes: ''
-      },
-      filterRound: '',
-      filterPlayer: '',
-      missions: [
-        'Purge the Enemy',
-        'Secure and Control',
-        'The Scouring',
-        'Big Guns Never Tire',
-        'Crusade',
-        'Emperor\'s Will',
-        'Relic',
-        'Vanguard Strike',
-        'Dawn of War',
-        'Hammer and Anvil'
-      ]
-    }
-  },
-  computed: {
-    filteredMatches() {
-      let filtered = [...this.matches].sort((a, b) => new Date(b.datePlayed) - new Date(a.datePlayed))
-      
-      if (this.filterRound) {
-        filtered = filtered.filter(match => match.round === parseInt(this.filterRound))
-      }
-      
-      if (this.filterPlayer) {
-        const playerId = parseInt(this.filterPlayer)
-        filtered = filtered.filter(match => 
-          match.player1Id === playerId || match.player2Id === playerId
-        )
-      }
-      
-      return filtered
-    }
-  },
-  methods: {
-    submitMatch() {
-      if (this.isValidMatch()) {
-        // Determine winner based on points if not explicitly set
-        if (this.newMatch.winnerId === undefined) {
-          if (this.newMatch.player1Points > this.newMatch.player2Points) {
-            this.newMatch.winnerId = this.newMatch.player1Id
-          } else if (this.newMatch.player2Points > this.newMatch.player1Points) {
-            this.newMatch.winnerId = this.newMatch.player2Id
-          } else {
-            this.newMatch.winnerId = null // Draw
-          }
-        }
-        
-        this.$emit('add-match', { ...this.newMatch })
-        this.resetForm()
-      }
-    },
-    resetForm() {
-      this.newMatch = {
-        player1Id: null,
-        player2Id: null,
-        player1Points: null,
-        player2Points: null,
-        round: null,
-        mission: '',
-        datePlayed: new Date().toISOString().split('T')[0],
-        winnerId: null,
-        notes: ''
-      }
-    },
-    setWinner(playerId) {
-      this.newMatch.winnerId = playerId
-    },
-    isValidMatch() {
-      return this.newMatch.player1Id && 
-             this.newMatch.player2Id && 
-             this.newMatch.player1Points !== null && 
-             this.newMatch.player2Points !== null &&
-             this.newMatch.round &&
-             this.newMatch.mission &&
-             this.newMatch.datePlayed
-    },
-    getPlayerName(playerId) {
-      const player = this.players.find(p => p.id === playerId)
-      return player ? player.name : 'Unknown Player'
-    },
-    getPlayerFaction(playerId) {
-      const player = this.players.find(p => p.id === playerId)
-      return player ? player.faction : 'Unknown Faction'
-    },
-    formatDate(dateString) {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      })
-    }
-  }
-}
-</script>

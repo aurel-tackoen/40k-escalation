@@ -1,3 +1,121 @@
+<script setup>
+  import { ref, watch } from 'vue'
+
+  // Props
+  const props = defineProps({
+    league: {
+      type: Object,
+      required: true
+    }
+  })
+
+  // Emits
+  const emit = defineEmits(['update-league'])
+
+  // Reactive data
+  const editableLeague = ref(JSON.parse(JSON.stringify(props.league)))
+  const fileInput = ref(null)
+
+  // Watchers
+  watch(() => props.league, (newLeague) => {
+    editableLeague.value = JSON.parse(JSON.stringify(newLeague))
+  }, { deep: true })
+
+  // Methods
+  const saveLeague = () => {
+    // Sort rounds by number
+    editableLeague.value.rounds.sort((a, b) => a.number - b.number)
+    emit('update-league', editableLeague.value)
+
+    // Show success message (you could use a toast notification library)
+    alert('League settings saved successfully!')
+  }
+
+  const addRound = () => {
+    const newRoundNumber = Math.max(...editableLeague.value.rounds.map(r => r.number)) + 1
+    const lastRound = editableLeague.value.rounds[editableLeague.value.rounds.length - 1]
+
+    // Calculate next point limit (add 500-1000 points)
+    const nextPointLimit = lastRound.pointLimit + (lastRound.pointLimit < 1000 ? 500 : 1000)
+
+    // Set start date to day after last round ends
+    const startDate = new Date(lastRound.endDate)
+    startDate.setDate(startDate.getDate() + 1)
+
+    // Set end date to 4 weeks later
+    const endDate = new Date(startDate)
+    endDate.setDate(endDate.getDate() + 28)
+
+    editableLeague.value.rounds.push({
+      number: newRoundNumber,
+      name: `Round ${newRoundNumber}`,
+      pointLimit: nextPointLimit,
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0]
+    })
+  }
+
+  const removeRound = (index) => {
+    if (editableLeague.value.rounds.length > 1) {
+      editableLeague.value.rounds.splice(index, 1)
+
+      // Renumber remaining rounds
+      editableLeague.value.rounds.forEach((round, i) => {
+        round.number = i + 1
+      })
+
+      // Ensure current round is valid
+      const maxRound = Math.max(...editableLeague.value.rounds.map(r => r.number))
+      if (editableLeague.value.currentRound > maxRound) {
+        editableLeague.value.currentRound = maxRound
+      }
+    }
+  }
+
+  const exportData = () => {
+    // Get all app data (you'd need to pass this from parent or use a store)
+    const exportData = {
+      league: editableLeague.value,
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    }
+
+    const dataStr = JSON.stringify(exportData, null, 2)
+    const dataBlob = new Blob([dataStr], { type: 'application/json' })
+
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(dataBlob)
+    link.download = `wh40k-league-${editableLeague.value.name.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`
+    link.click()
+  }
+
+  const importData = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const importedData = JSON.parse(e.target.result)
+
+        if (importedData.league) {
+          editableLeague.value = importedData.league
+          alert('League data imported successfully!')
+        } else {
+          alert('Invalid file format. Please select a valid league export file.')
+        }
+      } catch (error) {
+        console.log(error)
+        alert('Error reading file. Please ensure it\'s a valid JSON file.')
+      }
+    }
+    reader.readAsText(file)
+
+    // Reset file input
+    event.target.value = ''
+  }
+</script>
+
 <template>
   <div class="space-y-8">
     <!-- League Settings -->
@@ -8,9 +126,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-semibold text-yellow-500 mb-2">League Name</label>
-            <input 
+            <input
               v-model="editableLeague.name"
-              type="text" 
+              type="text"
               required
               class="input-field"
               placeholder="Enter league name"
@@ -28,7 +146,7 @@
 
         <div>
           <label class="block text-sm font-semibold text-yellow-500 mb-2">Description</label>
-          <textarea 
+          <textarea
             v-model="editableLeague.description"
             class="input-field"
             rows="3"
@@ -39,18 +157,18 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-semibold text-yellow-500 mb-2">League Start Date</label>
-            <input 
+            <input
               v-model="editableLeague.startDate"
-              type="date" 
+              type="date"
               required
               class="input-field"
             />
           </div>
           <div>
             <label class="block text-sm font-semibold text-yellow-500 mb-2">League End Date</label>
-            <input 
+            <input
               v-model="editableLeague.endDate"
-              type="date" 
+              type="date"
               required
               class="input-field"
             />
@@ -66,16 +184,16 @@
     <!-- Round Configuration -->
     <div class="card">
       <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Round Configuration</h3>
-      
+
       <div class="space-y-4">
-        <div 
-          v-for="(round, index) in editableLeague.rounds" 
+        <div
+          v-for="(round, index) in editableLeague.rounds"
           :key="round.number"
           class="bg-gray-700 border border-gray-600 rounded-lg p-4"
         >
           <div class="flex items-center justify-between mb-4">
             <h4 class="text-lg font-semibold text-yellow-500">Round {{ round.number }}</h4>
-            <button 
+            <button
               v-if="editableLeague.rounds.length > 1"
               @click="removeRound(index)"
               class="text-red-400 hover:text-red-300 transition-colors"
@@ -84,13 +202,13 @@
               Remove
             </button>
           </div>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">Round Name</label>
-              <input 
+              <input
                 v-model="round.name"
-                type="text" 
+                type="text"
                 required
                 class="input-field"
                 placeholder="e.g., Combat Patrol"
@@ -98,9 +216,9 @@
             </div>
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">Point Limit</label>
-              <input 
+              <input
                 v-model.number="round.pointLimit"
-                type="number" 
+                type="number"
                 min="500"
                 max="3000"
                 step="250"
@@ -111,18 +229,18 @@
             </div>
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">Start Date</label>
-              <input 
+              <input
                 v-model="round.startDate"
-                type="date" 
+                type="date"
                 required
                 class="input-field"
               />
             </div>
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">End Date</label>
-              <input 
+              <input
                 v-model="round.endDate"
-                type="date" 
+                type="date"
                 required
                 class="input-field"
               />
@@ -139,7 +257,7 @@
     <!-- Scoring Rules -->
     <div class="card">
       <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Scoring & Rules</h3>
-      
+
       <div class="space-y-6">
         <div class="bg-gray-700 p-4 rounded-lg">
           <h4 class="text-lg font-semibold text-yellow-500 mb-3">Victory Points System</h4>
@@ -184,7 +302,7 @@
     <!-- Export/Import -->
     <div class="card">
       <h3 class="text-2xl font-gothic font-bold text-yellow-500 mb-6">Data Management</h3>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-gray-700 p-4 rounded-lg">
           <h4 class="text-lg font-semibold text-yellow-500 mb-3">Export League Data</h4>
@@ -193,18 +311,18 @@
             Export Data
           </button>
         </div>
-        
+
         <div class="bg-gray-700 p-4 rounded-lg">
           <h4 class="text-lg font-semibold text-yellow-500 mb-3">Import League Data</h4>
           <p class="text-gray-300 mb-4">Upload a previously exported league data file.</p>
-          <input 
+          <input
             ref="fileInput"
-            type="file" 
+            type="file"
             accept=".json"
             @change="importData"
             class="hidden"
           />
-          <button @click="$refs.fileInput.click()" class="btn-secondary">
+          <button @click="fileInput.click()" class="btn-secondary">
             Import Data
           </button>
         </div>
@@ -212,118 +330,3 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  name: 'LeagueSetupView',
-  props: {
-    league: {
-      type: Object,
-      required: true
-    }
-  },
-  emits: ['update-league'],
-  data() {
-    return {
-      editableLeague: JSON.parse(JSON.stringify(this.league))
-    }
-  },
-  watch: {
-    league: {
-      handler(newLeague) {
-        this.editableLeague = JSON.parse(JSON.stringify(newLeague))
-      },
-      deep: true
-    }
-  },
-  methods: {
-    saveLeague() {
-      // Sort rounds by number
-      this.editableLeague.rounds.sort((a, b) => a.number - b.number)
-      this.$emit('update-league', this.editableLeague)
-      
-      // Show success message (you could use a toast notification library)
-      alert('League settings saved successfully!')
-    },
-    addRound() {
-      const newRoundNumber = Math.max(...this.editableLeague.rounds.map(r => r.number)) + 1
-      const lastRound = this.editableLeague.rounds[this.editableLeague.rounds.length - 1]
-      
-      // Calculate next point limit (add 500-1000 points)
-      const nextPointLimit = lastRound.pointLimit + (lastRound.pointLimit < 1000 ? 500 : 1000)
-      
-      // Set start date to day after last round ends
-      const startDate = new Date(lastRound.endDate)
-      startDate.setDate(startDate.getDate() + 1)
-      
-      // Set end date to 4 weeks later
-      const endDate = new Date(startDate)
-      endDate.setDate(endDate.getDate() + 28)
-      
-      this.editableLeague.rounds.push({
-        number: newRoundNumber,
-        name: `Round ${newRoundNumber}`,
-        pointLimit: nextPointLimit,
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0]
-      })
-    },
-    removeRound(index) {
-      if (this.editableLeague.rounds.length > 1) {
-        this.editableLeague.rounds.splice(index, 1)
-        
-        // Renumber remaining rounds
-        this.editableLeague.rounds.forEach((round, i) => {
-          round.number = i + 1
-        })
-        
-        // Ensure current round is valid
-        const maxRound = Math.max(...this.editableLeague.rounds.map(r => r.number))
-        if (this.editableLeague.currentRound > maxRound) {
-          this.editableLeague.currentRound = maxRound
-        }
-      }
-    },
-    exportData() {
-      // Get all app data (you'd need to pass this from parent or use a store)
-      const exportData = {
-        league: this.editableLeague,
-        exportDate: new Date().toISOString(),
-        version: '1.0'
-      }
-      
-      const dataStr = JSON.stringify(exportData, null, 2)
-      const dataBlob = new Blob([dataStr], { type: 'application/json' })
-      
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(dataBlob)
-      link.download = `wh40k-league-${this.editableLeague.name.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`
-      link.click()
-    },
-    importData(event) {
-      const file = event.target.files[0]
-      if (!file) return
-      
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        try {
-          const importedData = JSON.parse(e.target.result)
-          
-          if (importedData.league) {
-            this.editableLeague = importedData.league
-            alert('League data imported successfully!')
-          } else {
-            alert('Invalid file format. Please select a valid league export file.')
-          }
-        } catch (_error) {
-          alert('Error reading file. Please ensure it\'s a valid JSON file.')
-        }
-      }
-      reader.readAsText(file)
-      
-      // Reset file input
-      event.target.value = ''
-    }
-  }
-}
-</script>
