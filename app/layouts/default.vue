@@ -47,8 +47,8 @@
               :key="tab.path"
               :to="tab.path"
               class="nav-button group relative px-5 py-2.5 font-semibold transition-all duration-300 rounded-md border overflow-hidden"
-              active-class="nav-button-active bg-yellow-600 text-gray-900 border-yellow-600 shadow-lg shadow-yellow-600/50"
-              exact-active-class="nav-button-active bg-yellow-600 text-gray-900 border-yellow-600 shadow-lg shadow-yellow-600/50"
+              active-class="nav-button-active bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/50"
+              exact-active-class="nav-button-active bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/50"
               :class="{
                 'text-gray-300 border-gray-700 hover:text-yellow-400 hover:border-yellow-600 hover:bg-gray-700/50 hover:-translate-y-0.5 hover:shadow-lg': $route.path !== tab.path
               }"

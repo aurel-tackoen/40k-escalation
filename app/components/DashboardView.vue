@@ -136,7 +136,15 @@
                 class="border-b border-gray-700 hover:bg-gray-700 transition-colors"
               >
                 <td class="py-3 px-4">
-                  <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500 text-gray-900 font-bold text-sm">
+                  <span
+                    class="inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm"
+                    :class="[
+                      index === 0 ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600 text-gray-900' :
+                      index === 1 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500 text-gray-900' :
+                      index === 2 ? 'bg-gradient-to-br from-amber-600 via-amber-700 to-amber-800 text-white' :
+                      'bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900'
+                    ]"
+                  >
                     {{ index + 1 }}
                   </span>
                 </td>
@@ -178,7 +186,7 @@
           <div class="flex justify-between items-center">
             <div class="flex items-center space-x-4">
               <span class="text-sm text-gray-400">{{ formatDate(match.datePlayed) }}</span>
-              <span class="text-sm bg-yellow-500 text-gray-900 px-2 py-1 rounded">{{ match.mission }}</span>
+              <span class="text-sm bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold">{{ match.mission }}</span>
             </div>
             <span class="text-sm text-gray-400">Round {{ match.round }}</span>
           </div>

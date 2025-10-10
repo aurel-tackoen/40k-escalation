@@ -40,11 +40,18 @@
         :key="entry.playerId"
         class="bg-gray-700 border border-gray-600 rounded-lg p-4 flex items-center gap-4 transition-colors hover:border-yellow-500"
       >
-        <div class="text-2xl min-w-8 text-center">
-          <span v-if="index === 0">🥇</span>
-          <span v-else-if="index === 1">🥈</span>
-          <span v-else-if="index === 2">🥉</span>
-          <span v-else class="text-gray-400 text-base font-bold">#{{ index + 1 }}</span>
+        <div class="flex items-center justify-center min-w-8">
+          <span
+            class="inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm"
+            :class="[
+              index === 0 ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600 text-gray-900' :
+              index === 1 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500 text-gray-900' :
+              index === 2 ? 'bg-gradient-to-br from-amber-600 via-amber-700 to-amber-800 text-white' :
+              'bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900'
+            ]"
+          >
+            {{ index + 1 }}
+          </span>
         </div>
 
         <div class="min-w-30">
