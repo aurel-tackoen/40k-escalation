@@ -1,6 +1,6 @@
 <script setup>
   import { computed, watch, toRef } from 'vue'
-  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, Download } from 'lucide-vue-next'
+  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush } from 'lucide-vue-next'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
@@ -8,7 +8,6 @@
   import { useConfirmation } from '~/composables/useConfirmation'
   import { useArmyManagement } from '~/composables/useArmyManagement'
   import { useArrayFiltering } from '~/composables/useArrayFiltering'
-  import { useDataExport } from '~/composables/useDataExport'
   import { useArmyForm } from '~/composables/useArmyForm'
   import { useArmyFiltering } from '~/composables/useArmyFiltering'
 
@@ -68,11 +67,6 @@
     sortByField,
     filterByMultipleCriteria
   } = useArrayFiltering(toRef(props, 'armies'))
-
-  const {
-    downloadCSV,
-    formatForExport
-  } = useDataExport()
 
   // Composables - Army Form Management
   const {
@@ -146,21 +140,6 @@
     }
   }
 
-  const exportArmies = () => {
-    const exportData = formatForExport(filteredArmies.value, {
-      'Player': (army) => getPlayerName(army.playerId),
-      'Army Name': 'name',
-      'Round': (army) => `Round ${army.round}`,
-      'Total Points': 'totalPoints',
-      'Point Limit': (army) => getRoundLimit(army.round),
-      'Units': (army) => army.units.length,
-      'Valid': (army) => army.isValid ? 'Yes' : 'No',
-      'Last Modified': (army) => formatDateShort(army.lastModified)
-    })
-
-    downloadCSV(exportData, 'army-lists')
-  }
-
   // Watchers
   watch(() => currentArmy.value.units, () => {
     recalculateArmy()
@@ -180,31 +159,23 @@
       </div>
 
       <!-- Action Bar -->
-      <div class="flex flex-wrap gap-3 items-center justify-between pt-4 border-t border-gray-700">
-        <div class="flex flex-wrap gap-3 items-center">
-          <!-- Player Filter -->
-          <div class="flex items-center gap-2">
-            <Users :size="18" class="text-gray-400" />
-            <select v-model="selectedPlayer" class="input-field w-auto min-w-[180px]">
-              <option value="">All Players</option>
-              <option v-for="player in players" :key="player.id" :value="player.id">
-                {{ player.name }}
-              </option>
-            </select>
-          </div>
+      <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between pt-4 border-t border-gray-700">
+        <!-- Player Filter -->
+        <div class="flex items-center gap-2">
+          <Users :size="18" class="text-gray-400 flex-shrink-0" />
+          <select v-model="selectedPlayer" class="input-field w-full sm:w-auto sm:min-w-xl">
+            <option value="">All Players</option>
+            <option v-for="player in players" :key="player.id" :value="player.id">
+              {{ player.name }}
+            </option>
+          </select>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex gap-2">
-          <button @click="exportArmies" class="btn-secondary flex items-center gap-2 cursor-pointer">
-            <Download :size="18" />
-            Export CSV
-          </button>
-          <button @click="handleStartNewArmy" class="btn-primary flex items-center gap-2 cursor-pointer">
-            <Plus :size="20" />
-            Build New Army
-          </button>
-        </div>
+        <!-- Action Button -->
+        <button @click="handleStartNewArmy" class="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto whitespace-nowrap">
+          <Plus :size="20" />
+          Build New Army
+        </button>
       </div>
     </div>
 
@@ -215,8 +186,18 @@
         <h4 class="text-lg font-semibold text-gray-200">Filter by Round</h4>
       </div>
 
-      <!-- Timeline -->
-      <div class="relative">
+      <!-- Mobile Select (visible on mobile only) -->
+      <div class="block md:hidden">
+        <select v-model="selectedRound" class="input-field w-full">
+          <option value="">All Rounds ({{ armies.length }} {{ armies.length === 1 ? 'army' : 'armies' }})</option>
+          <option v-for="round in rounds" :key="round.number" :value="round.number">
+            Round {{ round.number }} - {{ round.pointLimit }}pts ({{ getArmyCountForRound(round.number) }} {{ getArmyCountForRound(round.number) === 1 ? 'army' : 'armies' }})
+          </option>
+        </select>
+      </div>
+
+      <!-- Timeline (visible on desktop only) -->
+      <div class="hidden md:block relative">
         <!-- Timeline Line -->
         <div class="absolute top-6 left-0 right-0 h-0.5 bg-gray-700" style="z-index: 0;"></div>
 
