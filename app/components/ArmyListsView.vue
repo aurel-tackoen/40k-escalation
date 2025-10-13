@@ -567,10 +567,10 @@
         <div
           v-for="army in filteredArmies"
           :key="army.id"
-          class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden hover:border-yellow-500 transition-all duration-200 hover:shadow-lg hover:shadow-yellow-500/10"
+          class="bg-gray-700 border border-gray-600 rounded-lg overflow-hidden hover:border-yellow-500 transition-all duration-200 hover:shadow-lg hover:shadow-yellow-500/10"
         >
           <!-- Army Header -->
-          <div class="p-4 bg-gray-750 border-b border-gray-700">
+          <div class="p-4 bg-gray-700 border-b border-gray-700">
             <div class="flex justify-between items-start mb-2">
               <div class="flex-1">
                 <h4 class="text-lg font-semibold text-gray-100 mb-1">{{ army.name }}</h4>
@@ -598,7 +598,7 @@
           <!-- Army Stats -->
           <div class="p-4">
             <!-- Points -->
-            <div class="mb-4 p-3 bg-gray-750 rounded-lg border border-gray-700">
+            <div class="mb-4 p-3 bg-gray-800 rounded-lg border border-gray-600">
               <div class="flex justify-between items-center">
                 <div>
                   <div class="text-xs text-gray-400 mb-1">Army Points</div>
@@ -615,7 +615,7 @@
             </div>
 
             <!-- Painting Progress -->
-            <div v-if="getArmyPaintingStats(army).totalModels > 0" class="mb-4 p-3 bg-gray-750 rounded-lg border border-gray-700">
+            <div v-if="getArmyPaintingStats(army).totalModels > 0" class="mb-4 p-3 bg-gray-800 rounded-lg border border-gray-600">
               <div class="flex justify-between items-center mb-2">
                 <span class="text-xs font-semibold text-gray-300 flex items-center gap-1">
                   <Paintbrush :size="14" />
@@ -652,7 +652,7 @@
                 <div
                   v-for="unit in army.units"
                   :key="unit.id"
-                  class="text-sm bg-gray-750 p-2.5 rounded border border-gray-700"
+                  class="text-sm bg-gray-800 p-2.5 rounded border border-gray-700"
                 >
                   <div class="flex justify-between items-start mb-1">
                     <span class="text-gray-200 font-medium">{{ unit.name }}</span>
@@ -682,7 +682,7 @@
             </div>
 
             <!-- Footer with Actions -->
-            <div class="flex items-center justify-between pt-3 border-t border-gray-700">
+            <div class="flex items-center justify-between pt-3 border-t border-gray-800">
               <div class="text-xs text-gray-500">
                 Updated {{ formatDateShort(army.lastModified) }}
               </div>
