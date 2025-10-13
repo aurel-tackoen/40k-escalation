@@ -260,7 +260,7 @@
           </div>
           <div class="flex items-center gap-2">
             <Users :size="18" class="text-yellow-500" />
-            <select v-model="selectedPlayer" class="input-field w-auto">
+            <select v-model="selectedPlayer" class="input-field w-auto pr-2">
               <option value="">All Players</option>
               <option v-for="player in players" :key="player.id" :value="player.id">
                 {{ player.name }}
@@ -545,7 +545,7 @@
         <button
           @click="selectedRound = ''"
           :class="[
-            'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap',
+            'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer',
             selectedRound === ''
               ? 'bg-yellow-500 text-gray-900'
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -558,7 +558,7 @@
           :key="round.number"
           @click="selectedRound = round.number"
           :class="[
-            'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap',
+            'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer',
             selectedRound === round.number
               ? 'bg-yellow-500 text-gray-900'
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
