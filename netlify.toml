@@ -9,6 +9,7 @@
   command = "nuxt dev"
   targetPort = 3000
   framework = "#custom"
+  autoLaunch = false
   
 [functions]
   directory = ".netlify/functions-internal"
