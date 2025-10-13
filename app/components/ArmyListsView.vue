@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed, watch, toRef } from 'vue'
+  import { computed, watch, toRef } from 'vue'
   import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, Download } from 'lucide-vue-next'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
@@ -9,14 +9,8 @@
   import { useArmyManagement } from '~/composables/useArmyManagement'
   import { useArrayFiltering } from '~/composables/useArrayFiltering'
   import { useDataExport } from '~/composables/useDataExport'
-
-  // Composables
-  const {
-    getUnitPaintPercentage,
-    getArmyPaintingStats,
-    getPaintProgressClass,
-    getPaintPercentageColor
-  } = usePaintingStats()
+  import { useArmyForm } from '~/composables/useArmyForm'
+  import { useArmyFiltering } from '~/composables/useArmyFiltering'
 
   // Props
   const props = defineProps({
@@ -38,9 +32,21 @@
     }
   })
 
+  // Emits
+  const emit = defineEmits(['save-army', 'delete-army'])
+
+  // Composables - Core utilities
+  const {
+    getUnitPaintPercentage,
+    getArmyPaintingStats,
+    getPaintProgressClass,
+    getPaintPercentageColor
+  } = usePaintingStats()
+
   const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
   const { formatDateShort } = useFormatting()
   const { getRoundName, getRoundLimit } = useRoundLookup(toRef(props, 'rounds'))
+
   const {
     item: armyToDelete,
     confirm: confirmDeleteArmy,
@@ -48,6 +54,7 @@
   } = useConfirmation((army) => {
     emit('delete-army', army.playerId, army.round)
   })
+
   const {
     calculateArmyTotal,
     isValidArmy: checkValidArmy,
@@ -67,136 +74,44 @@
     formatForExport
   } = useDataExport()
 
-  // Emits
-  const emit = defineEmits(['save-army', 'delete-army'])
+  // Composables - Army Form Management
+  const {
+    showBuilder,
+    editingArmy,
+    currentArmy,
+    currentRoundLimit,
+    remainingPoints,
+    isCurrentArmyValid,
+    startNewArmy,
+    editArmy,
+    cancelBuilder,
+    addUnit,
+    removeUnit,
+    recalculateArmy,
+    copyFromPreviousArmy,
+    setupEscalation
+  } = useArmyForm(
+    toRef(props, 'rounds'),
+    calculateArmyTotal,
+    checkValidArmy
+  )
 
-  // Reactive data
-  const showBuilder = ref(false)
-  const editingArmy = ref(false)
-  const selectedRound = ref('')
-  const selectedPlayer = ref('')
-  const currentArmy = ref({
-    playerId: null,
-    round: null,
-    name: '',
-    totalPoints: 0,
-    units: [],
-    isValid: false
-  })
+  // Composables - Filtering
+  const {
+    selectedRound,
+    selectedPlayer,
+    filteredArmies,
+    getArmyCountForRound
+  } = useArmyFiltering(
+    toRef(props, 'armies'),
+    sortByField,
+    filterByMultipleCriteria
+  )
 
-  // Computed properties using useArrayFiltering
-  const filteredArmies = computed(() => {
-    let filtered = props.armies
-
-    // Apply filters using composable
-    const filters = {}
-    if (selectedRound.value) filters.round = selectedRound.value
-    if (selectedPlayer.value) filters.playerId = selectedPlayer.value
-
-    if (Object.keys(filters).length > 0) {
-      filtered = filterByMultipleCriteria(filtered, filters)
-    }
-
-    // Sort by round (desc) then lastModified (desc)
-    return sortByField(
-      sortByField(filtered, 'lastModified', 'desc'),
-      'round',
-      'desc'
-    )
-  })
-
-  const currentRoundLimit = computed(() => {
-    if (!currentArmy.value.round) return 0
-    const round = props.rounds.find(r => r.number === currentArmy.value.round)
-    return round ? round.pointLimit : 0
-  })
-
-  const remainingPoints = computed(() => {
-    return currentRoundLimit.value - currentArmy.value.totalPoints
-  })
-
-  const isValidArmy = computed(() => {
-    return checkValidArmy(currentArmy.value, currentRoundLimit.value)
-  })
-
+  // Computed - Form helper methods
   const hasPreviousRoundArmy = computed(() => {
     return checkPreviousRoundArmy(currentArmy.value.playerId, currentArmy.value.round)
   })
-
-  // Methods
-  const startNewArmy = () => {
-    currentArmy.value = {
-      playerId: null,
-      round: props.currentRound,
-      name: '',
-      totalPoints: 0,
-      units: [],
-      isValid: false
-    }
-    editingArmy.value = false
-    showBuilder.value = true
-  }
-
-  const editArmy = (army) => {
-    currentArmy.value = JSON.parse(JSON.stringify(army))
-    editingArmy.value = true
-    showBuilder.value = true
-  }
-
-  const cancelBuilder = () => {
-    showBuilder.value = false
-    editingArmy.value = false
-    currentArmy.value = {
-      playerId: null,
-      round: null,
-      name: '',
-      totalPoints: 0,
-      units: [],
-      isValid: false
-    }
-  }
-
-  const addUnit = () => {
-    const newUnit = {
-      id: Date.now(),
-      name: '',
-      points: 0,
-      type: '',
-      equipment: '',
-      totalModels: 0,
-      paintedModels: 0
-    }
-    currentArmy.value.units.push(newUnit)
-  }
-
-  const removeUnit = (index) => {
-    currentArmy.value.units.splice(index, 1)
-    currentArmy.value.totalPoints = calculateArmyTotal(currentArmy.value.units)
-    currentArmy.value.isValid = isValidArmy.value
-  }
-
-  const calculateTotal = () => {
-    currentArmy.value.totalPoints = calculateArmyTotal(currentArmy.value.units)
-    currentArmy.value.isValid = isValidArmy.value
-  }
-
-  const copyFromPreviousRound = () => {
-    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
-
-    if (previousArmy) {
-      currentArmy.value.units = JSON.parse(JSON.stringify(previousArmy.units))
-      currentArmy.value.name = `${previousArmy.name} (Round ${currentArmy.value.round})`
-      calculateTotal()
-    }
-  }
-
-  const escalateArmy = (army) => {
-    const nextRound = army.round + 1
-
-    currentArmy.value = copyArmyToNextRound(army, nextRound)
-    editingArmy.value = false
-    showBuilder.value = true
-  }
 
   const getPreviousArmyUnits = () => {
     const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
@@ -208,8 +123,24 @@
     return previousArmy ? previousArmy.name : ''
   }
 
+  // Methods - Form operations
+  const handleStartNewArmy = () => {
+    startNewArmy(props.currentRound)
+  }
+
+  const handleCopyFromPreviousRound = () => {
+    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
+    copyFromPreviousArmy(previousArmy)
+  }
+
+  const escalateArmy = (army) => {
+    const nextRound = army.round + 1
+    const escalatedArmy = copyArmyToNextRound(army, nextRound)
+    setupEscalation(army, escalatedArmy)
+  }
+
   const saveArmyList = () => {
-    if (isValidArmy.value) {
+    if (isCurrentArmyValid.value) {
       emit('save-army', { ...currentArmy.value })
       cancelBuilder()
     }
@@ -232,7 +163,7 @@
 
   // Watchers
   watch(() => currentArmy.value.units, () => {
-    calculateTotal()
+    recalculateArmy()
   }, { deep: true })
 </script>
 
@@ -269,7 +200,7 @@
             <Download :size="18" />
             Export CSV
           </button>
-          <button @click="startNewArmy" class="btn-primary flex items-center gap-2 cursor-pointer">
+          <button @click="handleStartNewArmy" class="btn-primary flex items-center gap-2 cursor-pointer">
             <Plus :size="20" />
             Build New Army
           </button>
@@ -326,7 +257,6 @@
             @click="selectedRound = round.number"
             :class="[
               'flex flex-col items-center gap-2 transition-all group cursor-pointer',
-              selectedRound === round.number ? 'scale-110' : 'hover:scale-105'
             ]"
           >
             <div
@@ -335,7 +265,7 @@
                 selectedRound === round.number
                   ? 'bg-yellow-500 border-yellow-500 text-gray-900 shadow-lg shadow-yellow-500/50'
                   : round.number <= currentRound
-                    ? 'bg-blue-600 border-blue-600 text-white group-hover:border-blue-500'
+                    ? 'bg-green-600 border-green-600 text-white group-hover:border-green-500'
                     : 'bg-gray-800 border-gray-600 text-gray-400 group-hover:border-gray-500'
               ]"
             >
@@ -349,7 +279,7 @@
                 {{ round.pointLimit }} pts
               </div>
               <div class="text-xs text-gray-500">
-                {{ armies.filter(a => a.round === round.number).length }} {{ armies.filter(a => a.round === round.number).length === 1 ? 'army' : 'armies' }}
+                {{ getArmyCountForRound(round.number) }} {{ getArmyCountForRound(round.number) === 1 ? 'army' : 'armies' }}
               </div>
             </div>
           </button>
@@ -428,7 +358,7 @@
             </div>
             <button
               type="button"
-              @click="copyFromPreviousRound"
+              @click="handleCopyFromPreviousRound"
               :class="[
                 'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap',
                 hasPreviousRoundArmy
@@ -794,7 +724,7 @@
         <p class="text-sm text-gray-500 mb-6">
           {{ selectedRound ? `No armies for Round ${selectedRound}` : 'Start building your first army list!' }}
         </p>
-        <button @click="startNewArmy" class="btn-primary inline-flex items-center gap-2">
+        <button @click="handleStartNewArmy" class="btn-primary inline-flex items-center gap-2">
           <Plus :size="20" />
           Build Your First Army
         </button>

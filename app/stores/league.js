@@ -12,8 +12,6 @@ export const useLeagueStore = defineStore('league', {
 
   getters: {
     league: (state) => state.currentLeague,
-
-    // Calculate painting leaderboard from army data
     paintingLeaderboard: (state) => {
       const leaderboard = []
       const currentRound = state.currentLeague?.currentRound || 1

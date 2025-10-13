@@ -380,7 +380,7 @@
         >
           <div class="flex justify-between items-center mb-3">
             <div class="flex items-center space-x-4">
-              <span class="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+              <span class="bg-green-500 text-gray-900 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
                 Round {{ match.round }}
               </span>
               <span class="text-sm text-gray-400 flex items-center gap-1">

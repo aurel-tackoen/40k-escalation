@@ -128,7 +128,7 @@
       <form @submit.prevent="saveLeague" class="space-y-6">
         <!-- Basic Information -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <div class="md:col-span-2">
             <label class="block text-sm font-semibold text-yellow-500 mb-2">League Name</label>
             <input
               v-model="editableLeague.name"
@@ -138,7 +138,7 @@
               placeholder="Enter league name"
             />
           </div>
-          <div>
+          <div class="md:col-span-2">
             <label class="block text-sm font-semibold text-yellow-500 mb-2">Current Round</label>
             <select v-model.number="editableLeague.currentRound" class="input-field">
               <option v-for="round in editableLeague.rounds" :key="round.number" :value="round.number">
@@ -179,7 +179,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-primary flex items-center gap-2">
+        <button type="submit" class="btn-primary flex items-center gap-2 cursor-pointer">
           <Save :size="18" />
           Save League Settings
         </button>
