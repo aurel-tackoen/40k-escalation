@@ -20,6 +20,17 @@
   body {
     @apply bg-gray-900 text-gray-100;
   }
+
+  /* Fix Netlify Identity widget iframe positioning */
+  #netlify-identity-widget {
+    position: fixed !important;
+    z-index: 9999 !important;
+  }
+
+  /* Ensure iframe doesn't block interactions when closed */
+  iframe[src*="netlify-identity-widget"] {
+    pointer-events: auto !important;
+  }
 }
 
 @layer components {

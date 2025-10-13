@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watch } from 'vue'
+  import { ref, watch, onMounted } from 'vue'
   import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords, User, LogOut, LogIn } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
 
@@ -15,7 +15,7 @@
   const showAuthModal = ref(false)
   const authMode = ref('login')
 
-  const { user, isAuthenticated, logout, isLoading } = useAuth()
+  const { user, isAuthenticated, logout, isLoading, forceClose } = useAuth()
 
   const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value
@@ -42,6 +42,40 @@
   const route = useRoute()
   watch(() => route.path, () => {
     closeMobileMenu()
+  })
+
+  // Watch for authentication state changes and force close widget
+  watch(isAuthenticated, (newVal) => {
+    if (newVal) {
+      // User just logged in, force close the widget
+      setTimeout(() => forceClose(), 200)
+      setTimeout(() => forceClose(), 500)
+      setTimeout(() => forceClose(), 1000)
+    }
+  })
+
+  // On mount, ensure widget is closed if user is already authenticated
+  onMounted(() => {
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        if (isAuthenticated.value) {
+          forceClose()
+        }
+      }, 1000)
+
+      // Add a global listener to detect if widget is stuck open
+      const checkWidgetState = () => {
+        const widget = document.querySelector('.netlify-identity-widget')
+        if (widget && isAuthenticated.value && widget.classList.contains('netlify-identity-open')) {
+          console.warn('Widget stuck open, forcing close...')
+          forceClose()
+        }
+      }
+
+      // Check periodically for the first 10 seconds after mount
+      const intervalId = setInterval(checkWidgetState, 1000)
+      setTimeout(() => clearInterval(intervalId), 10000)
+    }
   })
 </script>
 
@@ -267,6 +301,9 @@
       :mode="authMode"
       @close="closeAuthModal"
     />
+
+    <!-- Netlify Identity Widget Container -->
+    <div id="netlify-modal"></div>
   </div>
 </template>
 
