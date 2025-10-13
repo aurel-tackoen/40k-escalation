@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   try {
     // Test database connection
     const result = await db.execute(sql`SELECT 1 as health`)
-    
+
     return {
       status: 'ok',
       database: 'connected',
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     console.error('Health check failed:', error)
-    
+
     throw createError({
       statusCode: 503,
       statusMessage: 'Service Unavailable',

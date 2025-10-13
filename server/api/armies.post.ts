@@ -9,7 +9,7 @@ import { eq, and } from 'drizzle-orm'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    
+
     // Validate required fields
     if (!body.playerId || !body.round || !body.name || !body.units) {
       throw createError({
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Player ID, round, name, and units are required'
       })
     }
-    
+
     // Check if army already exists for this player and round
     const existing = await db.select()
       .from(armies)
@@ -25,10 +25,10 @@ export default defineEventHandler(async (event) => {
         eq(armies.playerId, body.playerId),
         eq(armies.round, body.round)
       ))
-    
+
     const unitsJson = JSON.stringify(body.units)
     const today = new Date().toISOString().split('T')[0]
-    
+
     if (existing.length > 0) {
       // Update existing army
       const [updated] = await db.update(armies)
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
         })
         .where(eq(armies.id, existing[0].id))
         .returning()
-      
+
       return {
         success: true,
         data: {
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
         isValid: body.isValid !== undefined ? body.isValid : true,
         lastModified: today
       }).returning()
-      
+
       return {
         success: true,
         data: {
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     console.error('Error saving army:', error)
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to save army'

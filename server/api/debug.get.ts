@@ -5,7 +5,7 @@
 export default defineEventHandler(async (event) => {
   const url = getRequestURL(event)
   const headers = getHeaders(event)
-  
+
   return {
     success: true,
     debug: {

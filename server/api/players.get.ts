@@ -8,7 +8,7 @@ import { players } from '../../db/schema'
 export default defineEventHandler(async (event) => {
   try {
     const allPlayers = await db.select().from(players)
-    
+
     return {
       success: true,
       data: allPlayers,
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     console.error('Error fetching players:', error)
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to fetch players',

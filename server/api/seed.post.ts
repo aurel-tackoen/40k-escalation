@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
       endDate: '2025-12-31',
       currentRound: 1
     }).returning()
-    
+
     // Create rounds
     await db.insert(rounds).values([
       {
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
         endDate: '2025-12-31'
       }
     ])
-    
+
     // Create players
     const [player1] = await db.insert(players).values({
       name: 'Magnus the Red',
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
       draws: 0,
       totalPoints: 85
     }).returning()
-    
+
     const [player2] = await db.insert(players).values({
       name: 'Roboute Guilliman',
       faction: 'Ultramarines',
@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
       draws: 1,
       totalPoints: 72
     }).returning()
-    
+
     const [player3] = await db.insert(players).values({
       name: 'Abaddon the Despoiler',
       faction: 'Chaos Space Marines',
@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
       draws: 0,
       totalPoints: 68
     }).returning()
-    
+
     // Create matches
     await db.insert(matches).values([
       {
@@ -102,7 +102,7 @@ export default defineEventHandler(async (event) => {
         notes: 'Magnus dominated the psychic phase'
       }
     ])
-    
+
     // Create armies
     await db.insert(armies).values([
       {
@@ -131,7 +131,7 @@ export default defineEventHandler(async (event) => {
         lastModified: "2025-10-02"
       }
     ])
-    
+
     return {
       success: true,
       message: 'Database seeded successfully',
@@ -144,7 +144,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     console.error('Error seeding database:', error)
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to seed database',
