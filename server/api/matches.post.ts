@@ -37,7 +37,12 @@ export default defineEventHandler(async (event) => {
     const [player2] = await db.select().from(players).where(eq(players.id, body.player2Id))
 
     if (player1) {
-      const updates: any = {
+      const updates: {
+        totalPoints: number;
+        wins?: number;
+        losses?: number;
+        draws?: number;
+      } = {
         totalPoints: player1.totalPoints + (body.player1Points || 0)
       }
 
@@ -53,7 +58,12 @@ export default defineEventHandler(async (event) => {
     }
 
     if (player2) {
-      const updates: any = {
+      const updates: {
+        totalPoints: number;
+        wins?: number;
+        losses?: number;
+        draws?: number;
+      } = {
         totalPoints: player2.totalPoints + (body.player2Points || 0)
       }
 

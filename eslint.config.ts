@@ -9,6 +9,7 @@ export default defineConfig([
     ignores: [
       ".nuxt/**",
       ".output/**",
+      ".netlify/**",
       "dist/**",
       "node_modules/**",
       "migrations/**",

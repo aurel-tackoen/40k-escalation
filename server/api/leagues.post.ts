@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
     // Insert rounds if provided
     if (body.rounds && Array.isArray(body.rounds)) {
-      const roundsToInsert = body.rounds.map((round: any) => ({
+      const roundsToInsert = body.rounds.map((round: { number: number; name: string; pointLimit: number; startDate: string; endDate: string }) => ({
         leagueId: newLeague.id,
         number: round.number,
         name: round.name,
