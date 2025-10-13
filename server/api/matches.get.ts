@@ -5,7 +5,7 @@
 import { db } from '../../db'
 import { matches } from '../../db/schema'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
     const allMatches = await db.select().from(matches)
 

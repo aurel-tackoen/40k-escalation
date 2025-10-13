@@ -5,10 +5,10 @@
 import { db } from '../../db'
 import { sql } from 'drizzle-orm'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
     // Test database connection
-    const result = await db.execute(sql`SELECT 1 as health`)
+    await db.execute(sql`SELECT 1 as health`)
 
     return {
       status: 'ok',

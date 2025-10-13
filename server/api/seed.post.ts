@@ -5,7 +5,7 @@
 import { db } from '../../db'
 import { leagues, rounds, players, matches, armies } from '../../db/schema'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
     // Create league
     const [league] = await db.insert(leagues).values({

@@ -6,7 +6,7 @@ import { db } from '../../db'
 import { leagues, rounds } from '../../db/schema'
 import { eq } from 'drizzle-orm'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
     const allLeagues = await db.select().from(leagues)
 

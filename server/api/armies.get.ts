@@ -5,7 +5,7 @@
 import { db } from '../../db'
 import { armies } from '../../db/schema'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
     const allArmies = await db.select().from(armies)
 
