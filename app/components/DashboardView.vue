@@ -1,6 +1,6 @@
 <script setup>
   import { computed, toRef } from 'vue'
-  import { Trophy, Users, Shield, Swords, Calendar, Medal } from 'lucide-vue-next'
+  import { Handshake, Trophy, Users, Shield, Swords, Calendar, Medal } from 'lucide-vue-next'
   import PaintingProgress from './PaintingProgress.vue'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
@@ -186,11 +186,11 @@
               <span class="text-yellow-500 font-bold">{{ match.player2Points }}</span>
               <span class="font-semibold">{{ getPlayerName(match.player2Id) }}</span>
             </div>
-            <div v-if="match.winnerId" class="text-green-400 font-semibold">
-              🏆 {{ getPlayerName(match.winnerId) }}
+            <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center">
+              <Trophy :size="16" class="mr-2" /> {{ getPlayerName(match.winnerId) }}
             </div>
-            <div v-else class="text-yellow-400 font-semibold">
-              🤝 Draw
+            <div v-else class="text-yellow-400 font-semibold flex items-center">
+              <Handshake :size="16" class="mr-2" /> Draw
             </div>
           </div>
           <div v-if="match.notes" class="mt-2 text-sm text-gray-400 italic">

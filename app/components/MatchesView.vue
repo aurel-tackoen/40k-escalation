@@ -1,6 +1,6 @@
 <script setup>
   import { ref, computed, toRef } from 'vue'
-  import { Plus, Filter, Calendar, Users, Trophy, X, Download, Flame, TrendingUp } from 'lucide-vue-next'
+  import { Plus, Filter, Calendar, Users, Trophy, X, Download, Flame, TrendingUp, Handshake } from 'lucide-vue-next'
   import { missions } from '~/data/missions'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
@@ -387,7 +387,7 @@
                 <Calendar :size="14" />
                 {{ formatDate(match.datePlayed) }}
               </span>
-              <span class="text-sm bg-gray-600 text-gray-300 px-2 py-1 rounded">{{ match.mission }}</span>
+              <span class="text-sm bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold">{{ match.mission }}</span>
             </div>
             <!-- Match Quality Badge -->
             <div v-if="getMatchQualityBadge(match)" class="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold"
@@ -413,11 +413,11 @@
             <!-- VS and Result -->
             <div class="text-center">
               <div class="text-gray-400 text-sm mb-2">VS</div>
-              <div v-if="match.winnerId" class="text-green-400 font-semibold">
-                🏆 {{ getPlayerName(match.winnerId) }} Wins
+              <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center justify-center">
+                <Trophy :size="16" class="mr-2" /> {{ getPlayerName(match.winnerId) }} Wins
               </div>
-              <div v-else class="text-yellow-400 font-semibold">
-                🤝 Draw
+              <div v-else class="text-yellow-400 font-semibold flex items-center justify-center">
+                <Handshake :size="16" class="mr-2" /> Draw
               </div>
             </div>
 
