@@ -382,16 +382,16 @@
                 </div>
               </div>
               <div class="text-center p-3 rounded-lg" :class="[
-                isValidArmy ? 'bg-green-900/50 border border-green-700' : 'bg-red-900/50 border border-red-700'
+                isCurrentArmyValid ? 'bg-green-900/50 border border-green-700' : 'bg-red-900/50 border border-red-700'
               ]">
                 <div class="text-xs text-gray-400 mb-1">Status</div>
                 <div
                   :class="[
                     'text-lg font-bold',
-                    isValidArmy ? 'text-green-400' : 'text-red-400'
+                    isCurrentArmyValid ? 'text-green-400' : 'text-red-400'
                   ]"
                 >
-                  {{ isValidArmy ? '✓ Valid' : '✗ Invalid' }}
+                  {{ isCurrentArmyValid ? '✓ Valid' : '✗ Invalid' }}
                 </div>
               </div>
             </div>
@@ -523,8 +523,8 @@
           <button
             type="submit"
             class="btn-primary px-8"
-            :disabled="!isValidArmy"
-            :class="{ 'opacity-50 cursor-not-allowed': !isValidArmy }"
+            :disabled="!isCurrentArmyValid"
+            :class="{ 'opacity-50 cursor-not-allowed': !isCurrentArmyValid }"
           >
             {{ editingArmy ? 'Update Army List' : 'Save Army List' }}
           </button>
