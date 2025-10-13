@@ -251,17 +251,6 @@
       <!-- Action Bar -->
       <div class="flex flex-wrap gap-3 items-center justify-between pt-4 border-t border-gray-700">
         <div class="flex flex-wrap gap-3 items-center">
-          <!-- Round Filter -->
-          <div class="flex items-center gap-2">
-            <Filter :size="18" class="text-gray-400" />
-            <select v-model="selectedRound" class="input-field w-auto min-w-[180px]">
-              <option value="">All Rounds</option>
-              <option v-for="round in rounds" :key="round.number" :value="round.number">
-                Round {{ round.number }} ({{ round.pointLimit }}pts)
-              </option>
-            </select>
-          </div>
-
           <!-- Player Filter -->
           <div class="flex items-center gap-2">
             <Users :size="18" class="text-gray-400" />
@@ -283,6 +272,86 @@
           <button @click="startNewArmy" class="btn-primary flex items-center gap-2 cursor-pointer">
             <Plus :size="20" />
             Build New Army
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Round Timeline Filter -->
+    <div class="card">
+      <div class="flex items-center gap-2 mb-4">
+        <Filter :size="20" class="text-yellow-500" />
+        <h4 class="text-lg font-semibold text-gray-200">Filter by Round</h4>
+      </div>
+
+      <!-- Timeline -->
+      <div class="relative">
+        <!-- Timeline Line -->
+        <div class="absolute top-6 left-0 right-0 h-0.5 bg-gray-700" style="z-index: 0;"></div>
+
+        <!-- Timeline Items -->
+        <div class="flex justify-between items-start relative" style="z-index: 1;">
+          <!-- All Rounds Button -->
+          <button
+            @click="selectedRound = ''"
+            :class="[
+              'flex flex-col items-center gap-2 transition-all group cursor-pointer',
+              !selectedRound ? 'scale-110' : 'hover:scale-105'
+            ]"
+          >
+            <div
+              :class="[
+                'w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all',
+                !selectedRound
+                  ? 'bg-yellow-500 border-yellow-500 shadow-lg shadow-yellow-500/50'
+                  : 'bg-gray-800 border-gray-600 group-hover:border-gray-500'
+              ]"
+            >
+              <Filter :size="20" :class="!selectedRound ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-300'" />
+            </div>
+            <div class="text-center min-w-[80px]">
+              <div :class="['text-sm font-semibold', !selectedRound ? 'text-yellow-500' : 'text-gray-400 group-hover:text-gray-300']">
+                All Rounds
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ armies.length }} {{ armies.length === 1 ? 'army' : 'armies' }}
+              </div>
+            </div>
+          </button>
+
+          <!-- Round Buttons -->
+          <button
+            v-for="round in rounds"
+            :key="round.number"
+            @click="selectedRound = round.number"
+            :class="[
+              'flex flex-col items-center gap-2 transition-all group cursor-pointer',
+              selectedRound === round.number ? 'scale-110' : 'hover:scale-105'
+            ]"
+          >
+            <div
+              :class="[
+                'w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold border-4 transition-all',
+                selectedRound === round.number
+                  ? 'bg-yellow-500 border-yellow-500 text-gray-900 shadow-lg shadow-yellow-500/50'
+                  : round.number <= currentRound
+                    ? 'bg-blue-600 border-blue-600 text-white group-hover:border-blue-500'
+                    : 'bg-gray-800 border-gray-600 text-gray-400 group-hover:border-gray-500'
+              ]"
+            >
+              {{ round.number }}
+            </div>
+            <div class="text-center min-w-[80px]">
+              <div :class="['text-sm font-semibold', selectedRound === round.number ? 'text-yellow-500' : 'text-gray-300 group-hover:text-gray-200']">
+                Round {{ round.number }}
+              </div>
+              <div :class="['text-xs font-medium', selectedRound === round.number ? 'text-yellow-400' : 'text-gray-400']">
+                {{ round.pointLimit }} pts
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ armies.filter(a => a.round === round.number).length }} {{ armies.filter(a => a.round === round.number).length === 1 ? 'army' : 'armies' }}
+              </div>
+            </div>
           </button>
         </div>
       </div>
