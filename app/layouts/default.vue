@@ -1,12 +1,12 @@
 <script setup>
-  import { LayoutDashboard, Users, Shield, Swords, Settings } from 'lucide-vue-next'
+  import { LayoutDashboard, Users, Shield, Settings, Trophy } from 'lucide-vue-next'
 
   const tabs = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { path: '/players', name: 'Players', icon: Users },
     { path: '/armies', name: 'Army Lists', icon: Shield },
-    { path: '/matches', name: 'Matches', icon: Swords },
-    { path: '/setup', name: 'League Setup', icon: Settings }
+    { path: '/matches', name: 'Matches', icon: Trophy },
+    { path: '/setup', name: 'League', icon: Settings }
   ]
 </script>
 

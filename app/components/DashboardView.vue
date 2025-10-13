@@ -1,6 +1,6 @@
 <script setup>
   import { computed, toRef } from 'vue'
-  import { Trophy, Users, Shield, Swords, Calendar, Target } from 'lucide-vue-next'
+  import { Trophy, Users, Shield, Swords, Calendar, Medal } from 'lucide-vue-next'
   import PaintingProgress from './PaintingProgress.vue'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
@@ -104,7 +104,7 @@
       <!-- Current Standings -->
       <div class="card">
         <div class="flex items-center gap-2 mb-4">
-          <Trophy :size="24" class="text-yellow-500" />
+          <Medal :size="24" class="text-yellow-500" />
           <h3 class="text-2xl font-serif font-bold text-yellow-500">Current Standings</h3>
         </div>
         <div class="overflow-x-auto">
@@ -162,7 +162,7 @@
     <!-- Recent Matches -->
     <div class="card">
       <div class="flex items-center gap-2 mb-6">
-        <Target :size="24" class="text-yellow-500" />
+        <Trophy :size="24" class="text-yellow-500" />
         <h3 class="text-2xl font-serif font-bold text-yellow-500">Recent Matches</h3>
       </div>
       <div class="space-y-4">

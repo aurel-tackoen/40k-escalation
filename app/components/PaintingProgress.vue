@@ -1,4 +1,5 @@
 <script setup>
+  import { Brush } from 'lucide-vue-next'
   defineProps({
     leaderboard: {
       type: Array,
@@ -27,8 +28,10 @@
 
 <template>
   <div class="bg-gray-800 border border-gray-600 rounded-lg p-6">
-    <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-2">Painting Leaderboard</h3>
-    <p class="text-gray-400 text-sm mb-4 m-0">Round {{ currentRound }}</p>
+    <div class="flex items-center gap-2 mb-4">
+      <Brush :size="24" class="text-yellow-500" />
+      <h3 class="text-2xl font-serif font-bold text-yellow-500">Painting Leaderboard</h3>
+    </div>
 
     <div v-if="leaderboard.length === 0" class="text-center py-8 text-gray-400 text-sm">
       No painting progress tracked yet. Add model counts to your army lists to track painting!

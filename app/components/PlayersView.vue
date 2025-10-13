@@ -1,5 +1,5 @@
 <script setup>
-  import { UserPlus, X, TrendingUp, Mail, Shield, Trophy, Paintbrush, Download } from 'lucide-vue-next'
+  import { UserPlus, X, TrendingUp, Mail, Shield, Users, Paintbrush, Download } from 'lucide-vue-next'
   import { factions } from '~/data/factions'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerStats } from '~/composables/usePlayerStats'
@@ -85,7 +85,7 @@
     <div class="card">
       <div class="flex justify-between items-center mb-6">
         <div class="flex items-center gap-2">
-          <Trophy :size="24" class="text-yellow-500" />
+          <Users :size="24" class="text-yellow-500" />
           <h3 class="text-2xl font-serif font-bold text-yellow-500">Registered Players</h3>
         </div>
         <button @click="exportPlayers" class="btn-secondary flex items-center gap-2">

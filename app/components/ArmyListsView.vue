@@ -274,7 +274,13 @@
       <div class="bg-yellow-900 border border-yellow-700 rounded-lg p-4 mb-4">
         <h4 class="text-yellow-200 font-semibold mb-2">📋 How to Escalate Your Army</h4>
         <div class="text-yellow-300 text-sm space-y-1">
-          <p><strong>Method 1:</strong> Click the <span class="bg-blue-800 px-2 py-1 rounded text-xs">⬆️ Escalate</span> button on any army card to copy it to the next round</p>
+          <p><strong>Method 1:</strong> Click the <span
+            class="text-blue-400 hover:text-blue-300 text-sm px-2 py-1 bg-blue-900 rounded inline-flex items-center gap-1"
+            title="Escalate to Next Round"
+          >
+            <TrendingUp :size="16" />
+            Escalate
+          </span> button on any army card to copy it to the next round</p>
           <p><strong>Method 2:</strong> When building a new army, select a higher round and use the "📋 Copy Army" feature</p>
           <p><strong>Tip:</strong> After copying, add new units to reach the higher point limit for the new round</p>
         </div>
