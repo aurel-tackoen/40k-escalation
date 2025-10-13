@@ -1,14 +1,13 @@
 <script setup>
-  import { UserPlus, X, TrendingUp, Mail, Shield, Users, Paintbrush, Download } from 'lucide-vue-next'
+  import { UserPlus, X, TrendingUp, Mail, Shield, Users, Paintbrush } from 'lucide-vue-next'
   import { factions } from '~/data/factions'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerStats } from '~/composables/usePlayerStats'
   import { useConfirmation } from '~/composables/useConfirmation'
   import { useFormManagement } from '~/composables/useFormManagement'
-  import { useDataExport } from '~/composables/useDataExport'
 
   // Props
-  const props = defineProps({
+  defineProps({
     players: {
       type: Array,
       required: true
@@ -53,29 +52,12 @@
     email: ''
   })
 
-  const { downloadCSV, formatForExport } = useDataExport()
-
   // Methods
   const submitPlayer = () => {
     if (isFormValid(['name', 'faction'])) {
       emit('add-player', { ...newPlayer.value })
       resetForm()
     }
-  }
-
-  const exportPlayers = () => {
-    const exportData = formatForExport(props.players, {
-      'Name': 'name',
-      'Faction': 'faction',
-      'Email': 'email',
-      'Wins': 'wins',
-      'Losses': 'losses',
-      'Draws': 'draws',
-      'Points': 'points',
-      'Win %': (player) => `${getWinPercentage(player)}%`
-    })
-
-    downloadCSV(exportData, 'player-standings')
   }
 </script>
 
@@ -88,10 +70,6 @@
           <Users :size="24" class="text-yellow-500" />
           <h3 class="text-2xl font-serif font-bold text-yellow-500">Registered Players</h3>
         </div>
-        <button @click="exportPlayers" class="btn-secondary flex items-center gap-2 cursor-pointer">
-          <Download :size="18" />
-          Export CSV
-        </button>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div

@@ -8,7 +8,7 @@
 @source "../app.vue";
 
 @theme {
-  --color-wh-gold: #C9B037;
+  --color-wh-gold: #facc15;
   --color-wh-red: #8B0000;
   --color-wh-dark: #1A1A1A;
   --color-wh-skull: #F5F5DC;
@@ -24,28 +24,80 @@
 
 @layer components {
   .btn-primary {
-    background-color: var(--color-wh-gold);
+    position: relative;
+    background: linear-gradient(135deg, var(--color-wh-gold) 0%, rgb(234 179 8) 100%);
     color: var(--color-wh-dark);
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-weight: 600;
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    border: 2px solid var(--color-wh-gold);
+    /* box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3), 0 0 15px rgb(250 204 21 / 0.4); */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.5s ease;
+    }
     
     &:hover {
-      background-color: rgb(250 204 21);
+      background: linear-gradient(135deg, rgb(234 179 8) 0%, rgb(202 138 4) 100%);
+      box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.4), 0 4px 6px -2px rgb(0 0 0 / 0.4), 0 0 15px rgb(250 204 21 / 0.6);
+      border-color: rgb(234 179 8);
+    }
+    
+    &:hover::before {
+      left: 100%;
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3), 0 0 15px rgb(250 204 21 / 0.4);
     }
   }
   
   .btn-secondary {
-    background-color: var(--color-wh-red);
+    position: relative;
+    background: linear-gradient(135deg, var(--color-wh-red) 0%, rgb(153 27 27) 100%);
     color: rgb(243 244 246);
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-weight: 600;
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    border: 2px solid var(--color-wh-red);
+    /* box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3), 0 0 15px rgb(185 28 28 / 0.4); */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
     
     &:hover {
-      background-color: rgb(185 28 28);
+      background: linear-gradient(135deg, rgb(185 28 28) 0%, rgb(153 27 27) 100%);
+      box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.4), 0 4px 6px -2px rgb(0 0 0 / 0.4), 0 0 15px rgb(185 28 28 / 0.6);
+      border-color: rgb(185 28 28);
+    }
+    
+    &:hover::before {
+      left: 100%;
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3), 0 0 15px rgb(185 28 28 / 0.4);
     }
   }
   
