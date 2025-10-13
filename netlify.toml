@@ -2,7 +2,7 @@
   # Build command for Nuxt with Netlify preset (production only)
   command = "npm run build"
   # Netlify automatically detects the output directory
-  publish = ".output/public"
+  publish = "dist"
 
 [dev]
   # Development server command
