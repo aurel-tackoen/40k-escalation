@@ -1,11 +1,11 @@
 <script setup>
   import { ref, computed, toRef } from 'vue'
-  import { Plus, Filter, Users, Trophy, X, Download, Flame, TrendingUp, Handshake, Swords } from 'lucide-vue-next'
+  import { Plus, Filter, Users, Trophy, X, Flame, TrendingUp, Handshake, Swords, Trash2 } from 'lucide-vue-next'
   import { missions } from '~/data/missions'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
   import { useMatchResults } from '~/composables/useMatchResults'
-  import { useDataExport } from '~/composables/useDataExport'
+  import { useConfirmation } from '~/composables/useConfirmation'
 
   // Props
   const props = defineProps({
@@ -24,16 +24,20 @@
   const { formatDate } = useFormatting()
 
   const {
-    determineWinner,
-    getMatchStatus,
     isCloseMatch,
     getWinStreak
   } = useMatchResults(toRef(props, 'matches'))
 
-  const { exportMatchHistory } = useDataExport()
+  const {
+    item: matchToDelete,
+    confirm: confirmDeleteMatch,
+    execute: deleteMatchConfirmed
+  } = useConfirmation((match) => {
+    emit('delete-match', match.id)
+  })
 
   // Emits
-  const emit = defineEmits(['add-match'])
+  const emit = defineEmits(['add-match', 'delete-match'])
 
   // Reactive data
   const newMatch = ref({
@@ -116,31 +120,6 @@
       newMatch.value.datePlayed
   }
 
-  // Export matches function
-  const exportMatches = () => {
-    const exportData = props.matches.map(match => {
-      const winner = determineWinner(match.player1Points, match.player2Points, match.player1Id, match.player2Id)
-      const status = getMatchStatus(match.player1Points, match.player2Points)
-
-      return {
-        'Date': formatDate(match.datePlayed),
-        'Round': match.round,
-        'Mission': match.mission,
-        'Player 1': getPlayerName(match.player1Id),
-        'Player 1 Faction': getPlayerFaction(match.player1Id),
-        'Player 1 Points': match.player1Points,
-        'Player 2': getPlayerName(match.player2Id),
-        'Player 2 Faction': getPlayerFaction(match.player2Id),
-        'Player 2 Points': match.player2Points,
-        'Winner': winner ? getPlayerName(winner) : 'Draw',
-        'Point Difference': Math.abs(match.player1Points - match.player2Points),
-        'Match Type': status,
-        'Notes': match.notes || ''
-      }
-    })
-
-    exportMatchHistory(exportData, 'match-history')
-  }
 
   // Get match quality badge
   const getMatchQualityBadge = (match) => {
@@ -340,14 +319,6 @@
           <Trophy :size="24" class="text-yellow-500 flex-shrink-0" />
           <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h3>
         </div>
-        <button
-          @click="exportMatches"
-          class="btn-secondary flex items-center justify-center gap-2 cursor-pointer"
-          :disabled="matches.length === 0"
-        >
-          <Download :size="18" class="flex-shrink-0" />
-          <span>Export CSV</span>
-        </button>
       </div>
 
       <!-- Filter Controls -->
@@ -391,6 +362,14 @@
                 <component :is="getMatchQualityBadge(match).icon" :size="12" class="flex-shrink-0" />
                 {{ getMatchQualityBadge(match).text }}
               </span>
+              <!-- Delete Button -->
+              <button
+                @click="confirmDeleteMatch(match)"
+                class="p-1.5 sm:p-2 rounded hover:bg-red-900/50 text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+                title="Delete match"
+              >
+                <Trash2 :size="16" class="flex-shrink-0" />
+              </button>
             </div>
           </div>
 
@@ -492,6 +471,34 @@
       <div v-if="filteredMatches.length === 0" class="text-center py-8 text-gray-400">
         <p class="text-base sm:text-lg">No matches found.</p>
         <p class="text-sm sm:text-base">Record your first match above!</p>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="matchToDelete" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+      <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full border-2 border-red-500">
+        <h3 class="text-xl font-bold text-red-400 mb-4">Delete Match?</h3>
+        <p class="text-gray-300 mb-6">
+          Are you sure you want to delete this match between
+          <span class="font-semibold text-yellow-500">{{ getPlayerName(matchToDelete.player1Id) }}</span>
+          and
+          <span class="font-semibold text-yellow-500">{{ getPlayerName(matchToDelete.player2Id) }}</span>?
+          This action cannot be undone.
+        </p>
+        <div class="flex gap-3">
+          <button
+            @click="deleteMatchConfirmed"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold transition-colors cursor-pointer"
+          >
+            Delete
+          </button>
+          <button
+            @click="matchToDelete = null"
+            class="flex-1 btn-secondary cursor-pointer"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   </div>
