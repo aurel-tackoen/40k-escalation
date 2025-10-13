@@ -1,9 +1,9 @@
 /**
  * PUT /api/leagues?id=<leagueId>
- * Updates an existing league
+ * Updates an existing league and its rounds
  */
 import { db } from '../../db'
-import { leagues } from '../../db/schema'
+import { leagues, rounds } from '../../db/schema'
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Prepare update data
-    const updateData: any = {}
+    const updateData: Record<string, string | number | null | undefined> = {}
 
     if (body.name !== undefined) updateData.name = body.name
     if (body.description !== undefined) updateData.description = body.description
@@ -41,9 +41,62 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Handle rounds updates if provided
+    if (body.rounds && Array.isArray(body.rounds)) {
+      // Get existing rounds for this league
+      const existingRounds = await db.select()
+        .from(rounds)
+        .where(eq(rounds.leagueId, leagueId))
+
+      const existingRoundIds = new Set(existingRounds.map(r => r.id))
+      const updatedRoundIds = new Set(
+        body.rounds
+          .filter((r: { id?: number }) => r.id)
+          .map((r: { id: number }) => r.id)
+      )
+
+      // Delete rounds that are no longer in the update
+      const roundsToDelete = existingRounds.filter(r => !updatedRoundIds.has(r.id))
+      for (const round of roundsToDelete) {
+        await db.delete(rounds).where(eq(rounds.id, round.id))
+      }
+
+      // Update or insert rounds
+      for (const round of body.rounds) {
+        const roundData = {
+          leagueId,
+          number: round.number,
+          name: round.name,
+          pointLimit: round.pointLimit,
+          startDate: round.startDate,
+          endDate: round.endDate
+        }
+
+        if (round.id && existingRoundIds.has(round.id)) {
+          // Update existing round
+          await db.update(rounds)
+            .set(roundData)
+            .where(eq(rounds.id, round.id))
+        } else {
+          // Insert new round
+          await db.insert(rounds).values(roundData)
+        }
+      }
+    }
+
+    // Fetch updated league with rounds
+    const updatedLeague = updated[0]
+    const leagueRounds = await db.select()
+      .from(rounds)
+      .where(eq(rounds.leagueId, leagueId))
+      .orderBy(rounds.number)
+
     return {
       success: true,
-      data: updated[0]
+      data: {
+        ...updatedLeague,
+        rounds: leagueRounds
+      }
     }
   } catch (error) {
     console.error('Error updating league:', error)

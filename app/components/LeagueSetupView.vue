@@ -1,6 +1,10 @@
 <script setup>
   import { ref, watch } from 'vue'
   import { Save, Plus, Trash2, Download, Upload, Settings as SettingsIcon } from 'lucide-vue-next'
+  import { useFormatting } from '~/composables/useFormatting'
+
+  // Composables
+  const { normalizeDates } = useFormatting()
 
   // Props
   const props = defineProps({
@@ -14,12 +18,12 @@
   const emit = defineEmits(['update-league'])
 
   // Reactive data
-  const editableLeague = ref(JSON.parse(JSON.stringify(props.league)))
+  const editableLeague = ref(normalizeDates(props.league))
   const fileInput = ref(null)
 
   // Watchers
   watch(() => props.league, (newLeague) => {
-    editableLeague.value = JSON.parse(JSON.stringify(newLeague))
+    editableLeague.value = normalizeDates(newLeague)
   }, { deep: true })
 
   // Methods
@@ -253,11 +257,18 @@
           </div>
         </div>
       </div>
+      <div class="mt-6 flex items-center gap-4">
 
-      <button @click="addRound" class="btn-secondary mt-4 flex items-center gap-2">
-        <Plus :size="18" />
-        Add New Round
-      </button>
+        <button type="submit" class="btn-primary flex items-center gap-2 cursor-pointer">
+          <Save :size="18" />
+          Save Round Settings
+        </button>
+
+        <button @click="addRound" class="btn-secondary flex items-center gap-2 cursor-pointer">
+          <Plus :size="18" />
+          Add New Round
+        </button>
+      </div>
     </div>
 
     <!-- Scoring Rules -->

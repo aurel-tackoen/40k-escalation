@@ -89,6 +89,42 @@ export function useFormatting() {
     return `${score1} - ${score2}`
   }
 
+  /**
+   * Format date for HTML date input (yyyy-MM-dd)
+   * Converts any date format to the format required by HTML5 date inputs
+   * @param {string|Date} date - Date to format
+   * @returns {string} Formatted date string (yyyy-MM-dd)
+   */
+  const formatDateForInput = (date) => {
+    if (!date) return ''
+    const d = new Date(date)
+    return d.toISOString().split('T')[0]
+  }
+
+  /**
+   * Normalize all dates in a league object for date inputs
+   * Converts ISO timestamps to yyyy-MM-dd format
+   * @param {Object} league - League object with date fields
+   * @returns {Object} League object with normalized dates
+   */
+  const normalizeDates = (league) => {
+    const normalized = JSON.parse(JSON.stringify(league))
+    if (normalized.startDate) {
+      normalized.startDate = formatDateForInput(normalized.startDate)
+    }
+    if (normalized.endDate) {
+      normalized.endDate = formatDateForInput(normalized.endDate)
+    }
+    if (normalized.rounds) {
+      normalized.rounds = normalized.rounds.map(round => ({
+        ...round,
+        startDate: formatDateForInput(round.startDate),
+        endDate: formatDateForInput(round.endDate)
+      }))
+    }
+    return normalized
+  }
+
   return {
     formatDate,
     formatDateShort,
@@ -97,6 +133,8 @@ export function useFormatting() {
     formatPercentage,
     formatRecord,
     formatNumber,
-    formatScore
+    formatScore,
+    formatDateForInput,
+    normalizeDates
   }
 }
