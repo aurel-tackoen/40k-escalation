@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watch, onMounted } from 'vue'
+  import { ref, watch } from 'vue'
   import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords, User, LogOut, LogIn } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
 
@@ -12,10 +12,8 @@
   ]
 
   const isMobileMenuOpen = ref(false)
-  const showAuthModal = ref(false)
-  const authMode = ref('login')
 
-  const { user, isAuthenticated, logout, isLoading, forceClose } = useAuth()
+  const { user, isAuthenticated, logout, isLoading, login } = useAuth()
 
   const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value
@@ -23,15 +21,6 @@
 
   const closeMobileMenu = () => {
     isMobileMenuOpen.value = false
-  }
-
-  const openLoginModal = () => {
-    authMode.value = 'login'
-    showAuthModal.value = true
-  }
-
-  const closeAuthModal = () => {
-    showAuthModal.value = false
   }
 
   const handleLogout = () => {
@@ -42,40 +31,6 @@
   const route = useRoute()
   watch(() => route.path, () => {
     closeMobileMenu()
-  })
-
-  // Watch for authentication state changes and force close widget
-  watch(isAuthenticated, (newVal) => {
-    if (newVal) {
-      // User just logged in, force close the widget
-      setTimeout(() => forceClose(), 200)
-      setTimeout(() => forceClose(), 500)
-      setTimeout(() => forceClose(), 1000)
-    }
-  })
-
-  // On mount, ensure widget is closed if user is already authenticated
-  onMounted(() => {
-    if (typeof window !== 'undefined') {
-      setTimeout(() => {
-        if (isAuthenticated.value) {
-          forceClose()
-        }
-      }, 1000)
-
-      // Add a global listener to detect if widget is stuck open
-      const checkWidgetState = () => {
-        const widget = document.querySelector('.netlify-identity-widget')
-        if (widget && isAuthenticated.value && widget.classList.contains('netlify-identity-open')) {
-          console.warn('Widget stuck open, forcing close...')
-          forceClose()
-        }
-      }
-
-      // Check periodically for the first 10 seconds after mount
-      const intervalId = setInterval(checkWidgetState, 1000)
-      setTimeout(() => clearInterval(intervalId), 10000)
-    }
   })
 </script>
 
@@ -146,7 +101,7 @@
               <template v-else>
                 <!-- Login Button -->
                 <button
-                  @click="openLoginModal"
+                  @click="login"
                   class="px-4 py-2 text-gray-300 hover:text-yellow-400 transition-colors flex items-center gap-2 border border-gray-700 rounded-md hover:border-yellow-600"
                 >
                   <LogIn :size="18" />
@@ -268,7 +223,7 @@
             <template v-else>
               <!-- Login Button -->
               <button
-                @click="openLoginModal"
+                @click="login"
                 class="w-full flex items-center justify-center gap-3 px-5 py-3 text-yellow-400 border border-yellow-700 hover:border-yellow-600 hover:bg-yellow-900/20 transition-all rounded-lg font-semibold"
               >
                 <LogIn :size="20" />
@@ -294,16 +249,6 @@
     <main class="container mx-auto px-4 py-8">
       <slot />
     </main>
-
-    <!-- Auth Modal -->
-    <AuthModal
-      :show="showAuthModal"
-      :mode="authMode"
-      @close="closeAuthModal"
-    />
-
-    <!-- Netlify Identity Widget Container -->
-    <div id="netlify-modal"></div>
   </div>
 </template>
 

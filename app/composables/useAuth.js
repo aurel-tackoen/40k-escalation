@@ -1,7 +1,8 @@
 import { ref, computed, onMounted } from 'vue'
 
 /**
- * Netlify Identity Authentication Composable (Simplified)
+ * Netlify Identity Authentication Composable
+ * Simple implementation for netlify dev local testing
  */
 export function useAuth() {
   const user = ref(null)
@@ -20,97 +21,67 @@ export function useAuth() {
     }
 
     try {
+      // Import Netlify Identity widget
       const netlifyIdentityWidget = await import('netlify-identity-widget')
       const netlifyIdentity = netlifyIdentityWidget.default || netlifyIdentityWidget
       window.netlifyIdentity = netlifyIdentity
 
+      // Initialize the widget
+      netlifyIdentity.init()
+
+      // Listen for initialization
       netlifyIdentity.on('init', (netlifyUser) => {
+        console.log('Netlify Identity initialized', netlifyUser ? 'User logged in' : 'No user')
         user.value = netlifyUser
         isLoading.value = false
-        // Force close the widget if it's open on init
-        if (netlifyUser) {
-          setTimeout(() => netlifyIdentity.close(), 100)
-        }
       })
 
+      // Listen for login
       netlifyIdentity.on('login', (netlifyUser) => {
+        console.log('User logged in:', netlifyUser)
         user.value = netlifyUser
-        // Force close immediately on login
-        netlifyIdentity.close()
-        // Double-check closure after a short delay
-        setTimeout(() => netlifyIdentity.close(), 100)
-        setTimeout(() => netlifyIdentity.close(), 500)
+        error.value = null
       })
 
+      // Listen for logout
       netlifyIdentity.on('logout', () => {
+        console.log('User logged out')
         user.value = null
-        netlifyIdentity.close()
       })
 
+      // Listen for errors
       netlifyIdentity.on('error', (err) => {
+        console.error('Netlify Identity error:', err)
         error.value = err.message
-        isLoading.value = false
-        // Close on error too
-        setTimeout(() => netlifyIdentity.close(), 500)
       })
 
-      netlifyIdentity.on('close', () => {
-        // Ensure proper cleanup when modal closes
-        console.log('Netlify Identity modal closed')
-        // Force remove any lingering classes
-        setTimeout(() => {
-          const widget = document.querySelector('.netlify-identity-widget')
-          if (widget && !widget.classList.contains('netlify-identity-open')) {
-            widget.style.display = 'none'
-          }
-        }, 100)
-      })
-
-      netlifyIdentity.on('open', () => {
-        // Log when modal opens for debugging
-        console.log('Netlify Identity modal opened')
-      })
-
-      // Initialize with container option to better control the widget
-      netlifyIdentity.init({
-        container: '#netlify-modal'
-      })
-
-      // Extra safety: close widget after initialization if user is already logged in
-      setTimeout(() => {
-        if (user.value) {
-          netlifyIdentity.close()
-        }
-      }, 500)
     } catch (err) {
-      console.error('Netlify Identity initialization error:', err)
-      error.value = 'Authentication unavailable'
+      console.error('Failed to initialize Netlify Identity:', err)
+      error.value = 'Authentication system unavailable'
       isLoading.value = false
     }
   })
 
-  const login = () => window.netlifyIdentity?.open('login')
-  const signup = () => window.netlifyIdentity?.open('signup')
-  const logout = () => window.netlifyIdentity?.logout()
+  const login = () => {
+    console.log('Opening login modal')
+    window.netlifyIdentity?.open('login')
+  }
+
+  const signup = () => {
+    console.log('Opening signup modal')
+    window.netlifyIdentity?.open('signup')
+  }
+
+  const logout = () => {
+    console.log('Logging out')
+    window.netlifyIdentity?.logout()
+  }
+
   const getToken = () => user.value?.token?.access_token || null
+
   const getAuthHeader = () => {
     const token = getToken()
     return token ? { Authorization: `Bearer ${token}` } : {}
-  }
-
-  // Force close the widget (useful for cleanup)
-  const forceClose = () => {
-    if (window.netlifyIdentity) {
-      window.netlifyIdentity.close()
-      // Also manually hide the widget element
-      setTimeout(() => {
-        const widget = document.querySelector('.netlify-identity-widget')
-        if (widget) {
-          widget.classList.remove('netlify-identity-open')
-          widget.style.display = 'none'
-        }
-      }, 50)
-    }
   }
 
   return {
@@ -125,7 +96,6 @@ export function useAuth() {
     logout,
     signup,
     getToken,
-    getAuthHeader,
-    forceClose
+    getAuthHeader
   }
 }
