@@ -44,7 +44,7 @@
     round: null,
     mission: '',
     datePlayed: new Date().toISOString().split('T')[0],
-    winnerId: null,
+    winnerId: undefined, // undefined = not set, null = draw
     notes: ''
   })
 
@@ -97,7 +97,7 @@
       round: null,
       mission: '',
       datePlayed: new Date().toISOString().split('T')[0],
-      winnerId: null,
+      winnerId: undefined, // undefined = not set, null = draw
       notes: ''
     }
   }
@@ -263,15 +263,16 @@
 
         <!-- Winner Selection -->
         <div>
-          <label class="block text-sm font-semibold text-yellow-500 mb-2">Result</label>
+          <label class="block text-sm font-semibold text-yellow-500 mb-2">Result (Optional - Auto-calculated from points)</label>
           <div class="grid grid-cols-3 gap-4">
             <button
               type="button"
               @click="setWinner(newMatch.player1Id)"
               :class="[
-                'p-3 rounded-lg border-2 transition-colors cursor-pointer',
-                newMatch.winnerId === newMatch.player1Id
-                  ? 'border-green-400 bg-green-400 bg-opacity-20 text-green-400'
+                'p-3 rounded-lg border-2 transition-colors font-bold',
+                !newMatch.player1Id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+                newMatch.winnerId === newMatch.player1Id && newMatch.player1Id
+                  ? 'border-green-400 bg-green-400 bg-opacity-20 text-gray-900'
                   : 'border-gray-600 text-gray-400 hover:border-green-400'
               ]"
               :disabled="!newMatch.player1Id"
@@ -282,9 +283,9 @@
               type="button"
               @click="setWinner(null)"
               :class="[
-                'p-3 rounded-lg border-2 transition-colors cursor-pointer',
-                newMatch.winnerId === null
-                  ? 'border-yellow-400 bg-yellow-400 bg-opacity-20 text-yellow-400'
+                'p-3 rounded-lg border-2 transition-colors cursor-pointer font-bold',
+                newMatch.winnerId === null && newMatch.winnerId !== undefined
+                  ? 'border-yellow-400 bg-yellow-400 bg-opacity-20 text-gray-900'
                   : 'border-gray-600 text-gray-400 hover:border-yellow-400'
               ]"
             >
@@ -294,9 +295,10 @@
               type="button"
               @click="setWinner(newMatch.player2Id)"
               :class="[
-                'p-3 rounded-lg border-2 transition-colors cursor-pointer',
-                newMatch.winnerId === newMatch.player2Id
-                  ? 'border-green-400 bg-green-400 bg-opacity-20 text-green-400'
+                'p-3 rounded-lg border-2 transition-colors font-bold',
+                !newMatch.player2Id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+                newMatch.winnerId === newMatch.player2Id && newMatch.player2Id
+                  ? 'border-green-400 bg-green-400 bg-opacity-20 text-gray-900'
                   : 'border-gray-600 text-gray-400 hover:border-green-400'
               ]"
               :disabled="!newMatch.player2Id"
@@ -304,6 +306,7 @@
               {{ getPlayerName(newMatch.player2Id) || 'Player 2' }} Wins
             </button>
           </div>
+          <p class="text-xs text-gray-500 mt-2">Leave unselected to auto-determine winner based on points</p>
         </div>
 
         <!-- Notes -->
@@ -320,11 +323,11 @@
         <div class="flex space-x-4">
           <button type="submit" class="btn-primary flex items-center gap-2 cursor-pointer">
             <Plus :size="18" />
-            Record Match
+            Save Match
           </button>
           <button type="button" @click="resetForm" class="btn-secondary flex items-center gap-2 cursor-pointer">
             <X :size="18" />
-            Reset Form
+            Reset
           </button>
         </div>
       </form>
