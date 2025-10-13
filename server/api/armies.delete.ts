@@ -1,13 +1,17 @@
 /**
  * DELETE /api/armies?playerId=<playerId>&round=<round>
- * Deletes an army list from the database
+ * Deletes an army list from the database (requires authentication and ownership)
  */
 import { db } from '../../db'
 import { armies } from '../../db/schema'
 import { eq, and } from 'drizzle-orm'
+import { requireAuth, ownsResource } from '../utils/auth'
 
 export default defineEventHandler(async (event) => {
   try {
+    // Require authentication
+    await requireAuth(event)
+
     const query = getQuery(event)
     const playerId = parseInt(query.playerId as string)
     const round = parseInt(query.round as string)
@@ -16,6 +20,15 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         statusMessage: 'Valid player ID and round are required'
+      })
+    }
+
+    // Check ownership - users can only delete their own armies (unless admin)
+    const canDelete = await ownsResource(event, playerId)
+    if (!canDelete) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'You can only delete your own armies'
       })
     }
 

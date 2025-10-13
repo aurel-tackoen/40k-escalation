@@ -1,20 +1,37 @@
 /**
  * POST /api/matches
- * Creates a new match and updates player stats
+ * Creates a new match and updates player stats (requires authentication)
+ * Organizers and admins can record any match, players can only record their own matches
  */
 import { db } from '../../db'
 import { matches, players } from '../../db/schema'
 import { eq } from 'drizzle-orm'
+import { requireAuth, isOrganizer, ownsResource } from '../utils/auth'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event)
+    // Require authentication
+    await requireAuth(event)
 
-    // Validate required fields
+    const body = await readBody(event)    // Validate required fields
     if (!body.player1Id || !body.player2Id || body.round === undefined) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Player IDs and round are required'
+      })
+    }
+
+    // Check authorization
+    // Organizers and admins can record any match
+    // Regular players can only record matches they're involved in
+    const isOrganizerOrAdmin = await isOrganizer(event)
+    const isPlayer1 = await ownsResource(event, body.player1Id)
+    const isPlayer2 = await ownsResource(event, body.player2Id)
+
+    if (!isOrganizerOrAdmin && !isPlayer1 && !isPlayer2) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'You can only record matches you are involved in'
       })
     }
 
@@ -37,7 +54,7 @@ export default defineEventHandler(async (event) => {
     const [player2] = await db.select().from(players).where(eq(players.id, body.player2Id))
 
     if (player1) {
-      const updates: any = {
+      const updates: Record<string, number> = {
         totalPoints: player1.totalPoints + (body.player1Points || 0)
       }
 
@@ -53,7 +70,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (player2) {
-      const updates: any = {
+      const updates: Record<string, number> = {
         totalPoints: player2.totalPoints + (body.player2Points || 0)
       }
 

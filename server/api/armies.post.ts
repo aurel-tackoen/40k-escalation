@@ -1,20 +1,31 @@
 /**
  * POST /api/armies
- * Creates or updates an army list
+ * Creates or updates an army list (requires authentication)
  */
 import { db } from '../../db'
 import { armies } from '../../db/schema'
 import { eq, and } from 'drizzle-orm'
+import { requireAuth, ownsResource } from '../utils/auth'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event)
+    // Require authentication
+    await requireAuth(event)
 
-    // Validate required fields
+    const body = await readBody(event)    // Validate required fields
     if (!body.playerId || !body.round || !body.name || !body.units) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Player ID, round, name, and units are required'
+      })
+    }
+
+    // Check ownership - users can only create armies for themselves (unless admin)
+    const canModify = await ownsResource(event, body.playerId)
+    if (!canModify) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'You can only manage your own armies'
       })
     }
 

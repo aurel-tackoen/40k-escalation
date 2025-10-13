@@ -1,6 +1,7 @@
 <script setup>
   import { ref, watch } from 'vue'
-  import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords } from 'lucide-vue-next'
+  import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords, User, LogOut, LogIn } from 'lucide-vue-next'
+  import { useAuth } from '~/composables/useAuth'
 
   const tabs = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
@@ -11,6 +12,10 @@
   ]
 
   const isMobileMenuOpen = ref(false)
+  const showAuthModal = ref(false)
+  const authMode = ref('login')
+
+  const { user, isAuthenticated, logout, isLoading } = useAuth()
 
   const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value
@@ -18,6 +23,19 @@
 
   const closeMobileMenu = () => {
     isMobileMenuOpen.value = false
+  }
+
+  const openLoginModal = () => {
+    authMode.value = 'login'
+    showAuthModal.value = true
+  }
+
+  const closeAuthModal = () => {
+    showAuthModal.value = false
+  }
+
+  const handleLogout = () => {
+    logout()
   }
 
   // Close mobile menu when route changes
@@ -70,7 +88,43 @@
           </button>
 
           <!-- Desktop Navigation -->
-          <nav class="hidden lg:flex flex-wrap gap-2 flex-1 justify-end">
+          <nav class="hidden lg:flex flex-wrap gap-2 flex-1 justify-end items-center">
+            <!-- Auth Section -->
+            <div v-if="!isLoading" class="flex items-center gap-2 mr-2">
+              <template v-if="isAuthenticated">
+                <!-- User Info -->
+                <NuxtLink
+                  to="/profile"
+                  class="px-4 py-2 text-gray-300 hover:text-yellow-400 transition-colors flex items-center gap-2 border border-gray-700 rounded-md hover:border-yellow-600"
+                >
+                  <User :size="18" />
+                  <span class="text-sm font-semibold">{{ user?.email?.split('@')[0] || 'Profile' }}</span>
+                </NuxtLink>
+                <!-- Logout Button -->
+                <button
+                  @click="handleLogout"
+                  class="px-4 py-2 text-gray-300 hover:text-red-400 transition-colors flex items-center gap-2 border border-gray-700 rounded-md hover:border-red-600"
+                >
+                  <LogOut :size="18" />
+                  <span class="text-sm font-semibold">Logout</span>
+                </button>
+              </template>
+              <template v-else>
+                <!-- Login Button -->
+                <button
+                  @click="openLoginModal"
+                  class="px-4 py-2 text-gray-300 hover:text-yellow-400 transition-colors flex items-center gap-2 border border-gray-700 rounded-md hover:border-yellow-600"
+                >
+                  <LogIn :size="18" />
+                  <span class="text-sm font-semibold">Login</span>
+                </button>
+              </template>
+            </div>
+
+            <!-- Separator -->
+            <div v-if="!isLoading" class="h-8 w-px bg-gray-700"></div>
+
+            <!-- Navigation Links -->
             <NuxtLink
               v-for="tab in tabs"
               :key="tab.path"
@@ -157,6 +211,38 @@
             </NuxtLink>
           </div>
 
+          <!-- Mobile Menu Auth Section -->
+          <div v-if="!isLoading" class="p-4 border-t border-gray-700/50">
+            <template v-if="isAuthenticated">
+              <!-- User Profile Link -->
+              <NuxtLink
+                to="/profile"
+                class="flex items-center gap-3 px-5 py-3 mb-2 text-gray-300 border border-gray-700 hover:text-yellow-400 hover:border-yellow-600 hover:bg-gray-700/50 transition-all rounded-lg"
+              >
+                <User :size="20" />
+                <span class="font-semibold">{{ user?.email?.split('@')[0] || 'Profile' }}</span>
+              </NuxtLink>
+              <!-- Logout Button -->
+              <button
+                @click="handleLogout"
+                class="w-full flex items-center justify-center gap-3 px-5 py-3 text-red-400 border border-red-700 hover:border-red-600 hover:bg-red-900/20 transition-all rounded-lg font-semibold"
+              >
+                <LogOut :size="20" />
+                <span>Logout</span>
+              </button>
+            </template>
+            <template v-else>
+              <!-- Login Button -->
+              <button
+                @click="openLoginModal"
+                class="w-full flex items-center justify-center gap-3 px-5 py-3 text-yellow-400 border border-yellow-700 hover:border-yellow-600 hover:bg-yellow-900/20 transition-all rounded-lg font-semibold"
+              >
+                <LogIn :size="20" />
+                <span>Login</span>
+              </button>
+            </template>
+          </div>
+
           <!-- Mobile Menu Footer -->
           <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900/50">
             <p class="text-sm text-gray-400 text-center">
@@ -174,6 +260,13 @@
     <main class="container mx-auto px-4 py-8">
       <slot />
     </main>
+
+    <!-- Auth Modal -->
+    <AuthModal
+      :show="showAuthModal"
+      :mode="authMode"
+      @close="closeAuthModal"
+    />
   </div>
 </template>
 

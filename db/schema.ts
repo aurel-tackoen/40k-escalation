@@ -22,17 +22,20 @@ export const rounds = pgTable('rounds', {
   endDate: date().notNull()
 });
 
-// Players table
+// Players table (also serves as users table with Netlify Identity)
 export const players = pgTable('players', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  netlifyId: varchar({ length: 255 }).unique(), // Netlify Identity user ID (null for legacy players)
   name: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
   faction: varchar({ length: 100 }),
+  role: varchar({ length: 50 }).default('player').notNull(), // player, organizer, admin
   wins: integer().default(0).notNull(),
   losses: integer().default(0).notNull(),
   draws: integer().default(0).notNull(),
   totalPoints: integer().default(0).notNull(),
-  createdAt: timestamp().defaultNow().notNull()
+  createdAt: timestamp().defaultNow().notNull(),
+  lastLogin: timestamp() // Track last authentication
 });
 
 // Matches table
