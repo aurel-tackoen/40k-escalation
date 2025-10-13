@@ -243,7 +243,7 @@
       <div class="flex items-center gap-3 mb-4">
         <Shield :size="32" class="text-yellow-500" />
         <div>
-          <h2 class="text-3xl font-bold font-serif text-yellow-500">Army List Manager</h2>
+          <h3 class="text-2xl font-serif font-bold text-yellow-500">Army List Manager</h3>
           <p class="text-gray-400 text-sm mt-1">Build and manage army lists for each round of the escalation league.</p>
         </div>
       </div>
@@ -276,11 +276,11 @@
 
         <!-- Action Buttons -->
         <div class="flex gap-2">
-          <button @click="exportArmies" class="btn-secondary flex items-center gap-2">
+          <button @click="exportArmies" class="btn-secondary flex items-center gap-2 cursor-pointer">
             <Download :size="18" />
             Export CSV
           </button>
-          <button @click="startNewArmy" class="btn-primary flex items-center gap-2">
+          <button @click="startNewArmy" class="btn-primary flex items-center gap-2 cursor-pointer">
             <Plus :size="20" />
             Build New Army
           </button>
@@ -555,11 +555,13 @@
     <!-- Saved Army Lists -->
     <div class="card">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-2xl font-bold text-gray-200 flex items-center gap-2">
+        <div class="flex items-center gap-2">
           <Shield :size="24" class="text-yellow-500" />
-          Saved Army Lists
-          <span class="text-lg text-gray-400 font-normal">({{ filteredArmies.length }})</span>
-        </h3>
+          <h3 class="text-2xl font-serif font-bold text-yellow-500">
+            Saved Army Lists
+            <span class="text-lg text-gray-300 font-bold">({{ filteredArmies.length }})</span>
+          </h3>
+        </div>
       </div>
 
       <!-- Army Cards -->
@@ -648,11 +650,11 @@
             <!-- Units Summary -->
             <div class="mb-4">
               <h6 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Units</h6>
-              <div class="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+              <div class="space-y-1 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
                 <div
                   v-for="unit in army.units"
                   :key="unit.id"
-                  class="text-sm bg-gray-800 p-2.5 rounded border border-gray-700"
+                  class="text-sm bg-gray-800 p-2.5 rounded border border-gray-600"
                 >
                   <div class="flex justify-between items-start mb-1">
                     <span class="text-gray-200 font-medium">{{ unit.name }}</span>
@@ -690,7 +692,7 @@
                 <button
                   v-if="canEscalateArmy(army)"
                   @click="escalateArmy(army)"
-                  class="text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 px-2.5 py-1.5 rounded flex items-center gap-1 text-xs font-medium transition-colors"
+                  class="text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 px-2.5 py-1.5 rounded flex items-center gap-1 text-xs font-medium transition-colors cursor-pointer"
                   title="Escalate to Next Round"
                 >
                   <TrendingUp :size="14" />
@@ -698,14 +700,14 @@
                 </button>
                 <button
                   @click="editArmy(army)"
-                  class="text-yellow-400 hover:text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/50 px-2.5 py-1.5 rounded transition-colors"
+                  class="text-yellow-400 hover:text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer"
                   title="Edit Army"
                 >
                   <Edit :size="16" />
                 </button>
                 <button
                   @click="confirmDeleteArmy(army)"
-                  class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 px-2.5 py-1.5 rounded transition-colors"
+                  class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer"
                   title="Delete Army"
                 >
                   <Trash2 :size="16" />

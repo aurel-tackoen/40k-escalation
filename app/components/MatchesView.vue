@@ -1,6 +1,6 @@
 <script setup>
   import { ref, computed, toRef } from 'vue'
-  import { Plus, Filter, Calendar, Target, Users, Trophy, X, Download, Flame, TrendingUp } from 'lucide-vue-next'
+  import { Plus, Filter, Calendar, Users, Trophy, X, Download, Flame, TrendingUp } from 'lucide-vue-next'
   import { missions } from '~/data/missions'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
@@ -269,7 +269,7 @@
               type="button"
               @click="setWinner(newMatch.player1Id)"
               :class="[
-                'p-3 rounded-lg border-2 transition-colors',
+                'p-3 rounded-lg border-2 transition-colors cursor-pointer',
                 newMatch.winnerId === newMatch.player1Id
                   ? 'border-green-400 bg-green-400 bg-opacity-20 text-green-400'
                   : 'border-gray-600 text-gray-400 hover:border-green-400'
@@ -282,7 +282,7 @@
               type="button"
               @click="setWinner(null)"
               :class="[
-                'p-3 rounded-lg border-2 transition-colors',
+                'p-3 rounded-lg border-2 transition-colors cursor-pointer',
                 newMatch.winnerId === null
                   ? 'border-yellow-400 bg-yellow-400 bg-opacity-20 text-yellow-400'
                   : 'border-gray-600 text-gray-400 hover:border-yellow-400'
@@ -294,7 +294,7 @@
               type="button"
               @click="setWinner(newMatch.player2Id)"
               :class="[
-                'p-3 rounded-lg border-2 transition-colors',
+                'p-3 rounded-lg border-2 transition-colors cursor-pointer',
                 newMatch.winnerId === newMatch.player2Id
                   ? 'border-green-400 bg-green-400 bg-opacity-20 text-green-400'
                   : 'border-gray-600 text-gray-400 hover:border-green-400'
@@ -318,11 +318,11 @@
         </div>
 
         <div class="flex space-x-4">
-          <button type="submit" class="btn-primary flex items-center gap-2">
+          <button type="submit" class="btn-primary flex items-center gap-2 cursor-pointer">
             <Plus :size="18" />
             Record Match
           </button>
-          <button type="button" @click="resetForm" class="btn-secondary flex items-center gap-2">
+          <button type="button" @click="resetForm" class="btn-secondary flex items-center gap-2 cursor-pointer">
             <X :size="18" />
             Reset Form
           </button>
@@ -378,7 +378,6 @@
           <div class="flex justify-between items-center mb-3">
             <div class="flex items-center space-x-4">
               <span class="bg-yellow-500 text-gray-900 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-                <Target :size="14" />
                 Round {{ match.round }}
               </span>
               <span class="text-sm text-gray-400 flex items-center gap-1">

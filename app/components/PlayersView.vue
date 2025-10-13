@@ -88,7 +88,7 @@
           <Users :size="24" class="text-yellow-500" />
           <h3 class="text-2xl font-serif font-bold text-yellow-500">Registered Players</h3>
         </div>
-        <button @click="exportPlayers" class="btn-secondary flex items-center gap-2">
+        <button @click="exportPlayers" class="btn-secondary flex items-center gap-2 cursor-pointer">
           <Download :size="18" />
           Export CSV
         </button>
@@ -217,11 +217,11 @@
           />
         </div>
         <div class="flex space-x-4">
-          <button type="submit" class="btn-primary flex items-center gap-2">
+          <button type="submit" class="btn-primary flex items-center gap-2 cursor-pointer">
             <UserPlus :size="18" />
             Add Player
           </button>
-          <button type="button" @click="resetForm" class="btn-secondary">
+          <button type="button" @click="resetForm" class="btn-secondary cursor-pointer">
             Reset
           </button>
         </div>
