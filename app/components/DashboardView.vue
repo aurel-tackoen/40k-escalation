@@ -102,7 +102,7 @@
     <!-- Two Column Layout for Standings and Painting -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Current Standings -->
-      <div class="card">
+      <div class="card overflow-hidden">
         <div class="flex items-center gap-2 mb-4">
           <Medal :size="24" class="text-yellow-500 flex-shrink-0" />
           <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Current Standings</h3>
@@ -173,43 +173,67 @@
         >
           <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
             <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs sm:text-sm text-gray-200 font-bold">Round {{ match.round }}</span>
               <span class="text-xs sm:text-sm text-gray-400">{{ formatDate(match.datePlayed) }}</span>
-              <span class="text-xs sm:text-sm text-gray-400">Round {{ match.round }}</span>
             </div>
             <span class="text-xs sm:text-sm bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold whitespace-nowrap">{{ match.mission }}</span>
           </div>
-          <div class="mt-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-            <!-- Match Score - Redesigned for better responsive layout -->
-            <div class="flex items-center justify-between sm:justify-start gap-3 sm:gap-4 min-w-0 flex-1">
-              <!-- Player 1 -->
-              <div class="flex items-center gap-2 min-w-0 flex-1">
-                <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player1Id) }}</span>
-                <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player1Points }}</span>
+          <div class="mt-3">
+            <!-- Match Score - Responsive Design -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <!-- Scoreboard -->
+              <div class="sm:hidden bg-gray-800 rounded-lg border border-gray-600 overflow-hidden flex-1 sm:max-w-md">
+                <div class="grid grid-cols-[1fr_auto_1fr] items-stretch">
+                  <!-- Player 1 -->
+                  <div class="p-3 text-right flex flex-col justify-center" :class="match.winnerId === match.player1Id ? 'bg-green-900/20' : ''">
+                    <div class="font-semibold text-sm mb-1">{{ getPlayerName(match.player1Id) }}</div>
+                    <div class="text-yellow-500 font-bold text-2xl">{{ match.player1Points }}</div>
+                  </div>
+
+                  <!-- VS Divider -->
+                  <div class="px-3 bg-gray-900/50 border-x border-gray-600 flex items-center justify-center">
+                    <Swords :size="18" class="text-gray-400" />
+                  </div>
+
+                  <!-- Player 2 -->
+                  <div class="p-3 text-left flex flex-col justify-center" :class="match.winnerId === match.player2Id ? 'bg-green-900/20' : ''">
+                    <div class="font-semibold text-sm mb-1">{{ getPlayerName(match.player2Id) }}</div>
+                    <div class="text-yellow-500 font-bold text-2xl">{{ match.player2Points }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hidden sm:flex items-center justify-start gap-3 sm:gap-4 min-w-0 flex-1">
+                <!-- Player 1 -->
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player1Id) }}</span>
+                  <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player1Points }}</span>
+                </div>
+
+                <!-- VS separator -->
+                <span class="text-gray-400 text-xs sm:text-sm font-semibold flex-shrink-0 px-1">VS</span>
+
+                <!-- Player 2 -->
+                <div class="flex items-center gap-2 min-w-0 flex-1 justify-end sm:justify-start">
+                  <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player2Points }}</span>
+                  <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player2Id) }}</span>
+                </div>
               </div>
 
-              <!-- VS separator -->
-              <span class="text-gray-400 text-xs sm:text-sm font-semibold flex-shrink-0 px-1">VS</span>
 
-              <!-- Player 2 -->
-              <div class="flex items-center gap-2 min-w-0 flex-1 justify-end sm:justify-start">
-                <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player2Points }}</span>
-                <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player2Id) }}</span>
-              </div>
-            </div>
-
-            <!-- Winner/Draw badge -->
-            <div class="flex items-center justify-center sm:justify-end flex-shrink-0">
-              <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center gap-1.5 text-sm sm:text-base bg-green-900/30 px-3 py-1.5 rounded-full border border-green-700/50">
-                <Trophy :size="16" class="flex-shrink-0" />
-                <span class="truncate max-w-[120px]">{{ getPlayerName(match.winnerId) }}</span>
-              </div>
-              <div v-else class="text-yellow-400 font-semibold flex items-center gap-1.5 text-sm sm:text-base bg-yellow-900/30 px-3 py-1.5 rounded-full border border-yellow-700/50">
-                <Handshake :size="16" class="flex-shrink-0" />
-                <span>Draw</span>
+              <!-- Winner/Draw badge -->
+              <div class="flex items-center justify-center sm:justify-end flex-shrink-0">
+                <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center gap-2 text-sm bg-green-900/30 px-4 py-2.5 rounded-lg border border-green-700/50">
+                  <Trophy :size="16" class="flex-shrink-0" />
+                  <span>{{ getPlayerName(match.winnerId) }} Wins!</span>
+                </div>
+                <div v-else class="text-yellow-400 font-semibold flex items-center gap-2 text-sm bg-yellow-900/30 px-4 py-2.5 rounded-lg border border-yellow-700/50">
+                  <Handshake :size="16" class="flex-shrink-0" />
+                  <span>Draw</span>
+                </div>
               </div>
             </div>
           </div>
-          <div v-if="match.notes" class="mt-2 text-xs sm:text-sm text-gray-400 italic">
+          <div v-if="match.notes" class="text-center sm:text-left mt-2 text-xs sm:text-sm text-gray-400 italic">
             "{{ match.notes }}"
           </div>
         </div>

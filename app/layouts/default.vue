@@ -1,6 +1,6 @@
 <script setup>
   import { ref, watch } from 'vue'
-  import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X } from 'lucide-vue-next'
+  import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords } from 'lucide-vue-next'
 
   const tabs = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
@@ -37,11 +37,13 @@
       </div>
 
       <div class="relative container mx-auto px-3 sm:px-6 py-5">
-        <div class="flex items-center justify-between gap-4">
-          <!-- Professional Title Section with Mobile Menu Button -->
-          <div class="flex items-center justify-between gap-3 w-full">
-            <div class="text-3xl text-yellow-600 transition-colors hover:text-yellow-500">⚔️</div>
-            <div class="flex flex-col">
+        <div class="flex items-center justify-between gap-3">
+          <!-- Professional Title Section -->
+          <div class="flex items-center gap-3 flex-1 lg:flex-initial">
+            <div class="text-3xl text-yellow-600 transition-colors hover:text-yellow-500">
+              <Swords :size="32" :stroke-width="1.5" />
+            </div>
+            <div class="flex flex-col min-w-0">
               <NuxtLink to="/" class="group">
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-100 hover:text-yellow-500 transition-colors duration-300 tracking-wide font-serif">
                   Warhammer 40K
@@ -55,20 +57,20 @@
                 <span class="hidden md:inline-block w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
               </div>
             </div>
-
-            <!-- Mobile Menu Button (positioned right of title) -->
-            <button
-              @click="toggleMobileMenu"
-              class="lg:hidden p-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600"
-              aria-label="Toggle menu"
-            >
-              <Menu v-if="!isMobileMenuOpen" :size="24" :stroke-width="2.5" />
-              <X v-else :size="24" :stroke-width="2.5" />
-            </button>
           </div>
 
+          <!-- Mobile Menu Button -->
+          <button
+            @click="toggleMobileMenu"
+            class="lg:hidden p-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600 flex-shrink-0"
+            aria-label="Toggle menu"
+          >
+            <Menu v-if="!isMobileMenuOpen" :size="24" :stroke-width="2.5" />
+            <X v-else :size="24" :stroke-width="2.5" />
+          </button>
+
           <!-- Desktop Navigation -->
-          <nav class="hidden lg:flex flex-wrap gap-2">
+          <nav class="hidden lg:flex flex-wrap gap-2 flex-1 justify-end">
             <NuxtLink
               v-for="tab in tabs"
               :key="tab.path"
@@ -114,7 +116,9 @@
           <!-- Mobile Menu Header -->
           <div class="flex items-center justify-between p-6 border-b border-gray-700/50">
             <div class="flex items-center gap-3">
-              <div class="text-2xl text-yellow-600">⚔️</div>
+              <div class="text-2xl text-yellow-600">
+                <Swords :size="28" :stroke-width="1.5" />
+              </div>
               <h2 class="text-xl font-bold text-gray-100 font-serif">Navigation</h2>
             </div>
             <button
