@@ -1,5 +1,6 @@
 <script setup>
-  import { LayoutDashboard, Users, Shield, Settings, Trophy } from 'lucide-vue-next'
+  import { ref, watch } from 'vue'
+  import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X } from 'lucide-vue-next'
 
   const tabs = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
@@ -8,6 +9,22 @@
     { path: '/matches', name: 'Matches', icon: Trophy },
     { path: '/setup', name: 'League', icon: Settings }
   ]
+
+  const isMobileMenuOpen = ref(false)
+
+  const toggleMobileMenu = () => {
+    isMobileMenuOpen.value = !isMobileMenuOpen.value
+  }
+
+  const closeMobileMenu = () => {
+    isMobileMenuOpen.value = false
+  }
+
+  // Close mobile menu when route changes
+  const route = useRoute()
+  watch(() => route.path, () => {
+    closeMobileMenu()
+  })
 </script>
 
 <template>
@@ -19,10 +36,10 @@
         <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent"></div>
       </div>
 
-      <div class="relative container mx-auto px-6 py-5">
-        <div class="flex items-center justify-between flex-wrap gap-6">
-          <!-- Professional Title Section -->
-          <div class="flex items-center space-x-4 gap-4">
+      <div class="relative container mx-auto px-3 sm:px-6 py-5">
+        <div class="flex items-center justify-between gap-4">
+          <!-- Professional Title Section with Mobile Menu Button -->
+          <div class="flex items-center justify-between gap-3 w-full">
             <div class="text-3xl text-yellow-600 transition-colors hover:text-yellow-500">⚔️</div>
             <div class="flex flex-col">
               <NuxtLink to="/" class="group">
@@ -38,10 +55,20 @@
                 <span class="hidden md:inline-block w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
               </div>
             </div>
+
+            <!-- Mobile Menu Button (positioned right of title) -->
+            <button
+              @click="toggleMobileMenu"
+              class="lg:hidden p-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600"
+              aria-label="Toggle menu"
+            >
+              <Menu v-if="!isMobileMenuOpen" :size="24" :stroke-width="2.5" />
+              <X v-else :size="24" :stroke-width="2.5" />
+            </button>
           </div>
 
-          <!-- Clean Navigation -->
-          <nav class="flex flex-wrap gap-2">
+          <!-- Desktop Navigation -->
+          <nav class="hidden lg:flex flex-wrap gap-2">
             <NuxtLink
               v-for="tab in tabs"
               :key="tab.path"
@@ -68,6 +95,72 @@
           </nav>
         </div>
       </div>
+
+      <!-- Mobile Menu Overlay -->
+      <Transition name="fade">
+        <div
+          v-if="isMobileMenuOpen"
+          @click="closeMobileMenu"
+          class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+        ></div>
+      </Transition>
+
+      <!-- Mobile Menu Slide-out -->
+      <Transition name="slide">
+        <nav
+          v-if="isMobileMenuOpen"
+          class="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-l-2 border-yellow-600/40 shadow-2xl z-50 lg:hidden overflow-y-auto"
+        >
+          <!-- Mobile Menu Header -->
+          <div class="flex items-center justify-between p-6 border-b border-gray-700/50">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl text-yellow-600">⚔️</div>
+              <h2 class="text-xl font-bold text-gray-100 font-serif">Navigation</h2>
+            </div>
+            <button
+              @click="closeMobileMenu"
+              class="p-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300"
+              aria-label="Close menu"
+            >
+              <X :size="24" :stroke-width="2.5" />
+            </button>
+          </div>
+
+          <!-- Mobile Menu Links -->
+          <div class="p-4 space-y-2">
+            <NuxtLink
+              v-for="tab in tabs"
+              :key="tab.path"
+              :to="tab.path"
+              class="mobile-nav-link group relative flex items-center gap-4 px-5 py-4 font-semibold transition-all duration-300 rounded-lg border overflow-hidden"
+              active-class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/30"
+              exact-active-class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/30"
+              :class="{
+                'text-gray-300 border-gray-700 hover:text-yellow-400 hover:border-yellow-600 hover:bg-gray-700/50 hover:translate-x-1': $route.path !== tab.path
+              }"
+            >
+              <!-- Icon -->
+              <component :is="tab.icon" :size="22" :stroke-width="2.5" class="flex-shrink-0" />
+
+              <!-- Link Text -->
+              <span class="relative z-10 flex-1">{{ tab.name }}</span>
+
+              <!-- Active Indicator -->
+              <div
+                v-if="$route.path === tab.path"
+                class="w-2 h-2 bg-gray-900 rounded-full"
+              ></div>
+            </NuxtLink>
+          </div>
+
+          <!-- Mobile Menu Footer -->
+          <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900/50">
+            <p class="text-sm text-gray-400 text-center">
+              Warhammer 40K Escalation League
+            </p>
+          </div>
+        </nav>
+      </Transition>
 
       <!-- Subtle accent line -->
       <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-yellow-600/30 to-transparent"></div>
@@ -97,6 +190,32 @@
 /* Smooth, professional transitions */
 a, button {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile Menu Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
+}
+
+/* Prevent body scroll when mobile menu is open */
+body.menu-open {
+  overflow: hidden;
 }
 
 /* Enhanced nav button hover effects */

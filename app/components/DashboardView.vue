@@ -63,38 +63,38 @@
   <div class="flex flex-col gap-8">
     <!-- League Overview -->
     <div class="card">
-      <h2 class="text-3xl font-serif font-bold text-yellow-500">{{ league?.name || 'League' }}</h2>
-      <p class="text-gray-300 mb-4">{{ league?.description || '' }}</p>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <h2 class="text-2xl sm:text-3xl font-serif font-bold text-yellow-500">{{ league?.name || 'League' }}</h2>
+      <p class="text-sm sm:text-base text-gray-300 mb-4">{{ league?.description || '' }}</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-gray-700 p-4 rounded-lg">
           <div class="flex items-center gap-2 mb-2">
-            <Calendar :size="20" class="text-yellow-500" />
-            <h3 class="text-lg font-semibold text-yellow-500">Current Round</h3>
+            <Calendar :size="20" class="text-yellow-500 flex-shrink-0" />
+            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Current Round</h3>
           </div>
-          <p class="text-2xl font-bold">{{ currentRound.name }}</p>
-          <p class="text-sm text-gray-400">{{ currentRound.pointLimit }} points</p>
+          <p class="text-xl sm:text-2xl font-bold">{{ currentRound.name }}</p>
+          <p class="text-xs sm:text-sm text-gray-400">{{ currentRound.pointLimit }} points</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg">
           <div class="flex items-center gap-2 mb-2">
-            <Users :size="20" class="text-yellow-500" />
-            <h3 class="text-lg font-semibold text-yellow-500">Players</h3>
+            <Users :size="20" class="text-yellow-500 flex-shrink-0" />
+            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Players</h3>
           </div>
-          <p class="text-2xl font-bold">{{ players.length }}</p>
+          <p class="text-xl sm:text-2xl font-bold">{{ players.length }}</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg">
           <div class="flex items-center gap-2 mb-2">
-            <Shield :size="20" class="text-yellow-500" />
-            <h3 class="text-lg font-semibold text-yellow-500">Army Lists</h3>
+            <Shield :size="20" class="text-yellow-500 flex-shrink-0" />
+            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Army Lists</h3>
           </div>
-          <p class="text-2xl font-bold">{{ currentRoundArmies }}</p>
-          <p class="text-sm text-gray-400">for current round</p>
+          <p class="text-xl sm:text-2xl font-bold">{{ currentRoundArmies }}</p>
+          <p class="text-xs sm:text-sm text-gray-400">for current round</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg">
           <div class="flex items-center gap-2 mb-2">
-            <Swords :size="20" class="text-yellow-500" />
-            <h3 class="text-lg font-semibold text-yellow-500">Matches Played</h3>
+            <Swords :size="20" class="text-yellow-500 flex-shrink-0" />
+            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Matches Played</h3>
           </div>
-          <p class="text-2xl font-bold">{{ matches.length }}</p>
+          <p class="text-xl sm:text-2xl font-bold">{{ matches.length }}</p>
         </div>
       </div>
     </div>
@@ -104,17 +104,17 @@
       <!-- Current Standings -->
       <div class="card">
         <div class="flex items-center gap-2 mb-4">
-          <Medal :size="24" class="text-yellow-500" />
-          <h3 class="text-2xl font-serif font-bold text-yellow-500">Current Standings</h3>
+          <Medal :size="24" class="text-yellow-500 flex-shrink-0" />
+          <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Current Standings</h3>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full">
+        <div class="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0 custom-scrollbar">
+          <table class="w-full min-w-[500px] sm:min-w-0">
             <thead>
               <tr class="border-b border-gray-600">
-                <th class="text-left py-3 px-4 text-yellow-500">Rank</th>
-                <th class="text-left py-3 px-4 text-yellow-500">Player</th>
-                <th class="text-center py-3 px-4 text-yellow-500">W-L-D</th>
-                <th class="text-center py-3 px-4 text-yellow-500">Points</th>
+                <th class="text-left py-2 sm:py-3 px-2 sm:px-4 text-yellow-500 text-sm sm:text-base">Rank</th>
+                <th class="text-left py-2 sm:py-3 px-2 sm:px-4 text-yellow-500 text-sm sm:text-base">Player</th>
+                <th class="text-center py-2 sm:py-3 px-2 sm:px-4 text-yellow-500 text-sm sm:text-base">W-L-D</th>
+                <th class="text-center py-2 sm:py-3 px-2 sm:px-4 text-yellow-500 text-sm sm:text-base">Points</th>
               </tr>
             </thead>
             <tbody>
@@ -123,9 +123,9 @@
                 :key="player.id"
                 class="border-b border-gray-700 hover:bg-gray-700 transition-colors"
               >
-                <td class="py-3 px-4">
+                <td class="py-2 sm:py-3 px-2 sm:px-4">
                   <span
-                    class="inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm"
+                    class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full font-bold text-xs sm:text-sm"
                     :class="[
                       index === 0 ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600 text-gray-900' :
                       index === 1 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500 text-gray-900' :
@@ -136,14 +136,14 @@
                     {{ index + 1 }}
                   </span>
                 </td>
-                <td class="py-3 px-4">
-                  <div class="font-semibold">{{ player.name }}</div>
-                  <div class="text-xs text-gray-400">{{ player.faction }}</div>
+                <td class="py-2 sm:py-3 px-2 sm:px-4">
+                  <div class="font-semibold text-sm sm:text-base">{{ player.name }}</div>
+                  <div class="text-xs text-gray-400 truncate max-w-[120px] sm:max-w-none">{{ player.faction }}</div>
                 </td>
-                <td class="py-3 px-4 text-center">
+                <td class="py-2 sm:py-3 px-2 sm:px-4 text-center text-sm sm:text-base whitespace-nowrap">
                   <span class="text-green-400 font-bold">{{ player.wins }}</span>-<span class="text-red-400 font-bold">{{ player.losses }}</span>-<span class="text-yellow-400 font-bold">{{ player.draws }}</span>
                 </td>
-                <td class="py-3 px-4 text-center text-yellow-500 font-bold text-lg">{{ player.totalPoints }}</td>
+                <td class="py-2 sm:py-3 px-2 sm:px-4 text-center text-yellow-500 font-bold text-base sm:text-lg">{{ player.totalPoints }}</td>
               </tr>
             </tbody>
           </table>
@@ -161,39 +161,55 @@
 
     <!-- Recent Matches -->
     <div class="card">
-      <div class="flex items-center gap-2 mb-6">
+      <div class="flex items-center gap-2 mb-4">
         <Trophy :size="24" class="text-yellow-500" />
-        <h3 class="text-2xl font-serif font-bold text-yellow-500">Recent Matches</h3>
+        <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Recent Matches</h3>
       </div>
       <div class="space-y-4">
         <div
           v-for="match in recentMatches"
           :key="match.id"
-          class="bg-gray-700 p-4 rounded-lg"
+          class="bg-gray-700 p-3 sm:p-4 rounded-lg"
         >
-          <div class="flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-              <span class="text-sm text-gray-400">{{ formatDate(match.datePlayed) }}</span>
-              <span class="text-sm bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold">{{ match.mission }}</span>
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs sm:text-sm text-gray-400">{{ formatDate(match.datePlayed) }}</span>
+              <span class="text-xs sm:text-sm text-gray-400">Round {{ match.round }}</span>
             </div>
-            <span class="text-sm text-gray-400">Round {{ match.round }}</span>
+            <span class="text-xs sm:text-sm bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold whitespace-nowrap">{{ match.mission }}</span>
           </div>
-          <div class="mt-2 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-              <span class="font-semibold">{{ getPlayerName(match.player1Id) }}</span>
-              <span class="text-yellow-500 font-bold">{{ match.player1Points }}</span>
-              <span class="text-gray-400">vs</span>
-              <span class="text-yellow-500 font-bold">{{ match.player2Points }}</span>
-              <span class="font-semibold">{{ getPlayerName(match.player2Id) }}</span>
+          <div class="mt-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+            <!-- Match Score - Redesigned for better responsive layout -->
+            <div class="flex items-center justify-between sm:justify-start gap-3 sm:gap-4 min-w-0 flex-1">
+              <!-- Player 1 -->
+              <div class="flex items-center gap-2 min-w-0 flex-1">
+                <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player1Id) }}</span>
+                <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player1Points }}</span>
+              </div>
+
+              <!-- VS separator -->
+              <span class="text-gray-400 text-xs sm:text-sm font-semibold flex-shrink-0 px-1">VS</span>
+
+              <!-- Player 2 -->
+              <div class="flex items-center gap-2 min-w-0 flex-1 justify-end sm:justify-start">
+                <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player2Points }}</span>
+                <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player2Id) }}</span>
+              </div>
             </div>
-            <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center">
-              <Trophy :size="16" class="mr-2" /> {{ getPlayerName(match.winnerId) }}
-            </div>
-            <div v-else class="text-yellow-400 font-semibold flex items-center">
-              <Handshake :size="16" class="mr-2" /> Draw
+
+            <!-- Winner/Draw badge -->
+            <div class="flex items-center justify-center sm:justify-end flex-shrink-0">
+              <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center gap-1.5 text-sm sm:text-base bg-green-900/30 px-3 py-1.5 rounded-full border border-green-700/50">
+                <Trophy :size="16" class="flex-shrink-0" />
+                <span class="truncate max-w-[120px]">{{ getPlayerName(match.winnerId) }}</span>
+              </div>
+              <div v-else class="text-yellow-400 font-semibold flex items-center gap-1.5 text-sm sm:text-base bg-yellow-900/30 px-3 py-1.5 rounded-full border border-yellow-700/50">
+                <Handshake :size="16" class="flex-shrink-0" />
+                <span>Draw</span>
+              </div>
             </div>
           </div>
-          <div v-if="match.notes" class="mt-2 text-sm text-gray-400 italic">
+          <div v-if="match.notes" class="mt-2 text-xs sm:text-sm text-gray-400 italic">
             "{{ match.notes }}"
           </div>
         </div>

@@ -27,10 +27,10 @@
 </script>
 
 <template>
-  <div class="bg-gray-800 border border-gray-600 rounded-lg p-6">
+  <div class="card">
     <div class="flex items-center gap-2 mb-4">
       <Brush :size="24" class="text-yellow-500" />
-      <h3 class="text-2xl font-serif font-bold text-yellow-500">Painting Leaderboard</h3>
+      <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Painting Leaderboard</h3>
     </div>
 
     <div v-if="leaderboard.length === 0" class="text-center py-8 text-gray-400 text-sm">
