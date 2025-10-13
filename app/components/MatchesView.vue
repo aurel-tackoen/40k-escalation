@@ -342,7 +342,7 @@
         </div>
         <button
           @click="exportMatches"
-          class="btn-secondary flex items-center gap-2"
+          class="btn-secondary flex items-center gap-2 cursor-pointer"
           :disabled="matches.length === 0"
         >
           <Download :size="18" />
