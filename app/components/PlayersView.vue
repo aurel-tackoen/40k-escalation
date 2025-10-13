@@ -37,10 +37,16 @@
   const {
     item: playerToRemove,
     confirm: confirmRemoval,
-    execute: removePlayer
-  } = useConfirmation((player) => {
-    emit('remove-player', player.id)
-  })
+    cancel: cancelRemoval,
+    execute: executeRemoval
+  } = useConfirmation()
+
+  // Remove player handler
+  const removePlayer = () => {
+    executeRemoval((player) => {
+      emit('remove-player', player.id)
+    })
+  }
 
   const {
     formData: newPlayer,
@@ -215,10 +221,10 @@
           This action cannot be undone and all their match history will be lost.
         </p>
         <div class="flex space-x-4">
-          <button @click="removePlayer()" class="btn-secondary flex-1">
+          <button @click="removePlayer" class="btn-secondary flex-1 cursor-pointer">
             Remove Player
           </button>
-          <button @click="playerToRemove = null" class="btn-primary flex-1">
+          <button @click="cancelRemoval" class="btn-primary flex-1 cursor-pointer">
             Cancel
           </button>
         </div>
