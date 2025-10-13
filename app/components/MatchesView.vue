@@ -1,6 +1,6 @@
 <script setup>
   import { ref, computed, toRef } from 'vue'
-  import { Plus, Filter, Calendar, Users, Trophy, X, Download, Flame, TrendingUp, Handshake } from 'lucide-vue-next'
+  import { Plus, Filter, Users, Trophy, X, Download, Flame, TrendingUp, Handshake, Swords } from 'lucide-vue-next'
   import { missions } from '~/data/missions'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
@@ -165,18 +165,18 @@
 </script>
 
 <template>
-  <div class="space-y-8">
+  <div class="flex flex-col gap-8">
     <!-- Add Match Form -->
     <div class="card">
       <div class="flex items-center gap-2 mb-6">
-        <Plus :size="24" class="text-yellow-500" />
-        <h3 class="text-2xl font-serif font-bold text-yellow-500">Record New Match</h3>
+        <Plus :size="24" class="text-yellow-500 flex-shrink-0" />
+        <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Record New Match</h3>
       </div>
       <form @submit.prevent="submitMatch" class="space-y-6">
         <!-- Players Selection -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <div class="space-y-4">
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Player 1</label>
+            <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Player 1</label>
             <select v-model="newMatch.player1Id" required class="input-field">
               <option value="">Select Player 1</option>
               <option
@@ -189,7 +189,7 @@
               </option>
             </select>
             <div>
-              <label class="block text-sm font-semibold text-yellow-500 mb-2">Player 1 Victory Points</label>
+              <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Player 1 Victory Points</label>
               <input
                 v-model.number="newMatch.player1Points"
                 type="number"
@@ -203,7 +203,7 @@
           </div>
 
           <div class="space-y-4">
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Player 2</label>
+            <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Player 2</label>
             <select v-model="newMatch.player2Id" required class="input-field">
               <option value="">Select Player 2</option>
               <option
@@ -216,7 +216,7 @@
               </option>
             </select>
             <div>
-              <label class="block text-sm font-semibold text-yellow-500 mb-2">Player 2 Victory Points</label>
+              <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Player 2 Victory Points</label>
               <input
                 v-model.number="newMatch.player2Points"
                 type="number"
@@ -231,9 +231,9 @@
         </div>
 
         <!-- Match Details -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Round</label>
+            <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Round</label>
             <select v-model.number="newMatch.round" required class="input-field">
               <option value="">Select Round</option>
               <option value="1">Round 1 - Combat Patrol (500pts)</option>
@@ -242,7 +242,7 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Mission</label>
+            <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Mission</label>
             <select v-model="newMatch.mission" required class="input-field">
               <option value="">Select Mission</option>
               <option v-for="mission in missions" :key="mission" :value="mission">
@@ -250,8 +250,8 @@
               </option>
             </select>
           </div>
-          <div>
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Date Played</label>
+          <div class="sm:col-span-2 lg:col-span-1">
+            <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Date Played</label>
             <input
               v-model="newMatch.datePlayed"
               type="date"
@@ -263,13 +263,13 @@
 
         <!-- Winner Selection -->
         <div>
-          <label class="block text-sm font-semibold text-yellow-500 mb-2">Result (Optional - Auto-calculated from points)</label>
-          <div class="grid grid-cols-3 gap-4">
+          <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Result (Optional - Auto-calculated from points)</label>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <button
               type="button"
               @click="setWinner(newMatch.player1Id)"
               :class="[
-                'p-3 rounded-lg border-2 transition-colors font-bold',
+                'p-3 rounded-lg border-2 transition-colors font-bold text-sm sm:text-base',
                 !newMatch.player1Id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
                 newMatch.winnerId === newMatch.player1Id && newMatch.player1Id
                   ? 'border-green-400 bg-green-400 bg-opacity-20 text-gray-900'
@@ -283,7 +283,7 @@
               type="button"
               @click="setWinner(null)"
               :class="[
-                'p-3 rounded-lg border-2 transition-colors cursor-pointer font-bold',
+                'p-3 rounded-lg border-2 transition-colors cursor-pointer font-bold text-sm sm:text-base',
                 newMatch.winnerId === null && newMatch.winnerId !== undefined
                   ? 'border-yellow-400 bg-yellow-400 bg-opacity-20 text-gray-900'
                   : 'border-gray-600 text-gray-400 hover:border-yellow-400'
@@ -295,7 +295,7 @@
               type="button"
               @click="setWinner(newMatch.player2Id)"
               :class="[
-                'p-3 rounded-lg border-2 transition-colors font-bold',
+                'p-3 rounded-lg border-2 transition-colors font-bold text-sm sm:text-base',
                 !newMatch.player2Id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
                 newMatch.winnerId === newMatch.player2Id && newMatch.player2Id
                   ? 'border-green-400 bg-green-400 bg-opacity-20 text-gray-900'
@@ -306,12 +306,12 @@
               {{ getPlayerName(newMatch.player2Id) || 'Player 2' }} Wins
             </button>
           </div>
-          <p class="text-xs text-gray-500 mt-2">Leave unselected to auto-determine winner based on points</p>
+          <p class="text-xs sm:text-sm text-gray-500 mt-2">Leave unselected to auto-determine winner based on points</p>
         </div>
 
         <!-- Notes -->
         <div>
-          <label class="block text-sm font-semibold text-yellow-500 mb-2">Match Notes (Optional)</label>
+          <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Match Notes (Optional)</label>
           <textarea
             v-model="newMatch.notes"
             class="input-field"
@@ -320,14 +320,14 @@
           ></textarea>
         </div>
 
-        <div class="flex space-x-4">
-          <button type="submit" class="btn-primary flex items-center gap-2 cursor-pointer">
-            <Plus :size="18" />
-            Save Match
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <button type="submit" class="btn-primary flex items-center justify-center gap-2 cursor-pointer">
+            <Plus :size="18" class="flex-shrink-0" />
+            <span>Save Match</span>
           </button>
-          <button type="button" @click="resetForm" class="btn-secondary flex items-center gap-2 cursor-pointer">
-            <X :size="18" />
-            Reset
+          <button type="button" @click="resetForm" class="btn-secondary flex items-center justify-center gap-2 cursor-pointer">
+            <X :size="18" class="flex-shrink-0" />
+            <span>Reset</span>
           </button>
         </div>
       </form>
@@ -335,26 +335,26 @@
 
     <!-- Match History -->
     <div class="card">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div class="flex items-center gap-2">
-          <Trophy :size="24" class="text-yellow-500" />
-          <h3 class="text-2xl font-serif font-bold text-yellow-500">Match History</h3>
+          <Trophy :size="24" class="text-yellow-500 flex-shrink-0" />
+          <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h3>
         </div>
         <button
           @click="exportMatches"
-          class="btn-secondary flex items-center gap-2 cursor-pointer"
+          class="btn-secondary flex items-center justify-center gap-2 cursor-pointer"
           :disabled="matches.length === 0"
         >
-          <Download :size="18" />
-          Export CSV
+          <Download :size="18" class="flex-shrink-0" />
+          <span>Export CSV</span>
         </button>
       </div>
 
       <!-- Filter Controls -->
-      <div class="mb-6 flex flex-wrap gap-4">
+      <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="flex items-center gap-2">
-          <Filter :size="18" class="text-yellow-500" />
-          <select v-model="filterRound" class="input-field w-auto">
+          <Filter :size="18" class="text-yellow-500 flex-shrink-0" />
+          <select v-model="filterRound" class="input-field flex-1">
             <option value="">All Rounds</option>
             <option value="1">Round 1</option>
             <option value="2">Round 2</option>
@@ -362,8 +362,8 @@
           </select>
         </div>
         <div class="flex items-center gap-2">
-          <Users :size="18" class="text-yellow-500" />
-          <select v-model="filterPlayer" class="input-field w-auto">
+          <Users :size="18" class="text-yellow-500 flex-shrink-0" />
+          <select v-model="filterPlayer" class="input-field flex-1">
             <option value="">All Players</option>
             <option v-for="player in players" :key="player.id" :value="player.id">
               {{ player.name }}
@@ -376,73 +376,122 @@
         <div
           v-for="match in filteredMatches"
           :key="match.id"
-          class="bg-gray-700 border border-gray-600 rounded-lg p-4"
+          class="bg-gray-700 p-3 sm:p-4 rounded-lg"
         >
-          <div class="flex justify-between items-center mb-3">
-            <div class="flex items-center space-x-4">
-              <span class="bg-green-500 text-gray-900 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-                Round {{ match.round }}
-              </span>
-              <span class="text-sm text-gray-400 flex items-center gap-1">
-                <Calendar :size="14" />
-                {{ formatDate(match.datePlayed) }}
-              </span>
-              <span class="text-sm bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold">{{ match.mission }}</span>
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs sm:text-sm text-gray-200 font-bold">Round {{ match.round }}</span>
+              <span class="text-xs sm:text-sm text-gray-400">{{ formatDate(match.datePlayed) }}</span>
             </div>
-            <!-- Match Quality Badge -->
-            <div v-if="getMatchQualityBadge(match)" class="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold"
-                 :class="getMatchQualityBadge(match).class">
-              <component :is="getMatchQualityBadge(match).icon" :size="14" />
-              {{ getMatchQualityBadge(match).text }}
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs sm:text-sm bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold whitespace-nowrap">{{ match.mission }}</span>
+              <!-- Match Quality Badge -->
+              <span v-if="getMatchQualityBadge(match)" class="flex items-center gap-1 px-2 py-1 rounded text-xs sm:text-sm font-semibold whitespace-nowrap"
+                    :class="getMatchQualityBadge(match).class">
+                <component :is="getMatchQualityBadge(match).icon" :size="12" class="flex-shrink-0" />
+                {{ getMatchQualityBadge(match).text }}
+              </span>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-            <!-- Player 1 -->
-            <div class="text-center">
-              <div class="font-semibold text-lg">{{ getPlayerName(match.player1Id) }}</div>
-              <div class="text-sm text-gray-400">{{ getPlayerFaction(match.player1Id) }}</div>
-              <div class="text-2xl font-bold text-yellow-500 mt-2">{{ match.player1Points }}</div>
-              <!-- Win Streak Badge -->
-              <div v-if="getPlayerStreak(match.player1Id)" class="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white rounded-full text-xs font-bold">
-                <Flame :size="12" />
-                {{ getPlayerStreak(match.player1Id).text }}
-              </div>
-            </div>
+          <div class="mt-3">
+            <!-- Match Score - Responsive Design -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <!-- Mobile Scoreboard -->
+              <div class="sm:hidden bg-gray-800 rounded-lg border border-gray-600 overflow-hidden flex-1">
+                <div class="grid grid-cols-[1fr_auto_1fr] items-stretch">
+                  <!-- Player 1 -->
+                  <div class="p-3 text-right flex flex-col justify-center" :class="match.winnerId === match.player1Id ? 'bg-green-900/20' : ''">
+                    <div class="font-semibold text-sm mb-1">{{ getPlayerName(match.player1Id) }}</div>
+                    <div class="text-xs text-gray-400 mb-2 truncate">{{ getPlayerFaction(match.player1Id) }}</div>
+                    <div class="text-yellow-500 font-bold text-2xl">{{ match.player1Points }}</div>
+                    <!-- Win Streak Badge -->
+                    <div v-if="getPlayerStreak(match.player1Id)" class="mt-2 inline-flex items-center justify-end gap-1 text-red-400 text-xs font-bold">
+                      <Flame :size="12" class="flex-shrink-0" />
+                      <span>{{ getPlayerStreak(match.player1Id).count }}W</span>
+                    </div>
+                  </div>
 
-            <!-- VS and Result -->
-            <div class="text-center">
-              <div class="text-gray-400 text-sm mb-2">VS</div>
-              <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center justify-center">
-                <Trophy :size="16" class="mr-2" /> {{ getPlayerName(match.winnerId) }} Wins
-              </div>
-              <div v-else class="text-yellow-400 font-semibold flex items-center justify-center">
-                <Handshake :size="16" class="mr-2" /> Draw
-              </div>
-            </div>
+                  <!-- VS Divider -->
+                  <div class="px-3 bg-gray-900/50 border-x border-gray-600 flex items-center justify-center">
+                    <Swords :size="18" class="text-gray-400" />
+                  </div>
 
-            <!-- Player 2 -->
-            <div class="text-center">
-              <div class="font-semibold text-lg">{{ getPlayerName(match.player2Id) }}</div>
-              <div class="text-sm text-gray-400">{{ getPlayerFaction(match.player2Id) }}</div>
-              <div class="text-2xl font-bold text-yellow-500 mt-2">{{ match.player2Points }}</div>
-              <!-- Win Streak Badge -->
-              <div v-if="getPlayerStreak(match.player2Id)" class="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white rounded-full text-xs font-bold">
-                <Flame :size="12" />
-                {{ getPlayerStreak(match.player2Id).text }}
+                  <!-- Player 2 -->
+                  <div class="p-3 text-left flex flex-col justify-center" :class="match.winnerId === match.player2Id ? 'bg-green-900/20' : ''">
+                    <div class="font-semibold text-sm mb-1">{{ getPlayerName(match.player2Id) }}</div>
+                    <div class="text-xs text-gray-400 mb-2 truncate">{{ getPlayerFaction(match.player2Id) }}</div>
+                    <div class="text-yellow-500 font-bold text-2xl">{{ match.player2Points }}</div>
+                    <!-- Win Streak Badge -->
+                    <div v-if="getPlayerStreak(match.player2Id)" class="mt-2 inline-flex items-center justify-start gap-1 text-red-400 text-xs font-bold">
+                      <Flame :size="12" class="flex-shrink-0" />
+                      <span>{{ getPlayerStreak(match.player2Id).count }}W</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Desktop Scoreboard -->
+              <div class="hidden sm:flex items-center justify-start gap-3 sm:gap-4 min-w-0 flex-1">
+                <!-- Player 1 -->
+                <div class="flex flex-col gap-1 min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player1Id) }}</span>
+                    <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player1Points }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player1Id) }}</span>
+                    <!-- Win Streak Badge -->
+                    <span v-if="getPlayerStreak(match.player1Id)" class="inline-flex items-center gap-1 text-red-400 text-xs font-bold flex-shrink-0">
+                      <Flame :size="12" class="flex-shrink-0" />
+                      {{ getPlayerStreak(match.player1Id).count }}W
+                    </span>
+                  </div>
+                </div>
+
+                <!-- VS separator -->
+                <span class="text-gray-400 text-xs sm:text-sm font-semibold flex-shrink-0 px-1">VS</span>
+
+                <!-- Player 2 -->
+                <div class="flex flex-col gap-1 min-w-0 flex-1">
+                  <div class="flex items-center gap-2 justify-end">
+                    <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player2Points }}</span>
+                    <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player2Id) }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 justify-end">
+                    <!-- Win Streak Badge -->
+                    <span v-if="getPlayerStreak(match.player2Id)" class="inline-flex items-center gap-1 text-red-400 text-xs font-bold flex-shrink-0">
+                      <Flame :size="12" class="flex-shrink-0" />
+                      {{ getPlayerStreak(match.player2Id).count }}W
+                    </span>
+                    <span class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player2Id) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Winner/Draw badge -->
+              <div class="flex items-center justify-center sm:justify-end flex-shrink-0">
+                <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center gap-2 text-sm bg-green-900/30 px-4 py-2.5 rounded-lg border border-green-700/50">
+                  <Trophy :size="16" class="flex-shrink-0" />
+                  <span>{{ getPlayerName(match.winnerId) }} Wins!</span>
+                </div>
+                <div v-else class="text-yellow-400 font-semibold flex items-center gap-2 text-sm bg-yellow-900/30 px-4 py-2.5 rounded-lg border border-yellow-700/50">
+                  <Handshake :size="16" class="flex-shrink-0" />
+                  <span>Draw</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div v-if="match.notes" class="mt-4 p-3 bg-gray-800 rounded text-sm text-gray-300 italic">
+          <div v-if="match.notes" class="text-center sm:text-left mt-2 text-xs sm:text-sm text-gray-400 italic">
             "{{ match.notes }}"
           </div>
         </div>
       </div>
 
       <div v-if="filteredMatches.length === 0" class="text-center py-8 text-gray-400">
-        <p class="text-lg">No matches found.</p>
-        <p class="text-sm">Record your first match above!</p>
+        <p class="text-base sm:text-lg">No matches found.</p>
+        <p class="text-sm sm:text-base">Record your first match above!</p>
       </div>
     </div>
   </div>

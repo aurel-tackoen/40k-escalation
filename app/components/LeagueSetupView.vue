@@ -183,9 +183,9 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-primary flex items-center gap-2 cursor-pointer">
-          <Save :size="18" />
-          Save League Settings
+        <button type="submit" class="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto">
+          <Save :size="18" class="flex-shrink-0" />
+          <span>Save League Settings</span>
         </button>
       </form>
     </div>
@@ -257,16 +257,15 @@
           </div>
         </div>
       </div>
-      <div class="mt-6 flex items-center gap-4">
-
-        <button type="submit" class="btn-primary flex items-center gap-2 cursor-pointer">
-          <Save :size="18" />
-          Save Round Settings
+      <div class="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+        <button type="submit" class="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto">
+          <Save :size="18" class="flex-shrink-0" />
+          <span>Save Round Settings</span>
         </button>
 
-        <button @click="addRound" class="btn-secondary flex items-center gap-2 cursor-pointer">
-          <Plus :size="18" />
-          Add New Round
+        <button @click="addRound" class="btn-secondary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto">
+          <Plus :size="18" class="flex-shrink-0" />
+          <span>Add New Round</span>
         </button>
       </div>
     </div>
@@ -324,9 +323,9 @@
         <div class="bg-gray-700 p-4 rounded-lg">
           <h4 class="text-lg font-semibold text-yellow-500 mb-3">Export League Data</h4>
           <p class="text-gray-300 mb-4">Download all league data as JSON for backup or sharing.</p>
-          <button @click="exportData" class="btn-primary flex items-center gap-2">
-            <Download :size="18" />
-            Export Data
+          <button @click="exportData" class="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto">
+            <Download :size="18" class="flex-shrink-0" />
+            <span>Export Data</span>
           </button>
         </div>
 
@@ -340,9 +339,9 @@
             @change="importData"
             class="hidden"
           />
-          <button @click="fileInput.click()" class="btn-secondary flex items-center gap-2">
-            <Upload :size="18" />
-            Import Data
+          <button @click="fileInput.click()" class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto">
+            <Upload :size="18" class="flex-shrink-0" />
+            <span>Import Data</span>
           </button>
         </div>
       </div>
