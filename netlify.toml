@@ -1,8 +1,14 @@
 [build]
-  # Build command for Nuxt with Netlify preset
+  # Build command for Nuxt with Netlify preset (production only)
   command = "npm run build"
   # Netlify automatically detects the output directory
-  publish = "dist"
+  publish = ".output/public"
+
+[dev]
+  # Development server command
+  command = "nuxt dev"
+  targetPort = 3000
+  framework = "#custom"
   
 [functions]
   directory = ".netlify/functions-internal"
