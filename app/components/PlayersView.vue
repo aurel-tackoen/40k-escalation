@@ -60,7 +60,7 @@
 
   // Methods
   const submitPlayer = () => {
-    if (isFormValid(['name', 'faction'])) {
+    if (isFormValid(['name', 'faction', 'email'])) {
       emit('add-player', { ...newPlayer.value })
       resetForm()
     }
@@ -113,7 +113,7 @@
               <span class="text-gray-400">Total Points:</span>
               <span class="text-yellow-500 font-bold">{{ player.totalPoints }}</span>
             </div>
-            <div v-if="player.email" class="flex justify-between text-sm">
+            <div class="flex justify-between text-sm">
               <span class="text-gray-400 flex items-center gap-1">
                 <Mail :size="14" />
                 Email:
@@ -192,10 +192,11 @@
           </div>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-yellow-500 mb-2">Email (Optional)</label>
+          <label class="block text-sm font-semibold text-yellow-500 mb-2">Email</label>
           <input
             v-model="newPlayer.email"
             type="email"
+            required
             class="input-field"
             placeholder="player@email.com"
           />
