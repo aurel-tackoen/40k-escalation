@@ -1,6 +1,6 @@
 import { db } from '../../../db'
 import { leagues, leagueMemberships } from '../../../db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 
 /**
  * GET /api/leagues/public
@@ -18,41 +18,48 @@ export default defineEventHandler(async (event) => {
       const userLeagues = await db
         .select({ leagueId: leagueMemberships.leagueId })
         .from(leagueMemberships)
-        .where(eq(leagueMemberships.userId, userId))
+        .where(
+          and(
+            eq(leagueMemberships.userId, userId),
+            eq(leagueMemberships.status, 'active')
+          )
+        )
       userLeagueIds = userLeagues.map(l => l.leagueId)
     }
 
-    // Fetch all public leagues with member count
+    // Fetch all public leagues
     const publicLeagues = await db
-      .select({
-        id: leagues.id,
-        name: leagues.name,
-        description: leagues.description,
-        startDate: leagues.startDate,
-        endDate: leagues.endDate,
-        currentRound: leagues.currentRound,
-        status: leagues.status,
-        maxPlayers: leagues.maxPlayers,
-        memberCount: sql<number>`(
-          SELECT COUNT(*)::int 
-          FROM ${leagueMemberships} 
-          WHERE ${leagueMemberships.leagueId} = ${leagues.id}
-        )`
-      })
+      .select()
       .from(leagues)
       .where(eq(leagues.isPublic, true))
       .orderBy(leagues.createdAt)
 
-    // Add isJoined flag to each league
-    const leaguesWithJoinedStatus = publicLeagues.map(league => ({
-      ...league,
-      isJoined: userLeagueIds.includes(league.id)
-    }))
+    // Add member count and isJoined flag to each league
+    const leaguesWithDetails = await Promise.all(
+      publicLeagues.map(async (league) => {
+        // Get active member count
+        const members = await db
+          .select()
+          .from(leagueMemberships)
+          .where(
+            and(
+              eq(leagueMemberships.leagueId, league.id),
+              eq(leagueMemberships.status, 'active')
+            )
+          )
+
+        return {
+          ...league,
+          memberCount: members.length,
+          isJoined: userLeagueIds.includes(league.id)
+        }
+      })
+    )
 
     return {
       success: true,
-      data: leaguesWithJoinedStatus,
-      count: leaguesWithJoinedStatus.length
+      data: leaguesWithDetails,
+      count: leaguesWithDetails.length
     }
   } catch (error) {
     console.error('Error fetching public leagues:', error)

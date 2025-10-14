@@ -53,6 +53,18 @@ export default defineEventHandler(async (event) => {
           .from(rounds)
           .where(eq(rounds.leagueId, league.id))
 
+        // Get member count for this league (only active members)
+        const memberCountResult = await db
+          .select()
+          .from(leagueMemberships)
+          .where(
+            and(
+              eq(leagueMemberships.leagueId, league.id),
+              eq(leagueMemberships.status, 'active')
+            )
+          )
+        const memberCount = memberCountResult.length
+
         userLeagues.push({
           id: league.id,
           name: league.name,
@@ -63,6 +75,7 @@ export default defineEventHandler(async (event) => {
           isPublic: league.isPublic,
           maxPlayers: league.maxPlayers,
           status: league.status,
+          memberCount,
           rounds: leagueRounds,
           role: membership.role,
           joinedAt: membership.joinedAt
