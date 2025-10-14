@@ -11,18 +11,18 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
 
-    // Basic validation
-    if (!body.name || !body.email || !body.leagueId) {
+    // Basic validation - userId is now required for Auth0 integration
+    if (!body.name || !body.email || !body.leagueId || !body.userId) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Name, email, and leagueId are required'
+        statusMessage: 'Name, email, leagueId, and userId are required'
       })
     }
 
     // Insert player with stats
     const newPlayer = await db.insert(players).values({
       leagueId: body.leagueId,
-      userId: body.userId || null,
+      userId: body.userId,
       name: body.name,
       email: body.email,
       faction: body.faction || null,
@@ -32,25 +32,23 @@ export default defineEventHandler(async (event) => {
       totalPoints: body.totalPoints || 0
     }).returning()
 
-    // If userId is provided, update the league membership with the player ID
-    if (body.userId) {
-      const [membership] = await db
-        .select()
-        .from(leagueMemberships)
-        .where(
-          and(
-            eq(leagueMemberships.leagueId, body.leagueId),
-            eq(leagueMemberships.userId, body.userId)
-          )
+    // Update the league membership with the player ID
+    const [membership] = await db
+      .select()
+      .from(leagueMemberships)
+      .where(
+        and(
+          eq(leagueMemberships.leagueId, body.leagueId),
+          eq(leagueMemberships.userId, body.userId)
         )
-        .limit(1)
+      )
+      .limit(1)
 
-      if (membership) {
-        await db
-          .update(leagueMemberships)
-          .set({ playerId: newPlayer[0].id })
-          .where(eq(leagueMemberships.id, membership.id))
-      }
+    if (membership) {
+      await db
+        .update(leagueMemberships)
+        .set({ playerId: newPlayer[0].id })
+        .where(eq(leagueMemberships.id, membership.id))
     }
 
     return {

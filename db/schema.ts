@@ -43,9 +43,8 @@ export const rounds = pgTable('rounds', {
 export const players = pgTable('players', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   leagueId: integer().references(() => leagues.id, { onDelete: 'cascade' }).notNull(), // Players are league-specific
-  userId: integer().references(() => users.id), // Link to authenticated user (nullable for non-auth players)
-  name: varchar({ length: 255 }).notNull(),
-  email: varchar({ length: 255 }).notNull(), // Not unique - same user can have multiple players across leagues
+  userId: integer().references(() => users.id, { onDelete: 'cascade' }).notNull(), // Link to authenticated user (required for Auth0 integration)
+  name: varchar({ length: 255 }).notNull(), // Display name (can be different from user.name)
   faction: varchar({ length: 100 }),
   wins: integer().default(0).notNull(), // Stats scoped to this league
   losses: integer().default(0).notNull(),
