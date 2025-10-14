@@ -43,8 +43,11 @@ app/                          # Nuxt 4 application directory
 │   ├── PaintingProgress.vue # Painting leaderboard widget
 │   └── PlayersView.vue      # Player management with export
 ├── composables/              # Reusable composition functions (11 total)
+│   ├── useArmyFiltering.js  # Army-specific filtering (new)
+│   ├── useArmyForm.js       # Army form management (new)
 │   ├── useArmyManagement.js # Army validation & escalation (15 functions)
 │   ├── useArrayFiltering.js # Advanced filtering & sorting (16 functions)
+│   ├── useAuth.js           # Auth wrapper (composable-style API)
 │   ├── useConfirmation.js   # Confirmation dialogs (3 functions)
 │   ├── useDataExport.js     # CSV export utilities (7 functions)
 │   ├── useFormatting.js     # Date/number formatting (9 functions)
@@ -53,7 +56,8 @@ app/                          # Nuxt 4 application directory
 │   ├── usePaintingStats.js  # Painting calculations (8 functions)
 │   ├── usePlayerLookup.js   # Player data lookups (4 functions)
 │   ├── usePlayerStats.js    # Player statistics (6 functions)
-│   └── useRoundLookup.js    # Round data access (5 functions)
+│   ├── useRoundLookup.js    # Round data access (5 functions)
+│   └── useUser.js           # User profile management (new)
 ├── data/                     # Static reference data
 │   ├── factions.js          # 35 Warhammer 40k factions
 │   └── missions.js          # 10 mission types
@@ -65,8 +69,10 @@ app/                          # Nuxt 4 application directory
 │   ├── players.vue          # Player management
 │   ├── armies.vue           # Army list builder
 │   ├── matches.vue          # Match recording
+│   ├── profile.vue          # User profile page (new)
 │   └── setup.vue            # League setup
 └── stores/
+    ├── auth.js              # Auth store (user, login, logout) (new)
     └── league.js            # Pinia store (229 lines, includes painting leaderboard)
 
 db/                           # Database layer

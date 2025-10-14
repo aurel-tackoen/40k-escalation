@@ -1,10 +1,11 @@
 <script setup>
-  import { ref } from 'vue'
-  import { User, ChevronDown } from 'lucide-vue-next'
+  import { ref, onMounted, onUnmounted } from 'vue'
+  import { User, ChevronDown, LogOut } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
 
   const { isAuthenticated, getUserName, getUserAvatar, logout } = useAuth()
   const isOpen = ref(false)
+  const menuRef = ref(null)
 
   const toggleMenu = () => {
     isOpen.value = !isOpen.value
@@ -13,19 +14,34 @@
   const closeMenu = () => {
     isOpen.value = false
   }
+
+  // Close menu when clicking outside
+  const handleClickOutside = (event) => {
+    if (menuRef.value && !menuRef.value.contains(event.target)) {
+      closeMenu()
+    }
+  }
+
+  onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+  })
+
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
+  })
 </script>
 
 <template>
-  <div v-if="isAuthenticated" class="relative">
+  <div v-if="isAuthenticated" ref="menuRef" class="relative">
     <!-- User Avatar Button -->
     <button
-      @click="toggleMenu"
-      class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white py-2 px-3 rounded-lg transition-colors"
+      @click.stop="toggleMenu"
+      class="btn-login flex items-center gap-2 !py-1 pl-2"
     >
       <img
         :src="getUserAvatar"
         :alt="getUserName"
-        class="w-8 h-8 rounded-full object-cover"
+        class="w-8 h-8 rounded-lg object-cover border border-gray-400"
       >
       <span class="hidden md:inline">{{ getUserName }}</span>
       <ChevronDown :size="16" />
@@ -34,11 +50,11 @@
     <!-- Dropdown Menu -->
     <div
       v-if="isOpen"
-      @click="closeMenu"
-      class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50"
+      class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl z-[100]"
     >
       <NuxtLink
         to="/profile"
+        @click="closeMenu"
         class="flex items-center gap-2 px-4 py-3 hover:bg-gray-700 text-white transition-colors rounded-t-lg"
       >
         <User :size="18" />
@@ -49,17 +65,11 @@
 
       <button
         @click="logout"
-        class="w-full text-left px-4 py-3 hover:bg-gray-700 text-red-400 transition-colors rounded-b-lg"
+        class="w-full text-left flex items-center gap-2 px-4 py-3 hover:bg-red-900/30 text-red-400 hover:text-red-300 transition-colors rounded-b-lg"
       >
-        Logout
+        <LogOut :size="18" />
+        <span>Logout</span>
       </button>
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Ensure dropdown appears above other content */
-.z-50 {
-  z-index: 50;
-}
-</style>

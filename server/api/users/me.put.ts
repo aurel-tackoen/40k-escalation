@@ -8,18 +8,30 @@ import { eq } from 'drizzle-orm'
  */
 export default defineEventHandler(async (event) => {
   try {
-    // Get user from Netlify Identity context
-    const context = event.context
-    const netlifyUser = context.clientContext?.user
+    // Get session from cookie
+    const cookies = parseCookies(event)
+    const sessionCookie = cookies.auth_session
 
-    if (!netlifyUser) {
+    if (!sessionCookie) {
       throw createError({
         statusCode: 401,
         statusMessage: 'Not authenticated'
       })
     }
 
-    const auth0Id = netlifyUser.sub
+    // Decode session
+    let sessionData
+    try {
+      const decoded = Buffer.from(sessionCookie, 'base64').toString('utf-8')
+      sessionData = JSON.parse(decoded)
+    } catch {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Invalid session'
+      })
+    }
+
+    const auth0Id = sessionData.sub
 
     // Find user in database
     const [existingUser] = await db

@@ -40,9 +40,9 @@
 <template>
   <div id="app" class="min-h-screen bg-gray-900 text-gray-100">
     <!-- Professional Warhammer 40k Header -->
-    <header class="relative overflow-hidden bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b-2 border-yellow-600/40 shadow-xl">
-      <!-- Subtle Background Pattern -->
-      <div class="absolute inset-0 opacity-5">
+    <header class="relative bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b-2 border-yellow-600/40 shadow-xl">
+      <!-- Subtle Background Pattern (with overflow-hidden only on this layer) -->
+      <div class="absolute inset-0 opacity-5 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent"></div>
       </div>
 

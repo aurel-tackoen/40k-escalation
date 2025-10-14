@@ -4,15 +4,15 @@ import { eq } from 'drizzle-orm'
 
 /**
  * GET /api/auth/user
- * Get the currently authenticated user from session
+ * Get the currently authenticated user from session cookie
  */
 export default defineEventHandler(async (event) => {
   try {
-    // Get user from Netlify Identity context
-    const context = event.context
-    const netlifyUser = context.clientContext?.user
+    // Get session from cookie
+    const cookies = parseCookies(event)
+    const sessionCookie = cookies.auth_session
 
-    if (!netlifyUser) {
+    if (!sessionCookie) {
       return {
         success: true,
         data: null,
@@ -20,11 +20,33 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // Decode session (simple base64 for now)
+    let sessionData
+    try {
+      const decoded = Buffer.from(sessionCookie, 'base64').toString('utf-8')
+      sessionData = JSON.parse(decoded)
+    } catch {
+      return {
+        success: true,
+        data: null,
+        message: 'Invalid session'
+      }
+    }
+
+    // Check if session is expired
+    if (sessionData.expires_at && Date.now() > sessionData.expires_at) {
+      return {
+        success: true,
+        data: null,
+        message: 'Session expired'
+      }
+    }
+
     // Find or create user in database
-    const auth0Id = netlifyUser.sub
-    const email = netlifyUser.email
-    const name = netlifyUser.user_metadata?.full_name || netlifyUser.email.split('@')[0]
-    const picture = netlifyUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`
+    const auth0Id = sessionData.sub
+    const email = sessionData.email
+    const name = sessionData.name || email.split('@')[0]
+    const picture = sessionData.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`
 
     // Check if user exists
     let [user] = await db
