@@ -1,5 +1,5 @@
 <script setup>
-  import { computed } from 'vue'
+  import { computed, watch } from 'vue'
   import { X, TrendingUp, Shield, Users, Paintbrush, UserCheck } from 'lucide-vue-next'
   import { factions } from '~/data/factions'
   import { usePaintingStats } from '~/composables/usePaintingStats'
@@ -25,7 +25,7 @@
   })
 
   // Emits
-  const emit = defineEmits(['add-player', 'remove-player'])
+  const emit = defineEmits(['add-player', 'remove-player', 'update-player'])
 
   // Auth
   const { user, isAuthenticated } = useAuth()
@@ -68,11 +68,20 @@
   const {
     formData: newPlayer,
     resetForm,
-    isFormValid
+    isFormValid,
+    updateField
   } = useFormManagement({
     name: '',
     faction: ''
   })
+
+  // Pre-fill form with current player data when user is already a player
+  watch(currentUserPlayer, (player) => {
+    if (player) {
+      updateField('name', player.name)
+      updateField('faction', player.faction)
+    }
+  }, { immediate: true })
 
   // Methods
   const submitPlayer = () => {
@@ -82,13 +91,23 @@
     }
 
     if (isFormValid(['name', 'faction'])) {
-      emit('add-player', {
-        name: newPlayer.value.name,
-        faction: newPlayer.value.faction,
-        userId: user.value.id,
-        email: user.value.email // Get email from Auth0
-      })
-      resetForm()
+      if (isCurrentUserPlayer.value) {
+        // Update existing player
+        emit('update-player', {
+          id: currentUserPlayer.value.id,
+          name: newPlayer.value.name,
+          faction: newPlayer.value.faction
+        })
+      } else {
+        // Add new player
+        emit('add-player', {
+          name: newPlayer.value.name,
+          faction: newPlayer.value.faction,
+          userId: user.value.id,
+          email: user.value.email
+        })
+        resetForm()
+      }
     }
   }
 </script>
@@ -203,14 +222,14 @@
       </div>
 
       <!-- Not logged in message -->
-      <div v-else-if="!isAuthenticated" class="bg-gray-700 border border-gray-600 rounded-lg p-4">
+      <div v-if="!isAuthenticated" class="bg-gray-700 border border-gray-600 rounded-lg p-4">
         <p class="text-gray-300">
           You must be logged in to join as a player.
         </p>
       </div>
 
-      <!-- Join/Update form -->
-      <form v-else @submit.prevent="submitPlayer" class="space-y-4">
+      <!-- Join/Update form (show when authenticated) -->
+      <form v-if="isAuthenticated" @submit.prevent="submitPlayer" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-semibold text-yellow-500 mb-2">Display Name</label>

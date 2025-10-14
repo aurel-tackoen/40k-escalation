@@ -542,6 +542,28 @@ export const useLeaguesStore = defineStore('leagues', {
     },
 
     /**
+     * Update player in current league
+     */
+    async updatePlayer(playerData) {
+      try {
+        const response = await $fetch('/api/players', {
+          method: 'PUT',
+          body: playerData
+        })
+        if (response.success) {
+          const index = this.players.findIndex(p => p.id === playerData.id)
+          if (index !== -1) {
+            this.players[index] = response.data
+          }
+        }
+        return response
+      } catch (error) {
+        console.error('Error updating player:', error)
+        throw error
+      }
+    },
+
+    /**
      * Remove player from current league
      */
     async removePlayer(playerId) {

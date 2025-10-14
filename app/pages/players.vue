@@ -23,6 +23,7 @@
       :armies="armies"
       :currentRound="league?.currentRound || 1"
       @add-player="leaguesStore.addPlayer"
+      @update-player="leaguesStore.updatePlayer"
       @remove-player="leaguesStore.removePlayer"
     />
   </div>
