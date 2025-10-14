@@ -77,7 +77,7 @@ app/                          # Nuxt 4 application directory
 │   └── setup.vue            # League setup
 └── stores/
     ├── auth.js              # Auth store (user, login, logout)
-    └── leagues.js           # Multi-league Pinia store (600+ lines, refactored)
+    └── leagues.js           # Multi-league Pinia store (currentPlayer getter, 600+ lines)
 
 db/                           # Database layer
 ├── index.ts                 # Neon database connection
@@ -563,6 +563,8 @@ emit('delete-player', playerId)
 
 **Key Features**:
 - Army list builder with unit editor
+- **Users can only create armies for themselves** (security enforced)
+- **Organizers can create armies for any player** (role-based permissions)
 - Point validation against round limit
 - Army escalation (copy from previous round)
 - Advanced filtering (by player, round, status)
@@ -785,6 +787,7 @@ Purge the Enemy, Secure and Control, The Scouring, Big Guns Never Tire, Crusade,
 2. **STRUCTURE.md** - Detailed project structure
 3. **COMPOSABLE_QUICK_REFERENCE.md** - All 11 composables quick ref
 4. **COMPOSABLES_INTEGRATION_COMPLETE.md** - Integration examples
+5. **FEATURE_AUTO_ARMY_PLAYER.md** - Army creation security (self-only)
 
 ### Full Documentation Index
 - COMPOSABLES.md - Original composable proposals

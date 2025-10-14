@@ -1,6 +1,8 @@
 <script setup>
   import { computed, watch, toRef } from 'vue'
   import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush } from 'lucide-vue-next'
+  import { storeToRefs } from 'pinia'
+  import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
@@ -10,6 +12,10 @@
   import { useArrayFiltering } from '~/composables/useArrayFiltering'
   import { useArmyForm } from '~/composables/useArmyForm'
   import { useArmyFiltering } from '~/composables/useArmyFiltering'
+
+  // Store
+  const leaguesStore = useLeaguesStore()
+  const { currentPlayer, canManageLeague } = storeToRefs(leaguesStore)
 
   // Props
   const props = defineProps({
@@ -119,7 +125,16 @@
 
   // Methods - Form operations
   const handleStartNewArmy = () => {
+    // Prevent opening form if user doesn't have a player and is not an organizer
+    if (!canManageLeague.value && !currentPlayer.value) {
+      return
+    }
+
     startNewArmy(props.currentRound)
+    // Auto-select current player if they have a player entity in this league
+    if (currentPlayer.value) {
+      currentArmy.value.playerId = currentPlayer.value.id
+    }
   }
 
   const handleCopyFromPreviousRound = () => {
@@ -134,6 +149,12 @@
   }
 
   const saveArmyList = () => {
+    // Extra validation: ensure user has permission to create army for selected player
+    if (!canManageLeague.value && currentArmy.value.playerId !== currentPlayer.value?.id) {
+      console.error('Cannot create army for another player')
+      return
+    }
+
     if (isCurrentArmyValid.value) {
       emit('save-army', { ...currentArmy.value })
       cancelBuilder()
@@ -172,10 +193,24 @@
         </div>
 
         <!-- Action Button -->
-        <button @click="handleStartNewArmy" class="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto whitespace-nowrap">
-          <Plus :size="20" />
-          Build New Army
-        </button>
+        <div class="flex flex-col gap-1 w-full sm:w-auto">
+          <button
+            @click="handleStartNewArmy"
+            :disabled="!canManageLeague && !currentPlayer"
+            :class="[
+              'flex items-center justify-center gap-2 w-full sm:w-auto whitespace-nowrap',
+              (!canManageLeague && !currentPlayer)
+                ? 'btn-secondary cursor-not-allowed opacity-50'
+                : 'btn-primary cursor-pointer'
+            ]"
+          >
+            <Plus :size="20" />
+            Build New Army
+          </button>
+          <p v-if="!canManageLeague && !currentPlayer" class="text-xs text-red-400 text-center sm:text-right">
+            Join as player first
+          </p>
+        </div>
       </div>
     </div>
 
@@ -291,14 +326,45 @@
           </h4>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Player Selection - Show dropdown only for organizers, read-only field for regular users -->
             <div>
               <label class="block text-sm font-semibold text-gray-300 mb-2">Player *</label>
-              <select v-model="currentArmy.playerId" required class="input-field" :disabled="editingArmy">
+
+              <!-- Organizers: Full dropdown to select any player -->
+              <select
+                v-if="canManageLeague"
+                v-model="currentArmy.playerId"
+                required
+                class="input-field"
+                :disabled="editingArmy"
+              >
                 <option value="">Select Player</option>
                 <option v-for="player in players" :key="player.id" :value="player.id">
                   {{ player.name }} ({{ player.faction }})
+                  <template v-if="currentPlayer && player.id === currentPlayer.id"> - You</template>
                 </option>
               </select>
+
+              <!-- Regular users: Read-only display of their player -->
+              <div v-else-if="currentPlayer" class="input-field bg-gray-800 cursor-not-allowed flex items-center">
+                {{ currentPlayer.name }} ({{ currentPlayer.faction }})
+              </div>
+
+              <!-- No player entity: Show error state -->
+              <div v-else class="input-field bg-red-900/20 border-red-700 text-red-400 cursor-not-allowed">
+                No player profile in this league
+              </div>
+
+              <!-- Helper text -->
+              <p v-if="!canManageLeague && currentPlayer" class="text-xs text-gray-500 mt-1">
+                You can only create armies for yourself
+              </p>
+              <p v-else-if="!canManageLeague && !currentPlayer" class="text-xs text-red-400 mt-1">
+                You need to join this league as a player first
+              </p>
+              <p v-else-if="canManageLeague" class="text-xs text-gray-500 mt-1">
+                As organizer, you can create armies for any player
+              </p>
             </div>
             <div>
               <label class="block text-sm font-semibold text-gray-300 mb-2">Round *</label>

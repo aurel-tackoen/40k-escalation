@@ -5,6 +5,7 @@ export const useLeaguesStore = defineStore('leagues', {
   state: () => ({
     // Multi-league state
     myLeagues: [],              // User's leagues with roles
+    publicLeagues: [],          // Public leagues available to join
     currentLeagueId: null,      // Active league ID
     leagues: {},                // Cache of league details { [id]: leagueData }
 
@@ -81,6 +82,19 @@ export const useLeaguesStore = defineStore('leagues', {
     // Check if user has selected a league
     hasActiveLeague: (state) => {
       return state.currentLeagueId !== null
+    },
+
+    // Get current user's player entity in current league
+    currentPlayer(state) {
+      const authStore = useAuthStore()
+      if (!authStore.user?.id || !state.currentLeagueId) return null
+
+      return state.players.find(p => p.userId === authStore.user.id)
+    },
+
+    // Check if current user has a player entity in current league
+    hasPlayerInLeague() {
+      return this.currentPlayer !== null
     }
   },
 
@@ -114,6 +128,27 @@ export const useLeaguesStore = defineStore('leagues', {
       } catch (error) {
         this.error = error.message
         console.error('Error fetching user leagues:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
+     * Fetch all public leagues available to join
+     */
+    async fetchPublicLeagues() {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await $fetch('/api/leagues/public')
+        if (response.success) {
+          // Filter out leagues the user is already a member of
+          const myLeagueIds = this.myLeagues.map(l => l.id)
+          this.publicLeagues = response.data.filter(league => !myLeagueIds.includes(league.id))
+        }
+      } catch (error) {
+        this.error = error.message
+        console.error('Error fetching public leagues:', error)
       } finally {
         this.loading = false
       }

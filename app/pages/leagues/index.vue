@@ -1,12 +1,13 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
-  import { Swords, Users, Calendar, Plus, LogIn, Settings, LogOut, Trash2 } from 'lucide-vue-next'
+  import { Swords, Users, Calendar, Plus, LogIn, Settings, LogOut, Trash2, Globe } from 'lucide-vue-next'
 
   const leaguesStore = useLeaguesStore()
-  const { myLeagues, currentLeagueId, loading } = storeToRefs(leaguesStore)
+  const { myLeagues, publicLeagues, currentLeagueId, loading } = storeToRefs(leaguesStore)
 
   onMounted(async () => {
     await leaguesStore.fetchMyLeagues()
+    await leaguesStore.fetchPublicLeagues()
   })
 
   const switchToLeague = async (leagueId) => {
@@ -199,6 +200,84 @@
       </div>
     </div>
 
+    <!-- Public Leagues Section -->
+    <div v-if="publicLeagues && publicLeagues.length > 0" class="space-y-6">
+      <div class="border-t border-gray-700 pt-8">
+        <div class="flex items-center gap-3 mb-6">
+          <Globe :size="32" class="text-green-400" />
+          <div>
+            <h2 class="text-2xl font-bold text-gray-100">Public Leagues</h2>
+            <p class="text-gray-400 text-sm mt-1">Discover and join public leagues</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            v-for="league in publicLeagues"
+            :key="league.id"
+            class="card hover:border-green-500 transition-all duration-200 group relative"
+          >
+            <!-- Public Badge -->
+            <div class="absolute -top-3 -right-3 bg-green-600 text-green-100 px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+              Public
+            </div>
+
+            <!-- League Header -->
+            <div class="mb-4">
+              <h3 class="text-xl font-bold text-gray-100 group-hover:text-green-400 transition-colors">
+                {{ league.name }}
+              </h3>
+              <p v-if="league.description" class="text-gray-400 text-sm mt-1 line-clamp-2">
+                {{ league.description }}
+              </p>
+            </div>
+
+            <!-- League Stats -->
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center gap-2 text-gray-300 text-sm">
+                <Users :size="16" class="text-gray-500" />
+                <span>
+                  {{ league.memberCount || 0 }}
+                  <template v-if="league.maxPlayers"> / {{ league.maxPlayers }}</template>
+                  members
+                </span>
+              </div>
+              <div class="flex items-center gap-2 text-gray-300 text-sm">
+                <Calendar :size="16" class="text-gray-500" />
+                <span>Round {{ league.currentRound || 1 }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-gray-300 text-sm">
+                <Swords :size="16" class="text-gray-500" />
+                <span>Status: {{ league.status || 'active' }}</span>
+              </div>
+            </div>
+
+            <!-- League Dates -->
+            <div class="text-xs text-gray-500 mb-4">
+              <div>Started: {{ formatDate(league.startDate) }}</div>
+              <div v-if="league.endDate">Ends: {{ formatDate(league.endDate) }}</div>
+            </div>
+
+            <!-- Join Button -->
+            <button
+              @click="navigateTo(`/leagues/join?leagueId=${league.id}`)"
+              class="btn-primary w-full flex items-center justify-center gap-2"
+              :disabled="league.maxPlayers && league.memberCount >= league.maxPlayers"
+              :class="{ 'opacity-50 cursor-not-allowed': league.maxPlayers && league.memberCount >= league.maxPlayers }"
+            >
+              <LogIn :size="16" />
+              <template v-if="league.maxPlayers && league.memberCount >= league.maxPlayers">
+                Full
+              </template>
+              <template v-else>
+                Join League
+              </template>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Help Text -->
     <div v-if="myLeagues && myLeagues.length > 0" class="text-center text-gray-500 text-sm">
       Click on a league card to switch to it and view its dashboard
@@ -210,6 +289,7 @@
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
