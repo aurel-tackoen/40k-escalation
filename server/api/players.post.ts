@@ -12,10 +12,10 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
 
     // Basic validation - userId is now required for Auth0 integration
-    if (!body.name || !body.email || !body.leagueId || !body.userId) {
+    if (!body.name || !body.leagueId || !body.userId) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Name, email, leagueId, and userId are required'
+        statusMessage: 'Name, leagueId, and userId are required'
       })
     }
 
@@ -24,7 +24,6 @@ export default defineEventHandler(async (event) => {
       leagueId: body.leagueId,
       userId: body.userId,
       name: body.name,
-      email: body.email,
       faction: body.faction || null,
       wins: body.wins || 0,
       losses: body.losses || 0,

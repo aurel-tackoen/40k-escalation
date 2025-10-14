@@ -103,8 +103,7 @@
         emit('add-player', {
           name: newPlayer.value.name,
           faction: newPlayer.value.faction,
-          userId: user.value.id,
-          email: user.value.email
+          userId: user.value.id
         })
         resetForm()
       }
