@@ -119,7 +119,7 @@
             <span class="font-semibold">Create League</span>
           </NuxtLink>
           <NuxtLink
-            to="/leagues/join"
+            to="/leagues"
             class="w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors flex items-center gap-2 text-blue-400"
             @click="isOpen = false"
           >
