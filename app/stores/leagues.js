@@ -135,19 +135,34 @@ export const useLeaguesStore = defineStore('leagues', {
 
     /**
      * Fetch all public leagues available to join
+     * Server will mark leagues the user has already joined with isJoined flag
      */
     async fetchPublicLeagues() {
       this.loading = true
       this.error = null
       try {
-        const response = await $fetch('/api/leagues/public')
+        // Get current user ID to mark joined leagues server-side
+        const authStore = useAuthStore()
+        const userId = authStore.user?.id
+
+        console.log('🔍 fetchPublicLeagues - userId:', userId, 'user:', authStore.user)
+
+        // Fetch all public leagues with joined status
+        const url = userId ? `/api/leagues/public?userId=${userId}` : '/api/leagues/public'
+        const response = await $fetch(url)
+
+        console.log('📥 Public leagues response:', response.data?.map(l => ({ id: l.id, name: l.name, isJoined: l.isJoined })))
+
         if (response.success) {
-          // Filter out leagues the user is already a member of
-          const myLeagueIds = this.myLeagues.map(l => l.id)
-          this.publicLeagues = response.data.filter(league => !myLeagueIds.includes(league.id))
+          // Server returns all public leagues with isJoined flag
+          const allPublicLeagues = Array.isArray(response.data) ? response.data : []
+          this.publicLeagues = allPublicLeagues
+        } else {
+          this.publicLeagues = []
         }
       } catch (error) {
         this.error = error.message
+        this.publicLeagues = []
         console.error('Error fetching public leagues:', error)
       } finally {
         this.loading = false

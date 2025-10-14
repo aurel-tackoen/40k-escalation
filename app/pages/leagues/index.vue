@@ -1,11 +1,24 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
+  import { useAuthStore } from '~/stores/auth'
   import { Swords, Plus, LogIn, Globe } from 'lucide-vue-next'
 
+  const authStore = useAuthStore()
   const leaguesStore = useLeaguesStore()
   const { myLeagues, publicLeagues, currentLeagueId, loading } = storeToRefs(leaguesStore)
 
+  // Computed to ensure stable public leagues list
+  const hasPublicLeagues = computed(() => {
+    return publicLeagues.value && Array.isArray(publicLeagues.value) && publicLeagues.value.length > 0
+  })
+
   onMounted(async () => {
+    // Ensure auth user is loaded first
+    if (!authStore.user) {
+      await authStore.fetchUser()
+    }
+
+    // Then fetch leagues data
     await leaguesStore.fetchMyLeagues()
     await leaguesStore.fetchPublicLeagues()
   })
@@ -119,7 +132,7 @@
     </div>
 
     <!-- Public Leagues Section -->
-    <div v-if="publicLeagues && publicLeagues.length > 0" class="space-y-6">
+    <div v-if="hasPublicLeagues" class="space-y-6">
       <div class="border-t border-gray-700 pt-8">
         <div class="flex items-center gap-3 mb-6">
           <Globe :size="32" class="text-green-400" />

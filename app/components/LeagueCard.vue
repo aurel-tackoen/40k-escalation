@@ -68,18 +68,20 @@
   const isPublic = computed(() => props.variant === 'public')
   const isPublicGuest = computed(() => props.variant === 'public-guest')
   const isFull = computed(() => props.league.maxPlayers && props.league.memberCount >= props.league.maxPlayers)
+  const isJoined = computed(() => props.league.isJoined === true)
 
   const cardClass = computed(() => {
     const base = 'card hover:border transition-all duration-200 group relative'
     const interactive = isMyLeague.value ? 'cursor-pointer' : ''
     const current = props.isCurrent ? 'ring-2 ring-purple-500 border-purple-500' : ''
+    const joined = isJoined.value ? 'opacity-75' : ''
     const hoverColor = isMyLeague.value
       ? 'hover:border-purple-500'
       : isPublic.value
         ? 'hover:border-green-500'
         : 'hover:border-yellow-600'
 
-    return `${base} ${interactive} ${current} ${hoverColor}`
+    return `${base} ${interactive} ${current} ${hoverColor} ${joined}`
   })
 </script>
 
@@ -95,11 +97,19 @@
 
     <!-- Public Badge (Public Leagues only) -->
     <div
-      v-if="isPublic || isPublicGuest"
+      v-if="(isPublic || isPublicGuest) && !isJoined"
       class="absolute -top-3 -right-3 bg-green-600 text-green-100 px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10 flex items-center gap-1"
     >
       <Globe :size="14" />
       Public
+    </div>
+
+    <!-- Joined Badge (Public Leagues when user is a member) -->
+    <div
+      v-if="(isPublic || isPublicGuest) && isJoined"
+      class="absolute -top-3 -right-3 bg-blue-600 text-blue-100 px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10 flex items-center gap-1"
+    >
+      ✓ Joined
     </div>
 
     <!-- League Header -->
@@ -212,11 +222,12 @@
       v-if="isPublic"
       @click="handleJoin"
       class="btn-primary w-full flex items-center justify-center gap-2 mt-4"
-      :disabled="isFull"
-      :class="{ 'opacity-50 cursor-not-allowed': isFull }"
+      :disabled="isFull || isJoined"
+      :class="{ 'opacity-50 cursor-not-allowed': isFull || isJoined }"
     >
       <LogIn :size="16" />
-      <template v-if="isFull">League Full</template>
+      <template v-if="isJoined">Already Joined</template>
+      <template v-else-if="isFull">League Full</template>
       <template v-else>Join League</template>
     </button>
 
@@ -225,12 +236,13 @@
       v-if="isPublicGuest"
       @click="handleJoin"
       class="w-full px-4 py-2 font-semibold rounded-lg transition-all duration-300 text-center mt-4"
-      :class="isFull
+      :class="(isFull || isJoined)
         ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
         : 'bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 hover:shadow-lg hover:shadow-yellow-600/50'"
-      :disabled="isFull"
+      :disabled="isFull || isJoined"
     >
-      <template v-if="isFull">League Full</template>
+      <template v-if="isJoined">Already Joined</template>
+      <template v-else-if="isFull">League Full</template>
       <template v-else>Join League</template>
     </button>
   </div>
