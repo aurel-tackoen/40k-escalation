@@ -46,8 +46,8 @@
     <!-- Trigger Button -->
     <button
       @click="toggleDropdown"
-      class="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg hover:border-purple-500 transition-colors text-gray-100"
-      :class="{ 'border-purple-500': isOpen }"
+      class="btn-league"
+      :class="{ 'active': isOpen }"
     >
       <Swords :size="20" class="text-purple-400" />
       <span class="font-semibold">{{ currentLeague?.name || 'No League' }}</span>

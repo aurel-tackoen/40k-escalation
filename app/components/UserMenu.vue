@@ -36,12 +36,12 @@
     <!-- User Avatar Button -->
     <button
       @click.stop="toggleMenu"
-      class="btn-login flex items-center gap-2 !py-1 pl-2"
+      class="btn-login flex items-center gap-2 !py-0.5 pl-0.5"
     >
       <img
         :src="getUserAvatar"
         :alt="getUserName"
-        class="w-8 h-8 rounded-lg object-cover border border-gray-400"
+        class="w-[34px] h-[34px] rounded-lg object-cover border border-gray-400"
       >
       <span class="hidden md:inline">{{ getUserName }}</span>
       <ChevronDown :size="16" />
