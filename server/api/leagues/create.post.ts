@@ -78,13 +78,13 @@ export default defineEventHandler(async (event) => {
     await db.insert(rounds).values(roundsToInsert)
 
     // Create league membership for creator with 'owner' role
-    await db.insert(leagueMemberships).values({
+    const [newMembership] = await db.insert(leagueMemberships).values({
       leagueId: newLeague.id,
       userId: body.createdBy,
       playerId: null, // Will be set when user creates their player in this league
       role: 'owner',
       status: 'active'
-    })
+    }).returning()
 
     // Fetch complete league data with rounds
     const leagueWithRounds = await db
@@ -103,7 +103,8 @@ export default defineEventHandler(async (event) => {
       message: 'League created successfully',
       data: {
         league: leagueWithRounds[0],
-        rounds: leagueRounds
+        rounds: leagueRounds,
+        membership: newMembership
       }
     }
   } catch (error) {

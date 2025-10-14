@@ -14,10 +14,6 @@
   const switchToLeague = async (leagueId) => {
     if (leagueId !== currentLeagueId.value) {
       await leaguesStore.switchLeague(leagueId)
-      // Reload current page data
-      if (process.client) {
-        window.location.reload()
-      }
     }
     isOpen.value = false
   }

@@ -83,6 +83,14 @@
         error.value = `Round ${round.number} must have a valid point limit`
         return false
       }
+      if (!round.startDate) {
+        error.value = `Round ${round.number} start date is required`
+        return false
+      }
+      if (!round.endDate) {
+        error.value = `Round ${round.number} end date is required`
+        return false
+      }
     }
 
     error.value = ''
@@ -96,8 +104,16 @@
     error.value = ''
 
     try {
+      // Sanitize rounds data - convert empty strings to null
+      const sanitizedRounds = form.rounds.map(round => ({
+        ...round,
+        startDate: round.startDate || null,
+        endDate: round.endDate || null
+      }))
+
+      // Create league
       await leaguesStore.createLeague({
-        userId: authStore.user.id,
+        createdBy: authStore.user.id,
         name: form.name,
         description: form.description,
         startDate: form.startDate,
@@ -105,7 +121,7 @@
         isPublic: form.isPublic,
         joinPassword: form.isPublic ? null : form.joinPassword,
         maxPlayers: form.maxPlayers || null,
-        rounds: form.rounds
+        rounds: sanitizedRounds
       })
 
       // Success - redirect to dashboard
@@ -151,7 +167,7 @@
           <input
             v-model="form.name"
             type="text"
-            class="input w-full"
+            class="input-field w-full"
             placeholder="e.g., Winter Escalation 2025"
             required
           />
@@ -164,7 +180,7 @@
           </label>
           <textarea
             v-model="form.description"
-            class="input w-full"
+            class="input-field w-full"
             rows="3"
             placeholder="Brief description of your league..."
           />
@@ -179,7 +195,7 @@
             <input
               v-model="form.startDate"
               type="date"
-              class="input w-full"
+              class="input-field w-full"
               required
             />
           </div>
@@ -190,7 +206,7 @@
             <input
               v-model="form.endDate"
               type="date"
-              class="input w-full"
+              class="input-field w-full"
             />
           </div>
         </div>
@@ -226,7 +242,7 @@
           <input
             v-model="form.joinPassword"
             type="text"
-            class="input w-full"
+            class="input-field w-full"
             placeholder="Enter password for joining"
             :required="!form.isPublic"
           />
@@ -244,7 +260,7 @@
             v-model.number="form.maxPlayers"
             type="number"
             min="2"
-            class="input w-full"
+            class="input-field w-full"
             placeholder="Leave empty for unlimited"
           />
         </div>
@@ -297,7 +313,7 @@
                 <input
                   v-model="round.name"
                   type="text"
-                  class="input w-full"
+                  class="input-field w-full"
                   placeholder="e.g., 500 Points"
                   required
                 />
@@ -310,29 +326,31 @@
                   v-model.number="round.pointLimit"
                   type="number"
                   min="1"
-                  class="input w-full"
+                  class="input-field w-full"
                   placeholder="500"
                   required
                 />
               </div>
               <div>
                 <label class="block text-gray-300 text-sm font-semibold mb-2">
-                  Start Date
+                  Start Date <span class="text-red-400">*</span>
                 </label>
                 <input
                   v-model="round.startDate"
                   type="date"
-                  class="input w-full"
+                  class="input-field w-full"
+                  required
                 />
               </div>
               <div>
                 <label class="block text-gray-300 text-sm font-semibold mb-2">
-                  End Date
+                  End Date <span class="text-red-400">*</span>
                 </label>
                 <input
                   v-model="round.endDate"
                   type="date"
-                  class="input w-full"
+                  class="input-field w-full"
+                  required
                 />
               </div>
             </div>

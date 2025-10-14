@@ -2,7 +2,7 @@ import { defineEventHandler, getRouterParams, readBody, createError } from 'h3'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import { eq } from 'drizzle-orm'
-import { leagues, leagueMemberships } from '../../../db/schema'
+import { leagues, leagueMemberships, rounds, matches } from '../../../db/schema'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -60,7 +60,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Delete league (CASCADE will handle players, armies, matches, rounds, memberships)
+    // Manual cascade delete for tables without CASCADE constraint
+    // Delete rounds (no CASCADE on rounds.leagueId)
+    await db
+      .delete(rounds)
+      .where(eq(rounds.leagueId, leagueId))
+
+    // Delete matches (no CASCADE on matches.leagueId)
+    await db
+      .delete(matches)
+      .where(eq(matches.leagueId, leagueId))
+
+    // Delete league (CASCADE will handle players, armies, memberships)
     await db
       .delete(leagues)
       .where(eq(leagues.id, leagueId))

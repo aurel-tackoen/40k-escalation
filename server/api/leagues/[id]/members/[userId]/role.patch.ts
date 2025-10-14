@@ -101,7 +101,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     console.error('Error updating member role:', error)
-    if (error.statusCode) {
+    if (typeof error === 'object' && error !== null && 'statusCode' in error) {
       throw error
     }
     throw createError({

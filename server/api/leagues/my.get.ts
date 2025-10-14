@@ -54,9 +54,17 @@ export default defineEventHandler(async (event) => {
           .where(eq(rounds.leagueId, league.id))
 
         userLeagues.push({
-          ...league,
+          id: league.id,
+          name: league.name,
+          description: league.description,
+          startDate: league.startDate,
+          endDate: league.endDate,
+          currentRound: league.currentRound,
+          isPublic: league.isPublic,
+          maxPlayers: league.maxPlayers,
+          status: league.status,
           rounds: leagueRounds,
-          userRole: membership.role,
+          role: membership.role,
           joinedAt: membership.joinedAt
         })
       }

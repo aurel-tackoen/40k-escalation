@@ -46,8 +46,11 @@ export const useLeaguesStore = defineStore('leagues', {
 
     // Painting leaderboard for current round
     paintingLeaderboard: (state, getters) => {
+      // Return empty array if no league is selected
+      if (!getters.currentLeague) return []
+
       const leaderboard = []
-      const currentRound = getters.currentLeague?.currentRound || 1
+      const currentRound = getters.currentLeague.currentRound || 1
 
       state.players.forEach(player => {
         const army = state.armies.find(a => a.playerId === player.id && a.round === currentRound)
@@ -91,7 +94,15 @@ export const useLeaguesStore = defineStore('leagues', {
       this.loading = true
       this.error = null
       try {
-        const response = await $fetch('/api/leagues/my')
+        const authStore = useAuthStore()
+        if (!authStore.user?.id) {
+          // No user logged in, return empty
+          this.myLeagues = []
+          this.loading = false
+          return
+        }
+
+        const response = await $fetch(`/api/leagues/my?userId=${authStore.user.id}`)
         if (response.success) {
           this.myLeagues = response.data
 
@@ -594,6 +605,24 @@ export const useLeaguesStore = defineStore('leagues', {
       }
 
       await this.fetchMyLeagues()
+
+      // Fetch league data if a league is selected
+      if (this.currentLeagueId) {
+        // Fetch league details if not cached
+        if (!this.leagues[this.currentLeagueId]) {
+          try {
+            const response = await $fetch(`/api/leagues/${this.currentLeagueId}`)
+            if (response.success) {
+              this.leagues[this.currentLeagueId] = response.data
+            }
+          } catch (error) {
+            console.error('Error fetching league details:', error)
+          }
+        }
+
+        // Fetch all league data
+        await this.fetchLeagueData()
+      }
     }
   }
 })
