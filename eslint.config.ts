@@ -34,9 +34,19 @@ export default defineConfig([
         storeToRefs: "readonly",
         defineStore: "readonly",
         useLeagueStore: "readonly",
+        useLeaguesStore: "readonly",
         useAuthStore: "readonly",
         $fetch: "readonly",
         defineNuxtConfig: "readonly",
+        // Vue composition API
+        ref: "readonly",
+        reactive: "readonly",
+        computed: "readonly",
+        watch: "readonly",
+        watchEffect: "readonly",
+        toRef: "readonly",
+        toRefs: "readonly",
+        onUnmounted: "readonly",
       }
     }
   },

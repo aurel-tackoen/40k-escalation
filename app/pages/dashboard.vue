@@ -1,10 +1,12 @@
 <script setup>
-  const leagueStore = useLeagueStore()
-  const { currentLeague: league, players, matches, armies, loading, error } = storeToRefs(leagueStore)
+  import { useLeaguesStore } from '~/stores/leagues'
 
-  // Fetch all data when component mounts
+  const leaguesStore = useLeaguesStore()
+  const { currentLeague: league, players, matches, armies, loading, error } = storeToRefs(leaguesStore)
+
+  // Initialize store and fetch data when component mounts
   onMounted(async () => {
-    await leagueStore.fetchAll()
+    await leaguesStore.initialize()
   })
 </script>
 
@@ -17,7 +19,7 @@
       Error: {{ error }}
     </div>
     <div v-else-if="!league" class="text-center py-8">
-      No league data available. Please set up a league first.
+      No league selected. <NuxtLink to="/leagues" class="text-purple-400 hover:text-purple-300">Choose a league</NuxtLink>
     </div>
     <ViewsDashboardView
       v-else
@@ -25,7 +27,7 @@
       :players="players"
       :matches="matches"
       :armies="armies"
-      :paintingLeaderboard="leagueStore.paintingLeaderboard"
+      :paintingLeaderboard="leaguesStore.paintingLeaderboard"
     />
   </div>
 </template>

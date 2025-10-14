@@ -11,10 +11,10 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
 
     // Validate required fields
-    if (!body.playerId || !body.round || !body.name || !body.units) {
+    if (!body.playerId || !body.round || !body.name || !body.units || !body.leagueId) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Player ID, round, name, and units are required'
+        statusMessage: 'Player ID, round, name, units, and leagueId are required'
       })
     }
 
@@ -52,6 +52,7 @@ export default defineEventHandler(async (event) => {
     } else {
       // Create new army
       const [newArmy] = await db.insert(armies).values({
+        leagueId: body.leagueId,
         playerId: body.playerId,
         round: body.round,
         name: body.name,

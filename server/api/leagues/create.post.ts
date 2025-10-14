@@ -1,5 +1,5 @@
-import { db } from '~/db'
-import { leagues, leagueMemberships, rounds } from '~/db/schema'
+import { db } from '../../../db'
+import { leagues, leagueMemberships, rounds } from '../../../db/schema'
 import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 

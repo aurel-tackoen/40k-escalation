@@ -12,6 +12,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "netlify dev:exec drizzle-kit migrate",
     "db:studio": "netlify dev:exec drizzle-kit studio",
+    "migrate:multileague": "tsx migrations/migrate-to-multileague.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -40,6 +41,7 @@
     "jiti": "^2.6.1",
     "netlify-cli": "^23.9.1",
     "tailwindcss": "^4.1.13",
+    "tsx": "^4.20.6",
     "typescript-eslint": "^8.46.0",
     "ws": "^8.18.3"
   }

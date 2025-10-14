@@ -76,8 +76,8 @@ app/                          # Nuxt 4 application directory
 │   ├── profile.vue          # User profile page (new)
 │   └── setup.vue            # League setup
 └── stores/
-    ├── auth.js              # Auth store (user, login, logout) (new)
-    └── league.js            # Pinia store (229 lines, includes painting leaderboard)
+    ├── auth.js              # Auth store (user, login, logout)
+    └── leagues.js           # Multi-league Pinia store (600+ lines, refactored)
 
 db/                           # Database layer
 ├── index.ts                 # Neon database connection

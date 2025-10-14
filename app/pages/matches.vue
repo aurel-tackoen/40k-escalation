@@ -1,12 +1,11 @@
 <script setup>
-  const leagueStore = useLeagueStore()
-  const { matches, players, loading } = storeToRefs(leagueStore)
+  import { useLeaguesStore } from '~/stores/leagues'
+
+  const leaguesStore = useLeaguesStore()
+  const { matches, players, currentLeague: league, loading } = storeToRefs(leaguesStore)
 
   onMounted(async () => {
-    await Promise.all([
-      leagueStore.fetchMatches(),
-      leagueStore.fetchPlayers()
-    ])
+    await leaguesStore.initialize()
   })
 </script>
 
@@ -15,11 +14,14 @@
     <div v-if="loading" class="text-center py-8">
       Loading matches...
     </div>
+    <div v-else-if="!league" class="text-center py-8">
+      No league selected. <NuxtLink to="/leagues" class="text-purple-400 hover:text-purple-300">Choose a league</NuxtLink>
+    </div>
     <ViewsMatchesView
       v-else
       :matches="matches"
       :players="players"
-      @add-match="leagueStore.addMatch"
+      @add-match="leaguesStore.addMatch"
     />
   </div>
 </template>

@@ -2,14 +2,18 @@
   import { ref, watch, onMounted } from 'vue'
   import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
+  import { useLeaguesStore } from '~/stores/leagues'
   import LoginButton from '~/components/LoginButton.vue'
   import UserMenu from '~/components/UserMenu.vue'
+  import LeagueSwitcher from '~/components/LeagueSwitcher.vue'
 
   const { fetchUser } = useAuth()
+  const leaguesStore = useLeaguesStore()
 
-  // Fetch user on mount
+  // Fetch user and initialize leagues on mount
   onMounted(async () => {
     await fetchUser()
+    await leaguesStore.initialize()
   })
 
   const tabs = [
@@ -17,7 +21,8 @@
     { path: '/players', name: 'Players', icon: Users },
     { path: '/armies', name: 'Army Lists', icon: Shield },
     { path: '/matches', name: 'Matches', icon: Trophy },
-    { path: '/setup', name: 'League', icon: Settings }
+    { path: '/leagues', name: 'Leagues', icon: Swords },
+    { path: '/setup', name: 'Settings', icon: Settings }
   ]
 
   const isMobileMenuOpen = ref(false)
@@ -81,8 +86,9 @@
 
           <!-- Desktop Navigation -->
           <nav class="hidden lg:flex flex-col gap-3 flex-1 justify-end items-end">
-            <!-- Auth UI -->
-            <div class="flex items-center gap-2">
+            <!-- Auth UI & League Switcher -->
+            <div class="flex items-center gap-3">
+              <LeagueSwitcher />
               <UserMenu />
               <LoginButton />
             </div>
