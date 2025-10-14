@@ -1,6 +1,16 @@
 <script setup>
-  import { ref, watch } from 'vue'
+  import { ref, watch, onMounted } from 'vue'
   import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords } from 'lucide-vue-next'
+  import { useAuth } from '~/composables/useAuth'
+  import LoginButton from '~/components/LoginButton.vue'
+  import UserMenu from '~/components/UserMenu.vue'
+
+  const { fetchUser } = useAuth()
+
+  // Fetch user on mount
+  onMounted(async () => {
+    await fetchUser()
+  })
 
   const tabs = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
@@ -30,9 +40,9 @@
 <template>
   <div id="app" class="min-h-screen bg-gray-900 text-gray-100">
     <!-- Professional Warhammer 40k Header -->
-    <header class="relative overflow-hidden bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b-2 border-yellow-600/40 shadow-xl">
-      <!-- Subtle Background Pattern -->
-      <div class="absolute inset-0 opacity-5">
+    <header class="relative bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b-2 border-yellow-600/40 shadow-xl">
+      <!-- Subtle Background Pattern (with overflow-hidden only on this layer) -->
+      <div class="absolute inset-0 opacity-5 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent"></div>
       </div>
 
@@ -70,30 +80,39 @@
           </button>
 
           <!-- Desktop Navigation -->
-          <nav class="hidden lg:flex flex-wrap gap-2 flex-1 justify-end">
-            <NuxtLink
-              v-for="tab in tabs"
-              :key="tab.path"
-              :to="tab.path"
-              class="nav-button group relative px-5 py-2.5 font-semibold transition-all duration-300 rounded-md border overflow-hidden"
-              active-class="nav-button-active bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/50"
-              exact-active-class="nav-button-active bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/50"
-              :class="{
-                'text-gray-300 border-gray-700 hover:text-yellow-400 hover:border-yellow-600 hover:bg-gray-700/50 hover:-translate-y-0.5 hover:shadow-lg': $route.path !== tab.path
-              }"
-            >
-              <!-- Animated background gradient (only show on non-active) -->
-              <span v-if="$route.path !== tab.path" class="absolute inset-0 bg-gradient-to-r from-yellow-600/0 via-yellow-600/20 to-yellow-600/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out pointer-events-none"></span>
+          <nav class="hidden lg:flex flex-col gap-3 flex-1 justify-end items-end">
+            <!-- Auth UI -->
+            <div class="flex items-center gap-2">
+              <UserMenu />
+              <LoginButton />
+            </div>
 
-              <!-- Button text with icon -->
-              <span class="relative z-10 flex items-center gap-2">
-                <component :is="tab.icon" :size="18" :stroke-width="2.5" />
-                <span>{{ tab.name }}</span>
-              </span>
+            <!-- Navigation Links -->
+            <div class="flex flex-wrap gap-2">
+              <NuxtLink
+                v-for="tab in tabs"
+                :key="tab.path"
+                :to="tab.path"
+                class="nav-button group relative px-5 py-2.5 font-semibold transition-all duration-300 rounded-md border overflow-hidden"
+                active-class="nav-button-active bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/50"
+                exact-active-class="nav-button-active bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/50"
+                :class="{
+                  'text-gray-300 border-gray-700 hover:text-yellow-400 hover:border-yellow-600 hover:bg-gray-700/50 hover:-translate-y-0.5 hover:shadow-lg': $route.path !== tab.path
+                }"
+              >
+                <!-- Animated background gradient (only show on non-active) -->
+                <span v-if="$route.path !== tab.path" class="absolute inset-0 bg-gradient-to-r from-yellow-600/0 via-yellow-600/20 to-yellow-600/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out pointer-events-none"></span>
 
-              <!-- Bottom border accent (only show on non-active) -->
-              <span v-if="$route.path !== tab.path" class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600 -translate-x-1/2 group-hover:w-full transition-all duration-300 pointer-events-none"></span>
-            </NuxtLink>
+                <!-- Button text with icon -->
+                <span class="relative z-10 flex items-center gap-2">
+                  <component :is="tab.icon" :size="18" :stroke-width="2.5" />
+                  <span>{{ tab.name }}</span>
+                </span>
+
+                <!-- Bottom border accent (only show on non-active) -->
+                <span v-if="$route.path !== tab.path" class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600 -translate-x-1/2 group-hover:w-full transition-all duration-300 pointer-events-none"></span>
+              </NuxtLink>
+            </div>
           </nav>
         </div>
       </div>
@@ -158,7 +177,12 @@
           </div>
 
           <!-- Mobile Menu Footer -->
-          <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900/50">
+          <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900/50 space-y-4">
+            <!-- Auth UI for mobile -->
+            <div class="flex justify-center">
+              <UserMenu />
+              <LoginButton />
+            </div>
             <p class="text-sm text-gray-400 text-center">
               Warhammer 40K Escalation League
             </p>

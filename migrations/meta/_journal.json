@@ -29,6 +29,20 @@
       "when": 1760080897894,
       "tag": "0003_lumpy_mockingbird",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1760436704708,
+      "tag": "0004_nasty_greymalkin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1760448370864,
+      "tag": "0005_noisy_iron_fist",
+      "breakpoints": true
     }
   ]
 }

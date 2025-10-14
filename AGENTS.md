@@ -35,16 +35,23 @@ app/                          # Nuxt 4 application directory
 ├── assets/css/               # Global styles
 │   ├── base.css             # Tailwind base config
 │   └── main.css             # Custom Warhammer theme
-├── components/               # Auto-imported Vue components (6 total)
-│   ├── ArmyListsView.vue    # Army builder with validation & export
-│   ├── DashboardView.vue    # League overview & standings
-│   ├── LeagueSetupView.vue  # League configuration
-│   ├── MatchesView.vue      # Match recording with analytics
+├── components/               # Auto-imported Vue components
+│   ├── LoginButton.vue      # Auth0 login button
 │   ├── PaintingProgress.vue # Painting leaderboard widget
-│   └── PlayersView.vue      # Player management with export
+│   ├── UserMenu.vue         # User profile menu
+│   └── views/               # View components (6 total)
+│       ├── ArmyListsView.vue    # Army builder with validation & export
+│       ├── DashboardView.vue    # League overview & standings
+│       ├── LeagueSetupView.vue  # League configuration
+│       ├── MatchesView.vue      # Match recording with analytics
+│       ├── PlayersView.vue      # Player management with export
+│       └── ProfileView.vue      # User profile editor
 ├── composables/              # Reusable composition functions (11 total)
+│   ├── useArmyFiltering.js  # Army-specific filtering (new)
+│   ├── useArmyForm.js       # Army form management (new)
 │   ├── useArmyManagement.js # Army validation & escalation (15 functions)
 │   ├── useArrayFiltering.js # Advanced filtering & sorting (16 functions)
+│   ├── useAuth.js           # Auth wrapper (composable-style API)
 │   ├── useConfirmation.js   # Confirmation dialogs (3 functions)
 │   ├── useDataExport.js     # CSV export utilities (7 functions)
 │   ├── useFormatting.js     # Date/number formatting (9 functions)
@@ -53,7 +60,8 @@ app/                          # Nuxt 4 application directory
 │   ├── usePaintingStats.js  # Painting calculations (8 functions)
 │   ├── usePlayerLookup.js   # Player data lookups (4 functions)
 │   ├── usePlayerStats.js    # Player statistics (6 functions)
-│   └── useRoundLookup.js    # Round data access (5 functions)
+│   ├── useRoundLookup.js    # Round data access (5 functions)
+│   └── useUser.js           # User profile management (new)
 ├── data/                     # Static reference data
 │   ├── factions.js          # 35 Warhammer 40k factions
 │   └── missions.js          # 10 mission types
@@ -65,8 +73,10 @@ app/                          # Nuxt 4 application directory
 │   ├── players.vue          # Player management
 │   ├── armies.vue           # Army list builder
 │   ├── matches.vue          # Match recording
+│   ├── profile.vue          # User profile page (new)
 │   └── setup.vue            # League setup
 └── stores/
+    ├── auth.js              # Auth store (user, login, logout) (new)
     └── league.js            # Pinia store (229 lines, includes painting leaderboard)
 
 db/                           # Database layer
@@ -89,7 +99,7 @@ server/api/                   # Nitro API routes (14 endpoints)
 ├── players.post.ts          # POST /api/players
 └── seed.post.ts             # POST /api/seed (populate test data)
 
-migrations/                   # Drizzle ORM migrations (4 migrations)
+migrations/                   # Drizzle ORM migrations (5 migrations)
 ├── 0000_aspiring_molly_hayes.sql
 ├── 0001_military_giant_girl.sql
 ├── 0002_open_thundra.sql
@@ -323,7 +333,21 @@ Round data access and validation
 
 ### Tables Overview
 
-#### 1. **leagues** (League Configuration)
+#### 1. **users** (User Authentication)
+```typescript
+{
+  id: integer (PK, auto-increment)
+  auth0Id: varchar(255) - Auth0 user ID (unique)
+  email: varchar(255) - Email (unique)
+  name: varchar(255) - User display name
+  picture: text - Avatar URL from Auth0
+  role: varchar(50) - User role (player, organizer, admin)
+  createdAt: timestamp - Account creation
+  lastLoginAt: timestamp - Last login timestamp
+}
+```
+
+#### 2. **leagues** (League Configuration)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -336,7 +360,7 @@ Round data access and validation
 }
 ```
 
-#### 2. **rounds** (Round Configuration)
+#### 3. **rounds** (Round Configuration)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -349,7 +373,7 @@ Round data access and validation
 }
 ```
 
-#### 3. **players** (Player Registration)
+#### 4. **players** (Player Registration)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -364,7 +388,7 @@ Round data access and validation
 }
 ```
 
-#### 4. **matches** (Battle Results)
+#### 5. **matches** (Battle Results)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -382,7 +406,7 @@ Round data access and validation
 }
 ```
 
-#### 5. **armies** (Army Lists)
+#### 6. **armies** (Army Lists)
 ```typescript
 {
   id: integer (PK, auto-increment)

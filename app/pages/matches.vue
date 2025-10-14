@@ -15,7 +15,7 @@
     <div v-if="loading" class="text-center py-8">
       Loading matches...
     </div>
-    <MatchesView
+    <ViewsMatchesView
       v-else
       :matches="matches"
       :players="players"

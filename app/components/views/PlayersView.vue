@@ -206,7 +206,7 @@
             <UserPlus :size="18" />
             Add Player
           </button>
-          <button type="button" @click="resetForm" class="btn-secondary cursor-pointer">
+          <button type="button" @click="resetForm" class="btn-secondary">
             Reset
           </button>
         </div>
@@ -222,10 +222,10 @@
           This action cannot be undone and all their match history will be lost.
         </p>
         <div class="flex space-x-4">
-          <button @click="removePlayer" class="btn-secondary flex-1 cursor-pointer">
+          <button @click="removePlayer" class="btn-secondary flex-1">
             Remove Player
           </button>
-          <button @click="cancelRemoval" class="btn-primary flex-1 cursor-pointer">
+          <button @click="cancelRemoval" class="btn-primary flex-1">
             Cancel
           </button>
         </div>

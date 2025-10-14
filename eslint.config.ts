@@ -28,11 +28,13 @@ export default defineConfig([
         useHead: "readonly",
         useRoute: "readonly",
         useRouter: "readonly",
+        useState: "readonly",
         navigateTo: "readonly",
         onMounted: "readonly",
         storeToRefs: "readonly",
         defineStore: "readonly",
         useLeagueStore: "readonly",
+        useAuthStore: "readonly",
         $fetch: "readonly",
         defineNuxtConfig: "readonly",
       }

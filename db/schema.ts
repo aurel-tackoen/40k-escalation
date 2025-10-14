@@ -1,5 +1,17 @@
 import { integer, pgTable, varchar, text, timestamp, boolean, date } from 'drizzle-orm/pg-core';
 
+// Users table (Auth0 authentication)
+export const users = pgTable('users', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  auth0Id: varchar({ length: 255 }).notNull().unique(), // Auth0 user ID
+  email: varchar({ length: 255 }).notNull().unique(),
+  name: varchar({ length: 255 }).notNull(),
+  picture: text(), // Avatar URL from Auth0
+  role: varchar({ length: 50 }).default('user').notNull(), // User role (user, organizer, admin)
+  createdAt: timestamp().defaultNow().notNull(),
+  lastLoginAt: timestamp().defaultNow().notNull()
+});
+
 // Leagues table
 export const leagues = pgTable('leagues', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -25,6 +37,7 @@ export const rounds = pgTable('rounds', {
 // Players table
 export const players = pgTable('players', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer().references(() => users.id), // Link to authenticated user (nullable)
   name: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
   faction: varchar({ length: 100 }),

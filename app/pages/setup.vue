@@ -12,7 +12,7 @@
     <div v-if="loading" class="text-center py-8">
       Loading league settings...
     </div>
-    <LeagueSetupView
+    <ViewsLeagueSetupView
       v-else-if="league"
       :league="league"
       @update-league="leagueStore.updateLeague"
