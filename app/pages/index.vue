@@ -2,59 +2,70 @@
   import { Swords, Users, Trophy, Lock, Globe, Calendar } from 'lucide-vue-next'
   import { useAuthStore } from '~/stores/auth'
   import { useLeaguesStore } from '~/stores/leagues'
+  import { useFormatting } from '~/composables/useFormatting'
 
   const authStore = useAuthStore()
   const leaguesStore = useLeaguesStore()
   const { publicLeagues, loading } = storeToRefs(leaguesStore)
+  const { formatDate } = useFormatting()
 
-  // Redirect to dashboard if authenticated
+  // Fetch public leagues
   onMounted(async () => {
-    if (authStore.isAuthenticated) {
-      await navigateTo('/dashboard')
-      return
-    }
-
-    // Fetch public leagues for logged-out users
     await leaguesStore.fetchPublicLeagues()
   })
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-  }
 </script>
 
 <template>
-  <div class="min-h-screen -mx-4 -mt-8">
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-yellow-600/40">
-      <div class="container mx-auto px-4 py-16 text-center">
+  <div class="-mx-4 -my-8">
+    <!-- Hero Section - Full Width -->
+    <div class="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-yellow-600/40">
+      <div class="px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24 text-center">
         <div class="flex justify-center mb-6">
-          <Swords :size="64" class="text-yellow-500" />
+          <Swords :size="72" class="text-yellow-500" />
         </div>
-        <h1 class="text-5xl md:text-6xl font-bold text-gray-100 mb-4 font-serif">
+        <h1 class="text-5xl sm:text-6xl md:text-7xl font-bold text-gray-100 mb-5 font-serif">
           Warhammer 40K
         </h1>
-        <p class="text-2xl md:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 font-bold mb-6 tracking-wide">
+        <p class="text-2xl sm:text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 font-bold mb-6 tracking-wide">
           ESCALATION LEAGUE MANAGER
         </p>
-        <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+        <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-8 px-4">
           Organize and track your Warhammer 40K escalation campaigns with ease.
           Manage players, armies, matches, and painting progress all in one place.
         </p>
-        <div class="flex flex-wrap gap-4 justify-center">
+
+        <!-- Authenticated User Buttons -->
+        <div v-if="authStore.isAuthenticated" class="flex flex-wrap gap-4 justify-center">
           <NuxtLink
-            to="/api/auth/login"
-            class="btn-primary"
+            to="/leagues"
+            class="btn-primary text-lg px-8 py-3 flex items-center gap-2"
+          >
+            <Swords :size="20" />
+            My Leagues
+          </NuxtLink>
+          <NuxtLink
+            to="/leagues"
+            class="btn-secondary text-lg px-8 py-3 flex items-center gap-2"
+          >
+            <Globe :size="20" />
+            Browse Leagues
+          </NuxtLink>
+        </div>
+
+        <!-- Non-Authenticated User Buttons -->
+        <div v-else class="flex flex-wrap gap-4 justify-center">
+          <button
+            @click="authStore.login('signup')"
+            class="btn-primary text-lg px-8 py-3"
           >
             Create Account
-          </NuxtLink>
-          <NuxtLink
-            to="/api/auth/login"
-            class="btn-login"
+          </button>
+          <button
+            @click="authStore.login()"
+            class="btn-login text-lg px-8 py-3"
           >
             Login
-          </NuxtLink>
+          </button>
         </div>
       </div>
     </div>

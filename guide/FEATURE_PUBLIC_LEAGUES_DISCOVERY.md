@@ -255,9 +255,11 @@ The landing page now uses the same store logic as the leagues page:
 
 ```javascript
 import { useLeaguesStore } from '~/stores/leagues'
+import { useFormatting } from '~/composables/useFormatting'
 
 const leaguesStore = useLeaguesStore()
 const { publicLeagues, loading } = storeToRefs(leaguesStore)
+const { formatDate } = useFormatting()
 
 onMounted(async () => {
   if (authStore.isAuthenticated) {
@@ -270,6 +272,7 @@ onMounted(async () => {
 
 **Key Features**:
 - Uses shared store for consistency
+- **Uses `useFormatting` composable** for date formatting
 - Shows enhanced league cards with status badges
 - Displays start date with Calendar icon
 - Shows capacity (X / Y members)
@@ -280,6 +283,10 @@ onMounted(async () => {
 For authenticated users viewing their leagues:
 
 ```javascript
+import { useFormatting } from '~/composables/useFormatting'
+
+const { formatDate } = useFormatting()
+
 onMounted(async () => {
   await leaguesStore.fetchMyLeagues()
   await leaguesStore.fetchPublicLeagues()
@@ -289,8 +296,37 @@ onMounted(async () => {
 **Key Features**:
 - Shows "My Leagues" section (purple theme)
 - Shows "Public Leagues" section below (green theme)
+- **Uses `useFormatting` composable** for consistent date formatting
 - Join button redirects to join flow with leagueId
 - Smart filtering excludes already-joined leagues
+
+## Code Quality Improvements
+
+### Composable Usage
+Both pages now use the `useFormatting` composable instead of local date formatting functions:
+
+**Before**:
+```javascript
+// Local function in each component
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  return new Date(dateString).toLocaleDateString('en-US', { ... })
+}
+```
+
+**After**:
+```javascript
+// Shared composable
+import { useFormatting } from '~/composables/useFormatting'
+const { formatDate } = useFormatting()
+```
+
+**Benefits**:
+- ✅ **Consistency** - Same date format across all pages
+- ✅ **Maintainability** - Single source of truth for date formatting
+- ✅ **Reusability** - No code duplication
+- ✅ **Type Safety** - TypeScript types from composable
+- ✅ **Testability** - Easier to test formatting logic
 
 ## Dependencies
 

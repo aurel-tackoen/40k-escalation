@@ -1,9 +1,11 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
+  import { useFormatting } from '~/composables/useFormatting'
   import { Swords, Users, Calendar, Plus, LogIn, Settings, LogOut, Trash2, Globe } from 'lucide-vue-next'
 
   const leaguesStore = useLeaguesStore()
   const { myLeagues, publicLeagues, currentLeagueId, loading } = storeToRefs(leaguesStore)
+  const { formatDate } = useFormatting()
 
   onMounted(async () => {
     await leaguesStore.fetchMyLeagues()
@@ -50,11 +52,6 @@
       case 'organizer': return 'bg-blue-600 text-blue-100'
       default: return 'bg-gray-600 text-gray-100'
     }
-  }
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 </script>
 
