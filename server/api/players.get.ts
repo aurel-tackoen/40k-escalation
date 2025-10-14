@@ -1,13 +1,28 @@
 /**
- * GET /api/players
- * Fetches all players from the database
+ * GET /api/players?leagueId=123
+ * Fetches all players from a specific league
  */
 import { db } from '../../db'
 import { players } from '../../db/schema'
+import { eq } from 'drizzle-orm'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
-    const allPlayers = await db.select().from(players)
+    const query = getQuery(event)
+    const leagueId = query.leagueId ? parseInt(query.leagueId as string) : null
+
+    let allPlayers
+
+    if (leagueId) {
+      // Get players for specific league
+      allPlayers = await db
+        .select()
+        .from(players)
+        .where(eq(players.leagueId, leagueId))
+    } else {
+      // Get all players (for admin or migration purposes)
+      allPlayers = await db.select().from(players)
+    }
 
     return {
       success: true,

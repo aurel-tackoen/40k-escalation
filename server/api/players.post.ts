@@ -1,24 +1,28 @@
 /**
  * POST /api/players
- * Creates a new player in the database
+ * Creates a new player in a specific league
+ * Also updates the league membership with the player ID
  */
 import { db } from '../../db'
-import { players } from '../../db/schema'
+import { players, leagueMemberships } from '../../db/schema'
+import { eq, and } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
 
-    // Basic validation
-    if (!body.name || !body.email) {
+    // Basic validation - userId is now required for Auth0 integration
+    if (!body.name || !body.email || !body.leagueId || !body.userId) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Name and email are required'
+        statusMessage: 'Name, email, leagueId, and userId are required'
       })
     }
 
     // Insert player with stats
     const newPlayer = await db.insert(players).values({
+      leagueId: body.leagueId,
+      userId: body.userId,
       name: body.name,
       email: body.email,
       faction: body.faction || null,
@@ -28,20 +32,31 @@ export default defineEventHandler(async (event) => {
       totalPoints: body.totalPoints || 0
     }).returning()
 
+    // Update the league membership with the player ID
+    const [membership] = await db
+      .select()
+      .from(leagueMemberships)
+      .where(
+        and(
+          eq(leagueMemberships.leagueId, body.leagueId),
+          eq(leagueMemberships.userId, body.userId)
+        )
+      )
+      .limit(1)
+
+    if (membership) {
+      await db
+        .update(leagueMemberships)
+        .set({ playerId: newPlayer[0].id })
+        .where(eq(leagueMemberships.id, membership.id))
+    }
+
     return {
       success: true,
       data: newPlayer[0]
     }
   } catch (error) {
     console.error('Error creating player:', error)
-
-    // Check for duplicate email
-    if (error instanceof Error && error.message.includes('unique')) {
-      throw createError({
-        statusCode: 409,
-        statusMessage: 'Player with this email already exists'
-      })
-    }
 
     throw createError({
       statusCode: 500,

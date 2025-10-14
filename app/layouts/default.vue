@@ -2,23 +2,45 @@
   import { ref, watch, onMounted } from 'vue'
   import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
+  import { useAuthStore } from '~/stores/auth'
+  import { useLeaguesStore } from '~/stores/leagues'
   import LoginButton from '~/components/LoginButton.vue'
   import UserMenu from '~/components/UserMenu.vue'
+  import LeagueSwitcher from '~/components/LeagueSwitcher.vue'
 
   const { fetchUser } = useAuth()
+  const authStore = useAuthStore()
+  const leaguesStore = useLeaguesStore()
+  const { currentLeague, currentRole } = storeToRefs(leaguesStore)
 
-  // Fetch user on mount
+  // Fetch user and initialize leagues on mount
   onMounted(async () => {
     await fetchUser()
+    await leaguesStore.initialize()
   })
 
-  const tabs = [
+  const allTabs = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { path: '/players', name: 'Players', icon: Users },
     { path: '/armies', name: 'Army Lists', icon: Shield },
     { path: '/matches', name: 'Matches', icon: Trophy },
-    { path: '/setup', name: 'League', icon: Settings }
+    { path: '/leagues', name: 'Leagues', icon: Swords },
+    { path: '/setup', name: 'Settings', icon: Settings, requiresRole: ['owner', 'organizer'] }
   ]
+
+  // Filter tabs based on user's role in current league
+  const tabs = computed(() => {
+    return allTabs.filter(tab => {
+      // If tab doesn't require a role, show it
+      if (!tab.requiresRole) return true
+
+      // If no current league, hide role-restricted tabs
+      if (!currentLeague.value) return false
+
+      // Check if user has required role (use currentRole from store)
+      return tab.requiresRole.includes(currentRole.value)
+    })
+  })
 
   const isMobileMenuOpen = ref(false)
 
@@ -69,8 +91,9 @@
             </div>
           </div>
 
-          <!-- Mobile Menu Button -->
+          <!-- Mobile Menu Button (only show when authenticated) -->
           <button
+            v-if="authStore.isAuthenticated"
             @click="toggleMobileMenu"
             class="lg:hidden p-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600 flex-shrink-0"
             aria-label="Toggle menu"
@@ -79,16 +102,22 @@
             <X v-else :size="24" :stroke-width="2.5" />
           </button>
 
+          <!-- Login Button for Mobile (when logged out) -->
+          <div v-else class="lg:hidden">
+            <LoginButton />
+          </div>
+
           <!-- Desktop Navigation -->
           <nav class="hidden lg:flex flex-col gap-3 flex-1 justify-end items-end">
-            <!-- Auth UI -->
-            <div class="flex items-center gap-2">
-              <UserMenu />
+            <!-- Auth UI & League Switcher -->
+            <div class="flex items-center gap-3">
+              <LeagueSwitcher v-if="authStore.isAuthenticated" />
+              <UserMenu v-if="authStore.isAuthenticated" />
               <LoginButton />
             </div>
 
-            <!-- Navigation Links -->
-            <div class="flex flex-wrap gap-2">
+            <!-- Navigation Links (only show when authenticated) -->
+            <div v-if="authStore.isAuthenticated" class="flex flex-wrap gap-2">
               <NuxtLink
                 v-for="tab in tabs"
                 :key="tab.path"

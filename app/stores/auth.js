@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useLeaguesStore } from './leagues'
 
 /**
  * Auth Store - Manages authentication state with Auth0
@@ -87,15 +88,24 @@ export const useAuthStore = defineStore('auth', {
 
     /**
      * Redirect to Auth0 login
+     * @param {string} screenHint - 'signup' to show signup screen, omit for login screen
      */
-    login() {
-      window.location.href = '/api/auth/login'
+    login(screenHint = null) {
+      const url = screenHint === 'signup'
+        ? '/api/auth/login?screen_hint=signup'
+        : '/api/auth/login'
+      window.location.href = url
     },
 
     /**
      * Logout user and clear session
      */
     logout() {
+      // Clear leagues store before redirecting
+      if (process.client) {
+        const leaguesStore = useLeaguesStore()
+        leaguesStore.resetStore()
+      }
       window.location.href = '/api/auth/logout'
     },
 

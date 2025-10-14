@@ -20,6 +20,11 @@ export const leagues = pgTable('leagues', {
   startDate: date().notNull(),
   endDate: date(),
   currentRound: integer().default(1).notNull(),
+  createdBy: integer().references(() => users.id).notNull(), // League owner
+  isPublic: boolean().default(true).notNull(), // Public vs private league
+  joinPassword: varchar({ length: 255 }), // Hashed password for joining (nullable for public leagues)
+  maxPlayers: integer(), // Optional player limit
+  status: varchar({ length: 50 }).default('active').notNull(), // 'draft', 'active', 'completed', 'archived'
   createdAt: timestamp().defaultNow().notNull()
 });
 
@@ -34,14 +39,14 @@ export const rounds = pgTable('rounds', {
   endDate: date().notNull()
 });
 
-// Players table
+// Players table (league-specific entities)
 export const players = pgTable('players', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer().references(() => users.id), // Link to authenticated user (nullable)
-  name: varchar({ length: 255 }).notNull(),
-  email: varchar({ length: 255 }).notNull().unique(),
+  leagueId: integer().references(() => leagues.id, { onDelete: 'cascade' }).notNull(), // Players are league-specific
+  userId: integer().references(() => users.id, { onDelete: 'cascade' }).notNull(), // Link to authenticated user (required for Auth0 integration)
+  name: varchar({ length: 255 }).notNull(), // Display name (can be different from user.name)
   faction: varchar({ length: 100 }),
-  wins: integer().default(0).notNull(),
+  wins: integer().default(0).notNull(), // Stats scoped to this league
   losses: integer().default(0).notNull(),
   draws: integer().default(0).notNull(),
   totalPoints: integer().default(0).notNull(),
@@ -67,7 +72,8 @@ export const matches = pgTable('matches', {
 // Army lists table
 export const armies = pgTable('armies', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  playerId: integer().references(() => players.id).notNull(),
+  leagueId: integer().references(() => leagues.id, { onDelete: 'cascade' }).notNull(), // League-specific
+  playerId: integer().references(() => players.id, { onDelete: 'cascade' }).notNull(),
   round: integer().notNull(),
   name: varchar({ length: 255 }).notNull(),
   totalPoints: integer().notNull(),
@@ -75,6 +81,17 @@ export const armies = pgTable('armies', {
   isValid: boolean().default(true).notNull(),
   lastModified: date().notNull(),
   createdAt: timestamp().defaultNow().notNull()
+});
+
+// League memberships table (junction table for users in leagues)
+export const leagueMemberships = pgTable('league_memberships', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  leagueId: integer().references(() => leagues.id, { onDelete: 'cascade' }).notNull(),
+  userId: integer().references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  playerId: integer().references(() => players.id, { onDelete: 'cascade' }), // Links to player entity in this league
+  role: varchar({ length: 50 }).default('player').notNull(), // 'owner', 'organizer', 'player'
+  joinedAt: timestamp().defaultNow().notNull(),
+  status: varchar({ length: 50 }).default('active').notNull(), // 'active', 'inactive', 'banned'
 });
 
 // Legacy posts table (can be removed later)

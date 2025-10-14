@@ -1,5 +1,7 @@
 <script setup>
   import { Brush } from 'lucide-vue-next'
+  import { usePaintingStats } from '~/composables/usePaintingStats'
+
   defineProps({
     leaderboard: {
       type: Array,
@@ -11,18 +13,11 @@
     }
   })
 
-  const getPercentageClass = (percentage) => {
-    if (percentage === 100) return 'text-purple-400'
-    if (percentage >= 71) return 'text-green-400'
-    if (percentage >= 31) return 'text-yellow-400'
-    return 'text-red-400'
-  }
+  const { getPaintPercentageColor, getPaintProgressClass } = usePaintingStats()
 
-  const getProgressBarClass = (percentage) => {
-    if (percentage === 100) return 'bg-gradient-to-r from-purple-500 to-purple-600'
-    if (percentage >= 71) return 'bg-gradient-to-r from-green-500 to-green-600'
-    if (percentage >= 31) return 'bg-gradient-to-r from-yellow-500 to-yellow-600'
-    return 'bg-gradient-to-r from-red-500 to-red-600'
+  // Green color for painted points progress bars
+  const getPointsProgressBarClass = () => {
+    return 'bg-gradient-to-r from-green-500 to-green-600'
   }
 </script>
 
@@ -63,19 +58,44 @@
         </div>
 
         <div class="flex-1">
-          <div class="flex justify-between items-center mb-2 text-xs">
-            <span class="text-gray-400">{{ entry.painted }} / {{ entry.totalModels }} models</span>
-            <span class="font-bold text-sm" :class="getPercentageClass(entry.percentage)">
-              {{ entry.percentage }}%
-            </span>
+          <!-- Models Progress -->
+          <div class="mb-3">
+            <div class="flex justify-between items-center mb-2 text-xs">
+              <span class="text-gray-400 flex items-center gap-1">
+                🎨 {{ entry.painted }} / {{ entry.totalModels }} models
+              </span>
+              <span class="font-bold text-sm" :class="getPaintPercentageColor(entry.percentage)">
+                {{ entry.percentage }}%
+              </span>
+            </div>
+            <div class="h-2 bg-gray-800 rounded overflow-hidden">
+              <div
+                class="h-full transition-all duration-500 rounded"
+                :style="{ width: entry.percentage + '%' }"
+                :class="getPaintProgressClass(entry.percentage)"
+              ></div>
+            </div>
           </div>
-          <div class="h-2 bg-gray-800 rounded overflow-hidden">
-            <div
-              class="h-full transition-all duration-500 rounded"
-              :style="{ width: entry.percentage + '%' }"
-              :class="getProgressBarClass(entry.percentage)"
-            ></div>
+
+          <!-- Points Progress -->
+          <div v-if="entry.totalPoints > 0">
+            <div class="flex justify-between items-center mb-2 text-xs">
+              <span class="text-gray-400 flex items-center gap-1">
+                💰 {{ entry.paintedPoints || 0 }} / {{ entry.totalPoints }} pts
+              </span>
+              <span class="font-bold text-sm text-green-400">
+                {{ entry.pointsPercentage || 0 }}%
+              </span>
+            </div>
+            <div class="h-2 bg-gray-800 rounded overflow-hidden">
+              <div
+                class="h-full transition-all duration-500 rounded"
+                :style="{ width: (entry.pointsPercentage || 0) + '%' }"
+                :class="getPointsProgressBarClass()"
+              ></div>
+            </div>
           </div>
+
           <div v-if="entry.percentage === 100" class="mt-2 text-purple-400 text-xs font-semibold text-right">
             ✨ Fully Painted!
           </div>

@@ -1,6 +1,7 @@
 /**
  * GET /api/auth/login
  * Redirects user to Auth0 hosted login page
+ * Supports ?screen_hint=signup to show signup screen by default
  */
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig()
@@ -15,6 +16,10 @@ export default defineEventHandler((event) => {
     })
   }
 
+  // Get query parameters
+  const query = getQuery(event)
+  const screenHint = query.screen_hint || query.screenHint // Support both formats
+
   // Build Auth0 authorization URL
   const params = new URLSearchParams({
     response_type: 'code',
@@ -23,6 +28,11 @@ export default defineEventHandler((event) => {
     scope: 'openid profile email',
     state: Math.random().toString(36).substring(7) // Simple state for CSRF protection
   })
+
+  // Add screen_hint if provided (signup or login)
+  if (screenHint === 'signup') {
+    params.append('screen_hint', 'signup')
+  }
 
   const authUrl = `https://${AUTH0_DOMAIN}/authorize?${params.toString()}`
 

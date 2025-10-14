@@ -1,13 +1,15 @@
 <script setup>
-  import { UserPlus, X, TrendingUp, Mail, Shield, Users, Paintbrush } from 'lucide-vue-next'
+  import { computed, watch } from 'vue'
+  import { X, TrendingUp, Shield, Users, Paintbrush, UserCheck } from 'lucide-vue-next'
   import { factions } from '~/data/factions'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerStats } from '~/composables/usePlayerStats'
   import { useConfirmation } from '~/composables/useConfirmation'
   import { useFormManagement } from '~/composables/useFormManagement'
+  import { useAuth } from '~/composables/useAuth'
 
   // Props
-  defineProps({
+  const props = defineProps({
     players: {
       type: Array,
       required: true
@@ -23,7 +25,22 @@
   })
 
   // Emits
-  const emit = defineEmits(['add-player', 'remove-player'])
+  const emit = defineEmits(['add-player', 'remove-player', 'update-player'])
+
+  // Auth
+  const { user, isAuthenticated } = useAuth()
+
+  // Check if current user is already a player in this league
+  const isCurrentUserPlayer = computed(() => {
+    if (!isAuthenticated.value || !user.value) return false
+    return props.players.some(p => p.userId === user.value.id)
+  })
+
+  // Get current user's player record if exists
+  const currentUserPlayer = computed(() => {
+    if (!isAuthenticated.value || !user.value) return null
+    return props.players.find(p => p.userId === user.value.id)
+  })
 
   // Composables
   const {
@@ -51,18 +68,46 @@
   const {
     formData: newPlayer,
     resetForm,
-    isFormValid
+    isFormValid,
+    updateField
   } = useFormManagement({
     name: '',
-    faction: '',
-    email: ''
+    faction: ''
   })
+
+  // Pre-fill form with current player data when user is already a player
+  watch(currentUserPlayer, (player) => {
+    if (player) {
+      updateField('name', player.name)
+      updateField('faction', player.faction)
+    }
+  }, { immediate: true })
 
   // Methods
   const submitPlayer = () => {
-    if (isFormValid(['name', 'faction', 'email'])) {
-      emit('add-player', { ...newPlayer.value })
-      resetForm()
+    if (!isAuthenticated.value || !user.value) {
+      alert('You must be logged in to join as a player')
+      return
+    }
+
+    if (isFormValid(['name', 'faction'])) {
+      if (isCurrentUserPlayer.value) {
+        // Update existing player
+        emit('update-player', {
+          id: currentUserPlayer.value.id,
+          name: newPlayer.value.name,
+          faction: newPlayer.value.faction
+        })
+      } else {
+        // Add new player
+        emit('add-player', {
+          name: newPlayer.value.name,
+          faction: newPlayer.value.faction,
+          userId: user.value.id,
+          email: user.value.email
+        })
+        resetForm()
+      }
     }
   }
 </script>
@@ -113,13 +158,6 @@
               <span class="text-gray-400">Total Points:</span>
               <span class="text-yellow-500 font-bold">{{ player.totalPoints }}</span>
             </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-400 flex items-center gap-1">
-                <Mail :size="14" />
-                Email:
-              </span>
-              <span class="text-gray-300 text-xs">{{ player.email }}</span>
-            </div>
           </div>
 
           <!-- Player Performance Chart -->
@@ -163,23 +201,46 @@
       </div>
     </div>
 
-    <!-- Add Player Form -->
+    <!-- Join as Player Form -->
     <div class="card">
       <div class="flex items-center gap-2 mb-6">
-        <UserPlus :size="24" class="text-yellow-500" />
-        <h3 class="text-2xl font-serif font-bold text-yellow-500">Add New Player</h3>
+        <UserCheck :size="24" class="text-yellow-500" />
+        <h3 class="text-2xl font-serif font-bold text-yellow-500">
+          {{ isCurrentUserPlayer ? 'Update Your Profile' : 'Join as Player' }}
+        </h3>
       </div>
-      <form @submit.prevent="submitPlayer" class="space-y-4">
+
+      <!-- Already joined message -->
+      <div v-if="isCurrentUserPlayer" class="bg-green-900/20 border border-green-600 rounded-lg p-4 mb-4">
+        <p class="text-green-400 flex items-center gap-2">
+          <UserCheck :size="18" />
+          You've already joined this league as {{ currentUserPlayer.name }}
+        </p>
+        <p class="text-gray-400 text-sm mt-2">
+          You can update your display name and faction below.
+        </p>
+      </div>
+
+      <!-- Not logged in message -->
+      <div v-if="!isAuthenticated" class="bg-gray-700 border border-gray-600 rounded-lg p-4">
+        <p class="text-gray-300">
+          You must be logged in to join as a player.
+        </p>
+      </div>
+
+      <!-- Join/Update form (show when authenticated) -->
+      <form v-if="isAuthenticated" @submit.prevent="submitPlayer" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Player Name</label>
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">Display Name</label>
             <input
               v-model="newPlayer.name"
               type="text"
               required
               class="input-field"
-              placeholder="Enter player name"
+              :placeholder="user?.name || 'Enter display name'"
             />
+            <p class="text-xs text-gray-400 mt-1">This name will be shown in league standings</p>
           </div>
           <div>
             <label class="block text-sm font-semibold text-yellow-500 mb-2">Faction</label>
@@ -191,20 +252,10 @@
             </select>
           </div>
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-yellow-500 mb-2">Email</label>
-          <input
-            v-model="newPlayer.email"
-            type="email"
-            required
-            class="input-field"
-            placeholder="player@email.com"
-          />
-        </div>
         <div class="flex space-x-4">
           <button type="submit" class="btn-primary flex items-center gap-2 cursor-pointer">
-            <UserPlus :size="18" />
-            Add Player
+            <UserCheck :size="18" />
+            {{ isCurrentUserPlayer ? 'Update Profile' : 'Join League' }}
           </button>
           <button type="button" @click="resetForm" class="btn-secondary">
             Reset
