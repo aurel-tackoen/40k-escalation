@@ -1,6 +1,6 @@
 <script setup>
   import { computed, watch, toRef, ref, nextTick } from 'vue'
-  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, GripVertical } from 'lucide-vue-next'
+  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, ChevronUp, ChevronDown } from 'lucide-vue-next'
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
@@ -187,53 +187,29 @@
     }
   }
 
-  // Drag and Drop
-  const draggedUnitIndex = ref(null)
-  const dragOverIndex = ref(null)
+  // Unit Reordering with Up/Down arrows
+  const moveUnitUp = (index) => {
+    if (index === 0) return // Can't move first unit up
 
-  const handleDragStart = (index) => {
-    draggedUnitIndex.value = index
-  }
-
-  const handleDragOver = (event, index) => {
-    event.preventDefault()
-    dragOverIndex.value = index
-  }
-
-  const handleDragLeave = () => {
-    dragOverIndex.value = null
-  }
-
-  const handleDrop = (event, dropIndex) => {
-    event.preventDefault()
-
-    if (draggedUnitIndex.value === null || draggedUnitIndex.value === dropIndex) {
-      draggedUnitIndex.value = null
-      dragOverIndex.value = null
-      return
-    }
-
-    // Reorder the units array
     const units = [...currentArmy.value.units]
-    const draggedUnit = units[draggedUnitIndex.value]
+    // Swap with previous unit
+    const temp = units[index - 1]
+    units[index - 1] = units[index]
+    units[index] = temp
 
-    // Remove the dragged unit
-    units.splice(draggedUnitIndex.value, 1)
-
-    // Insert at new position
-    units.splice(dropIndex, 0, draggedUnit)
-
-    // Update the army
     currentArmy.value.units = units
-
-    // Reset drag state
-    draggedUnitIndex.value = null
-    dragOverIndex.value = null
   }
 
-  const handleDragEnd = () => {
-    draggedUnitIndex.value = null
-    dragOverIndex.value = null
+  const moveUnitDown = (index) => {
+    if (index === currentArmy.value.units.length - 1) return // Can't move last unit down
+
+    const units = [...currentArmy.value.units]
+    // Swap with next unit
+    const temp = units[index + 1]
+    units[index + 1] = units[index]
+    units[index] = temp
+
+    currentArmy.value.units = units
   }
 
   // Watchers
@@ -547,6 +523,10 @@
                 <span class="bg-yellow-500 text-gray-900 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">3</span>
                 Units ({{ currentArmy.units.length }})
               </h4>
+              <p v-if="currentArmy.units.length >= 2" class="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                <ChevronUp :size="14" />
+                Use arrows to reorder units
+              </p>
             </div>
             <button type="button" @click="addUnit" class="btn-primary flex items-center gap-2">
               <Plus :size="18" />
@@ -566,26 +546,40 @@
             <div
               v-for="(unit, index) in currentArmy.units"
               :key="unit.id || index"
-              draggable="true"
-              @dragstart="handleDragStart(index)"
-              @dragover="handleDragOver($event, index)"
-              @dragleave="handleDragLeave"
-              @drop="handleDrop($event, index)"
-              @dragend="handleDragEnd"
-              :class="[
-                'bg-gray-700/50 border rounded-lg p-4 transition-all duration-200',
-                draggedUnitIndex === index ? 'opacity-50 border-yellow-500' : 'border-gray-600',
-                dragOverIndex === index && draggedUnitIndex !== index ? 'border-yellow-500 border-2 scale-105' : '',
-                'hover:border-gray-500 cursor-move'
-              ]"
+              class="bg-gray-700/50 border border-gray-600 rounded-lg p-4 transition-all duration-200 hover:border-gray-500"
             >
               <!-- Unit Header -->
               <div class="flex flex-col md:flex-row gap-3 mb-3">
-                <!-- Drag Handle -->
-                <div class="hidden md:flex items-center justify-center flex-shrink-0">
-                  <div class="text-gray-500 hover:text-gray-300 transition-colors cursor-grab active:cursor-grabbing pr-2">
-                    <GripVertical :size="20" />
-                  </div>
+                <!-- Reorder Buttons -->
+                <div class="flex md:flex-col gap-1 flex-shrink-0">
+                  <button
+                    type="button"
+                    @click="moveUnitUp(index)"
+                    :disabled="index === 0"
+                    class="p-1 rounded border transition-colors"
+                    :class="[
+                      index === 0
+                        ? 'border-gray-700 text-gray-600 cursor-not-allowed'
+                        : 'border-gray-600 text-gray-400 hover:text-yellow-500 hover:border-yellow-500'
+                    ]"
+                    title="Move Up"
+                  >
+                    <ChevronUp :size="18" />
+                  </button>
+                  <button
+                    type="button"
+                    @click="moveUnitDown(index)"
+                    :disabled="index === currentArmy.units.length - 1"
+                    class="p-1 rounded border transition-colors"
+                    :class="[
+                      index === currentArmy.units.length - 1
+                        ? 'border-gray-700 text-gray-600 cursor-not-allowed'
+                        : 'border-gray-600 text-gray-400 hover:text-yellow-500 hover:border-yellow-500'
+                    ]"
+                    title="Move Down"
+                  >
+                    <ChevronDown :size="18" />
+                  </button>
                 </div>
 
                 <!-- Unit Fields Grid -->

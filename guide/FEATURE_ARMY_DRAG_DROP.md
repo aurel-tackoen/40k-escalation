@@ -95,9 +95,17 @@ draggable="true"
 ## 📱 Responsive Behavior
 
 ### Desktop (md and up)
-- Grip handle visible in first column
+- Grip handle visible with "⋮⋮" icon
 - 12-column grid layout maintained
-- Unit fields shifted to accommodate handle
+- Cursor changes to grab/grabbing on hover
+- Helper text shows when 2+ units exist
+
+### Mobile (sm and below)
+- ✅ **Grip handle NOW VISIBLE** with "Drag to reorder" text
+- Full unit card remains draggable
+- Touch-friendly drag interactions
+- Helper text shows when 2+ units exist
+- Visual feedback maintained (opacity, borders, scaling)
 
 ### Mobile (below md)
 - Grip handle hidden
