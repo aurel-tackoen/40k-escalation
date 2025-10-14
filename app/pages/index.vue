@@ -1,18 +1,20 @@
 <script setup>
-  import { Swords, Users, Trophy, Lock, Globe, Calendar } from 'lucide-vue-next'
+  import { Swords, Users, Trophy, Lock, Globe } from 'lucide-vue-next'
   import { useAuthStore } from '~/stores/auth'
   import { useLeaguesStore } from '~/stores/leagues'
-  import { useFormatting } from '~/composables/useFormatting'
 
   const authStore = useAuthStore()
   const leaguesStore = useLeaguesStore()
   const { publicLeagues, loading } = storeToRefs(leaguesStore)
-  const { formatDate } = useFormatting()
 
   // Fetch public leagues
   onMounted(async () => {
     await leaguesStore.fetchPublicLeagues()
   })
+
+  const handleJoin = () => {
+    authStore.login('signup')
+  }
 </script>
 
 <template>
@@ -132,79 +134,13 @@
 
         <!-- Leagues Grid -->
         <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          <div
+          <LeagueCard
             v-for="league in publicLeagues"
             :key="league.id"
-            class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-yellow-600 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-yellow-600/20"
-          >
-            <!-- League Header -->
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex-1">
-                <h3 class="text-xl font-bold text-gray-100 mb-1">{{ league.name }}</h3>
-                <div class="flex items-center gap-2 text-sm text-green-400">
-                  <Globe :size="14" />
-                  <span>Public</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Description -->
-            <p v-if="league.description" class="text-gray-400 mb-4 line-clamp-2">
-              {{ league.description }}
-            </p>
-
-            <!-- League Stats -->
-            <div class="space-y-2 mb-4">
-              <div class="flex items-center gap-2 text-sm text-gray-300">
-                <Users :size="16" class="text-gray-500" />
-                <span>
-                  {{ league.memberCount || 0 }}
-                  <template v-if="league.maxPlayers"> / {{ league.maxPlayers }}</template>
-                  members
-                </span>
-              </div>
-              <div class="flex items-center gap-2 text-sm text-gray-300">
-                <Trophy :size="16" class="text-gray-500" />
-                <span>Round {{ league.currentRound || 1 }}</span>
-              </div>
-              <div class="flex items-center gap-2 text-sm text-gray-300">
-                <Calendar :size="16" class="text-gray-500" />
-                <span>Started {{ formatDate(league.startDate) }}</span>
-              </div>
-            </div>
-
-            <!-- Status Badge -->
-            <div v-if="league.status" class="mb-4">
-              <span
-                :class="[
-                  'inline-block px-2 py-1 rounded text-xs font-bold uppercase',
-                  league.status === 'active' ? 'bg-green-600/20 text-green-400 border border-green-600/40' :
-                  league.status === 'completed' ? 'bg-blue-600/20 text-blue-400 border border-blue-600/40' :
-                  'bg-gray-600/20 text-gray-400 border border-gray-600/40'
-                ]"
-              >
-                {{ league.status }}
-              </span>
-            </div>
-
-            <!-- Join Button -->
-            <NuxtLink
-              to="/api/auth/login"
-              :class="[
-                'block w-full px-4 py-2 font-semibold rounded-lg transition-all duration-300 text-center',
-                (league.maxPlayers && league.memberCount >= league.maxPlayers)
-                  ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 hover:shadow-lg hover:shadow-yellow-600/50'
-              ]"
-            >
-              <template v-if="league.maxPlayers && league.memberCount >= league.maxPlayers">
-                League Full
-              </template>
-              <template v-else>
-                Join League
-              </template>
-            </NuxtLink>
-          </div>
+            :league="league"
+            variant="public-guest"
+            @join="handleJoin"
+          />
         </div>
 
         <div class="text-center mt-12">
