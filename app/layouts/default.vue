@@ -1,6 +1,16 @@
 <script setup>
-  import { ref, watch } from 'vue'
+  import { ref, watch, onMounted } from 'vue'
   import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords } from 'lucide-vue-next'
+  import { useAuth } from '~/composables/useAuth'
+  import LoginButton from '~/components/LoginButton.vue'
+  import UserMenu from '~/components/UserMenu.vue'
+
+  const { fetchUser } = useAuth()
+
+  // Fetch user on mount
+  onMounted(async () => {
+    await fetchUser()
+  })
 
   const tabs = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
@@ -70,7 +80,7 @@
           </button>
 
           <!-- Desktop Navigation -->
-          <nav class="hidden lg:flex flex-wrap gap-2 flex-1 justify-end">
+          <nav class="hidden lg:flex flex-wrap gap-2 flex-1 justify-end items-center">
             <NuxtLink
               v-for="tab in tabs"
               :key="tab.path"
@@ -94,6 +104,12 @@
               <!-- Bottom border accent (only show on non-active) -->
               <span v-if="$route.path !== tab.path" class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600 -translate-x-1/2 group-hover:w-full transition-all duration-300 pointer-events-none"></span>
             </NuxtLink>
+
+            <!-- Auth UI -->
+            <div class="ml-4 flex items-center gap-2">
+              <UserMenu />
+              <LoginButton />
+            </div>
           </nav>
         </div>
       </div>
@@ -158,7 +174,12 @@
           </div>
 
           <!-- Mobile Menu Footer -->
-          <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900/50">
+          <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900/50 space-y-4">
+            <!-- Auth UI for mobile -->
+            <div class="flex justify-center">
+              <UserMenu />
+              <LoginButton />
+            </div>
             <p class="text-sm text-gray-400 text-center">
               Warhammer 40K Escalation League
             </p>

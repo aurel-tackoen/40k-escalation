@@ -24,6 +24,7 @@
 
 @layer components {
   .btn-primary {
+    cursor: pointer;
     position: relative;
     background: linear-gradient(135deg, var(--color-wh-gold) 0%, rgb(234 179 8) 100%);
     color: var(--color-wh-dark);
@@ -63,6 +64,7 @@
   }
   
   .btn-secondary {
+    cursor: pointer;
     position: relative;
     background: linear-gradient(135deg, var(--color-wh-red) 0%, rgb(153 27 27) 100%);
     color: rgb(243 244 246);

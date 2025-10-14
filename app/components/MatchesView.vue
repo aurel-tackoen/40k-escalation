@@ -300,11 +300,11 @@
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <button type="submit" class="btn-primary flex items-center justify-center gap-2 cursor-pointer">
+          <button type="submit" class="btn-primary flex items-center justify-center gap-2">
             <Plus :size="18" class="flex-shrink-0" />
             <span>Save Match</span>
           </button>
-          <button type="button" @click="resetForm" class="btn-secondary flex items-center justify-center gap-2 cursor-pointer">
+          <button type="button" @click="resetForm" class="btn-secondary flex items-center justify-center gap-2">
             <X :size="18" class="flex-shrink-0" />
             <span>Reset</span>
           </button>
@@ -494,7 +494,7 @@
           </button>
           <button
             @click="matchToDelete = null"
-            class="flex-1 btn-secondary cursor-pointer"
+            class="flex-1 btn-secondary"
           >
             Cancel
           </button>
