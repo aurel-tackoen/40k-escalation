@@ -34,23 +34,23 @@ export const useLeaguesStore = defineStore('leagues', {
     },
 
     // Check if user is owner of current league
-    isLeagueOwner: (state, getters) => {
-      return getters.currentRole === 'owner'
+    isLeagueOwner() {
+      return this.currentRole === 'owner'
     },
 
     // Check if user can manage league (owner or organizer)
-    canManageLeague: (state, getters) => {
-      const role = getters.currentRole
+    canManageLeague() {
+      const role = this.currentRole
       return role === 'owner' || role === 'organizer'
     },
 
     // Painting leaderboard for current round
-    paintingLeaderboard: (state, getters) => {
+    paintingLeaderboard(state) {
       // Return empty array if no league is selected
-      if (!getters.currentLeague) return []
+      if (!this.currentLeague) return []
 
       const leaderboard = []
-      const currentRound = getters.currentLeague.currentRound || 1
+      const currentRound = this.currentLeague.currentRound || 1
 
       state.players.forEach(player => {
         const army = state.armies.find(a => a.playerId === player.id && a.round === currentRound)
@@ -622,6 +622,27 @@ export const useLeaguesStore = defineStore('leagues', {
 
         // Fetch all league data
         await this.fetchLeagueData()
+      }
+    },
+
+    /**
+     * Reset store to initial state (called on logout)
+     */
+    resetStore() {
+      // Clear all state
+      this.myLeagues = []
+      this.currentLeagueId = null
+      this.leagues = {}
+      this.players = []
+      this.matches = []
+      this.armies = []
+      this.members = []
+      this.loading = false
+      this.error = null
+
+      // Clear localStorage
+      if (process.client) {
+        localStorage.removeItem('currentLeagueId')
       }
     }
   }

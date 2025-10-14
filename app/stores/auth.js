@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useLeaguesStore } from './leagues'
 
 /**
  * Auth Store - Manages authentication state with Auth0
@@ -96,6 +97,11 @@ export const useAuthStore = defineStore('auth', {
      * Logout user and clear session
      */
     logout() {
+      // Clear leagues store before redirecting
+      if (process.client) {
+        const leaguesStore = useLeaguesStore()
+        leaguesStore.resetStore()
+      }
       window.location.href = '/api/auth/logout'
     },
 
