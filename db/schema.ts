@@ -7,6 +7,7 @@ export const users = pgTable('users', {
   email: varchar({ length: 255 }).notNull().unique(),
   name: varchar({ length: 255 }).notNull(),
   picture: text(), // Avatar URL from Auth0
+  role: varchar({ length: 50 }).default('user').notNull(), // User role (user, organizer, admin)
   createdAt: timestamp().defaultNow().notNull(),
   lastLoginAt: timestamp().defaultNow().notNull()
 });

@@ -41,12 +41,15 @@ export default defineEventHandler(async (event) => {
         message: 'Session expired'
       }
     }
-
     // Find or create user in database
     const auth0Id = sessionData.sub
     const email = sessionData.email
     const name = sessionData.name || email.split('@')[0]
     const picture = sessionData.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`
+
+    // Get role from session data (set during callback)
+    // Session should have 'role' field populated from Auth0 roles
+    const role = sessionData.role || 'user'
 
     // Check if user exists
     let [user] = await db
@@ -63,16 +66,20 @@ export default defineEventHandler(async (event) => {
           email,
           name,
           picture,
+          role,
           lastLoginAt: new Date()
         })
         .returning()
 
       user = newUser
     } else {
-      // Update last login
+      // Update last login and role (in case it changed in Auth0)
       const [updatedUser] = await db
         .update(users)
-        .set({ lastLoginAt: new Date() })
+        .set({
+          lastLoginAt: new Date(),
+          role
+        })
         .where(eq(users.id, user.id))
         .returning()
 

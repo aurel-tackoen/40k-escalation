@@ -36,6 +36,24 @@ export const useAuthStore = defineStore('auth', {
       }
       const name = state.user?.name || 'Guest'
       return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`
+    },
+
+    /**
+     * Get user role
+     */
+    userRole: (state) => state.user?.role || 'user',
+
+    /**
+     * Check if user is admin
+     */
+    isAdmin: (state) => state.user?.role === 'admin',
+
+    /**
+     * Check if user is organizer or admin
+     */
+    isOrganizer: (state) => {
+      const role = state.user?.role
+      return role === 'organizer' || role === 'admin'
     }
   },
 

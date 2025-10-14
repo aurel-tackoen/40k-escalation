@@ -95,7 +95,7 @@ server/api/                   # Nitro API routes (14 endpoints)
 ├── players.post.ts          # POST /api/players
 └── seed.post.ts             # POST /api/seed (populate test data)
 
-migrations/                   # Drizzle ORM migrations (4 migrations)
+migrations/                   # Drizzle ORM migrations (5 migrations)
 ├── 0000_aspiring_molly_hayes.sql
 ├── 0001_military_giant_girl.sql
 ├── 0002_open_thundra.sql
@@ -329,7 +329,21 @@ Round data access and validation
 
 ### Tables Overview
 
-#### 1. **leagues** (League Configuration)
+#### 1. **users** (User Authentication)
+```typescript
+{
+  id: integer (PK, auto-increment)
+  auth0Id: varchar(255) - Auth0 user ID (unique)
+  email: varchar(255) - Email (unique)
+  name: varchar(255) - User display name
+  picture: text - Avatar URL from Auth0
+  role: varchar(50) - User role (player, organizer, admin)
+  createdAt: timestamp - Account creation
+  lastLoginAt: timestamp - Last login timestamp
+}
+```
+
+#### 2. **leagues** (League Configuration)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -342,7 +356,7 @@ Round data access and validation
 }
 ```
 
-#### 2. **rounds** (Round Configuration)
+#### 3. **rounds** (Round Configuration)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -355,7 +369,7 @@ Round data access and validation
 }
 ```
 
-#### 3. **players** (Player Registration)
+#### 4. **players** (Player Registration)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -370,7 +384,7 @@ Round data access and validation
 }
 ```
 
-#### 4. **matches** (Battle Results)
+#### 5. **matches** (Battle Results)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -388,7 +402,7 @@ Round data access and validation
 }
 ```
 
-#### 5. **armies** (Army Lists)
+#### 6. **armies** (Army Lists)
 ```typescript
 {
   id: integer (PK, auto-increment)

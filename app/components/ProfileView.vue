@@ -1,6 +1,6 @@
 <script setup>
-  import { ref, onMounted } from 'vue'
-  import { Mail, Calendar, Save } from 'lucide-vue-next'
+  import { ref, onMounted, computed } from 'vue'
+  import { Mail, Calendar, Save, Shield } from 'lucide-vue-next'
   import { useUser } from '~/composables/useUser'
   import { useAuth } from '~/composables/useAuth'
   import { useFormatting } from '~/composables/useFormatting'
@@ -14,6 +14,27 @@
   const editPicture = ref('')
   const saveError = ref(null)
   const saveSuccess = ref(false)
+
+  // Computed role badge styling
+  const roleBadgeClass = computed(() => {
+    const role = profile.value?.user?.role || 'player'
+    const baseClasses = 'px-3 py-1 rounded-full text-sm font-semibold'
+
+    switch (role) {
+      case 'admin':
+        return `${baseClasses} bg-red-500/20 text-red-400 border border-red-500`
+      case 'organizer':
+        return `${baseClasses} bg-purple-500/20 text-purple-400 border border-purple-500`
+      case 'player':
+      default:
+        return `${baseClasses} bg-blue-500/20 text-blue-400 border border-blue-500`
+    }
+  })
+
+  const roleDisplayName = computed(() => {
+    const role = profile.value?.user?.role || 'player'
+    return role.charAt(0).toUpperCase() + role.slice(1)
+  })
 
   onMounted(async () => {
     await fetchUserProfile()
@@ -140,6 +161,13 @@
         <h2 class="text-xl font-bold text-white mb-4">Account Information</h2>
 
         <div class="space-y-3">
+          <!-- Role Badge -->
+          <div class="flex items-center gap-3">
+            <Shield :size="20" class="text-purple-400" />
+            <span class="text-gray-300">Role:</span>
+            <span :class="roleBadgeClass">{{ roleDisplayName }}</span>
+          </div>
+
           <div class="flex items-center gap-3 text-gray-300">
             <Mail :size="20" class="text-purple-400" />
             <span>{{ profile.user.email }}</span>

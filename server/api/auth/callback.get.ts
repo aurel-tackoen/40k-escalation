@@ -50,12 +50,22 @@ export default defineEventHandler(async (event) => {
       }
     })
 
+    // Extract role from custom claims (set by Auth0 Action)
+    // See guide/AUTH0_ROLES_SETUP.md for how to create the Action
+    const namespace = 'https://40k-escalation.app'
+    const role = user[`${namespace}/role`] || 'user'
+    const roles = user[`${namespace}/roles`] || []
+
+    console.log('User role from Auth0:', role, 'All roles:', roles)
+
     // Create session data
     const sessionData = JSON.stringify({
       sub: user.sub,
       email: user.email,
       name: user.name,
       picture: user.picture,
+      role, // Add role to session
+      roles, // Add all roles to session
       access_token: tokenResponse.access_token,
       expires_at: Date.now() + (tokenResponse.expires_in * 1000)
     })
