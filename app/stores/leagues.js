@@ -60,9 +60,23 @@ export const useLeaguesStore = defineStore('leagues', {
           const unitsWithModels = army.units.filter(u => u.totalModels > 0)
 
           if (unitsWithModels.length > 0) {
+            // Model-based stats
             const totalModels = unitsWithModels.reduce((sum, u) => sum + (u.totalModels || 0), 0)
             const painted = unitsWithModels.reduce((sum, u) => sum + (u.paintedModels || 0), 0)
             const percentage = totalModels > 0 ? Math.round((painted / totalModels) * 100) : 0
+
+            // Points-based stats
+            const unitsWithPoints = unitsWithModels.filter(u => u.points > 0)
+            const totalPoints = army.totalPoints || 0
+            let paintedPoints = 0
+
+            unitsWithPoints.forEach(unit => {
+              const pointsPerModel = unit.points / unit.totalModels
+              const unitPaintedModels = unit.paintedModels || 0
+              paintedPoints += Math.round(pointsPerModel * unitPaintedModels)
+            })
+
+            const pointsPercentage = totalPoints > 0 ? Math.round((paintedPoints / totalPoints) * 100) : 0
 
             leaderboard.push({
               playerId: player.id,
@@ -70,7 +84,10 @@ export const useLeaguesStore = defineStore('leagues', {
               faction: player.faction,
               totalModels,
               painted,
-              percentage
+              percentage,
+              totalPoints,
+              paintedPoints,
+              pointsPercentage
             })
           }
         }

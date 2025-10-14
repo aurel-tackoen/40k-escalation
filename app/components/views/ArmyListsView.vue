@@ -1,6 +1,6 @@
 <script setup>
-  import { computed, watch, toRef } from 'vue'
-  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush } from 'lucide-vue-next'
+  import { computed, watch, toRef, ref, nextTick } from 'vue'
+  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, GripVertical } from 'lucide-vue-next'
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
@@ -45,7 +45,10 @@
     getUnitPaintPercentage,
     getArmyPaintingStats,
     getPaintProgressClass,
-    getPaintPercentageColor
+    getPaintPercentageColor,
+    getUnitPaintedPoints,
+    getUnitPaintedPointsPercentage,
+    getArmyPaintedPoints
   } = usePaintingStats()
 
   const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
@@ -108,6 +111,21 @@
     filterByMultipleCriteria
   )
 
+  // Refs
+  const builderFormRef = ref(null)
+
+  // Helper function to scroll to form
+  const scrollToForm = () => {
+    nextTick(() => {
+      if (builderFormRef.value) {
+        builderFormRef.value.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        })
+      }
+    })
+  }
+
   // Computed - Form helper methods
   const hasPreviousRoundArmy = computed(() => {
     return checkPreviousRoundArmy(currentArmy.value.playerId, currentArmy.value.round)
@@ -135,6 +153,14 @@
     if (currentPlayer.value) {
       currentArmy.value.playerId = currentPlayer.value.id
     }
+
+    // Scroll to form
+    scrollToForm()
+  }
+
+  const handleEditArmy = (army) => {
+    editArmy(army)
+    scrollToForm()
   }
 
   const handleCopyFromPreviousRound = () => {
@@ -159,6 +185,55 @@
       emit('save-army', { ...currentArmy.value })
       cancelBuilder()
     }
+  }
+
+  // Drag and Drop
+  const draggedUnitIndex = ref(null)
+  const dragOverIndex = ref(null)
+
+  const handleDragStart = (index) => {
+    draggedUnitIndex.value = index
+  }
+
+  const handleDragOver = (event, index) => {
+    event.preventDefault()
+    dragOverIndex.value = index
+  }
+
+  const handleDragLeave = () => {
+    dragOverIndex.value = null
+  }
+
+  const handleDrop = (event, dropIndex) => {
+    event.preventDefault()
+
+    if (draggedUnitIndex.value === null || draggedUnitIndex.value === dropIndex) {
+      draggedUnitIndex.value = null
+      dragOverIndex.value = null
+      return
+    }
+
+    // Reorder the units array
+    const units = [...currentArmy.value.units]
+    const draggedUnit = units[draggedUnitIndex.value]
+
+    // Remove the dragged unit
+    units.splice(draggedUnitIndex.value, 1)
+
+    // Insert at new position
+    units.splice(dropIndex, 0, draggedUnit)
+
+    // Update the army
+    currentArmy.value.units = units
+
+    // Reset drag state
+    draggedUnitIndex.value = null
+    dragOverIndex.value = null
+  }
+
+  const handleDragEnd = () => {
+    draggedUnitIndex.value = null
+    dragOverIndex.value = null
   }
 
   // Watchers
@@ -304,7 +379,7 @@
     </div>
 
     <!-- Army Builder Form -->
-    <div v-if="showBuilder" class="card">
+    <div v-if="showBuilder" ref="builderFormRef" class="card">
       <!-- Form Header -->
       <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-700">
         <h3 class="text-2xl font-bold text-yellow-500 flex items-center gap-2">
@@ -467,10 +542,12 @@
         <!-- Step 3: Unit Builder -->
         <div class="space-y-4">
           <div class="flex justify-between items-center">
-            <h4 class="text-lg font-semibold text-gray-200 flex items-center gap-2">
-              <span class="bg-yellow-500 text-gray-900 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">3</span>
-              Units ({{ currentArmy.units.length }})
-            </h4>
+            <div>
+              <h4 class="text-lg font-semibold text-gray-200 flex items-center gap-2">
+                <span class="bg-yellow-500 text-gray-900 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                Units ({{ currentArmy.units.length }})
+              </h4>
+            </div>
             <button type="button" @click="addUnit" class="btn-primary flex items-center gap-2">
               <Plus :size="18" />
               Add Unit
@@ -489,74 +566,95 @@
             <div
               v-for="(unit, index) in currentArmy.units"
               :key="unit.id || index"
-              class="bg-gray-700/50 border border-gray-600 rounded-lg p-4 hover:border-gray-500 transition-colors"
+              draggable="true"
+              @dragstart="handleDragStart(index)"
+              @dragover="handleDragOver($event, index)"
+              @dragleave="handleDragLeave"
+              @drop="handleDrop($event, index)"
+              @dragend="handleDragEnd"
+              :class="[
+                'bg-gray-700/50 border rounded-lg p-4 transition-all duration-200',
+                draggedUnitIndex === index ? 'opacity-50 border-yellow-500' : 'border-gray-600',
+                dragOverIndex === index && draggedUnitIndex !== index ? 'border-yellow-500 border-2 scale-105' : '',
+                'hover:border-gray-500 cursor-move'
+              ]"
             >
               <!-- Unit Header -->
-              <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-3">
-                <div class="md:col-span-4">
-                  <label class="block text-xs text-gray-400 mb-1.5">Unit Name *</label>
-                  <input
-                    v-model="unit.name"
-                    type="text"
-                    required
-                    class="input-field text-sm"
-                    placeholder="e.g., Tactical Squad"
-                  />
+              <div class="flex flex-col md:flex-row gap-3 mb-3">
+                <!-- Drag Handle -->
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                  <div class="text-gray-500 hover:text-gray-300 transition-colors cursor-grab active:cursor-grabbing pr-2">
+                    <GripVertical :size="20" />
+                  </div>
                 </div>
-                <div class="md:col-span-2">
-                  <label class="block text-xs text-gray-400 mb-1.5">Type *</label>
-                  <select v-model="unit.type" required class="input-field text-sm">
-                    <option value="">Select</option>
-                    <option value="HQ">HQ</option>
-                    <option value="Troops">Troops</option>
-                    <option value="Elites">Elites</option>
-                    <option value="Fast Attack">Fast Attack</option>
-                    <option value="Heavy Support">Heavy Support</option>
-                    <option value="Flyer">Flyer</option>
-                    <option value="Dedicated Transport">Transport</option>
-                  </select>
-                </div>
-                <div class="md:col-span-2">
-                  <label class="block text-xs text-gray-400 mb-1.5">Points *</label>
-                  <input
-                    v-model.number="unit.points"
-                    type="number"
-                    min="0"
-                    required
-                    class="input-field text-sm"
-                    @input="calculateTotal"
-                  />
-                </div>
-                <div class="md:col-span-2">
-                  <label class="block text-xs text-gray-400 mb-1.5">Models</label>
-                  <input
-                    v-model.number="unit.totalModels"
-                    type="number"
-                    min="1"
-                    class="input-field text-sm"
-                    placeholder="0"
-                  />
-                </div>
-                <div class="md:col-span-1">
-                  <label class="block text-xs text-gray-400 mb-1.5">Painted</label>
-                  <input
-                    v-model.number="unit.paintedModels"
-                    type="number"
-                    min="0"
-                    :max="unit.totalModels || 999"
-                    class="input-field text-sm"
-                    placeholder="0"
-                  />
-                </div>
-                <div class="md:col-span-1 flex items-end">
-                  <button
-                    type="button"
-                    @click="removeUnit(index)"
-                    class="w-full btn-secondary text-sm px-2 py-2 flex items-center justify-center gap-1 hover:bg-red-900 hover:border-red-700 transition-colors"
-                    title="Remove Unit"
-                  >
-                    <Trash2 :size="16" />
-                  </button>
+
+                <!-- Unit Fields Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 flex-1">
+                  <div class="md:col-span-4">
+                    <label class="block text-xs text-gray-400 mb-1.5">Unit Name *</label>
+                    <input
+                      v-model="unit.name"
+                      type="text"
+                      required
+                      class="input-field text-sm"
+                      placeholder="e.g., Tactical Squad"
+                    />
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-400 mb-1.5">Type *</label>
+                    <select v-model="unit.type" required class="input-field text-sm">
+                      <option value="">Select</option>
+                      <option value="HQ">HQ</option>
+                      <option value="Troops">Troops</option>
+                      <option value="Elites">Elites</option>
+                      <option value="Fast Attack">Fast Attack</option>
+                      <option value="Heavy Support">Heavy Support</option>
+                      <option value="Flyer">Flyer</option>
+                      <option value="Dedicated Transport">Transport</option>
+                    </select>
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-400 mb-1.5">Points *</label>
+                    <input
+                      v-model.number="unit.points"
+                      type="number"
+                      min="0"
+                      required
+                      class="input-field text-sm"
+                      @input="calculateTotal"
+                    />
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-xs text-gray-400 mb-1.5">Models</label>
+                    <input
+                      v-model.number="unit.totalModels"
+                      type="number"
+                      min="1"
+                      class="input-field text-sm"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div class="md:col-span-1">
+                    <label class="block text-xs text-gray-400 mb-1.5">Painted</label>
+                    <input
+                      v-model.number="unit.paintedModels"
+                      type="number"
+                      min="0"
+                      :max="unit.totalModels || 999"
+                      class="input-field text-sm"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div class="md:col-span-1 flex items-end">
+                    <button
+                      type="button"
+                      @click="removeUnit(index)"
+                      class="w-full btn-secondary text-sm px-2 py-2 flex items-center justify-center gap-1 hover:bg-red-900 hover:border-red-700 transition-colors"
+                      title="Remove Unit"
+                    >
+                      <Trash2 :size="16" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -664,65 +762,118 @@
 
             <!-- Painting Progress -->
             <div v-if="getArmyPaintingStats(army).totalModels > 0" class="mb-4 p-3 bg-gray-800 rounded-lg border border-gray-600">
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-xs font-semibold text-gray-300 flex items-center gap-1">
-                  <Paintbrush :size="14" />
-                  Painting Progress
-                </span>
-                <span
-                  class="text-sm font-bold"
-                  :class="getPaintPercentageColor(getArmyPaintingStats(army).percentage)"
-                >
-                  {{ getArmyPaintingStats(army).percentage }}%
-                </span>
+              <!-- Models Progress -->
+              <div class="mb-3">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-xs font-semibold text-gray-300 flex items-center gap-1">
+                    <Paintbrush :size="14" />
+                    Models Painted
+                  </span>
+                  <span
+                    class="text-sm font-bold"
+                    :class="getPaintPercentageColor(getArmyPaintingStats(army).percentage)"
+                  >
+                    {{ getArmyPaintingStats(army).percentage }}%
+                  </span>
+                </div>
+                <div class="h-2.5 bg-gray-600 rounded-full overflow-hidden mb-2">
+                  <div
+                    class="h-full transition-all duration-500"
+                    :class="getPaintProgressClass(getArmyPaintingStats(army).percentage)"
+                    :style="{ width: getArmyPaintingStats(army).percentage + '%' }"
+                  ></div>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-gray-400">
+                    {{ getArmyPaintingStats(army).painted }} / {{ getArmyPaintingStats(army).totalModels }} models
+                  </span>
+                  <span v-if="getArmyPaintingStats(army).percentage === 100" class="text-xs text-purple-400 font-semibold">
+                    ✨ Complete!
+                  </span>
+                </div>
               </div>
-              <div class="h-2.5 bg-gray-600 rounded-full overflow-hidden mb-2">
-                <div
-                  class="h-full transition-all duration-500"
-                  :class="getPaintProgressClass(getArmyPaintingStats(army).percentage)"
-                  :style="{ width: getArmyPaintingStats(army).percentage + '%' }"
-                ></div>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-xs text-gray-400">
-                  {{ getArmyPaintingStats(army).painted }} / {{ getArmyPaintingStats(army).totalModels }} models
-                </span>
-                <span v-if="getArmyPaintingStats(army).percentage === 100" class="text-xs text-purple-400 font-semibold">
-                  ✨ Fully Painted!
-                </span>
+
+              <!-- Points Progress -->
+              <div v-if="getArmyPaintedPoints(army).totalPoints > 0">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-xs font-semibold text-gray-300 flex items-center gap-1">
+                    💰 Points Painted
+                  </span>
+                  <span
+                    class="text-sm font-bold"
+                    :class="getPaintPercentageColor(getArmyPaintedPoints(army).percentage)"
+                  >
+                    {{ getArmyPaintedPoints(army).percentage }}%
+                  </span>
+                </div>
+                <div class="h-2.5 bg-gray-600 rounded-full overflow-hidden mb-2">
+                  <div
+                    class="h-full transition-all duration-500"
+                    :class="getPaintProgressClass(getArmyPaintedPoints(army).percentage)"
+                    :style="{ width: getArmyPaintedPoints(army).percentage + '%' }"
+                  ></div>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-gray-400">
+                    {{ getArmyPaintedPoints(army).paintedPoints }} / {{ getArmyPaintedPoints(army).totalPoints }} pts
+                  </span>
+                  <span v-if="getArmyPaintedPoints(army).percentage === 100" class="text-xs text-purple-400 font-semibold">
+                    ✨ Complete!
+                  </span>
+                </div>
               </div>
             </div>
 
             <!-- Units Summary -->
             <div class="mb-4">
               <h6 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Units</h6>
-              <div class="space-y-1 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
+              <div class="space-y-1 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
                 <div
                   v-for="unit in army.units"
                   :key="unit.id"
                   class="text-sm bg-gray-800 p-2.5 rounded border border-gray-600"
                 >
                   <div class="flex justify-between items-start mb-1">
-                    <span class="text-gray-200 font-medium">{{ unit.name }}</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs text-gray-300 bg-gray-700 px-1.5 py-0.5 rounded">{{ unit.type }}</span>
+                      <span class="text-gray-200 font-medium">{{ unit.name }}</span>
+                    </div>
                     <span class="text-yellow-500 font-semibold text-xs">{{ unit.points }}pts</span>
                   </div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="text-xs text-gray-500 bg-gray-700 px-1.5 py-0.5 rounded">{{ unit.type }}</span>
-                  </div>
                   <!-- Unit Painting -->
-                  <div v-if="unit.totalModels > 0" class="mt-2">
-                    <div class="flex justify-between text-xs text-gray-400 mb-1">
-                      <span>{{ unit.paintedModels || 0 }} / {{ unit.totalModels }} painted</span>
-                      <span :class="getPaintPercentageColor(getUnitPaintPercentage(unit))">
-                        {{ getUnitPaintPercentage(unit) }}%
-                      </span>
+                  <div v-if="unit.totalModels > 0" class="mt-2 space-y-2">
+                    <!-- Models Progress -->
+                    <div>
+                      <div class="flex justify-between text-xs text-gray-400 mb-1">
+                        <span>🎨 {{ unit.paintedModels || 0 }} / {{ unit.totalModels }} models</span>
+                        <span :class="getPaintPercentageColor(getUnitPaintPercentage(unit))">
+                          {{ getUnitPaintPercentage(unit) }}%
+                        </span>
+                      </div>
+                      <div class="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          class="h-full transition-all"
+                          :class="getPaintProgressClass(getUnitPaintPercentage(unit))"
+                          :style="{ width: getUnitPaintPercentage(unit) + '%' }"
+                        ></div>
+                      </div>
                     </div>
-                    <div class="h-1.5 bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        class="h-full transition-all"
-                        :class="getPaintProgressClass(getUnitPaintPercentage(unit))"
-                        :style="{ width: getUnitPaintPercentage(unit) + '%' }"
-                      ></div>
+
+                    <!-- Points Progress -->
+                    <div>
+                      <div class="flex justify-between text-xs text-gray-400 mb-1">
+                        <span>💰 {{ getUnitPaintedPoints(unit) }} / {{ unit.points }} pts</span>
+                        <span :class="getPaintPercentageColor(getUnitPaintedPointsPercentage(unit))">
+                          {{ getUnitPaintedPointsPercentage(unit) }}%
+                        </span>
+                      </div>
+                      <div class="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          class="h-full transition-all"
+                          :class="getPaintProgressClass(getUnitPaintedPointsPercentage(unit))"
+                          :style="{ width: getUnitPaintedPointsPercentage(unit) + '%' }"
+                        ></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -745,7 +896,7 @@
                   Escalate
                 </button>
                 <button
-                  @click="editArmy(army)"
+                  @click="handleEditArmy(army)"
                   class="text-yellow-400 hover:text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer"
                   title="Edit Army"
                 >

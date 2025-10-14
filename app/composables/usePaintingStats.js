@@ -73,11 +73,74 @@ export function usePaintingStats() {
     return 'text-red-400'
   }
 
+  /**
+   * Calculate painted points for a single unit
+   * @param {Object} unit - Unit object with points, totalModels, and paintedModels
+   * @returns {number} Painted points value (rounded)
+   */
+  const getUnitPaintedPoints = (unit) => {
+    if (!unit.totalModels || unit.totalModels === 0) return 0
+    const pointsPerModel = unit.points / unit.totalModels
+    const paintedModels = unit.paintedModels || 0
+    return Math.round(pointsPerModel * paintedModels)
+  }
+
+  /**
+   * Calculate painted points percentage for a single unit
+   * @param {Object} unit - Unit object with points, totalModels, and paintedModels
+   * @returns {number} Percentage of painted points (0-100)
+   */
+  const getUnitPaintedPointsPercentage = (unit) => {
+    if (!unit.points || unit.points === 0) return 0
+    const paintedPoints = getUnitPaintedPoints(unit)
+    return Math.round((paintedPoints / unit.points) * 100)
+  }
+
+  /**
+   * Calculate painted points statistics for an entire army
+   * @param {Object} army - Army object with units array and totalPoints
+   * @returns {Object} { totalPoints, paintedPoints, percentage }
+   */
+  const getArmyPaintedPoints = (army) => {
+    if (!army || !army.units) {
+      return { totalPoints: 0, paintedPoints: 0, percentage: 0 }
+    }
+
+    const unitsWithModels = army.units.filter(u => u.totalModels > 0 && u.points > 0)
+
+    if (unitsWithModels.length === 0) {
+      return { totalPoints: 0, paintedPoints: 0, percentage: 0 }
+    }
+
+    // Use army.totalPoints for total (includes all units)
+    const totalPoints = army.totalPoints || 0
+    const paintedPoints = unitsWithModels.reduce((sum, u) => sum + getUnitPaintedPoints(u), 0)
+    const percentage = totalPoints > 0 ? Math.round((paintedPoints / totalPoints) * 100) : 0
+
+    return { totalPoints, paintedPoints, percentage }
+  }
+
+  /**
+   * Calculate painted points for a player's current army
+   * @param {number|string} playerId - ID of the player
+   * @param {number} currentRound - Current round number
+   * @param {Array} armies - Array of all armies
+   * @returns {Object} { totalPoints, paintedPoints, percentage }
+   */
+  const getPlayerPaintedPoints = (playerId, currentRound, armies) => {
+    const army = armies.find(a => a.playerId === playerId && a.round === currentRound)
+    return getArmyPaintedPoints(army)
+  }
+
   return {
     getUnitPaintPercentage,
     getArmyPaintingStats,
     getPlayerPaintingStats,
     getPaintProgressClass,
-    getPaintPercentageColor
+    getPaintPercentageColor,
+    getUnitPaintedPoints,
+    getUnitPaintedPointsPercentage,
+    getArmyPaintedPoints,
+    getPlayerPaintedPoints
   }
 }
