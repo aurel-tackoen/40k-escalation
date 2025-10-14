@@ -1,6 +1,6 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
-  import { Swords, ChevronDown, Check, Plus, LogIn } from 'lucide-vue-next'
+  import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target } from 'lucide-vue-next'
 
   const leaguesStore = useLeaguesStore()
   const { myLeagues, currentLeague, currentLeagueId } = storeToRefs(leaguesStore)
@@ -18,11 +18,19 @@
     isOpen.value = false
   }
 
-  const getRoleBadge = (role) => {
+  const getRoleIcon = (role) => {
     switch (role) {
-      case 'owner': return '👑'
-      case 'organizer': return '⚙️'
-      default: return '🎯'
+      case 'owner': return Crown
+      case 'organizer': return Settings
+      default: return Target
+    }
+  }
+
+  const getRoleColor = (role) => {
+    switch (role) {
+      case 'owner': return 'text-yellow-400'
+      case 'organizer': return 'text-blue-400'
+      default: return 'text-gray-400'
     }
   }
 
@@ -76,7 +84,7 @@
             v-for="league in myLeagues"
             :key="league.id"
             @click="switchToLeague(league.id)"
-            class="w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors flex items-center justify-between group"
+            class="w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors flex items-center justify-between group cursor-pointer"
           >
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
@@ -86,7 +94,8 @@
                 </span>
               </div>
               <div class="text-xs text-gray-400 flex items-center gap-2">
-                <span>{{ getRoleBadge(league.role) }} {{ league.role }}</span>
+                <component :is="getRoleIcon(league.role)" :size="14" :class="getRoleColor(league.role)" />
+                <span class="capitalize">{{ league.role }}</span>
                 <span>•</span>
                 <span>Round {{ league.currentRound || 1 }}</span>
               </div>

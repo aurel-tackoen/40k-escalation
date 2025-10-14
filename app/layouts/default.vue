@@ -11,6 +11,7 @@
   const { fetchUser } = useAuth()
   const authStore = useAuthStore()
   const leaguesStore = useLeaguesStore()
+  const { currentLeague, currentRole } = storeToRefs(leaguesStore)
 
   // Fetch user and initialize leagues on mount
   onMounted(async () => {
@@ -18,14 +19,28 @@
     await leaguesStore.initialize()
   })
 
-  const tabs = [
+  const allTabs = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { path: '/players', name: 'Players', icon: Users },
     { path: '/armies', name: 'Army Lists', icon: Shield },
     { path: '/matches', name: 'Matches', icon: Trophy },
     { path: '/leagues', name: 'Leagues', icon: Swords },
-    { path: '/setup', name: 'Settings', icon: Settings }
+    { path: '/setup', name: 'Settings', icon: Settings, requiresRole: ['owner', 'organizer'] }
   ]
+
+  // Filter tabs based on user's role in current league
+  const tabs = computed(() => {
+    return allTabs.filter(tab => {
+      // If tab doesn't require a role, show it
+      if (!tab.requiresRole) return true
+
+      // If no current league, hide role-restricted tabs
+      if (!currentLeague.value) return false
+
+      // Check if user has required role (use currentRole from store)
+      return tab.requiresRole.includes(currentRole.value)
+    })
+  })
 
   const isMobileMenuOpen = ref(false)
 

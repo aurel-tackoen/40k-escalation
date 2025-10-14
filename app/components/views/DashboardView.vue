@@ -164,7 +164,20 @@
         <Trophy :size="24" class="text-yellow-500" />
         <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Recent Matches</h3>
       </div>
-      <div class="space-y-4">
+
+      <!-- No matches message -->
+      <div v-if="recentMatches.length === 0" class="text-center py-8 text-gray-400">
+        <Swords :size="48" class="mx-auto mb-4 text-gray-600" />
+        <p class="text-lg mb-2">No matches played yet</p>
+        <p class="text-sm mb-4">Start recording matches to see them here!</p>
+        <NuxtLink to="/matches" class="btn-primary inline-flex items-center gap-2">
+          <Swords :size="18" />
+          <span>Record a Match</span>
+        </NuxtLink>
+      </div>
+
+      <!-- Matches list -->
+      <div v-else class="space-y-4">
         <div
           v-for="match in recentMatches"
           :key="match.id"
