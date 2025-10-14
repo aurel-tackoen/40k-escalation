@@ -1,6 +1,6 @@
 <script setup>
   import { computed } from 'vue'
-  import { UserPlus, X, TrendingUp, Shield, Users, Paintbrush, UserCheck } from 'lucide-vue-next'
+  import { X, TrendingUp, Shield, Users, Paintbrush, UserCheck } from 'lucide-vue-next'
   import { factions } from '~/data/factions'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerStats } from '~/composables/usePlayerStats'
@@ -80,7 +80,7 @@
       alert('You must be logged in to join as a player')
       return
     }
-    
+
     if (isFormValid(['name', 'faction'])) {
       emit('add-player', {
         name: newPlayer.value.name,
