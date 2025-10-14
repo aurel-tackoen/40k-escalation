@@ -19,7 +19,7 @@
     <div v-else-if="!league" class="text-center py-8">
       No league data available. Please set up a league first.
     </div>
-    <DashboardView
+    <ViewsDashboardView
       v-else
       :league="league"
       :players="players"

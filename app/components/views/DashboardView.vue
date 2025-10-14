@@ -1,7 +1,6 @@
 <script setup>
   import { computed, toRef } from 'vue'
   import { Handshake, Trophy, Users, Shield, Swords, Calendar, Medal } from 'lucide-vue-next'
-  import PaintingProgress from './PaintingProgress.vue'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
   import { usePlayerStats } from '~/composables/usePlayerStats'

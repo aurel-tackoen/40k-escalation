@@ -35,13 +35,17 @@ app/                          # Nuxt 4 application directory
 ├── assets/css/               # Global styles
 │   ├── base.css             # Tailwind base config
 │   └── main.css             # Custom Warhammer theme
-├── components/               # Auto-imported Vue components (6 total)
-│   ├── ArmyListsView.vue    # Army builder with validation & export
-│   ├── DashboardView.vue    # League overview & standings
-│   ├── LeagueSetupView.vue  # League configuration
-│   ├── MatchesView.vue      # Match recording with analytics
+├── components/               # Auto-imported Vue components
+│   ├── LoginButton.vue      # Auth0 login button
 │   ├── PaintingProgress.vue # Painting leaderboard widget
-│   └── PlayersView.vue      # Player management with export
+│   ├── UserMenu.vue         # User profile menu
+│   └── views/               # View components (6 total)
+│       ├── ArmyListsView.vue    # Army builder with validation & export
+│       ├── DashboardView.vue    # League overview & standings
+│       ├── LeagueSetupView.vue  # League configuration
+│       ├── MatchesView.vue      # Match recording with analytics
+│       ├── PlayersView.vue      # Player management with export
+│       └── ProfileView.vue      # User profile editor
 ├── composables/              # Reusable composition functions (11 total)
 │   ├── useArmyFiltering.js  # Army-specific filtering (new)
 │   ├── useArmyForm.js       # Army form management (new)

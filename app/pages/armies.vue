@@ -16,7 +16,7 @@
     <div v-if="loading" class="text-center py-8">
       Loading army lists...
     </div>
-    <ArmyListsView
+    <ViewsArmyListsView
       v-else-if="league"
       :players="players"
       :armies="armies"
