@@ -173,12 +173,12 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">League End Date</label>
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">League End Date (Optional)</label>
             <input
               v-model="editableLeague.endDate"
               type="date"
-              required
               class="input-field"
+              placeholder="Leave empty for ongoing leagues"
             />
           </div>
         </div>
