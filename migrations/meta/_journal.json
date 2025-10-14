@@ -43,6 +43,13 @@
       "when": 1760448370864,
       "tag": "0005_noisy_iron_fist",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1760451458339,
+      "tag": "0006_jittery_prodigy",
+      "breakpoints": true
     }
   ]
 }
