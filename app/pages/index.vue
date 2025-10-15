@@ -115,9 +115,8 @@
         </p>
 
         <!-- Loading State -->
-        <div v-if="loading" class="text-center py-8">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto"></div>
-          <p class="text-gray-400 mt-4">Loading leagues...</p>
+        <div v-if="loading" class="py-8">
+          <LoadingSpinner message="Loading Public Leagues" />
         </div>
 
         <!-- Error State -->

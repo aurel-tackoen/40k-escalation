@@ -95,8 +95,8 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="text-gray-400">Loading your leagues...</div>
+    <div v-if="loading" class="py-12">
+      <LoadingSpinner message="Loading Your Leagues" />
     </div>
 
     <!-- No Leagues State -->

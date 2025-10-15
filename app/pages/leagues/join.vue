@@ -84,8 +84,8 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loadingLeague" class="text-center py-12">
-      <div class="text-gray-400">Loading league details...</div>
+    <div v-if="loadingLeague" class="py-12">
+      <LoadingSpinner message="Loading League Details" />
     </div>
 
     <!-- Error State -->
