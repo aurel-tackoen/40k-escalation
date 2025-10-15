@@ -12,10 +12,14 @@
   import { useArrayFiltering } from '~/composables/useArrayFiltering'
   import { useArmyForm } from '~/composables/useArmyForm'
   import { useArmyFiltering } from '~/composables/useArmyFiltering'
+  import { useGameSystems } from '~/composables/useGameSystems'
 
   // Store
   const leaguesStore = useLeaguesStore()
-  const { currentPlayer, canManageLeague, currentGameSystemName } = storeToRefs(leaguesStore)
+  const { currentPlayer, canManageLeague, currentGameSystemName, gameSystems } = storeToRefs(leaguesStore)
+
+  // Game systems composable
+  const { getGameSystemBadgeClasses, getGameSystemTextClasses } = useGameSystems(gameSystems)
 
   // Props
   const props = defineProps({
@@ -230,8 +234,8 @@
             <p class="text-gray-400 text-sm mt-1">Build and manage army lists for each round of the escalation league.</p>
           </div>
         </div>
-        <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg">
-          <p class="text-base text-purple-300 font-semibold">{{ currentGameSystemName }}</p>
+        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()">
+          <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
         </div>
       </div>
 
@@ -796,7 +800,8 @@
               <div v-if="getArmyPaintedPoints(army).totalPoints > 0">
                 <div class="flex justify-between items-center mb-2">
                   <span class="text-xs font-semibold text-gray-300 flex items-center gap-1">
-                    💰 Points Painted
+                    <TrendingUp :size="14" />
+                    Points Painted
                   </span>
                   <span
                     class="text-sm font-bold"
@@ -844,7 +849,10 @@
                     <!-- Models Progress -->
                     <div>
                       <div class="flex justify-between text-xs text-gray-400 mb-1">
-                        <span>🎨 {{ unit.paintedModels || 0 }} / {{ unit.totalModels }} models</span>
+                        <span class="flex items-center gap-1">
+                          <Paintbrush :size="12" />
+                          {{ unit.paintedModels || 0 }} / {{ unit.totalModels }} models
+                        </span>
                         <span :class="getPaintPercentageColor(getUnitPaintPercentage(unit))">
                           {{ getUnitPaintPercentage(unit) }}%
                         </span>
@@ -861,7 +869,10 @@
                     <!-- Points Progress -->
                     <div>
                       <div class="flex justify-between text-xs text-gray-400 mb-1">
-                        <span>💰 {{ getUnitPaintedPoints(unit) }} / {{ unit.points }} pts</span>
+                        <span class="flex items-center gap-1">
+                          <TrendingUp :size="12" />
+                          {{ getUnitPaintedPoints(unit) }} / {{ unit.points }} pts
+                        </span>
                         <span :class="getPaintPercentageColor(getUnitPaintedPointsPercentage(unit))">
                           {{ getUnitPaintedPointsPercentage(unit) }}%
                         </span>

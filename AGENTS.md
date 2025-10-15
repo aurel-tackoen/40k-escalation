@@ -193,7 +193,7 @@ const activePlayerCount = computed(() =>
 
 ---
 
-## 🧩 Composables Architecture (11 Total)
+## 🧩 Composables Architecture (12 Total)
 
 All composables are **production-ready** and **fully integrated**. Each composable is pure JavaScript (no `.ts`) and follows functional programming principles.
 
@@ -291,7 +291,17 @@ Form state management and validation
 - `hasChanges()` - Detect form modifications
 - `getChangedFields()` - List of changed fields
 
-#### 7. **useMatchResults.js** (10 functions)
+#### 7. **useGameSystems.js** (7 functions) ⭐ NEW
+Game system utilities and badge styling
+- `getGameSystemName(gameSystemId)` - Get name by ID (returns null if not found)
+- `getGameSystemNameWithFallback(gameSystemId)` - Get name with 'Unknown' fallback
+- `getGameSystemById(gameSystemId)` - Get full game system object
+- `hasGameSystems()` - Check if game systems loaded
+- `getGameSystemBadgeClasses()` - CSS classes for game system badge
+- `getGameSystemTextClasses()` - CSS classes for game system text
+- `getGameSystemHintClasses()` - CSS classes for inline hints
+
+#### 8. **useMatchResults.js** (10 functions)
 Match outcome analysis and statistics
 - `determineWinner(p1Points, p2Points)` - Calculate winner
 - `isCloseGame(p1Points, p2Points, threshold)` - Detect nail-biters
@@ -304,7 +314,7 @@ Match outcome analysis and statistics
 - `getPlayerRecentForm(playerId, matches, count)` - W/L/D history
 - `getHeadToHeadRecord(p1Id, p2Id, matches)` - H2H stats
 
-#### 8. **usePaintingStats.js** (8 functions)
+#### 9. **usePaintingStats.js** (8 functions)
 Painting progress calculations and visualization
 - `getUnitPaintPercentage(unit)` - Unit % painted
 - `getArmyPaintingStats(army)` - Army totals & %
@@ -315,14 +325,14 @@ Painting progress calculations and visualization
 - `calculatePaintingLeaderboard(players, armies, round)` - Rankings
 - `getAverageArmyCompletion(armies)` - League-wide average
 
-#### 9. **usePlayerLookup.js** (4 functions)
+#### 10. **usePlayerLookup.js** (4 functions)
 Player data access helpers
 - `getPlayerName(playerId)` - Get player name
 - `getPlayerFaction(playerId)` - Get player faction
 - `getPlayerById(playerId)` - Get full player object
 - `getPlayersByFaction(faction)` - Filter by faction
 
-#### 10. **usePlayerStats.js** (6 functions)
+#### 11. **usePlayerStats.js** (6 functions)
 Player statistics and rankings
 - `calculateWinPercentage(player)` - Win % with safety
 - `getTotalGames(player)` - Total games played
@@ -331,7 +341,7 @@ Player statistics and rankings
 - `getPlayerStats(playerId, matches)` - Detailed statistics
 - `comparePlayerStats(p1Id, p2Id, players, matches)` - Compare two
 
-#### 11. **useRoundLookup.js** (5 functions)
+#### 12. **useRoundLookup.js** (5 functions)
 Round data access and validation
 - `getRoundByNumber(roundNumber)` - Get round object
 - `getRoundName(roundNumber)` - Get round name
@@ -981,7 +991,7 @@ git push origin main
 
 - ✅ **Zero Technical Debt** - Clean architecture, no known issues
 - ✅ **Zero Lint Errors** - ESLint 9 strict compliance
-- ✅ **100% Composable Coverage** - 11/11 composables implemented
+- ✅ **100% Composable Coverage** - 12/12 composables implemented
 - ✅ **Full Database Integration** - PostgreSQL + Drizzle ORM
 - ✅ **Complete API Layer** - 17 RESTful endpoints
 - ✅ **Multi-Game System Support** - 4 Warhammer game systems (110 factions, 53 missions)

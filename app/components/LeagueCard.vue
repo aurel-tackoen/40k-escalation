@@ -3,6 +3,7 @@
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { useFormatting } from '~/composables/useFormatting'
+  import { useGameSystems } from '~/composables/useGameSystems'
 
   const props = defineProps({
     league: {
@@ -27,6 +28,7 @@
   const { gameSystems } = storeToRefs(leaguesStore)
 
   const { formatDate } = useFormatting()
+  const { getGameSystemName } = useGameSystems(gameSystems)
 
   // Fetch game systems if not already loaded
   onMounted(async () => {
@@ -37,9 +39,7 @@
 
   // Get game system name for this league
   const gameSystemName = computed(() => {
-    if (!props.league.gameSystemId) return null
-    const gameSystem = gameSystems.value.find(gs => gs.id === props.league.gameSystemId)
-    return gameSystem?.shortName || gameSystem?.name || null
+    return getGameSystemName(props.league.gameSystemId)
   })
 
   const getRoleBadgeClass = (role) => {

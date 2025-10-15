@@ -1,9 +1,11 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
   import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target } from 'lucide-vue-next'
+  import { useGameSystems } from '~/composables/useGameSystems'
 
   const leaguesStore = useLeaguesStore()
   const { myLeagues, currentLeague, currentLeagueId, gameSystems } = storeToRefs(leaguesStore)
+  const { getGameSystemNameWithFallback } = useGameSystems(gameSystems)
 
   const isOpen = ref(false)
 
@@ -32,12 +34,6 @@
       case 'organizer': return 'text-blue-400'
       default: return 'text-gray-400'
     }
-  }
-
-  const getGameSystemName = (gameSystemId) => {
-    if (!gameSystemId) return 'Unknown'
-    const system = gameSystems.value.find(gs => gs.id === gameSystemId)
-    return system?.shortName || system?.name || 'Unknown'
   }
 
   // Close dropdown when clicking outside
@@ -105,7 +101,7 @@
                 <span>•</span>
                 <span>Round {{ league.currentRound || 1 }}</span>
                 <span v-if="league.gameSystemId">•</span>
-                <span v-if="league.gameSystemId" class="text-purple-400 font-medium">{{ getGameSystemName(league.gameSystemId) }}</span>
+                <span v-if="league.gameSystemId" class="text-purple-400 font-medium">{{ getGameSystemNameWithFallback(league.gameSystemId) }}</span>
               </div>
             </div>
           </button>

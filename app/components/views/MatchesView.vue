@@ -7,6 +7,7 @@
   import { useFormatting } from '~/composables/useFormatting'
   import { useMatchResults } from '~/composables/useMatchResults'
   import { useConfirmation } from '~/composables/useConfirmation'
+  import { useGameSystems } from '~/composables/useGameSystems'
 
   // Props
   const props = defineProps({
@@ -22,11 +23,12 @@
 
   // Get dynamic missions from store
   const leaguesStore = useLeaguesStore()
-  const { availableMissions, currentGameSystemName } = storeToRefs(leaguesStore)
+  const { availableMissions, currentGameSystemName, gameSystems } = storeToRefs(leaguesStore)
 
   // Composables
   const { getPlayerName, getPlayerFaction } = usePlayerLookup(toRef(props, 'players'))
   const { formatDate } = useFormatting()
+  const { getGameSystemBadgeClasses, getGameSystemTextClasses, getGameSystemHintClasses } = useGameSystems(gameSystems)
 
   const {
     isCloseMatch,
@@ -157,8 +159,8 @@
           <Plus :size="24" class="text-yellow-500 flex-shrink-0" />
           <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Record New Match</h3>
         </div>
-        <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg">
-          <p class="text-base text-purple-300 font-semibold">{{ currentGameSystemName }}</p>
+        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()">
+          <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
         </div>
       </div>
       <form @submit.prevent="submitMatch" class="space-y-6">
@@ -233,7 +235,7 @@
           <div>
             <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">
               Mission
-              <span v-if="currentGameSystemName" class="text-xs text-gray-400 ml-2">({{ currentGameSystemName }})</span>
+              <span v-if="currentGameSystemName" :class="getGameSystemHintClasses()">({{ currentGameSystemName }})</span>
             </label>
             <select v-model="newMatch.mission" required class="input-field">
               <option value="">Select Mission</option>
@@ -333,8 +335,8 @@
           <Trophy :size="24" class="text-yellow-500 flex-shrink-0" />
           <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h3>
         </div>
-        <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg flex-shrink-0">
-          <p class="text-base text-purple-300 font-semibold">{{ currentGameSystemName }}</p>
+        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses() + ' flex-shrink-0'">
+          <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
         </div>
       </div>
 

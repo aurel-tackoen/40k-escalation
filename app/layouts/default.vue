@@ -20,7 +20,6 @@
   })
 
   const allTabs = [
-    { path: '/leagues', name: 'Leagues', icon: Swords },
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { path: '/players', name: 'Players', icon: Users },
     { path: '/armies', name: 'Army Lists', icon: Shield },
@@ -112,7 +111,25 @@
           <nav class="hidden lg:flex flex-col gap-3 flex-1 justify-end items-end">
             <!-- Auth UI & League Switcher -->
             <div class="flex items-center gap-3">
+              <!-- Leagues Button -->
+              <NuxtLink
+                v-if="authStore.isAuthenticated"
+                to="/leagues"
+                class="group relative flex items-center px-3 py-2.5 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600 overflow-hidden"
+                :class="{
+                  'bg-yellow-600 text-gray-900 border-yellow-600': $route.path === '/leagues'
+                }"
+                title="My Leagues"
+              >
+                <Swords :size="20" :stroke-width="2.5" class="flex-shrink-0" />
+
+                <!-- Sliding Text -->
+                <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 text-sm font-semibold group-hover:ml-2">
+                  All Leagues
+                </span>
+              </NuxtLink>
               <LeagueSwitcher v-if="authStore.isAuthenticated" />
+
               <UserMenu v-if="authStore.isAuthenticated" />
               <LoginButton />
             </div>
@@ -208,6 +225,28 @@
 
           <!-- Mobile Menu Footer -->
           <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900/50 space-y-4">
+            <!-- League Info & Settings -->
+            <div v-if="currentLeague" class="flex items-center justify-between gap-2 mb-2">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-gray-400 truncate">{{ currentLeague.name }}</p>
+                <p class="text-xs text-gray-500">{{ currentRole }}</p>
+              </div>
+              <NuxtLink
+                to="/leagues"
+                class="group relative flex items-center px-4 py-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600 flex-shrink-0 overflow-hidden"
+                :class="{
+                  'bg-yellow-600 text-gray-900 border-yellow-600': $route.path === '/leagues'
+                }"
+                title="My Leagues"
+              >
+                <Swords :size="20" :stroke-width="2.5" class="flex-shrink-0" />
+
+                <!-- Sliding Text -->
+                <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 text-sm font-semibold group-hover:ml-2">
+                  Leagues
+                </span>
+              </NuxtLink>
+            </div>
             <!-- Auth UI for mobile -->
             <div class="flex justify-center">
               <UserMenu />

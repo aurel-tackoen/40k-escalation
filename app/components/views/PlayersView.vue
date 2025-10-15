@@ -8,6 +8,7 @@
   import { useConfirmation } from '~/composables/useConfirmation'
   import { useFormManagement } from '~/composables/useFormManagement'
   import { useAuth } from '~/composables/useAuth'
+  import { useGameSystems } from '~/composables/useGameSystems'
 
   // Props
   const props = defineProps({
@@ -27,7 +28,10 @@
 
   // Get dynamic factions from store
   const leaguesStore = useLeaguesStore()
-  const { availableFactions, currentGameSystemName } = storeToRefs(leaguesStore)
+  const { availableFactions, currentGameSystemName, gameSystems } = storeToRefs(leaguesStore)
+
+  // Game systems composable
+  const { getGameSystemBadgeClasses, getGameSystemTextClasses, getGameSystemHintClasses } = useGameSystems(gameSystems)
 
   // Emits
   const emit = defineEmits(['add-player', 'remove-player', 'update-player'])
@@ -125,8 +129,8 @@
           <Users :size="24" class="text-yellow-500" />
           <h3 class="text-2xl font-serif font-bold text-yellow-500">Registered Players</h3>
         </div>
-        <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg">
-          <p class="text-base text-purple-300 font-semibold">{{ currentGameSystemName }}</p>
+        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()">
+          <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
         </div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -252,7 +256,7 @@
           <div>
             <label class="block text-sm font-semibold text-yellow-500 mb-2">
               Faction
-              <span v-if="currentGameSystemName" class="text-xs text-gray-400 ml-2">({{ currentGameSystemName }})</span>
+              <span v-if="currentGameSystemName" :class="getGameSystemHintClasses()">({{ currentGameSystemName }})</span>
             </label>
             <select v-model="newPlayer.faction" required class="input-field">
               <option value="">Select Faction</option>

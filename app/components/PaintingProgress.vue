@@ -1,5 +1,5 @@
 <script setup>
-  import { Brush } from 'lucide-vue-next'
+  import { Brush, TrendingUp } from 'lucide-vue-next'
   import { usePaintingStats } from '~/composables/usePaintingStats'
 
   defineProps({
@@ -62,7 +62,8 @@
           <div class="mb-3">
             <div class="flex justify-between items-center mb-2 text-xs">
               <span class="text-gray-400 flex items-center gap-1">
-                🎨 {{ entry.painted }} / {{ entry.totalModels }} models
+                <Brush :size="14" />
+                {{ entry.painted }} / {{ entry.totalModels }} models
               </span>
               <span class="font-bold text-sm" :class="getPaintPercentageColor(entry.percentage)">
                 {{ entry.percentage }}%
@@ -81,7 +82,8 @@
           <div v-if="entry.totalPoints > 0">
             <div class="flex justify-between items-center mb-2 text-xs">
               <span class="text-gray-400 flex items-center gap-1">
-                💰 {{ entry.paintedPoints || 0 }} / {{ entry.totalPoints }} pts
+                <TrendingUp :size="14" />
+                {{ entry.paintedPoints || 0 }} / {{ entry.totalPoints }} pts
               </span>
               <span class="font-bold text-sm text-green-400">
                 {{ entry.pointsPercentage || 0 }}%
