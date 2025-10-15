@@ -124,6 +124,7 @@
         createdBy: authStore.user.id,
         name: form.name,
         description: form.description,
+        gameSystemId: form.gameSystemId,
         startDate: form.startDate,
         endDate: form.endDate || null,
         isPublic: form.isPublic,
