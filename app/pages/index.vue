@@ -157,14 +157,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 border-t border-gray-800 py-8">
-      <div class="container mx-auto px-4 text-center text-gray-500">
-        <p>&copy; 2025 Warhammer 40K Escalation League Manager</p>
-        <p class="mt-2 text-sm">Manage your campaigns with the Emperor's blessing</p>
-      </div>
-    </footer>
   </div>
 </template>
 

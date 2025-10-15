@@ -65,7 +65,7 @@
 
       <button
         @click="logout"
-        class="w-full text-left flex items-center gap-2 px-4 py-3 hover:bg-red-900/30 text-red-400 hover:text-red-300 transition-colors rounded-b-lg"
+        class="w-full text-left flex items-center gap-2 px-4 py-3 hover:bg-red-900/30 text-red-400 hover:text-red-300 transition-colors rounded-b-lg cursor-pointer"
       >
         <LogOut :size="18" />
         <span>Logout</span>

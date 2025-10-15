@@ -1,6 +1,6 @@
 <script setup>
   import { ref, watch, onMounted } from 'vue'
-  import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords } from 'lucide-vue-next'
+  import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords, HeartHandshake } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
   import { useAuthStore } from '~/stores/auth'
   import { useLeaguesStore } from '~/stores/leagues'
@@ -227,6 +227,14 @@
     <main class="container mx-auto px-4 py-8">
       <slot />
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-8">
+      <div class="container mx-auto px-4 text-center text-gray-500">
+        <p>&copy; 2025 Manneken Dice <HeartHandshake :size="32" :stroke-width="1.5" /> OpenGraphy</p>
+        <p class="mt-2 text-sm">Manage your campaigns with the Emperor's blessing</p>
+      </div>
+    </footer>
   </div>
 </template>
 
