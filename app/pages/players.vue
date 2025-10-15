@@ -2,18 +2,12 @@
   import { useLeaguesStore } from '~/stores/leagues'
 
   const leaguesStore = useLeaguesStore()
-  const { players, armies, currentLeague: league, loading } = storeToRefs(leaguesStore)
-
-  onMounted(async () => {
-    await leaguesStore.initialize()
-  })
+  const { players, armies, currentLeague: league, initializing } = storeToRefs(leaguesStore)
 </script>
 
 <template>
   <div class="space-y-8">
-    <div v-if="loading" class="text-center py-8">
-      Loading players...
-    </div>
+    <LoadingSpinner v-if="initializing" message="Loading Players" />
     <div v-else-if="!league" class="text-center py-8">
       No league selected. <NuxtLink to="/leagues" class="text-purple-400 hover:text-purple-300">Choose a league</NuxtLink>
     </div>

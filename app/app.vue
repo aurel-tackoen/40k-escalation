@@ -1,13 +1,25 @@
 <script setup>
   import '~/assets/css/main.css'
   import { useLeaguesStore } from '~/stores/leagues'
+  import { useAuthStore } from '~/stores/auth'
 
   // Initialize stores
   const leaguesStore = useLeaguesStore()
+  const authStore = useAuthStore()
 
-  // Fetch game systems on app startup
+  // Initialize on app startup (only once)
+  const initialized = ref(false)
+
   onMounted(async () => {
-    await leaguesStore.fetchGameSystems()
+    if (!initialized.value) {
+      initialized.value = true
+      // Initialize auth first
+      await authStore.fetchUser()
+      // Then initialize leagues if user is authenticated
+      if (authStore.isAuthenticated) {
+        await leaguesStore.initialize()
+      }
+    }
   })
 
   // Set page title and meta

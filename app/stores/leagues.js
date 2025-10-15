@@ -23,7 +23,9 @@ export const useLeaguesStore = defineStore('leagues', {
 
     // UI state
     loading: false,
-    error: null
+    initializing: true,         // Initial app load
+    error: null,
+    initialized: false          // Track if store has been initialized
   }),
 
   getters: {
@@ -775,6 +777,14 @@ export const useLeaguesStore = defineStore('leagues', {
      * Initialize store (restore from localStorage)
      */
     async initialize() {
+      // Prevent duplicate initialization
+      if (this.initialized) {
+        return
+      }
+
+      // Use initializing flag (not loading) to avoid hiding content
+      this.initializing = true
+
       if (process.client) {
         const savedLeagueId = localStorage.getItem('currentLeagueId')
         if (savedLeagueId) {
@@ -816,6 +826,10 @@ export const useLeaguesStore = defineStore('leagues', {
         // Fetch all league data
         await this.fetchLeagueData()
       }
+
+      // Mark as initialized
+      this.initialized = true
+      this.initializing = false
     },
 
     /**
@@ -836,7 +850,9 @@ export const useLeaguesStore = defineStore('leagues', {
       this.armies = []
       this.members = []
       this.loading = false
+      this.initializing = true     // Reset to initial state
       this.error = null
+      this.initialized = false      // Reset initialization flag
 
       // Clear localStorage
       if (process.client) {

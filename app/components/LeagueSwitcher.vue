@@ -3,7 +3,7 @@
   import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target } from 'lucide-vue-next'
 
   const leaguesStore = useLeaguesStore()
-  const { myLeagues, currentLeague, currentLeagueId } = storeToRefs(leaguesStore)
+  const { myLeagues, currentLeague, currentLeagueId, gameSystems } = storeToRefs(leaguesStore)
 
   const isOpen = ref(false)
 
@@ -32,6 +32,12 @@
       case 'organizer': return 'text-blue-400'
       default: return 'text-gray-400'
     }
+  }
+
+  const getGameSystemName = (gameSystemId) => {
+    if (!gameSystemId) return 'Unknown'
+    const system = gameSystems.value.find(gs => gs.id === gameSystemId)
+    return system?.shortName || system?.name || 'Unknown'
   }
 
   // Close dropdown when clicking outside
@@ -98,6 +104,8 @@
                 <span class="capitalize">{{ league.role }}</span>
                 <span>•</span>
                 <span>Round {{ league.currentRound || 1 }}</span>
+                <span v-if="league.gameSystemId">•</span>
+                <span v-if="league.gameSystemId" class="text-purple-400 font-medium">{{ getGameSystemName(league.gameSystemId) }}</span>
               </div>
             </div>
           </button>

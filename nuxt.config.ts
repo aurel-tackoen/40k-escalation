@@ -3,13 +3,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
-  // Enable SSR for proper server function routing
-  ssr: true,
-
-  // But use SPA routing after initial load
-  routeRules: {
-    '/**': { ssr: false }
-  },
+  // Disable SSR for better client-side loading experience
+  ssr: false,
 
   future: {
     compatibilityVersion: 4,
