@@ -193,7 +193,7 @@
 /* Enhanced Smoke Particle Effect with Wow Factor */
 .smoke-particle {
   position: absolute;
-  background: radial-gradient(circle, rgba(250, 204, 21, 0.4) 0%, rgba(250, 204, 21, 0.15) 30%, rgba(250, 204, 21, 0.05) 60%, transparent 100%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.075) 30%, rgba(255, 255, 255, 0.025) 60%, transparent 100%);
   border-radius: 50%;
   pointer-events: none;
   filter: blur(8px);
@@ -274,7 +274,7 @@
   animation: floatUpMedium 16s infinite ease-in-out;
   animation-delay: 1.5s;
   filter: blur(10px);
-  opacity: 0.8;
+  opacity: 0.4;
 }
 
 .smoke-9 {
@@ -285,7 +285,7 @@
   animation: floatUpMedium 17s infinite ease-in-out;
   animation-delay: 3.5s;
   filter: blur(10px);
-  opacity: 0.8;
+  opacity: 0.4;
 }
 
 .smoke-10 {
@@ -296,7 +296,7 @@
   animation: floatUpMedium 15.5s infinite ease-in-out;
   animation-delay: 5.5s;
   filter: blur(10px);
-  opacity: 0.8;
+  opacity: 0.4;
 }
 
 .smoke-11 {
@@ -307,7 +307,7 @@
   animation: floatUpMedium 16.5s infinite ease-in-out;
   animation-delay: 0.5s;
   filter: blur(10px);
-  opacity: 0.8;
+  opacity: 0.4;
 }
 
 /* Layer 3 - Background particles (slowest, most subtle) */
@@ -319,7 +319,7 @@
   animation: floatUpSlow 20s infinite ease-in;
   animation-delay: 2s;
   filter: blur(15px);
-  opacity: 0.6;
+  opacity: 0.3;
 }
 
 .smoke-13 {
@@ -330,7 +330,7 @@
   animation: floatUpSlow 22s infinite ease-in;
   animation-delay: 6s;
   filter: blur(15px);
-  opacity: 0.6;
+  opacity: 0.3;
 }
 
 .smoke-14 {
@@ -341,7 +341,7 @@
   animation: floatUpSlow 21s infinite ease-in;
   animation-delay: 4s;
   filter: blur(15px);
-  opacity: 0.6;
+  opacity: 0.3;
 }
 
 .smoke-15 {
@@ -352,7 +352,7 @@
   animation: floatUpSlow 19s infinite ease-in;
   animation-delay: 8s;
   filter: blur(15px);
-  opacity: 0.6;
+  opacity: 0.3;
 }
 
 /* Fast floating animation - Front layer */
@@ -362,20 +362,20 @@
     opacity: 0;
   }
   10% {
-    opacity: 0.6;
+    opacity: 0.3;
   }
   30% {
-    opacity: 0.8;
+    opacity: 0.4;
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.25;
     transform: translateY(-500px) translateX(80px) scale(1.4) rotate(45deg);
   }
   70% {
-    opacity: 0.3;
+    opacity: 0.15;
   }
   90% {
-    opacity: 0.1;
+    opacity: 0.05;
   }
   100% {
     transform: translateY(-900px) translateX(-50px) scale(2) rotate(90deg);
@@ -390,17 +390,17 @@
     opacity: 0;
   }
   15% {
-    opacity: 0.5;
+    opacity: 0.25;
   }
   40% {
-    opacity: 0.6;
+    opacity: 0.3;
   }
   50% {
-    opacity: 0.4;
+    opacity: 0.2;
     transform: translateY(-450px) translateX(-60px) scale(1.3) rotate(-30deg);
   }
   80% {
-    opacity: 0.2;
+    opacity: 0.1;
   }
   100% {
     transform: translateY(-850px) translateX(70px) scale(1.8) rotate(-60deg);
@@ -415,14 +415,14 @@
     opacity: 0;
   }
   20% {
-    opacity: 0.4;
+    opacity: 0.2;
   }
   50% {
-    opacity: 0.3;
+    opacity: 0.15;
     transform: translateY(-400px) translateX(40px) scale(1.2) rotate(20deg);
   }
   85% {
-    opacity: 0.15;
+    opacity: 0.075;
   }
   100% {
     transform: translateY(-800px) translateX(-80px) scale(1.6) rotate(40deg);
