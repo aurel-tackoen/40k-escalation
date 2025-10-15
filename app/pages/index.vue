@@ -67,7 +67,7 @@
           </NuxtLink>
           <NuxtLink
             to="/leagues"
-            class="btn-secondary text-lg px-8 py-3 flex items-center gap-2"
+            class="btn-login text-lg px-8 py-3 flex items-center gap-2"
           >
             <Globe :size="20" />
             Browse Leagues
