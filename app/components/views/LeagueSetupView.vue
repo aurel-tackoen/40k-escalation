@@ -1,10 +1,14 @@
 <script setup>
-  import { ref, watch } from 'vue'
+  import { ref, watch, onMounted } from 'vue'
+  import { storeToRefs } from 'pinia'
   import { Save, Plus, Trash2, Download, Upload, Settings as SettingsIcon } from 'lucide-vue-next'
   import { useFormatting } from '~/composables/useFormatting'
+  import { useLeaguesStore } from '~/stores/leagues'
 
   // Composables
   const { normalizeDates } = useFormatting()
+  const leaguesStore = useLeaguesStore()
+  const { gameSystems } = storeToRefs(leaguesStore)
 
   // Props
   const props = defineProps({
@@ -16,6 +20,13 @@
 
   // Emits
   const emit = defineEmits(['update-league'])
+
+  // Fetch game systems on mount
+  onMounted(async () => {
+    if (gameSystems.value.length === 0) {
+      await leaguesStore.fetchGameSystems()
+    }
+  })
 
   // Reactive data
   const editableLeague = ref(normalizeDates(props.league))
@@ -142,6 +153,28 @@
               placeholder="Enter league name"
             />
           </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">Game System</label>
+            <select
+              v-model.number="editableLeague.gameSystemId"
+              class="input-field"
+              required
+            >
+              <option value="" disabled>Select a game system</option>
+              <option
+                v-for="system in gameSystems"
+                :key="system.id"
+                :value="system.id"
+              >
+                {{ system.name }}
+              </option>
+            </select>
+            <p class="text-xs text-gray-400 mt-1">
+              ⚠️ Changing the game system will update available factions and missions
+            </p>
+          </div>
+
           <div class="md:col-span-2">
             <label class="block text-sm font-semibold text-yellow-500 mb-2">Current Round</label>
             <select v-model.number="editableLeague.currentRound" class="input-field">

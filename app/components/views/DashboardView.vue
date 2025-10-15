@@ -1,9 +1,15 @@
 <script setup>
   import { computed, toRef } from 'vue'
+  import { storeToRefs } from 'pinia'
   import { Handshake, Trophy, Users, Shield, Swords, Calendar, Medal } from 'lucide-vue-next'
+  import { useLeaguesStore } from '~/stores/leagues'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
   import { usePlayerStats } from '~/composables/usePlayerStats'
+
+  // Get current game system
+  const leaguesStore = useLeaguesStore()
+  const { currentGameSystemName } = storeToRefs(leaguesStore)
 
   // Props
   const props = defineProps({
@@ -62,8 +68,15 @@
   <div class="flex flex-col gap-8">
     <!-- League Overview -->
     <div class="card">
-      <h2 class="text-2xl sm:text-3xl font-serif font-bold text-yellow-500">{{ league?.name || 'League' }}</h2>
-      <p class="text-sm sm:text-base text-gray-300 mb-4">{{ league?.description || '' }}</p>
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-serif font-bold text-yellow-500">{{ league?.name || 'League' }}</h2>
+          <p class="text-sm sm:text-base text-gray-300">{{ league?.description || '' }}</p>
+        </div>
+        <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg">
+          <p class="text-xs text-purple-300 font-semibold">{{ currentGameSystemName }}</p>
+        </div>
+      </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-gray-700 p-4 rounded-lg">
           <div class="flex items-center gap-2 mb-2">

@@ -1,4 +1,33 @@
-import { integer, pgTable, varchar, text, timestamp, boolean, date } from 'drizzle-orm/pg-core';
+import { integer, pgTable, varchar, text, timestamp, boolean, date, serial } from 'drizzle-orm/pg-core';
+
+// Game systems table (Warhammer 40k, AoS, The Old World, MESBG, etc.)
+export const gameSystems = pgTable('game_systems', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).notNull().unique(),
+  shortName: varchar('short_name', { length: 50 }).notNull(), // "40k", "aos", "tow", "mesbg"
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// Factions table (dynamic, per game system)
+export const factions = pgTable('factions', {
+  id: serial('id').primaryKey(),
+  gameSystemId: integer('game_system_id').references(() => gameSystems.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar('name', { length: 100 }).notNull(),
+  category: varchar('category', { length: 50 }), // "Order", "Chaos", "Death", "Destruction" for AoS, etc.
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// Missions table (dynamic, per game system)
+export const missions = pgTable('missions', {
+  id: serial('id').primaryKey(),
+  gameSystemId: integer('game_system_id').references(() => gameSystems.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  category: varchar('category', { length: 100 }), // "Matched Play", "Narrative", etc.
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
 
 // Users table (Auth0 authentication)
 export const users = pgTable('users', {
@@ -17,6 +46,7 @@ export const leagues = pgTable('leagues', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
   description: text(),
+  gameSystemId: integer('game_system_id').references(() => gameSystems.id).notNull(), // Which game system this league uses
   startDate: date().notNull(),
   endDate: date(),
   currentRound: integer().default(1).notNull(),

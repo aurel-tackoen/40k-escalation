@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { userId, name, description, startDate, endDate, currentRound, isPublic, maxPlayers, status } = body
+    const { userId, name, description, gameSystemId, startDate, endDate, currentRound, isPublic, maxPlayers, status } = body
 
     if (!userId) {
       throw createError({
@@ -64,6 +64,7 @@ export default defineEventHandler(async (event) => {
     const updateData = {}
     if (name !== undefined) updateData.name = name
     if (description !== undefined) updateData.description = description
+    if (gameSystemId !== undefined) updateData.gameSystemId = gameSystemId
     if (startDate !== undefined) updateData.startDate = startDate
     if (endDate !== undefined) updateData.endDate = endDate
     if (currentRound !== undefined) updateData.currentRound = currentRound

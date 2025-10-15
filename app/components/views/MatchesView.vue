@@ -1,7 +1,8 @@
 <script setup>
   import { ref, computed, toRef } from 'vue'
+  import { storeToRefs } from 'pinia'
   import { Plus, Filter, Users, Trophy, X, Flame, TrendingUp, Handshake, Swords, Trash2 } from 'lucide-vue-next'
-  import { missions } from '~/data/missions'
+  import { useLeaguesStore } from '~/stores/leagues'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
   import { useMatchResults } from '~/composables/useMatchResults'
@@ -18,6 +19,10 @@
       required: true
     }
   })
+
+  // Get dynamic missions from store
+  const leaguesStore = useLeaguesStore()
+  const { availableMissions, currentGameSystemName } = storeToRefs(leaguesStore)
 
   // Composables
   const { getPlayerName, getPlayerFaction } = usePlayerLookup(toRef(props, 'players'))
@@ -221,11 +226,15 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Mission</label>
+            <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">
+              Mission
+              <span v-if="currentGameSystemName" class="text-xs text-gray-400 ml-2">({{ currentGameSystemName }})</span>
+            </label>
             <select v-model="newMatch.mission" required class="input-field">
               <option value="">Select Mission</option>
-              <option v-for="mission in missions" :key="mission" :value="mission">
-                {{ mission }}
+              <option v-for="mission in availableMissions" :key="mission.id" :value="mission.name">
+                {{ mission.name }}
+                <span v-if="mission.category"> - {{ mission.category }}</span>
               </option>
             </select>
           </div>

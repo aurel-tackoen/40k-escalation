@@ -1,5 +1,15 @@
 <script setup>
   import '~/assets/css/main.css'
+  import { useLeaguesStore } from '~/stores/leagues'
+
+  // Initialize stores
+  const leaguesStore = useLeaguesStore()
+
+  // Fetch game systems on app startup
+  onMounted(async () => {
+    await leaguesStore.fetchGameSystems()
+  })
+
   // Set page title and meta
   useHead({
     title: 'Warhammer 40K Escalation League',

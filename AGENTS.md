@@ -1,10 +1,17 @@
 # Warhammer 40k Escalation League Manager - AI Agent Guide
 
-> **Production-Ready Full-Stack Application** - Nuxt 4 + Vue 3 + PostgreSQL + Netlify
+> **Production-Ready Full-Stack Application** - Nuxt 4 + Vue 3 + PostgreSQL + Netlify  
+> **NEW: Multi-Game System Support** - Now supports 4 Warhammer game systems! 🎮
 
 ## 🎯 Project Overview
 
-A comprehensive full-stack web application for managing Warhammer 40K escalation league campaigns with database persistence, painting progress tracking, and advanced analytics.
+A comprehensive full-stack web application for managing escalation league campaigns across multiple Warhammer game systems with database persistence, painting progress tracking, and advanced analytics.
+
+### Supported Game Systems
+- 🎲 **Warhammer 40,000** - 40 factions, 15 missions
+- ⚔️ **Age of Sigmar** - 24 factions, 13 missions  
+- 🏰 **The Old World** - 17 factions, 12 missions
+- 🗡️ **Middle-Earth Strategy Battle Game** - 29 factions, 14 missions
 
 ### Technology Stack
 - **Framework**: Nuxt v4.1.2 (Vue 3.5.22 Composition API)
@@ -18,7 +25,8 @@ A comprehensive full-stack web application for managing Warhammer 40K escalation
 ### Project Status
 ✅ **PRODUCTION READY** - Complete feature set with zero technical debt
 - 11 reusable composables (100% coverage)
-- Full database integration with 14 API endpoints
+- Full database integration with 17 API endpoints (NEW: +3 for game systems)
+- Multi-game system support with dynamic factions/missions
 - CSV export functionality across all data types
 - Painting progress tracking with leaderboard
 - Match analytics (win streaks, close games, decisive victories)
@@ -62,9 +70,10 @@ app/                          # Nuxt 4 application directory
 │   ├── usePlayerStats.js    # Player statistics (6 functions)
 │   ├── useRoundLookup.js    # Round data access (5 functions)
 │   └── useUser.js           # User profile management (new)
-├── data/                     # Static reference data
-│   ├── factions.js          # 35 Warhammer 40k factions
-│   └── missions.js          # 10 mission types
+├── data/                     # Static reference data (NEW: Multi-game system)
+│   ├── game-systems.js      # 4 game systems (40k, AoS, ToW, MESBG)
+│   ├── factions-by-system.js # 110 factions across all systems
+│   └── missions-by-system.js # 53 missions across all systems
 ├── layouts/
 │   └── default.vue          # Default layout wrapper
 ├── pages/                    # File-based routing (6 pages)
@@ -77,19 +86,22 @@ app/                          # Nuxt 4 application directory
 │   └── setup.vue            # League setup
 └── stores/
     ├── auth.js              # Auth store (user, login, logout)
-    └── leagues.js           # Multi-league Pinia store (currentPlayer getter, 600+ lines)
+    └── leagues.js           # Multi-league Pinia store (game systems support, 800+ lines)
 
 db/                           # Database layer
 ├── index.ts                 # Neon database connection
-└── schema.ts                # Drizzle schema (5 tables, 60+ fields)
+└── schema.ts                # Drizzle schema (8 tables, 80+ fields) - NEW: +3 tables
 
-server/api/                   # Nitro API routes (14 endpoints)
+server/api/                   # Nitro API routes (17 endpoints) - NEW: +3 endpoints
 ├── armies.delete.ts         # DELETE /api/armies/:id
 ├── armies.get.ts            # GET /api/armies
 ├── armies.post.ts           # POST /api/armies
 ├── debug.get.ts             # GET /api/debug (introspection)
+├── factions.get.ts          # GET /api/factions (NEW: game system filtering)
+├── game-systems.get.ts      # GET /api/game-systems (NEW)
 ├── health.get.ts            # GET /api/health (system check)
 ├── leagues.get.ts           # GET /api/leagues
+├── missions.get.ts          # GET /api/missions (NEW: game system filtering)
 ├── leagues.post.ts          # POST /api/leagues
 ├── leagues.put.ts           # PUT /api/leagues/:id
 ├── matches.get.ts           # GET /api/matches
@@ -333,7 +345,42 @@ Round data access and validation
 
 ### Tables Overview
 
-#### 1. **users** (User Authentication)
+#### 1. **game_systems** (NEW - Game Systems)
+```typescript
+{
+  id: serial (PK, auto-increment)
+  name: varchar(100) - Game system name (unique) - "Warhammer 40,000"
+  shortName: varchar(50) - Short code - "40k", "aos", "tow", "mesbg"
+  isActive: boolean - Active status (default: true)
+  createdAt: timestamp - Creation timestamp
+}
+```
+
+#### 2. **factions** (NEW - Dynamic Factions)
+```typescript
+{
+  id: serial (PK, auto-increment)
+  gameSystemId: integer (FK -> game_systems.id, cascade delete)
+  name: varchar(100) - Faction name
+  category: varchar(50) - Category (e.g., "Imperium", "Chaos", "Order")
+  isActive: boolean - Active status (default: true)
+  createdAt: timestamp - Creation timestamp
+}
+```
+
+#### 3. **missions** (NEW - Dynamic Missions)
+```typescript
+{
+  id: serial (PK, auto-increment)
+  gameSystemId: integer (FK -> game_systems.id, cascade delete)
+  name: varchar(255) - Mission name
+  category: varchar(100) - Category (e.g., "Matched Play", "Battleplan")
+  isActive: boolean - Active status (default: true)
+  createdAt: timestamp - Creation timestamp
+}
+```
+
+#### 4. **users** (User Authentication)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -347,12 +394,13 @@ Round data access and validation
 }
 ```
 
-#### 2. **leagues** (League Configuration)
+#### 5. **leagues** (League Configuration)
 ```typescript
 {
   id: integer (PK, auto-increment)
   name: varchar(255) - League name
   description: text - League description
+  gameSystemId: integer (FK -> game_systems.id) - REQUIRED game system
   startDate: date - Start date
   endDate: date - End date (optional)
   currentRound: integer - Active round (default: 1)
@@ -360,7 +408,7 @@ Round data access and validation
 }
 ```
 
-#### 3. **rounds** (Round Configuration)
+#### 6. **rounds** (Round Configuration)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -444,7 +492,7 @@ npm run db:studio      # Open Drizzle Studio GUI
 
 ---
 
-## 🌐 API Endpoints (14 Total)
+## 🌐 API Endpoints (17 Total)
 
 All endpoints follow RESTful conventions and return JSON with this structure:
 ```typescript
@@ -455,6 +503,12 @@ All endpoints follow RESTful conventions and return JSON with this structure:
   count?: number      // For list endpoints
 }
 ```
+
+### Game Systems API (NEW)
+- `GET /api/game-systems` - List all active game systems
+- `GET /api/factions?gameSystemId=X` - List factions (filtered by game system)
+- `GET /api/missions?gameSystemId=X` - List missions (filtered by game system)
+- `POST /api/seed-game-systems` - Populate game systems, factions, missions (idempotent)
 
 ### Players API
 - `GET /api/players` - List all players
@@ -486,8 +540,8 @@ All endpoints follow RESTful conventions and return JSON with this structure:
 
 ### Leagues API
 - `GET /api/leagues` - List all leagues (includes rounds)
-- `POST /api/leagues` - Create league with rounds
-- `PUT /api/leagues/:id` - Update league (including currentRound)
+- `POST /api/leagues` - Create league with rounds (requires gameSystemId)
+- `PUT /api/leagues/:id` - Update league (including currentRound, gameSystemId)
 
 ### Utility API
 - `GET /api/health` - System health check
@@ -505,8 +559,10 @@ All endpoints follow RESTful conventions and return JSON with this structure:
 - `usePlayerLookup` - Get player names
 - `useFormatting` - Format dates
 - `usePlayerStats` - Sort standings
+- `useLeaguesStore` - Game system badge (NEW)
 
 **Key Features**:
+- Game system badge in header (NEW)
 - League info cards (current round, player count, armies, matches)
 - Current standings table with W-L-D records
 - Recent matches list
@@ -533,9 +589,12 @@ All endpoints follow RESTful conventions and return JSON with this structure:
 - `useConfirmation` - Delete confirmations
 - `useFormManagement` - Form state & validation
 - `useDataExport` - CSV export
+- `useLeaguesStore` - Dynamic factions by game system (NEW)
 
 **Key Features**:
-- Add player form with validation (name, faction, email)
+- Add player form with validation (name, faction)
+- **Dynamic faction dropdown** - Shows factions for current game system (NEW)
+- Game system indicator in faction selector (NEW)
 - Player cards with faction, record, and painting progress
 - Export to CSV (includes win %, all stats)
 - Delete with confirmation
@@ -544,7 +603,7 @@ All endpoints follow RESTful conventions and return JSON with this structure:
 
 **Events Emitted**:
 ```javascript
-emit('add-player', { name, faction, email })
+emit('add-player', { name, faction })
 emit('delete-player', playerId)
 ```
 
@@ -596,9 +655,11 @@ emit('delete-army', armyId)
 - `useFormatting` - Format dates
 - `useMatchResults` - Match quality & streaks
 - `useDataExport` - CSV export
+- `useLeaguesStore` - Dynamic missions by game system (NEW)
 
 **Key Features**:
 - Match recording form (2 players, points, mission, date)
+- **Dynamic mission dropdown** - Shows missions for current game system (NEW)
 - Winner auto-calculation
 - Match quality indicators (Close Game, Decisive Victory)
 - Win streak badges
@@ -770,13 +831,63 @@ git push origin main  # Auto-deploys on Netlify
 
 ---
 
-## 📊 Data Reference
+## 📊 Multi-Game System Architecture
 
-### Factions (35 Total)
-Space Marines, Chaos Space Marines, Imperial Guard, Orks, Eldar, Dark Eldar, Tau Empire, Necrons, Tyranids, Blood Angels, Dark Angels, Space Wolves, Ultramarines, Imperial Fists, Iron Hands, Raven Guard, Salamanders, White Scars, Grey Knights, Deathwatch, Adeptus Custodes, Sisters of Battle, Thousand Sons, Death Guard, World Eaters, Emperor's Children, Iron Warriors, Alpha Legion, Night Lords, Word Bearers, Black Legion, Craftworld Eldar, Harlequins, Ynnari, Leagues of Votann
+### Game Systems Overview
+The application now supports **4 Warhammer game systems** with dynamic faction and mission loading:
 
-### Missions (10 Total)
-Purge the Enemy, Secure and Control, The Scouring, Big Guns Never Tire, Crusade, Emperor's Will, Relic, Vanguard Strike, Dawn of War, Hammer and Anvil
+| Game System | Short Code | Factions | Missions |
+|-------------|------------|----------|----------|
+| Warhammer 40,000 | 40k | 40 | 15 |
+| Age of Sigmar | aos | 24 | 13 |
+| The Old World | tow | 17 | 12 |
+| Middle-Earth SBG | mesbg | 29 | 14 |
+| **TOTAL** | | **110** | **53** |
+
+### Data Flow
+1. **Database Tables**: `game_systems`, `factions`, `missions` (seeded via `/api/seed-game-systems`)
+2. **API Endpoints**: `/api/game-systems`, `/api/factions?gameSystemId=X`, `/api/missions?gameSystemId=X`
+3. **Pinia Store**: `leagues.js` - Fetches and caches game system data
+4. **Components**: Use `storeToRefs(leaguesStore)` to access `availableFactions` and `availableMissions`
+
+### League-Game System Relationship
+- Each **league** is linked to a **game system** via `gameSystemId` (foreign key)
+- When a league is selected, the store fetches factions/missions for that game system
+- Components dynamically populate dropdowns based on current league's game system
+
+### Adding a New Game System
+1. Add to `app/data/game-systems.js`:
+   ```javascript
+   { name: 'New Game', shortName: 'ng' }
+   ```
+2. Add factions to `app/data/factions-by-system.js`:
+   ```javascript
+   { gameSystemShortName: 'ng', name: 'Faction Name', category: 'Category' }
+   ```
+3. Add missions to `app/data/missions-by-system.js`:
+   ```javascript
+   { gameSystemShortName: 'ng', name: 'Mission Name', category: 'Matched Play' }
+   ```
+4. Run seed endpoint: `POST /api/seed-game-systems`
+
+### Migration Guide (Single → Multi System)
+**If you have existing data before this refactor:**
+1. All existing leagues will default to `gameSystemId = 1` (Warhammer 40k)
+2. Run `POST /api/seed-game-systems` to populate new tables
+3. Update leagues with correct game system: `PATCH /api/leagues/:id` with `{ gameSystemId: X }`
+4. Players/armies/matches remain unchanged (backward compatible)
+
+---
+
+## 📊 Data Reference (Legacy - Now Dynamic)
+
+### Static Data Removed
+⚠️ **Factions and Missions are now database-driven**. The static arrays in `app/data/` are now seed sources only.
+
+For current data:
+- **Factions**: Fetch via `GET /api/factions?gameSystemId=X` (110 total across 4 systems)
+- **Missions**: Fetch via `GET /api/missions?gameSystemId=X` (53 total across 4 systems)
+- **Game Systems**: Fetch via `GET /api/game-systems` (4 total)
 
 ---
 
@@ -872,11 +983,12 @@ git push origin main
 - ✅ **Zero Lint Errors** - ESLint 9 strict compliance
 - ✅ **100% Composable Coverage** - 11/11 composables implemented
 - ✅ **Full Database Integration** - PostgreSQL + Drizzle ORM
-- ✅ **Complete API Layer** - 14 RESTful endpoints
+- ✅ **Complete API Layer** - 17 RESTful endpoints
+- ✅ **Multi-Game System Support** - 4 Warhammer game systems (110 factions, 53 missions)
 - ✅ **CSV Export Everywhere** - Players, armies, matches
 - ✅ **Advanced Analytics** - Match quality, win streaks, painting leaderboard
 - ✅ **Production Deployment** - Netlify-ready configuration
 - ✅ **Comprehensive Documentation** - 20+ guide files
 
-**Last Updated**: October 13, 2025  
+**Last Updated**: January 2025  
 **Status**: Production Ready ⚡

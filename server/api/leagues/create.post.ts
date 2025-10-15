@@ -11,6 +11,7 @@ import bcrypt from 'bcryptjs'
  * {
  *   name: string
  *   description?: string
+ *   gameSystemId: number (required - which game system this league uses)
  *   startDate: string (ISO date)
  *   endDate?: string (ISO date)
  *   createdBy: number (userId)
@@ -31,10 +32,10 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
 
     // Validation
-    if (!body.name || !body.startDate || !body.createdBy) {
+    if (!body.name || !body.startDate || !body.createdBy || !body.gameSystemId) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Missing required fields: name, startDate, createdBy'
+        statusMessage: 'Missing required fields: name, startDate, createdBy, gameSystemId'
       })
     }
 
@@ -55,6 +56,7 @@ export default defineEventHandler(async (event) => {
     const [newLeague] = await db.insert(leagues).values({
       name: body.name,
       description: body.description || null,
+      gameSystemId: body.gameSystemId,
       startDate: body.startDate,
       endDate: body.endDate || null,
       currentRound: 1,

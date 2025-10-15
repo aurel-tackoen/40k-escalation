@@ -9,6 +9,12 @@ export const useLeaguesStore = defineStore('leagues', {
     currentLeagueId: null,      // Active league ID
     leagues: {},                // Cache of league details { [id]: leagueData }
 
+    // Game systems state
+    gameSystems: [],            // Available game systems
+    currentGameSystem: null,    // Active game system for current league
+    factions: [],               // Factions for current game system
+    missions: [],               // Missions for current game system
+
     // Current league data
     players: [],
     matches: [],
@@ -25,6 +31,21 @@ export const useLeaguesStore = defineStore('leagues', {
     currentLeague: (state) => {
       if (!state.currentLeagueId) return null
       return state.leagues[state.currentLeagueId] || null
+    },
+
+    // Current game system name
+    currentGameSystemName: (state) => {
+      return state.currentGameSystem?.name || 'Unknown Game System'
+    },
+
+    // Available factions for current game system
+    availableFactions: (state) => {
+      return state.factions
+    },
+
+    // Available missions for current game system
+    availableMissions: (state) => {
+      return state.missions
     },
 
     // User's role in current league
@@ -116,6 +137,52 @@ export const useLeaguesStore = defineStore('leagues', {
   },
 
   actions: {
+    // ==================== Game Systems ====================
+
+    /**
+     * Fetch all available game systems
+     */
+    async fetchGameSystems() {
+      try {
+        const response = await $fetch('/api/game-systems')
+        if (response.success) {
+          this.gameSystems = response.data
+        }
+      } catch (error) {
+        console.error('Error fetching game systems:', error)
+      }
+    },
+
+    /**
+     * Fetch factions for a specific game system
+     */
+    async fetchFactions(gameSystemId) {
+      try {
+        const response = await $fetch(`/api/factions?gameSystemId=${gameSystemId}`)
+        if (response.success) {
+          this.factions = response.data
+        }
+      } catch (error) {
+        console.error('Error fetching factions:', error)
+        this.factions = []
+      }
+    },
+
+    /**
+     * Fetch missions for a specific game system
+     */
+    async fetchMissions(gameSystemId) {
+      try {
+        const response = await $fetch(`/api/missions?gameSystemId=${gameSystemId}`)
+        if (response.success) {
+          this.missions = response.data
+        }
+      } catch (error) {
+        console.error('Error fetching missions:', error)
+        this.missions = []
+      }
+    },
+
     // ==================== League Management ====================
 
     /**
@@ -204,6 +271,19 @@ export const useLeaguesStore = defineStore('leagues', {
           if (response.success) {
             this.leagues[leagueId] = response.data
           }
+        }
+
+        // Get game system data for this league
+        const league = this.leagues[leagueId]
+        if (league?.gameSystemId) {
+          // Set current game system
+          this.currentGameSystem = this.gameSystems.find(gs => gs.id === league.gameSystemId)
+
+          // Fetch factions and missions for this game system
+          await Promise.all([
+            this.fetchFactions(league.gameSystemId),
+            this.fetchMissions(league.gameSystemId)
+          ])
         }
 
         // Fetch all data for this league
@@ -377,6 +457,15 @@ export const useLeaguesStore = defineStore('leagues', {
               ...this.myLeagues[leagueIndex],
               name: response.data.name
             }
+          }
+
+          // If game system was changed, update current game system and fetch new factions/missions
+          if (updates.gameSystemId && updates.gameSystemId !== this.currentGameSystem?.id) {
+            this.currentGameSystem = this.gameSystems.find(gs => gs.id === updates.gameSystemId)
+            await Promise.all([
+              this.fetchFactions(updates.gameSystemId),
+              this.fetchMissions(updates.gameSystemId)
+            ])
           }
         }
 
@@ -693,6 +782,9 @@ export const useLeaguesStore = defineStore('leagues', {
         }
       }
 
+      // Fetch game systems first (needed for all leagues)
+      await this.fetchGameSystems()
+
       await this.fetchMyLeagues()
 
       // Fetch league data if a league is selected
@@ -709,6 +801,18 @@ export const useLeaguesStore = defineStore('leagues', {
           }
         }
 
+        // Set current game system
+        const league = this.leagues[this.currentLeagueId]
+        if (league?.gameSystemId) {
+          this.currentGameSystem = this.gameSystems.find(gs => gs.id === league.gameSystemId)
+
+          // Fetch factions and missions for this game system
+          await Promise.all([
+            this.fetchFactions(league.gameSystemId),
+            this.fetchMissions(league.gameSystemId)
+          ])
+        }
+
         // Fetch all league data
         await this.fetchLeagueData()
       }
@@ -720,8 +824,13 @@ export const useLeaguesStore = defineStore('leagues', {
     resetStore() {
       // Clear all state
       this.myLeagues = []
+      this.publicLeagues = []
       this.currentLeagueId = null
       this.leagues = {}
+      this.gameSystems = []
+      this.currentGameSystem = null
+      this.factions = []
+      this.missions = []
       this.players = []
       this.matches = []
       this.armies = []

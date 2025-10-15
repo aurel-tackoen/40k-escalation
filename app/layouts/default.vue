@@ -89,7 +89,9 @@
               </div>
             </div>
           </div> -->
-          <Logo size="medium" />
+          <NuxtLink to="/" >
+            <Logo size="medium" />
+          </NuxtLink>
           <!-- Mobile Menu Button (only show when authenticated) -->
           <button
             v-if="authStore.isAuthenticated"

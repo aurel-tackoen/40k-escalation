@@ -1,14 +1,17 @@
 <script setup>
+  import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
   import { Plus, X, Calendar, Lock, Swords } from 'lucide-vue-next'
 
   const leaguesStore = useLeaguesStore()
   const authStore = useAuthStore()
+  const { gameSystems } = storeToRefs(leaguesStore)
 
   const form = reactive({
     name: '',
     description: '',
+    gameSystemId: null, // NEW: Required field for game system selection
     startDate: '',
     endDate: '',
     isPublic: true,
@@ -55,6 +58,11 @@
   const validateForm = () => {
     if (!form.name.trim()) {
       error.value = 'League name is required'
+      return false
+    }
+
+    if (!form.gameSystemId) {
+      error.value = 'Game system selection is required'
       return false
     }
 
@@ -171,6 +179,26 @@
             placeholder="e.g., Winter Escalation 2025"
             required
           />
+        </div>
+
+        <!-- Game System Selection -->
+        <div>
+          <label class="block text-gray-300 font-semibold mb-2">
+            Game System <span class="text-red-400">*</span>
+          </label>
+          <select
+            v-model="form.gameSystemId"
+            class="input-field w-full"
+            required
+          >
+            <option value="">Select a game system...</option>
+            <option v-for="system in gameSystems" :key="system.id" :value="system.id">
+              {{ system.name }}
+            </option>
+          </select>
+          <p class="text-sm text-gray-400 mt-1">
+            This determines which factions and missions are available for your league
+          </p>
         </div>
 
         <!-- Description -->

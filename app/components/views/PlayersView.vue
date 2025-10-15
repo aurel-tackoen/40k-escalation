@@ -1,7 +1,8 @@
 <script setup>
   import { computed, watch } from 'vue'
+  import { storeToRefs } from 'pinia'
   import { X, TrendingUp, Shield, Users, Paintbrush, UserCheck } from 'lucide-vue-next'
-  import { factions } from '~/data/factions'
+  import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerStats } from '~/composables/usePlayerStats'
   import { useConfirmation } from '~/composables/useConfirmation'
@@ -23,6 +24,10 @@
       default: 1
     }
   })
+
+  // Get dynamic factions from store
+  const leaguesStore = useLeaguesStore()
+  const { availableFactions, currentGameSystemName } = storeToRefs(leaguesStore)
 
   // Emits
   const emit = defineEmits(['add-player', 'remove-player', 'update-player'])
@@ -242,11 +247,15 @@
             <p class="text-xs text-gray-400 mt-1">This name will be shown in league standings</p>
           </div>
           <div>
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Faction</label>
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">
+              Faction
+              <span v-if="currentGameSystemName" class="text-xs text-gray-400 ml-2">({{ currentGameSystemName }})</span>
+            </label>
             <select v-model="newPlayer.faction" required class="input-field">
               <option value="">Select Faction</option>
-              <option v-for="faction in factions" :key="faction" :value="faction">
-                {{ faction }}
+              <option v-for="faction in availableFactions" :key="faction.id" :value="faction.name">
+                {{ faction.name }}
+                <span v-if="faction.category"> ({{ faction.category }})</span>
               </option>
             </select>
           </div>
