@@ -36,15 +36,15 @@
     <!-- User Avatar Button -->
     <button
       @click.stop="toggleMenu"
-      class="btn-login flex items-center gap-2 !py-0.5 pl-0.5"
+      class="btn-login flex items-center gap-2 !py-0.5 pl-0.5 w-full"
     >
       <img
         :src="getUserAvatar"
         :alt="getUserName"
         class="w-[34px] h-[34px] rounded-lg object-cover border border-gray-400"
       >
-      <span class="hidden md:inline">{{ getUserName }}</span>
-      <ChevronDown :size="16" />
+      <span>{{ getUserName }}</span>
+      <ChevronDown :size="16" class="ml-auto" />
     </button>
 
     <!-- Dropdown Menu -->

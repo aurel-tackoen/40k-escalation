@@ -56,12 +56,12 @@
     <!-- Trigger Button -->
     <button
       @click="toggleDropdown"
-      class="btn-league"
+      class="btn-league w-full"
       :class="{ 'active': isOpen }"
     >
-      <Swords :size="20" class="text-purple-400" />
-      <span class="font-semibold">{{ currentLeague?.name || 'No League' }}</span>
-      <ChevronDown :size="16" :class="{ 'rotate-180': isOpen }" class="transition-transform" />
+      <Swords :size="20" class="text-purple-400 flex-shrink-0" />
+      <span class="font-semibold truncate">{{ currentLeague?.name || 'No League' }}</span>
+      <ChevronDown :size="16" :class="{ 'rotate-180': isOpen }" class="transition-transform ml-auto flex-shrink-0" />
     </button>
 
     <!-- Dropdown Menu -->
@@ -75,7 +75,7 @@
     >
       <div
         v-if="isOpen"
-        class="absolute right-0 mt-2 w-80 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50 overflow-hidden"
+        class="absolute left-0 lg:right-0 lg:left-auto mt-2 w-full lg:w-80 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50 overflow-hidden"
       >
         <!-- My Leagues Section -->
         <div v-if="myLeagues && myLeagues.length > 0" class="max-h-96 overflow-y-auto">

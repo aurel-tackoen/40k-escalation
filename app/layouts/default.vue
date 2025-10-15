@@ -180,20 +180,47 @@
           class="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-l-2 border-yellow-600/40 shadow-2xl z-50 lg:hidden overflow-y-auto"
         >
           <!-- Mobile Menu Header -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-700/50">
-            <div class="flex items-center gap-3">
-              <div class="text-2xl text-yellow-600">
-                <Swords :size="28" :stroke-width="1.5" />
+          <div class="flex flex-col gap-4 p-6 border-b border-gray-700/50">
+            <!-- Title and Close Button -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="text-2xl text-yellow-600">
+                  <Swords :size="28" :stroke-width="1.5" />
+                </div>
+                <h2 class="text-xl font-bold text-gray-100 font-serif">Navigation</h2>
               </div>
-              <h2 class="text-xl font-bold text-gray-100 font-serif">Navigation</h2>
+              <button
+                @click="closeMobileMenu"
+                class="p-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300"
+                aria-label="Close menu"
+              >
+                <X :size="24" :stroke-width="2.5" />
+              </button>
             </div>
-            <button
-              @click="closeMobileMenu"
-              class="p-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300"
-              aria-label="Close menu"
-            >
-              <X :size="24" :stroke-width="2.5" />
-            </button>
+
+            <!-- League Switcher and Auth Buttons -->
+            <div class="space-y-3">
+              <UserMenu v-if="authStore.isAuthenticated" class="w-full" />
+              <LeagueSwitcher v-if="authStore.isAuthenticated" />
+
+              <!-- Leagues Button -->
+              <NuxtLink
+                v-if="authStore.isAuthenticated"
+                to="/leagues"
+                class="group relative flex items-center w-full px-4 py-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600"
+                :class="{
+                  'bg-yellow-600 text-gray-900 border-yellow-600': $route.path === '/leagues'
+                }"
+                title="My Leagues"
+              >
+                <Swords :size="20" :stroke-width="2.5" class="flex-shrink-0" />
+                <span class="ml-2 text-sm font-semibold">
+                  All Leagues
+                </span>
+              </NuxtLink>
+
+              <LoginButton class="w-full" />
+            </div>
           </div>
 
           <!-- Mobile Menu Links -->
@@ -221,40 +248,6 @@
                 class="w-2 h-2 bg-gray-900 rounded-full"
               ></div>
             </NuxtLink>
-          </div>
-
-          <!-- Mobile Menu Footer -->
-          <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900/50 space-y-4">
-            <!-- League Info & Settings -->
-            <div v-if="currentLeague" class="flex items-center justify-between gap-2 mb-2">
-              <div class="flex-1 min-w-0">
-                <p class="text-sm text-gray-400 truncate">{{ currentLeague.name }}</p>
-                <p class="text-xs text-gray-500">{{ currentRole }}</p>
-              </div>
-              <NuxtLink
-                to="/leagues"
-                class="group relative flex items-center px-4 py-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600 flex-shrink-0 overflow-hidden"
-                :class="{
-                  'bg-yellow-600 text-gray-900 border-yellow-600': $route.path === '/leagues'
-                }"
-                title="My Leagues"
-              >
-                <Swords :size="20" :stroke-width="2.5" class="flex-shrink-0" />
-
-                <!-- Sliding Text -->
-                <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 text-sm font-semibold group-hover:ml-2">
-                  Leagues
-                </span>
-              </NuxtLink>
-            </div>
-            <!-- Auth UI for mobile -->
-            <div class="flex justify-center">
-              <UserMenu />
-              <LoginButton />
-            </div>
-            <p class="text-sm text-gray-400 text-center">
-              Warhammer 40K Escalation League
-            </p>
           </div>
         </nav>
       </Transition>
