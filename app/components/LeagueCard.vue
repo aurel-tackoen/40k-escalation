@@ -91,7 +91,7 @@
   const isJoined = computed(() => props.league.isJoined === true)
 
   const cardClass = computed(() => {
-    const base = 'card hover:border transition-all duration-200 group relative'
+    const base = 'card hover:border transition-all duration-200 group relative flex flex-col'
     const interactive = isMyLeague.value ? 'cursor-pointer' : ''
     const current = props.isCurrent ? 'ring-2 ring-purple-500 border-purple-500' : ''
     const joined = isJoined.value ? 'opacity-75' : ''
@@ -132,88 +132,91 @@
       ✓ Joined
     </div>
 
-    <!-- League Header -->
-    <div class="flex justify-between items-start mb-4">
-      <div class="flex-1">
-        <h3
-          class="text-xl font-bold text-gray-100 transition-colors"
-          :class="isMyLeague ? 'group-hover:text-purple-400' : isPublic ? 'group-hover:text-green-400' : 'group-hover:text-yellow-400'"
-        >
-          {{ league.name }}
-        </h3>
-        <p v-if="league.description" class="text-gray-400 text-sm mt-1 line-clamp-2">
-          {{ league.description }}
-        </p>
-      </div>
+    <!-- Card Content (flex-grow to push actions to bottom) -->
+    <div class="flex-grow">
+      <!-- League Header -->
+      <div class="flex justify-between items-start mb-4">
+        <div class="flex-1">
+          <h3
+            class="text-xl font-bold text-gray-100 transition-colors"
+            :class="isMyLeague ? 'group-hover:text-purple-400' : isPublic ? 'group-hover:text-green-400' : 'group-hover:text-yellow-400'"
+          >
+            {{ league.name }}
+          </h3>
+          <p v-if="league.description" class="text-gray-400 text-sm mt-1 line-clamp-2">
+            {{ league.description }}
+          </p>
+        </div>
 
-      <!-- Role Badge (My Leagues only) -->
-      <span
-        v-if="isMyLeague && league.role"
-        class="px-2 py-1 rounded text-xs font-bold uppercase ml-2"
-        :class="getRoleBadgeClass(league.role)"
-      >
-        {{ league.role }}
-      </span>
-    </div>
-
-    <!-- League Stats -->
-    <div class="space-y-2 mb-4">
-      <!-- Member Count -->
-      <div class="flex items-center gap-2 text-gray-300 text-sm">
-        <Users :size="16" class="text-gray-500" />
-        <span>
-          {{ league.memberCount || 0 }}
-          <template v-if="league.maxPlayers"> / {{ league.maxPlayers }}</template>
-          {{ league.maxPlayers ? 'members' : `member${league.memberCount !== 1 ? 's' : ''}` }}
-        </span>
-      </div>
-
-      <!-- Round Info (My Leagues) -->
-      <div v-if="isMyLeague" class="flex items-center gap-2 text-gray-300 text-sm">
-        <Calendar :size="16" class="text-gray-500" />
-        <span>Round {{ league.currentRound || 1 }} of {{ league.rounds?.length || 0 }}</span>
-      </div>
-
-      <!-- Round Info (Public Leagues) -->
-      <div v-else class="flex items-center gap-2 text-gray-300 text-sm">
-        <Calendar :size="16" class="text-gray-500" />
-        <span>Round {{ league.currentRound || 1 }}</span>
-      </div>
-
-      <!-- Game System -->
-      <div v-if="gameSystemName" class="flex items-center gap-2 text-sm">
-        <Swords :size="16" class="text-gray-500" />
-        <span class="text-purple-300 font-semibold">{{ gameSystemName }}</span>
-      </div>
-
-      <!-- Point Limit (My Leagues) -->
-      <div v-if="isMyLeague && league.rounds" class="flex items-center gap-2 text-gray-300 text-sm">
-        <Trophy :size="16" class="text-gray-500" />
-        <span>{{ league.rounds?.[league.currentRound - 1]?.pointLimit || 0 }} points</span>
-      </div>
-
-      <!-- Status (Public Leagues) -->
-      <div v-if="isPublic || isPublicGuest" class="flex items-center gap-2 text-gray-300 text-sm">
-        <Target :size="16" class="text-gray-500" />
+        <!-- Role Badge (My Leagues only) -->
         <span
-          class="inline-block px-2 py-1 rounded text-xs font-bold uppercase"
-          :class="getStatusBadgeClass(league.status)"
+          v-if="isMyLeague && league.role"
+          class="px-2 py-1 rounded text-xs font-bold uppercase ml-2"
+          :class="getRoleBadgeClass(league.role)"
         >
-          {{ league.status || 'active' }}
+          {{ league.role }}
         </span>
       </div>
-    </div>
 
-    <!-- League Dates -->
-    <div class="text-xs text-gray-500 mb-4">
-      <div>Started: {{ formatDate(league.startDate) }}</div>
-      <div v-if="league.endDate">Ends: {{ formatDate(league.endDate) }}</div>
-      <div v-if="isMyLeague && league.joinedAt">Joined: {{ formatDate(league.joinedAt) }}</div>
+      <!-- League Stats -->
+      <div class="space-y-2 mb-4">
+        <!-- Member Count -->
+        <div class="flex items-center gap-2 text-gray-300 text-sm">
+          <Users :size="16" class="text-gray-500" />
+          <span>
+            {{ league.memberCount || 0 }}
+            <template v-if="league.maxPlayers"> / {{ league.maxPlayers }}</template>
+            {{ league.maxPlayers ? 'members' : `member${league.memberCount !== 1 ? 's' : ''}` }}
+          </span>
+        </div>
+
+        <!-- Round Info (My Leagues) -->
+        <div v-if="isMyLeague" class="flex items-center gap-2 text-gray-300 text-sm">
+          <Calendar :size="16" class="text-gray-500" />
+          <span>Round {{ league.currentRound || 1 }} of {{ league.rounds?.length || 0 }}</span>
+        </div>
+
+        <!-- Round Info (Public Leagues) -->
+        <div v-else class="flex items-center gap-2 text-gray-300 text-sm">
+          <Calendar :size="16" class="text-gray-500" />
+          <span>Round {{ league.currentRound || 1 }}</span>
+        </div>
+
+        <!-- Game System -->
+        <div v-if="gameSystemName" class="flex items-center gap-2 text-sm">
+          <Swords :size="16" class="text-gray-500" />
+          <span class="text-purple-300 font-semibold">{{ gameSystemName }}</span>
+        </div>
+
+        <!-- Point Limit (My Leagues) -->
+        <div v-if="isMyLeague && league.rounds" class="flex items-center gap-2 text-gray-300 text-sm">
+          <Trophy :size="16" class="text-gray-500" />
+          <span>{{ league.rounds?.[league.currentRound - 1]?.pointLimit || 0 }} points</span>
+        </div>
+
+        <!-- Status (Public Leagues) -->
+        <div v-if="isPublic || isPublicGuest" class="flex items-center gap-2 text-gray-300 text-sm">
+          <Target :size="16" class="text-gray-500" />
+          <span
+            class="inline-block px-2 py-1 rounded text-xs font-bold uppercase"
+            :class="getStatusBadgeClass(league.status)"
+          >
+            {{ league.status || 'active' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- League Dates -->
+      <div class="text-xs text-gray-500 mb-4">
+        <div>Started: {{ formatDate(league.startDate) }}</div>
+        <div v-if="league.endDate">Ends: {{ formatDate(league.endDate) }}</div>
+        <div v-if="isMyLeague && league.joinedAt">Joined: {{ formatDate(league.joinedAt) }}</div>
+      </div>
     </div>
 
     <!-- Actions Section -->
     <!-- My Leagues Actions -->
-    <div v-if="isMyLeague" class="flex gap-2 mt-4 pt-4 border-t border-gray-700" @click.stop>
+    <div v-if="isMyLeague" class="flex gap-2 mt-auto pt-4 border-t border-gray-700" @click.stop>
       <button
         v-if="league.role === 'owner' || league.role === 'organizer'"
         @click="handleSettings"
@@ -247,7 +250,7 @@
     <button
       v-if="isPublic"
       @click="handleJoin"
-      class="btn-primary w-full flex items-center justify-center gap-2 mt-4"
+      class="btn-primary w-full flex items-center justify-center gap-2 mt-auto"
       :disabled="isFull || isJoined"
       :class="{ 'opacity-50 cursor-not-allowed': isFull || isJoined }"
     >
@@ -261,10 +264,10 @@
     <button
       v-if="isPublicGuest"
       @click="handleJoin"
-      class="w-full px-4 py-2 font-semibold rounded-lg transition-all duration-300 text-center mt-4"
+      class="w-full px-4 py-2 font-semibold rounded-lg transition-all duration-300 text-center mt-auto"
       :class="(isFull || isJoined)
         ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-        : 'bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 hover:shadow-lg hover:shadow-yellow-600/50'"
+        : 'bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 hover:shadow-lg hover:shadow-yellow-600/50 cursor-pointer'"
       :disabled="isFull || isJoined"
     >
       <template v-if="isJoined">Already Joined</template>

@@ -1,5 +1,5 @@
 <script setup>
-  import { Swords, Users, Trophy, Lock, Globe } from 'lucide-vue-next'
+  import { Swords, Users, Trophy, Lock, Globe, UserPlus, LogIn } from 'lucide-vue-next'
   import { useAuthStore } from '~/stores/auth'
   import { useLeaguesStore } from '~/stores/leagues'
 
@@ -58,14 +58,16 @@
         <div v-else class="flex flex-wrap gap-4 justify-center">
           <button
             @click="authStore.login('signup')"
-            class="btn-primary text-lg px-8 py-3"
+            class="btn-primary text-lg px-8 py-3 flex items-center gap-2"
           >
+            <UserPlus :size="20" />
             Create Account
           </button>
           <button
             @click="authStore.login()"
-            class="btn-login text-lg px-8 py-3"
+            class="btn-login text-lg px-8 py-3 flex items-center gap-2"
           >
+            <LogIn :size="20" />
             Login
           </button>
         </div>
@@ -105,7 +107,7 @@
     </div>
 
     <!-- Public Leagues Section -->
-    <div class="bg-gray-850 py-16">
+    <div class="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-gray-850 py-16">
       <div class="container mx-auto px-4">
         <h2 class="text-3xl font-bold text-center text-gray-100 mb-4">
           Join a Public League
