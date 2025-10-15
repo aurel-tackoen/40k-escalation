@@ -20,19 +20,39 @@
 <template>
   <div class="-mx-4 -my-8">
     <!-- Hero Section - Full Width -->
-    <div class="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-yellow-600/40">
-      <div class="px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24 text-center">
+    <div class="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b border-yellow-600/40 overflow-hidden">
+      <!-- Smoke Particle Effect -->
+      <div class="absolute inset-0 pointer-events-none">
+        <!-- Multiple layers for depth -->
+        <div class="smoke-particle smoke-1"></div>
+        <div class="smoke-particle smoke-2"></div>
+        <div class="smoke-particle smoke-3"></div>
+        <div class="smoke-particle smoke-4"></div>
+        <div class="smoke-particle smoke-5"></div>
+        <div class="smoke-particle smoke-6"></div>
+        <div class="smoke-particle smoke-7"></div>
+        <div class="smoke-particle smoke-8"></div>
+        <div class="smoke-particle smoke-9"></div>
+        <div class="smoke-particle smoke-10"></div>
+        <div class="smoke-particle smoke-11"></div>
+        <div class="smoke-particle smoke-12"></div>
+        <div class="smoke-particle smoke-13"></div>
+        <div class="smoke-particle smoke-14"></div>
+        <div class="smoke-particle smoke-15"></div>
+      </div>
+
+      <div class="relative px-4 sm:px-6 lg:px-8 py-16 md:py-20 lg:py-24 text-center">
         <div class="flex justify-center mb-6">
           <Swords :size="72" class="text-yellow-500" />
         </div>
-        <h1 class="text-5xl sm:text-6xl md:text-7xl font-bold text-gray-100 mb-5 font-serif">
-          Warhammer 40K
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-100 mb-5 font-serif">
+          War's Path
         </h1>
-        <p class="text-2xl sm:text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 font-bold mb-6 tracking-wide">
+        <p class="text-xl sm:text-2xl md:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 font-bold mb-6 tracking-widest">
           ESCALATION LEAGUE MANAGER
         </p>
         <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-8 px-4">
-          Organize and track your Warhammer 40K escalation campaigns with ease.
+          Organize and track your Warhammer escalation campaigns with ease.
           Manage players, armies, matches, and painting progress all in one place.
         </p>
 
@@ -168,5 +188,245 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Enhanced Smoke Particle Effect with Wow Factor */
+.smoke-particle {
+  position: absolute;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.4) 0%, rgba(250, 204, 21, 0.15) 30%, rgba(250, 204, 21, 0.05) 60%, transparent 100%);
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(8px);
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+
+/* Layer 1 - Bottom particles (fastest, most visible) */
+.smoke-1 {
+  width: 250px;
+  height: 250px;
+  left: 5%;
+  bottom: -280px;
+  animation: floatUpFast 12s infinite ease-out;
+  animation-delay: 0s;
+}
+
+.smoke-2 {
+  width: 200px;
+  height: 200px;
+  left: 18%;
+  bottom: -230px;
+  animation: floatUpFast 14s infinite ease-out;
+  animation-delay: 2s;
+}
+
+.smoke-3 {
+  width: 220px;
+  height: 220px;
+  left: 32%;
+  bottom: -250px;
+  animation: floatUpFast 13s infinite ease-out;
+  animation-delay: 4s;
+}
+
+.smoke-4 {
+  width: 240px;
+  height: 240px;
+  left: 48%;
+  bottom: -270px;
+  animation: floatUpFast 15s infinite ease-out;
+  animation-delay: 1s;
+}
+
+.smoke-5 {
+  width: 210px;
+  height: 210px;
+  left: 65%;
+  bottom: -240px;
+  animation: floatUpFast 13.5s infinite ease-out;
+  animation-delay: 3s;
+}
+
+.smoke-6 {
+  width: 230px;
+  height: 230px;
+  left: 78%;
+  bottom: -260px;
+  animation: floatUpFast 14.5s infinite ease-out;
+  animation-delay: 5s;
+}
+
+.smoke-7 {
+  width: 195px;
+  height: 195px;
+  left: 92%;
+  bottom: -220px;
+  animation: floatUpFast 12.5s infinite ease-out;
+  animation-delay: 2.5s;
+}
+
+/* Layer 2 - Middle particles (medium speed) */
+.smoke-8 {
+  width: 180px;
+  height: 180px;
+  left: 12%;
+  bottom: -230px;
+  animation: floatUpMedium 16s infinite ease-in-out;
+  animation-delay: 1.5s;
+  filter: blur(10px);
+  opacity: 0.8;
+}
+
+.smoke-9 {
+  width: 190px;
+  height: 190px;
+  left: 38%;
+  bottom: -240px;
+  animation: floatUpMedium 17s infinite ease-in-out;
+  animation-delay: 3.5s;
+  filter: blur(10px);
+  opacity: 0.8;
+}
+
+.smoke-10 {
+  width: 175px;
+  height: 175px;
+  left: 58%;
+  bottom: -220px;
+  animation: floatUpMedium 15.5s infinite ease-in-out;
+  animation-delay: 5.5s;
+  filter: blur(10px);
+  opacity: 0.8;
+}
+
+.smoke-11 {
+  width: 185px;
+  height: 185px;
+  left: 85%;
+  bottom: -230px;
+  animation: floatUpMedium 16.5s infinite ease-in-out;
+  animation-delay: 0.5s;
+  filter: blur(10px);
+  opacity: 0.8;
+}
+
+/* Layer 3 - Background particles (slowest, most subtle) */
+.smoke-12 {
+  width: 300px;
+  height: 300px;
+  left: 20%;
+  bottom: -330px;
+  animation: floatUpSlow 20s infinite ease-in;
+  animation-delay: 2s;
+  filter: blur(15px);
+  opacity: 0.6;
+}
+
+.smoke-13 {
+  width: 280px;
+  height: 280px;
+  left: 50%;
+  bottom: -320px;
+  animation: floatUpSlow 22s infinite ease-in;
+  animation-delay: 6s;
+  filter: blur(15px);
+  opacity: 0.6;
+}
+
+.smoke-14 {
+  width: 320px;
+  height: 320px;
+  left: 70%;
+  bottom: -350px;
+  animation: floatUpSlow 21s infinite ease-in;
+  animation-delay: 4s;
+  filter: blur(15px);
+  opacity: 0.6;
+}
+
+.smoke-15 {
+  width: 290px;
+  height: 290px;
+  left: 10%;
+  bottom: -325px;
+  animation: floatUpSlow 19s infinite ease-in;
+  animation-delay: 8s;
+  filter: blur(15px);
+  opacity: 0.6;
+}
+
+/* Fast floating animation - Front layer */
+@keyframes floatUpFast {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.6) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  30% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(-500px) translateX(80px) scale(1.4) rotate(45deg);
+  }
+  70% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.1;
+  }
+  100% {
+    transform: translateY(-900px) translateX(-50px) scale(2) rotate(90deg);
+    opacity: 0;
+  }
+}
+
+/* Medium floating animation - Middle layer */
+@keyframes floatUpMedium {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.7) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.5;
+  }
+  40% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.4;
+    transform: translateY(-450px) translateX(-60px) scale(1.3) rotate(-30deg);
+  }
+  80% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(-850px) translateX(70px) scale(1.8) rotate(-60deg);
+    opacity: 0;
+  }
+}
+
+/* Slow floating animation - Background layer */
+@keyframes floatUpSlow {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.8) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.3;
+    transform: translateY(-400px) translateX(40px) scale(1.2) rotate(20deg);
+  }
+  85% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-800px) translateX(-80px) scale(1.6) rotate(40deg);
+    opacity: 0;
+  }
 }
 </style>

@@ -14,8 +14,8 @@
     </div>
 
     <div class="flex items-center gap-2 -mt-2 ml-2">
-      <span class="text-base md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 tracking-widest">
-        ESCALATION LEAGUE
+      <span class="text-base font-semibold text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 tracking-wider">
+        ESCALATION LEAGUE MANAGER
       </span>
       <span class="hidden md:inline-block w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
     </div>
