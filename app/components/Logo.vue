@@ -1,0 +1,95 @@
+<script setup>
+  import { Swords } from 'lucide-vue-next'
+</script>
+
+<template>
+  <div>
+
+    <div class="logo logo-chrome">
+      <Swords :size="60" :stroke-width="1.5" class="sword-icon-chrome" />
+      <div class="text-container">
+        <span class="wars-chrome">War's</span>
+        <span class="path-chrome">PATH</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 -mt-2 ml-2">
+      <span class="text-base md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 tracking-widest">
+        ESCALATION LEAGUE
+      </span>
+      <span class="hidden md:inline-block w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+    </div>
+  </div>
+</template>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Exo+2:wght@600;700;800;900&display=swap');
+</style>
+
+<style scoped>
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.logo-chrome .sword-icon-chrome {
+  color: #fbbf24;
+  filter: drop-shadow(0 2px 0 rgba(217, 119, 6, 0.5))
+          drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+.logo-chrome .text-container {
+  display: flex;
+  align-items: baseline;
+  gap: 0.0rem;
+}
+
+.logo-chrome .wars-chrome {
+  margin-left: -1rem;
+  font-family: 'Cinzel', serif;
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(135deg,
+    #fbbf24 0%,
+    #f59e0b 25%,
+    #d97706 50%,
+    #f59e0b 75%,
+    #fbbf24 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 0px;
+  transform: translateY(-6px);
+  animation: chrome-shine 8s ease-in-out infinite;
+  filter: drop-shadow(0 2px 0 rgba(217, 119, 6, 0.5))
+          drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes chrome-shine {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.logo-chrome .path-chrome {
+  font-family: 'Exo 2', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 800;
+  background: linear-gradient(135deg,
+    #e5e7eb 0%,
+    #d1d5db 25%,
+    #9ca3af 50%,
+    #d1d5db 75%,
+    #e5e7eb 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+transform: rotate(-3deg) translateY(8px) translateX(-10px);
+  letter-spacing: 0px;
+  animation: chrome-shine 8s ease-in-out infinite;
+  filter: drop-shadow(0 2px 0 rgba(75, 85, 99, 0.4))
+          drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
+}
+</style>

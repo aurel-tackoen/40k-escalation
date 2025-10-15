@@ -71,7 +71,7 @@
       <div class="relative container mx-auto px-3 sm:px-6 py-5">
         <div class="flex items-center justify-between gap-3">
           <!-- Professional Title Section -->
-          <div class="flex items-center gap-3 flex-1 lg:flex-initial">
+          <!-- <div class="flex items-center gap-3 flex-1 lg:flex-initial">
             <div class="text-3xl text-yellow-600 transition-colors hover:text-yellow-500">
               <Swords :size="32" :stroke-width="1.5" />
             </div>
@@ -80,7 +80,6 @@
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-100 hover:text-yellow-500 transition-colors duration-300 tracking-wide font-serif">
                   Warhammer 40K
                 </h1>
-                <!-- Subtle underline -->
               </NuxtLink>
               <div class="flex items-center gap-2 mt-0.5">
                 <span class="text-base md:text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 tracking-wider">
@@ -89,8 +88,8 @@
                 <span class="hidden md:inline-block w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
               </div>
             </div>
-          </div>
-
+          </div> -->
+          <Logo size="medium" />
           <!-- Mobile Menu Button (only show when authenticated) -->
           <button
             v-if="authStore.isAuthenticated"
