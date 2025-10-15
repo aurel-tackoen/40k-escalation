@@ -35,7 +35,7 @@
     <div class="loading-spinner">
       <!-- Rotating loader ring -->
       <div class="loader-ring">
-        <Loader2 :size="getLoaderSize(size)" :stroke-width="2" class="loader-icon" />
+        <Loader2 :size="getLoaderSize(size)" :stroke-width="1" class="loader-icon" />
       </div>
 
       <!-- Centered sword icon -->

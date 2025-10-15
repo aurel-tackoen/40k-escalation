@@ -15,7 +15,7 @@
 
   // Store
   const leaguesStore = useLeaguesStore()
-  const { currentPlayer, canManageLeague } = storeToRefs(leaguesStore)
+  const { currentPlayer, canManageLeague, currentGameSystemName } = storeToRefs(leaguesStore)
 
   // Props
   const props = defineProps({
@@ -222,11 +222,16 @@
   <div class="space-y-6">
     <!-- Page Header -->
     <div class="card">
-      <div class="flex items-center gap-3 mb-4">
-        <Shield :size="32" class="text-yellow-500" />
-        <div>
-          <h3 class="text-2xl font-serif font-bold text-yellow-500">Army List Manager</h3>
-          <p class="text-gray-400 text-sm mt-1">Build and manage army lists for each round of the escalation league.</p>
+      <div class="flex justify-between items-start mb-4">
+        <div class="flex items-center gap-3">
+          <Shield :size="32" class="text-yellow-500" />
+          <div>
+            <h3 class="text-2xl font-serif font-bold text-yellow-500">Army List Manager</h3>
+            <p class="text-gray-400 text-sm mt-1">Build and manage army lists for each round of the escalation league.</p>
+          </div>
+        </div>
+        <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg">
+          <p class="text-base text-purple-300 font-semibold">{{ currentGameSystemName }}</p>
         </div>
       </div>
 

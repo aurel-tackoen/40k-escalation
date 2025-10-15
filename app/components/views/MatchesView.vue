@@ -152,9 +152,14 @@
   <div class="flex flex-col gap-8">
     <!-- Add Match Form -->
     <div class="card">
-      <div class="flex items-center gap-2 mb-6">
-        <Plus :size="24" class="text-yellow-500 flex-shrink-0" />
-        <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Record New Match</h3>
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center gap-2">
+          <Plus :size="24" class="text-yellow-500 flex-shrink-0" />
+          <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Record New Match</h3>
+        </div>
+        <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg">
+          <p class="text-base text-purple-300 font-semibold">{{ currentGameSystemName }}</p>
+        </div>
       </div>
       <form @submit.prevent="submitMatch" class="space-y-6">
         <!-- Players Selection -->
@@ -327,6 +332,9 @@
         <div class="flex items-center gap-2">
           <Trophy :size="24" class="text-yellow-500 flex-shrink-0" />
           <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h3>
+        </div>
+        <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg flex-shrink-0">
+          <p class="text-base text-purple-300 font-semibold">{{ currentGameSystemName }}</p>
         </div>
       </div>
 

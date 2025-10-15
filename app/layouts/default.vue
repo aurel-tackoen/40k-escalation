@@ -232,7 +232,7 @@
     <!-- Footer - will stick to bottom with flex layout -->
     <footer class="bg-gray-900 border-t border-gray-800 py-8">
       <div class="container mx-auto px-4 text-center text-gray-500">
-        <p>&copy; 2025 Manneken Dice <HeartHandshake :size="32" :stroke-width="1.5" /> OpenGraphy</p>
+        <p class="flex items-center justify-center">&copy; 2025 Manneken Dice <span class="px-1 text-yellow-600"><HeartHandshake :size="20" :stroke-width="1.5" /></span> <a target="_blank" href="https://www.opengraphy.com" class="hover:text-purple-500">OpenGraphy</a></p>
         <p class="mt-2 text-sm">Manage your campaigns with the Emperor's blessing</p>
       </div>
     </footer>
