@@ -60,7 +60,7 @@
 </script>
 
 <template>
-  <div id="app" class="min-h-screen bg-gray-900 text-gray-100">
+  <div id="app" class="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
     <!-- Professional Warhammer 40k Header -->
     <header class="relative bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-b-2 border-yellow-600/40 shadow-xl">
       <!-- Subtle Background Pattern (with overflow-hidden only on this layer) -->
@@ -224,12 +224,12 @@
       <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-yellow-600/30 to-transparent"></div>
     </header>
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+    <!-- Main Content - flex-1 pushes footer to bottom -->
+    <main class="flex-1 container mx-auto px-4 py-8">
       <slot />
     </main>
 
-    <!-- Footer -->
+    <!-- Footer - will stick to bottom with flex layout -->
     <footer class="bg-gray-900 border-t border-gray-800 py-8">
       <div class="container mx-auto px-4 text-center text-gray-500">
         <p>&copy; 2025 Manneken Dice <HeartHandshake :size="32" :stroke-width="1.5" /> OpenGraphy</p>
