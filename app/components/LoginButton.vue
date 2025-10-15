@@ -11,7 +11,7 @@
     <button
       v-if="!isAuthenticated"
       @click="login"
-      class="btn-login flex items-center gap-2"
+      class="btn-primary flex items-center gap-2"
     >
       <LogIn :size="20" />
       <span>Login</span>

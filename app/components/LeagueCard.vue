@@ -1,5 +1,7 @@
 <script setup>
-  import { Users, Calendar, Swords, Globe, Settings, LogOut, Trash2, LogIn } from 'lucide-vue-next'
+  import { Users, Calendar, Swords, Globe, Settings, LogOut, Trash2, LogIn, Target, Trophy } from 'lucide-vue-next'
+  import { storeToRefs } from 'pinia'
+  import { useLeaguesStore } from '~/stores/leagues'
   import { useFormatting } from '~/composables/useFormatting'
 
   const props = defineProps({
@@ -20,7 +22,25 @@
 
   const emit = defineEmits(['click', 'settings', 'leave', 'delete', 'join'])
 
+  // Get game systems from store
+  const leaguesStore = useLeaguesStore()
+  const { gameSystems } = storeToRefs(leaguesStore)
+
   const { formatDate } = useFormatting()
+
+  // Fetch game systems if not already loaded
+  onMounted(async () => {
+    if (gameSystems.value.length === 0) {
+      await leaguesStore.fetchGameSystems()
+    }
+  })
+
+  // Get game system name for this league
+  const gameSystemName = computed(() => {
+    if (!props.league.gameSystemId) return null
+    const gameSystem = gameSystems.value.find(gs => gs.id === props.league.gameSystemId)
+    return gameSystem?.shortName || gameSystem?.name || null
+  })
 
   const getRoleBadgeClass = (role) => {
     switch (role) {
@@ -160,15 +180,21 @@
         <span>Round {{ league.currentRound || 1 }}</span>
       </div>
 
+      <!-- Game System -->
+      <div v-if="gameSystemName" class="flex items-center gap-2 text-sm">
+        <Swords :size="16" class="text-gray-500" />
+        <span class="text-purple-300 font-semibold">{{ gameSystemName }}</span>
+      </div>
+
       <!-- Point Limit (My Leagues) -->
       <div v-if="isMyLeague && league.rounds" class="flex items-center gap-2 text-gray-300 text-sm">
-        <Swords :size="16" class="text-gray-500" />
+        <Trophy :size="16" class="text-gray-500" />
         <span>{{ league.rounds?.[league.currentRound - 1]?.pointLimit || 0 }} points</span>
       </div>
 
       <!-- Status (Public Leagues) -->
       <div v-if="isPublic || isPublicGuest" class="flex items-center gap-2 text-gray-300 text-sm">
-        <Swords :size="16" class="text-gray-500" />
+        <Target :size="16" class="text-gray-500" />
         <span
           class="inline-block px-2 py-1 rounded text-xs font-bold uppercase"
           :class="getStatusBadgeClass(league.status)"

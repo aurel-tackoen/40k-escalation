@@ -5,7 +5,10 @@
 
   const authStore = useAuthStore()
   const leaguesStore = useLeaguesStore()
-  const { myLeagues, publicLeagues, currentLeagueId, loading } = storeToRefs(leaguesStore)
+  const { myLeagues, publicLeagues, currentLeagueId } = storeToRefs(leaguesStore)
+
+  // Local loading state to prevent flash
+  const pageLoading = ref(true)
 
   // Computed to ensure stable public leagues list
   const hasPublicLeagues = computed(() => {
@@ -13,14 +16,18 @@
   })
 
   onMounted(async () => {
-    // Ensure auth user is loaded first
-    if (!authStore.user) {
-      await authStore.fetchUser()
-    }
+    try {
+      // Ensure auth user is loaded first
+      if (!authStore.user) {
+        await authStore.fetchUser()
+      }
 
-    // Then fetch leagues data
-    await leaguesStore.fetchMyLeagues()
-    await leaguesStore.fetchPublicLeagues()
+      // Then fetch leagues data
+      await leaguesStore.fetchMyLeagues()
+      await leaguesStore.fetchPublicLeagues()
+    } finally {
+      pageLoading.value = false
+    }
   })
 
   const switchToLeague = async (leagueId) => {
@@ -95,7 +102,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="py-12">
+    <div v-if="pageLoading" class="py-12">
       <LoadingSpinner message="Loading Your Leagues" />
     </div>
 

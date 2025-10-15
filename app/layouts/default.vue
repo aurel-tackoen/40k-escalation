@@ -20,11 +20,11 @@
   })
 
   const allTabs = [
+    { path: '/leagues', name: 'Leagues', icon: Swords },
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { path: '/players', name: 'Players', icon: Users },
     { path: '/armies', name: 'Army Lists', icon: Shield },
     { path: '/matches', name: 'Matches', icon: Trophy },
-    { path: '/leagues', name: 'Leagues', icon: Swords },
     { path: '/setup', name: 'Settings', icon: Settings, requiresRole: ['owner', 'organizer'] }
   ]
 
