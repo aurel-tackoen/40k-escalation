@@ -384,7 +384,7 @@
                 <button
                   @click="generateShareUrl"
                   :disabled="isGeneratingUrl"
-                  class="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-600 hover:bg-gray-500 disabled:bg-gray-800 text-gray-300 disabled:text-gray-500 rounded-md transition-colors"
+                  class="btn-login flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
                 >
                   <RefreshCw :size="16" :class="{ 'animate-spin': isGeneratingUrl }" />
                   {{ shareUrl ? 'Regenerate' : 'Generate' }}
@@ -397,11 +397,11 @@
                   <input
                     :value="shareUrl"
                     readonly
-                    class="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-sm text-gray-300 font-mono"
+                    class="flex-1 px-3 py-3 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-300 font-mono"
                   />
                   <button
                     @click="copyShareUrl"
-                    class="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-medium rounded-md transition-colors"
+                    class="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
                   >
                     <Copy :size="16" />
                     {{ urlCopied ? 'Copied!' : 'Copy' }}
