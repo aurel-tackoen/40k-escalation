@@ -437,7 +437,7 @@
               <h4 class="text-lg font-medium text-gray-200">Invite Code (Alternative)</h4>
               <button
                 @click="regenerateInviteCode"
-                class="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-600 hover:bg-gray-500 text-gray-300 rounded-md transition-colors"
+                class="btn-login flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
               >
                 <RotateCcw :size="16" />
                 Regenerate
@@ -454,7 +454,7 @@
                 </div>
                 <button
                   @click="copyInviteCode"
-                  class="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-medium rounded-md transition-colors"
+                  class="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
                 >
                   <Copy :size="16" />
                   {{ inviteCodeCopied ? 'Copied!' : 'Copy Code' }}

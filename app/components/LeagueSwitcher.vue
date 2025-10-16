@@ -1,7 +1,7 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
-  import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target, Key } from 'lucide-vue-next'
+  import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target, Key, Globe, Lock } from 'lucide-vue-next'
   import { useGameSystems } from '~/composables/useGameSystems'
 
   const authStore = useAuthStore()
@@ -136,6 +136,12 @@
           >
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
+                <component
+                  :is="league.isPrivate ? Lock : Globe"
+                  :size="14"
+                  :class="league.isPrivate ? 'text-yellow-400' : 'text-green-400'"
+                  class="flex-shrink-0"
+                />
                 <span class="font-semibold text-gray-100 truncate">{{ league.name }}</span>
                 <span v-if="league.id === currentLeagueId" class="text-green-400">
                   <Check :size="16" />
