@@ -1,7 +1,7 @@
 <script setup>
   import { ref, watch, onMounted } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { Save, Plus, Trash2, Settings as SettingsIcon, Share2, Copy, RefreshCw, Link, Globe, Lock, RotateCcw, AlertTriangle } from 'lucide-vue-next'
+  import { Save, Plus, Trash2, Settings as SettingsIcon, Share2, Copy, RefreshCw, Link, Globe, Lock, AlertTriangle } from 'lucide-vue-next'
   import { useFormatting } from '~/composables/useFormatting'
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
@@ -34,7 +34,6 @@
   const shareUrl = ref('')
   const isGeneratingUrl = ref(false)
   const urlCopied = ref(false)
-  const inviteCodeCopied = ref(false)
 
   // Watchers
   watch(() => props.league, (newLeague) => {
@@ -92,69 +91,6 @@
     }
   }
 
-  // Privacy and sharing methods
-  const generateInviteCode = () => {
-    // Generate a random 8-character code
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    let code = ''
-    for (let i = 0; i < 8; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    return code
-  }
-
-  const regenerateInviteCode = async () => {
-    if (!editableLeague.value?.id) {
-      // If league doesn't exist yet, just generate locally
-      const newCode = generateInviteCode()
-      editableLeague.value.inviteCode = newCode
-      inviteCodeCopied.value = false
-      return
-    }
-
-    // Get userId from auth store
-    const authStore = useAuthStore()
-    if (!authStore.user?.id) {
-      alert('You must be logged in to regenerate the invite code')
-      return
-    }
-
-    const newCode = generateInviteCode()
-
-    try {
-      // Save to database immediately
-      const response = await $fetch(`/api/leagues/${editableLeague.value.id}`, {
-        method: 'PATCH',
-        body: {
-          userId: authStore.user.id,
-          inviteCode: newCode
-        }
-      })
-
-      // Update local state with response
-      editableLeague.value.inviteCode = response.data.inviteCode
-      inviteCodeCopied.value = false
-
-      // Show success notification
-      alert('Invite code regenerated and saved!')
-    } catch (error) {
-      console.error('Failed to regenerate invite code:', error)
-      alert('Failed to regenerate invite code. Please try again.')
-    }
-  }
-
-  const copyInviteCode = async () => {
-    try {
-      await navigator.clipboard.writeText(editableLeague.value.inviteCode)
-      inviteCodeCopied.value = true
-      setTimeout(() => {
-        inviteCodeCopied.value = false
-      }, 2000)
-    } catch (err) {
-      console.error('Failed to copy invite code:', err)
-    }
-  }
-
   const generateShareUrl = async () => {
     if (!editableLeague.value?.id) return
 
@@ -191,57 +127,6 @@
     if (editableLeague.value?.shareToken) {
       const baseUrl = window.location.origin
       shareUrl.value = `${baseUrl}/join/${editableLeague.value.shareToken}`
-    }
-
-    // Generate and save invite code if league is private and doesn't have one
-    if (editableLeague.value?.isPrivate && !editableLeague.value.inviteCode) {
-      const newCode = generateInviteCode()
-      editableLeague.value.inviteCode = newCode
-
-      // Save to database if league exists
-      if (editableLeague.value.id) {
-        const authStore = useAuthStore()
-        if (authStore.user?.id) {
-          try {
-            await $fetch(`/api/leagues/${editableLeague.value.id}`, {
-              method: 'PATCH',
-              body: {
-                userId: authStore.user.id,
-                inviteCode: newCode
-              }
-            })
-          } catch (error) {
-            console.error('Failed to save auto-generated invite code:', error)
-          }
-        }
-      }
-    }
-  })
-
-  // Watch for isPrivate changes to auto-generate invite code
-  watch(() => editableLeague.value?.isPrivate, async (newValue, oldValue) => {
-    // Only act when switching from false to true
-    if (newValue === true && oldValue === false && !editableLeague.value.inviteCode) {
-      const newCode = generateInviteCode()
-      editableLeague.value.inviteCode = newCode
-
-      // Save to database if league exists
-      if (editableLeague.value.id) {
-        const authStore = useAuthStore()
-        if (authStore.user?.id) {
-          try {
-            await $fetch(`/api/leagues/${editableLeague.value.id}`, {
-              method: 'PATCH',
-              body: {
-                userId: authStore.user.id,
-                inviteCode: newCode
-              }
-            })
-          } catch (error) {
-            console.error('Failed to save auto-generated invite code:', error)
-          }
-        }
-      }
     }
   })
 
@@ -502,42 +387,6 @@
                     <p>• Regenerate the link anytime to invalidate the old one</p>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Invite Code Section -->
-          <div class="border-t border-gray-700 pt-6">
-            <div class="flex items-center justify-between mb-4">
-              <h4 class="text-lg font-medium text-gray-200">Invite Code (Alternative)</h4>
-              <button
-                @click="regenerateInviteCode"
-                class="btn-login flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
-              >
-                <RotateCcw :size="16" />
-                Regenerate
-              </button>
-            </div>
-
-            <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
-              <div class="flex items-center justify-between mb-3">
-                <div>
-                  <div class="text-sm text-gray-400 mb-1">Manual entry code:</div>
-                  <div class="text-xl font-mono font-bold text-yellow-400 tracking-wider">
-                    {{ editableLeague.inviteCode || 'GENERATING...' }}
-                  </div>
-                </div>
-                <button
-                  @click="copyInviteCode"
-                  class="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
-                >
-                  <Copy :size="16" />
-                  {{ inviteCodeCopied ? 'Copied!' : 'Copy Code' }}
-                </button>
-              </div>
-
-              <div class="text-xs text-gray-400">
-                Players can manually enter this code in "Join Private League"
               </div>
             </div>
           </div>

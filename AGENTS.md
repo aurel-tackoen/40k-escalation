@@ -24,9 +24,10 @@ A comprehensive full-stack web application for managing escalation league campai
 
 ### Project Status
 ✅ **PRODUCTION READY** - Complete feature set with zero technical debt
-- 11 reusable composables (100% coverage)
-- Full database integration with 17 API endpoints (NEW: +3 for game systems)
+- 12 reusable composables (100% coverage)
+- Full database integration with 40 API endpoints
 - Multi-game system support with dynamic factions/missions
+- **Share link system** for private league access (simplified from dual invite system)
 - CSV export functionality across all data types
 - Painting progress tracking with leaderboard
 - Match analytics (win streaks, close games, decisive victories)
@@ -92,24 +93,19 @@ db/                           # Database layer
 ├── index.ts                 # Neon database connection
 └── schema.ts                # Drizzle schema (8 tables, 80+ fields) - NEW: +3 tables
 
-server/api/                   # Nitro API routes (17 endpoints) - NEW: +3 endpoints
-├── armies.delete.ts         # DELETE /api/armies/:id
-├── armies.get.ts            # GET /api/armies
-├── armies.post.ts           # POST /api/armies
-├── debug.get.ts             # GET /api/debug (introspection)
-├── factions.get.ts          # GET /api/factions (NEW: game system filtering)
-├── game-systems.get.ts      # GET /api/game-systems (NEW)
+server/api/                   # Nitro API routes (40 endpoints)
+├── armies.*.ts              # Army management (3 endpoints: GET, POST, DELETE)
+├── auth/*.ts                # Auth0 authentication (4 endpoints: login, logout, callback, user)
+├── debug*.ts                # Debug utilities (3 endpoints: main, token check, memberships)
+├── factions.get.ts          # GET /api/factions (game system filtering)
+├── game-systems.get.ts      # GET /api/game-systems
 ├── health.get.ts            # GET /api/health (system check)
-├── leagues.get.ts           # GET /api/leagues
-├── missions.get.ts          # GET /api/missions (NEW: game system filtering)
-├── leagues.post.ts          # POST /api/leagues
-├── leagues.put.ts           # PUT /api/leagues/:id
-├── matches.get.ts           # GET /api/matches
-├── matches.post.ts          # POST /api/matches (auto-updates player stats)
-├── players.delete.ts        # DELETE /api/players/:id
-├── players.get.ts           # GET /api/players
-├── players.post.ts          # POST /api/players
-└── seed.post.ts             # POST /api/seed (populate test data)
+├── leagues/*.ts             # League management (14 endpoints: CRUD, join, members, sharing)
+├── matches.*.ts             # Match recording (2 endpoints: GET, POST)
+├── missions.get.ts          # GET /api/missions (game system filtering)
+├── players.*.ts             # Player management (4 endpoints: GET, POST, PUT, DELETE)
+├── seed*.post.ts            # Data seeding (2 endpoints: game systems, test data)
+└── users/me.*.ts            # User profile (2 endpoints: GET, PUT)
 
 migrations/                   # Drizzle ORM migrations (5 migrations)
 ├── 0000_aspiring_molly_hayes.sql

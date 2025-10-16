@@ -58,8 +58,7 @@ export default defineEventHandler(async (event) => {
         status: leagueMemberships.status,
         joinedAt: leagueMemberships.joinedAt,
         leagueName: leagues.name,
-        shareToken: leagues.shareToken,
-        inviteCode: leagues.inviteCode
+        shareToken: leagues.shareToken
       })
       .from(leagueMemberships)
       .leftJoin(leagues, eq(leagueMemberships.leagueId, leagues.id))

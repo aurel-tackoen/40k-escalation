@@ -1,7 +1,7 @@
 import { defineEventHandler, getRouterParams, readBody, createError } from 'h3'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { leagues, leagueMemberships } from '../../../db/schema'
 
 export default defineEventHandler(async (event) => {
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { userId, name, description, gameSystemId, startDate, endDate, currentRound, isPrivate, inviteCode, shareToken, allowDirectJoin, maxPlayers, status } = body
+    const { userId, name, description, gameSystemId, startDate, endDate, currentRound, isPrivate, shareToken, allowDirectJoin, maxPlayers, status } = body
 
     if (!userId) {
       throw createError({
@@ -41,8 +41,10 @@ export default defineEventHandler(async (event) => {
     const membershipResult = await db
       .select()
       .from(leagueMemberships)
-      .where(eq(leagueMemberships.leagueId, leagueId))
-      .where(eq(leagueMemberships.userId, userId))
+      .where(and(
+        eq(leagueMemberships.leagueId, leagueId),
+        eq(leagueMemberships.userId, userId)
+      ))
       .limit(1)
 
     if (!membershipResult.length) {
@@ -69,7 +71,6 @@ export default defineEventHandler(async (event) => {
     if (endDate !== undefined) updateData.endDate = endDate
     if (currentRound !== undefined) updateData.currentRound = currentRound
     if (isPrivate !== undefined) updateData.isPrivate = isPrivate
-    if (inviteCode !== undefined) updateData.inviteCode = inviteCode
     if (shareToken !== undefined) updateData.shareToken = shareToken
     if (allowDirectJoin !== undefined) updateData.allowDirectJoin = allowDirectJoin
     if (maxPlayers !== undefined) updateData.maxPlayers = maxPlayers

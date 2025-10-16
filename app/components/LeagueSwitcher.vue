@@ -1,18 +1,13 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
-  import { useAuthStore } from '~/stores/auth'
-  import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target, Key, Globe, Lock } from 'lucide-vue-next'
+  import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target, Globe, Lock } from 'lucide-vue-next'
   import { useGameSystems } from '~/composables/useGameSystems'
 
-  const authStore = useAuthStore()
   const leaguesStore = useLeaguesStore()
   const { myLeagues, currentLeague, currentLeagueId, gameSystems } = storeToRefs(leaguesStore)
   const { getGameSystemNameWithFallback } = useGameSystems(gameSystems)
 
   const isOpen = ref(false)
-  const showJoinPrivate = ref(false)
-  const inviteCode = ref('')
-  const isJoining = ref(false)
 
   const toggleDropdown = () => {
     isOpen.value = !isOpen.value
@@ -38,60 +33,6 @@
       case 'owner': return 'text-yellow-400'
       case 'organizer': return 'text-blue-400'
       default: return 'text-gray-400'
-    }
-  }
-
-  const joinWithInviteCode = async () => {
-    if (!inviteCode.value.trim()) return
-
-    // Check authentication before joining
-    if (!authStore.isAuthenticated) {
-      alert('You must be logged in to join a league')
-      authStore.login()
-      return
-    }
-
-    isJoining.value = true
-    try {
-      const response = await $fetch('/api/leagues/join-by-code', {
-        method: 'POST',
-        body: { inviteCode: inviteCode.value.trim().toUpperCase() }
-      })
-
-      // Refresh leagues and switch to new league
-      await leaguesStore.fetchMyLeagues()
-      await leaguesStore.switchLeague(response.data.id)
-
-      // Reset form
-      inviteCode.value = ''
-      showJoinPrivate.value = false
-      isOpen.value = false
-
-      // Show success message
-      alert(`Successfully joined "${response.data.name}"!`)
-    } catch (error) {
-      console.error('Failed to join league:', error)
-      console.error('Error details:', {
-        statusCode: error.statusCode,
-        statusMessage: error.statusMessage,
-        data: error.data,
-        inviteCode: inviteCode.value.trim().toUpperCase()
-      })
-
-      if (error.statusCode === 401) {
-        alert('You must be logged in to join a league')
-        authStore.login()
-      } else if (error.statusCode === 404) {
-        alert(`Invalid invite code: "${inviteCode.value.trim().toUpperCase()}"\n\nPlease check the code and try again. Invite codes are 8 characters long.`)
-      } else if (error.statusCode === 400) {
-        alert(error.statusMessage || error.data?.message || 'This league does not require an invite code')
-      } else if (error.statusCode === 403) {
-        alert('This league is full and cannot accept new members')
-      } else {
-        alert(error.statusMessage || error.data?.message || 'Failed to join league. Please try again.')
-      }
-    } finally {
-      isJoining.value = false
     }
   }
 
@@ -195,39 +136,6 @@
             <LogIn :size="18" />
             <span class="font-semibold">Join League</span>
           </NuxtLink>
-
-          <!-- Join Private League Section -->
-          <div class="border-t border-gray-700">
-            <button
-              @click="showJoinPrivate = !showJoinPrivate"
-              class="w-full text-left px-4 py-3 text-sm text-gray-400 hover:text-yellow-400 hover:bg-gray-700 transition-colors flex items-center gap-2"
-            >
-              <Key :size="18" />
-              <span class="font-semibold">Join Private League</span>
-              <ChevronDown
-                :size="16"
-                class="ml-auto transition-transform"
-                :class="{ 'rotate-180': showJoinPrivate }"
-              />
-            </button>
-
-            <div v-if="showJoinPrivate" class="px-4 pb-3 space-y-3 bg-gray-750">
-              <input
-                v-model="inviteCode"
-                @keyup.enter="joinWithInviteCode"
-                placeholder="Enter invite code (e.g., ABC123XY)"
-                class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-sm uppercase tracking-wider focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500"
-                maxlength="8"
-              />
-              <button
-                @click="joinWithInviteCode"
-                :disabled="!inviteCode.trim() || isJoining"
-                class="btn-login flex items-center justify-center gap-2 cursor-pointer w-full"
-              >
-                {{ isJoining ? 'Joining...' : 'Join League' }}
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </Transition>

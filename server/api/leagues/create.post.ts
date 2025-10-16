@@ -45,12 +45,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Generate invite code and share token for private leagues
-    let inviteCode = null
+    // Generate share token for private leagues
     let shareToken = null
     if (body.isPrivate) {
-      // Generate 8-character invite code
-      inviteCode = Math.random().toString(36).substring(2, 10).toUpperCase()
       // Generate 32-character share token
       shareToken = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)
     }
@@ -65,7 +62,6 @@ export default defineEventHandler(async (event) => {
       currentRound: 1,
       createdBy: body.createdBy,
       isPrivate: body.isPrivate ?? false,
-      inviteCode,
       shareToken,
       allowDirectJoin: body.allowDirectJoin ?? true,
       maxPlayers: body.maxPlayers || null,

@@ -51,8 +51,7 @@ export const leagues = pgTable('leagues', {
   endDate: date(),
   currentRound: integer().default(1).notNull(),
   createdBy: integer().references(() => users.id).notNull(), // League owner
-  isPrivate: boolean().default(false).notNull(), // Private leagues require invite codes/share links
-  inviteCode: varchar({ length: 10 }).unique(), // 8-character invite code (e.g., "ABC123XY")
+  isPrivate: boolean().default(false).notNull(), // Private leagues require share links
   shareToken: varchar({ length: 32 }).unique(), // 32-character URL token for direct sharing
   allowDirectJoin: boolean().default(true).notNull(), // Allow joining via share links
   maxPlayers: integer(), // Optional player limit
