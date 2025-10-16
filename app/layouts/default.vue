@@ -67,7 +67,7 @@
         <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent"></div>
       </div>
 
-      <div class="relative container mx-auto px-3 sm:px-6 py-5">
+      <div class="relative container mx-auto px-3 sm:px-4 lg:px-6 py-5">
         <div class="flex items-center justify-between gap-3">
           <!-- Professional Title Section -->
           <!-- <div class="flex items-center gap-3 flex-1 lg:flex-initial">
@@ -135,12 +135,12 @@
             </div>
 
             <!-- Navigation Links (only show when authenticated) -->
-            <div v-if="authStore.isAuthenticated" class="flex flex-wrap gap-2">
+            <div v-if="authStore.isAuthenticated" class="flex flex-wrap gap-2 lg:gap-3">
               <NuxtLink
                 v-for="tab in tabs"
                 :key="tab.path"
                 :to="tab.path"
-                class="nav-button group relative px-5 py-2.5 font-semibold transition-all duration-300 rounded-md border overflow-hidden"
+                class="nav-button group relative px-3 lg:px-3 xl:px-5 py-2.5 font-semibold transition-all duration-300 rounded-md border overflow-hidden"
                 active-class="nav-button-active bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/50"
                 exact-active-class="nav-button-active bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/50"
                 :class="{
