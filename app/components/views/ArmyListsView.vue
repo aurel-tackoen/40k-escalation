@@ -224,13 +224,13 @@
 
 <template>
   <div class="space-y-6">
-    <!-- Page Header -->
+    <!-- Army Manager Section -->
     <div class="card">
-      <div class="flex justify-between items-start mb-4">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
         <div class="flex items-center gap-3">
           <Shield :size="32" class="text-yellow-500" />
           <div>
-            <h3 class="text-2xl font-serif font-bold text-yellow-500">Army List Manager</h3>
+            <h2 class="text-2xl font-serif font-bold text-yellow-500">Army List Manager</h2>
             <p class="text-gray-400 text-sm mt-1">Build and manage army lists for each round of the escalation league.</p>
           </div>
         </div>

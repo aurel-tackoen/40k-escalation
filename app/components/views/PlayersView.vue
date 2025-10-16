@@ -124,10 +124,10 @@
   <div class="space-y-8">
     <!-- Players List -->
     <div class="card">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div class="flex items-center gap-2">
           <Users :size="24" class="text-yellow-500" />
-          <h3 class="text-2xl font-serif font-bold text-yellow-500">Registered Players</h3>
+          <h2 class="text-2xl font-serif font-bold text-yellow-500">Registered Players</h2>
         </div>
         <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()">
           <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>

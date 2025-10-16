@@ -71,7 +71,7 @@
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto p-6">
+  <div class="space-y-8">
     <!-- Loading State -->
     <div v-if="isLoading" class="text-center py-12">
       <div class="text-purple-400 text-xl">Loading profile...</div>
@@ -79,23 +79,23 @@
 
     <!-- Profile Content -->
     <div v-else-if="profile?.user" class="space-y-6">
-      <!-- Header -->
+      <!-- User Info Header -->
       <div class="card">
-        <div class="flex items-start justify-between">
-          <div class="flex items-center gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <img
               :src="profile.user.picture || getUserAvatar"
               :alt="profile.user.name"
               class="w-20 h-20 rounded-full object-cover border-2 border-purple-500"
             >
             <div>
-              <h1 class="text-3xl font-bold text-white">{{ profile.user.name }}</h1>
-              <p class="text-gray-400">{{ profile.user.email }}</p>
+              <h2 class="text-2xl sm:text-3xl font-bold text-white">{{ profile.user.name }}</h2>
+              <p class="text-gray-400 break-all sm:break-normal">{{ profile.user.email }}</p>
             </div>
           </div>
           <button
             @click="toggleEditMode"
-            class="btn-secondary"
+            class="btn-secondary w-full sm:w-auto"
           >
             {{ editMode ? 'Cancel' : 'Edit Profile' }}
           </button>
@@ -195,18 +195,78 @@
           <div
             v-for="player in profile.players"
             :key="player.id"
-            class="bg-gray-800 border border-gray-600 rounded-lg p-4"
+            class="bg-gray-800 border border-gray-600 rounded-lg p-4 hover:border-yellow-500 transition-colors"
           >
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="font-bold text-white">{{ player.name }}</div>
-                <div class="text-sm text-gray-400">{{ player.faction }}</div>
-              </div>
-              <div class="text-right">
-                <div class="text-sm text-gray-400">Record</div>
-                <div class="font-bold text-white">
-                  {{ player.wins }}-{{ player.losses }}-{{ player.draws }}
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <!-- Player Basic Info -->
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
+                  <Shield :size="24" class="text-white" />
                 </div>
+                <div>
+                  <div class="font-bold text-white text-lg">{{ player.name }}</div>
+                  <div class="text-sm text-gray-400">{{ player.faction }}</div>
+                  <div class="text-xs text-gray-500 flex items-center gap-1">
+                    <Calendar :size="12" />
+                    Joined {{ formatDate(player.createdAt, { month: 'short', year: 'numeric' }) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Player Stats -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                <!-- Record -->
+                <div>
+                  <div class="text-xs text-gray-400 uppercase tracking-wide">Record</div>
+                  <div class="font-bold text-white">
+                    {{ player.wins }}-{{ player.losses }}-{{ player.draws }}
+                  </div>
+                </div>
+
+                <!-- Win Percentage -->
+                <div>
+                  <div class="text-xs text-gray-400 uppercase tracking-wide">Win %</div>
+                  <div class="font-bold text-yellow-500">
+                    {{ Math.round(((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) * 100) }}%
+                  </div>
+                </div>
+
+                <!-- Total Games -->
+                <div>
+                  <div class="text-xs text-gray-400 uppercase tracking-wide">Games</div>
+                  <div class="font-bold text-blue-400">
+                    {{ player.wins + player.losses + player.draws }}
+                  </div>
+                </div>
+
+                <!-- Battle Points -->
+                <div>
+                  <div class="text-xs text-gray-400 uppercase tracking-wide">Points</div>
+                  <div class="font-bold text-green-400">
+                    {{ player.totalPoints || 0 }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Performance Badge -->
+            <div v-if="player.wins + player.losses + player.draws > 0" class="mt-3 pt-3 border-t border-gray-700">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-400">Performance:</span>
+                <span
+                  :class="{
+                    'text-green-400': ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.6,
+                    'text-yellow-400': ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.4,
+                    'text-red-400': ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) < 0.4
+                  }"
+                  class="font-semibold"
+                >
+                  {{
+                    ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.6 ? '🔥 Strong' :
+                    ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.4 ? '⚔️ Competitive' :
+                    '📈 Developing'
+                  }}
+                </span>
               </div>
             </div>
           </div>

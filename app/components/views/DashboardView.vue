@@ -68,7 +68,7 @@
   <div class="flex flex-col gap-8">
     <!-- League Overview -->
     <div class="card">
-      <div class="flex justify-between items-start mb-4">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
         <div>
           <h2 class="text-2xl sm:text-3xl font-serif font-bold text-yellow-500">{{ league?.name || 'League' }}</h2>
           <p class="text-sm sm:text-base text-gray-300">{{ league?.description || '' }}</p>

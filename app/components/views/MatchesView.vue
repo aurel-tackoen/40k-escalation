@@ -154,10 +154,10 @@
   <div class="flex flex-col gap-8">
     <!-- Add Match Form -->
     <div class="card">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div class="flex items-center gap-2">
           <Plus :size="24" class="text-yellow-500 flex-shrink-0" />
-          <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Record New Match</h3>
+          <h2 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Record New Match</h2>
         </div>
         <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()">
           <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
@@ -333,7 +333,7 @@
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div class="flex items-center gap-2">
           <Trophy :size="24" class="text-yellow-500 flex-shrink-0" />
-          <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h3>
+          <h2 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h2>
         </div>
         <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses() + ' flex-shrink-0'">
           <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
