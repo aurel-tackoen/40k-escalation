@@ -109,7 +109,7 @@ describe('LeagueSwitcher', () => {
   // The component uses storeToRefs from Pinia which requires a real Pinia instance
   // to work properly in tests. Mock setup is correct but component doesn't pick up mocked store.
   // TODO: Revisit with integration tests or refactor component to use props instead of direct store access
-  
+
   beforeEach(() => {
     mockSwitchLeague.mockClear()
 
