@@ -145,6 +145,16 @@
     return previousArmy ? previousArmy.name : ''
   }
 
+  // Permission check: Can user modify a specific army?
+  const canModifyArmy = (army) => {
+    // Organizers can modify any army
+    if (canManageLeague.value) {
+      return true
+    }
+    // Regular users can only modify their own armies
+    return currentPlayer.value && army.playerId === currentPlayer.value.id
+  }
+
   // Methods - Form operations
   const handleStartNewArmy = () => {
     // Prevent opening form if user doesn't have a player and is not an organizer
@@ -163,6 +173,11 @@
   }
 
   const handleEditArmy = (army) => {
+    // Check if user has permission to edit this army
+    if (!canModifyArmy(army)) {
+      console.error('Cannot edit army: permission denied')
+      return
+    }
     editArmy(army)
     scrollToForm()
   }
@@ -173,9 +188,23 @@
   }
 
   const escalateArmy = (army) => {
+    // Check if user has permission to escalate this army
+    if (!canModifyArmy(army)) {
+      console.error('Cannot escalate army: permission denied')
+      return
+    }
     const nextRound = army.round + 1
     const escalatedArmy = copyArmyToNextRound(army, nextRound)
     setupEscalation(army, escalatedArmy)
+  }
+
+  const handleDeleteArmy = (army) => {
+    // Check if user has permission to delete this army
+    if (!canModifyArmy(army)) {
+      console.error('Cannot delete army: permission denied')
+      return
+    }
+    confirmDeleteArmy(army)
   }
 
   const saveArmyList = () => {
@@ -897,7 +926,7 @@
               </div>
               <div class="flex gap-1.5">
                 <button
-                  v-if="canEscalateArmy(army)"
+                  v-if="canEscalateArmy(army) && canModifyArmy(army)"
                   @click="escalateArmy(army)"
                   class="text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 px-2.5 py-1.5 rounded flex items-center gap-1 text-xs font-medium transition-colors cursor-pointer"
                   title="Escalate to Next Round"
@@ -906,6 +935,7 @@
                   Escalate
                 </button>
                 <button
+                  v-if="canModifyArmy(army)"
                   @click="handleEditArmy(army)"
                   class="text-yellow-400 hover:text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer"
                   title="Edit Army"
@@ -913,7 +943,8 @@
                   <Edit :size="16" />
                 </button>
                 <button
-                  @click="confirmDeleteArmy(army)"
+                  v-if="canModifyArmy(army)"
+                  @click="handleDeleteArmy(army)"
                   class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer"
                   title="Delete Army"
                 >
