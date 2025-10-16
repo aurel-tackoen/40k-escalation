@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { usePlayerStats } from '~/composables/usePlayerStats'
-import { createMockPlayer, createMockMatch } from '../../../test-utils/factories'
+import { createMockPlayer } from '../../../test-utils/factories'
 
 describe('usePlayerStats', () => {
   describe('getWinPercentage', () => {
@@ -87,7 +87,7 @@ describe('usePlayerStats', () => {
       const player2 = createMockPlayer({ id: 2, wins: 7 })
       const player3 = createMockPlayer({ id: 3, wins: 5 })
       const players = [player1, player2, player3]
-      
+
       expect(getPlayerRank(player2, players)).toBe(1)
       expect(getPlayerRank(player3, players)).toBe(2)
       expect(getPlayerRank(player1, players)).toBe(3)
@@ -98,7 +98,7 @@ describe('usePlayerStats', () => {
       const player1 = createMockPlayer({ id: 1, wins: 3 })
       const players = [player1]
       const nonExistentPlayer = createMockPlayer({ id: 999, wins: 0 })
-      
+
       expect(getPlayerRank(nonExistentPlayer, players)).toBe(0)
     })
   })

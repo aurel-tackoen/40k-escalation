@@ -1,16 +1,21 @@
-const assert = require('assert');
+/**
+ * Unit tests for game-systems data module
+ */
+import { describe, it, expect } from 'vitest'
+import { gameSystems } from '../../../app/data/game-systems'
 
 describe('Game Systems Data Tests', () => {
-    it('should return expected game system data structure', () => {
-        const gameSystem = { id: 1, name: 'Test Game', rules: [] };
-        assert.strictEqual(typeof gameSystem.id, 'number');
-        assert.strictEqual(typeof gameSystem.name, 'string');
-        assert.strictEqual(Array.isArray(gameSystem.rules), true);
-    });
+  it('should have all required game systems', () => {
+    expect(gameSystems).toBeDefined()
+    expect(Array.isArray(gameSystems)).toBe(true)
+    expect(gameSystems.length).toBeGreaterThan(0)
+  })
 
-    it('should validate utility function for game systems', () => {
-        const calculateScore = (points) => points * 10;
-        assert.strictEqual(calculateScore(5), 50);
-        assert.strictEqual(calculateScore(0), 0);
-    });
-});
+  it('should have valid game system structure', () => {
+    const gameSystem = gameSystems[0]
+    expect(gameSystem).toHaveProperty('name')
+    expect(gameSystem).toHaveProperty('shortName')
+    expect(typeof gameSystem.name).toBe('string')
+    expect(typeof gameSystem.shortName).toBe('string')
+  })
+})
