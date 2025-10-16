@@ -68,7 +68,7 @@
       </div>
 
       <div class="relative container mx-auto px-3 sm:px-4 lg:px-6 py-5">
-        <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center justify-between gap-2 sm:gap-3">
           <!-- Professional Title Section -->
           <!-- <div class="flex items-center gap-3 flex-1 lg:flex-initial">
             <div class="text-3xl text-yellow-600 transition-colors hover:text-yellow-500">
@@ -88,8 +88,8 @@
               </div>
             </div>
           </div> -->
-          <NuxtLink to="/" >
-            <Logo size="medium" />
+          <NuxtLink to="/" class="flex-shrink min-w-0">
+            <Logo />
           </NuxtLink>
           <!-- Mobile Menu Button (only show when authenticated) -->
           <button
@@ -103,7 +103,7 @@
           </button>
 
           <!-- Login Button for Mobile (when logged out) -->
-          <div v-else class="lg:hidden">
+          <div v-else class="lg:hidden flex-shrink-0">
             <LoginButton />
           </div>
 

@@ -11,10 +11,10 @@
     <button
       v-if="!isAuthenticated"
       @click="login"
-      class="btn-primary flex items-center gap-2"
+      class="btn-primary flex items-center gap-2 text-sm sm:text-base whitespace-nowrap"
     >
       <LogIn :size="20" />
-      <span>Login</span>
+      <span class="hidden sm:inline-block">Login</span>
     </button>
   </div>
 </template>
