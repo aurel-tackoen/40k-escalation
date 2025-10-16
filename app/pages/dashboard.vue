@@ -3,6 +3,17 @@
 
   const leaguesStore = useLeaguesStore()
   const { currentLeague: league, players, matches, armies, initializing, error } = storeToRefs(leaguesStore)
+
+  // Handle redirect after login (client-side only)
+  onMounted(() => {
+    if (process.client) {
+      const redirectUrl = sessionStorage.getItem('redirect_after_login')
+      if (redirectUrl) {
+        sessionStorage.removeItem('redirect_after_login')
+        navigateTo(redirectUrl)
+      }
+    }
+  })
 </script>
 
 <template>

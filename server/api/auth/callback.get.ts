@@ -83,7 +83,8 @@ export default defineEventHandler(async (event) => {
       secure: isProduction
     })
 
-    // Redirect to dashboard
+    // Check for stored redirect URL (from sessionStorage, handled client-side)
+    // Default to dashboard if no specific redirect needed
     return sendRedirect(event, '/dashboard', 302)
   } catch (err: unknown) {
     console.error('Auth callback error:', err)

@@ -6,10 +6,46 @@ import { leagues, leagueMemberships, players } from '../../../db/schema'
 
 export default defineEventHandler(async (event) => {
   const { inviteCode } = await readBody(event)
-  // TODO: Add authentication when Auth0 is implemented
-  // const user = await requireAuth(event)
-  // For now, use a mock user ID for testing
-  const mockUserId = 1
+
+  // Check authentication
+  const cookies = parseCookies(event)
+  const sessionCookie = cookies.auth_session
+
+  if (!sessionCookie) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Authentication required to join league'
+    })
+  }
+
+  // Decode session
+  let sessionData
+  try {
+    const decoded = Buffer.from(sessionCookie, 'base64').toString('utf-8')
+    sessionData = JSON.parse(decoded)
+  } catch {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Invalid session'
+    })
+  }
+
+  // Check if session is expired
+  if (sessionData.expires_at && Date.now() > sessionData.expires_at) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Session expired'
+    })
+  }
+
+  // Get user ID from session
+  const userId = sessionData.userId
+  if (!userId) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Invalid user session'
+    })
+  }
 
   if (!inviteCode || inviteCode.length !== 8) {
     throw createError({
@@ -52,7 +88,7 @@ export default defineEventHandler(async (event) => {
       .from(leagueMemberships)
       .where(and(
         eq(leagueMemberships.leagueId, league[0].id),
-        eq(leagueMemberships.userId, mockUserId)
+        eq(leagueMemberships.userId, userId)
       ))
       .limit(1)
 
@@ -82,18 +118,20 @@ export default defineEventHandler(async (event) => {
     // Add user to league as player
     await db.insert(leagueMemberships).values({
       leagueId: league[0].id,
-      userId: mockUserId,
+      userId: userId,
       role: 'player',
       joinedAt: new Date(),
       status: 'active'
     })
 
     // Create a player record for this user in this league
-    // TODO: Get user name when auth is implemented
+    // Get user name from session
+    const userName = sessionData.name || sessionData.email?.split('@')[0] || 'Player'
+
     await db.insert(players).values({
       leagueId: league[0].id,
-      userId: mockUserId,
-      name: 'Test Player', // TODO: Use real user name
+      userId: userId,
+      name: userName,
       wins: 0,
       losses: 0,
       draws: 0,

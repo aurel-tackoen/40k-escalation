@@ -1,8 +1,10 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
+  import { useAuthStore } from '~/stores/auth'
   import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target, Key } from 'lucide-vue-next'
   import { useGameSystems } from '~/composables/useGameSystems'
 
+  const authStore = useAuthStore()
   const leaguesStore = useLeaguesStore()
   const { myLeagues, currentLeague, currentLeagueId, gameSystems } = storeToRefs(leaguesStore)
   const { getGameSystemNameWithFallback } = useGameSystems(gameSystems)
@@ -42,6 +44,13 @@
   const joinWithInviteCode = async () => {
     if (!inviteCode.value.trim()) return
 
+    // Check authentication before joining
+    if (!authStore.isAuthenticated) {
+      alert('You must be logged in to join a league')
+      authStore.login()
+      return
+    }
+
     isJoining.value = true
     try {
       const response = await $fetch('/api/leagues/join-by-code', {
@@ -62,7 +71,12 @@
       alert(`Successfully joined "${response.data.name}"!`)
     } catch (error) {
       console.error('Failed to join league:', error)
-      alert(error.data?.message || 'Failed to join league. Please check your invite code.')
+      if (error.statusCode === 401) {
+        alert('You must be logged in to join a league')
+        authStore.login()
+      } else {
+        alert(error.data?.message || 'Failed to join league. Please check your invite code.')
+      }
     } finally {
       isJoining.value = false
     }

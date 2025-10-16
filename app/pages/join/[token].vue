@@ -1,10 +1,12 @@
 <script setup>
-  import { Shield, Users, CheckCircle, AlertCircle, Loader } from 'lucide-vue-next'
+  import { Shield, Users, CheckCircle, AlertCircle, Loader, LogIn } from 'lucide-vue-next'
   import { useGameSystems } from '~/composables/useGameSystems'
   import { useLeaguesStore } from '~/stores/leagues'
+  import { useAuthStore } from '~/stores/auth'
 
   const route = useRoute()
   const router = useRouter()
+  const authStore = useAuthStore()
   const leaguesStore = useLeaguesStore()
   const { gameSystems } = storeToRefs(leaguesStore)
   const { getGameSystemNameWithFallback } = useGameSystems(gameSystems)
@@ -12,7 +14,7 @@
   const token = route.params.token
   const league = ref(null)
   const isJoining = ref(false)
-  const joinStatus = ref('loading') // loading, success, error, already_member, ready
+  const joinStatus = ref('loading') // loading, success, error, already_member, ready, not_authenticated
   const errorMessage = ref('')
 
   // Fetch league info by token (without joining)
@@ -29,6 +31,12 @@
 
   // Join the league
   const joinLeague = async () => {
+    // Check if user is authenticated before allowing join
+    if (!authStore.isAuthenticated) {
+      joinStatus.value = 'not_authenticated'
+      return
+    }
+
     isJoining.value = true
     try {
       const response = await $fetch(`/api/leagues/join-by-token/${token}`, {
@@ -50,7 +58,9 @@
         }, 2000)
       }
     } catch (error) {
-      if (error.statusCode === 400 && error.data?.message?.includes('already a member')) {
+      if (error.statusCode === 401) {
+        joinStatus.value = 'not_authenticated'
+      } else if (error.statusCode === 400 && error.data?.message?.includes('already a member')) {
         joinStatus.value = 'already_member'
       } else {
         joinStatus.value = 'error'
@@ -61,8 +71,19 @@
     }
   }
 
-  // Fetch game systems if not loaded
+  // Login and redirect to this page
+  const loginAndJoin = () => {
+    // Store the current URL so we can redirect back after login
+    sessionStorage.setItem('redirect_after_login', route.fullPath)
+    authStore.login()
+  }
+
+  // Initialize on mount
   onMounted(async () => {
+    // First check authentication
+    await authStore.fetchUser()
+
+    // Fetch game systems if not loaded
     if (gameSystems.value.length === 0) {
       await leaguesStore.fetchGameSystems()
     }
@@ -74,8 +95,6 @@
       errorMessage.value = 'Invalid share link'
     }
   })
-
-  // TODO: Add authentication middleware when Auth0 is implemented
 </script>
 
 <template>
@@ -132,8 +151,9 @@
           </div>
         </div>
 
-        <!-- Join Button -->
+        <!-- Join Button (only show if authenticated) -->
         <button
+          v-if="authStore.isAuthenticated"
           @click="joinLeague"
           :disabled="isJoining"
           class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-600 text-gray-900 disabled:text-gray-400 font-bold rounded-lg transition-colors"
@@ -141,6 +161,16 @@
           <Loader v-if="isJoining" class="animate-spin" :size="20" />
           <Users v-else :size="20" />
           {{ isJoining ? 'Joining League...' : 'Join This League' }}
+        </button>
+
+        <!-- Login Button (show if not authenticated) -->
+        <button
+          v-else
+          @click="loginAndJoin"
+          class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors"
+        >
+          <LogIn :size="20" />
+          Login to Join League
         </button>
 
         <p class="text-center text-xs text-gray-500 mt-4">
@@ -170,6 +200,32 @@
           >
             Go to Dashboard
           </NuxtLink>
+        </div>
+      </div>
+
+      <!-- Not Authenticated State -->
+      <div v-else-if="joinStatus === 'not_authenticated'" class="text-center">
+        <div class="card">
+          <LogIn class="text-blue-500 mx-auto mb-4" :size="48" />
+          <h2 class="text-xl font-semibold text-gray-100 mb-2">Login Required</h2>
+          <p class="text-gray-400 mb-6">You need to be logged in to join this league</p>
+
+          <div v-if="league" class="bg-gray-700 rounded-lg p-4 border border-gray-600 mb-6">
+            <h3 class="text-lg font-semibold text-yellow-400 mb-2">{{ league.name }}</h3>
+            <p class="text-gray-300 text-sm">{{ getGameSystemNameWithFallback(league.gameSystemId) }}</p>
+          </div>
+
+          <button
+            @click="loginAndJoin"
+            class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors mb-4"
+          >
+            <LogIn :size="20" />
+            Login to Join League
+          </button>
+
+          <p class="text-center text-xs text-gray-500">
+            You'll be redirected back here after logging in
+          </p>
         </div>
       </div>
 
