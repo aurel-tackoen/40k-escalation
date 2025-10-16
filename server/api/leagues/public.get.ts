@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     const publicLeagues = await db
       .select()
       .from(leagues)
-      .where(eq(leagues.isPublic, true))
+      .where(eq(leagues.isPrivate, false))
       .orderBy(leagues.createdAt)
 
     // Add member count and isJoined flag to each league

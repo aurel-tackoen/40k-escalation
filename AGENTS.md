@@ -934,8 +934,7 @@ For current data:
 
 ```bash
 # Development
-npm run dev                  # Start Nuxt dev server (port 3000)
-npm run dev:netlify          # Start with Netlify functions (port 8888) ⭐ RECOMMENDED
+npm run dev                  # Start Nuxt dev server (port 3000) ⭐ RECOMMENDED
 
 # Database
 npm run db:generate          # Generate migration from schema

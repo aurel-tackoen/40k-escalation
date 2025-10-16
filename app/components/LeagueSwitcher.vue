@@ -1,6 +1,6 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
-  import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target } from 'lucide-vue-next'
+  import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target, Key } from 'lucide-vue-next'
   import { useGameSystems } from '~/composables/useGameSystems'
 
   const leaguesStore = useLeaguesStore()
@@ -8,6 +8,9 @@
   const { getGameSystemNameWithFallback } = useGameSystems(gameSystems)
 
   const isOpen = ref(false)
+  const showJoinPrivate = ref(false)
+  const inviteCode = ref('')
+  const isJoining = ref(false)
 
   const toggleDropdown = () => {
     isOpen.value = !isOpen.value
@@ -33,6 +36,35 @@
       case 'owner': return 'text-yellow-400'
       case 'organizer': return 'text-blue-400'
       default: return 'text-gray-400'
+    }
+  }
+
+  const joinWithInviteCode = async () => {
+    if (!inviteCode.value.trim()) return
+
+    isJoining.value = true
+    try {
+      const response = await $fetch('/api/leagues/join-by-code', {
+        method: 'POST',
+        body: { inviteCode: inviteCode.value.trim().toUpperCase() }
+      })
+
+      // Refresh leagues and switch to new league
+      await leaguesStore.fetchMyLeagues()
+      await leaguesStore.switchLeague(response.data.id)
+
+      // Reset form
+      inviteCode.value = ''
+      showJoinPrivate.value = false
+      isOpen.value = false
+
+      // Show success message
+      alert(`Successfully joined "${response.data.name}"!`)
+    } catch (error) {
+      console.error('Failed to join league:', error)
+      alert(error.data?.message || 'Failed to join league. Please check your invite code.')
+    } finally {
+      isJoining.value = false
     }
   }
 
@@ -130,6 +162,39 @@
             <LogIn :size="18" />
             <span class="font-semibold">Join League</span>
           </NuxtLink>
+
+          <!-- Join Private League Section -->
+          <div class="border-t border-gray-700">
+            <button
+              @click="showJoinPrivate = !showJoinPrivate"
+              class="w-full text-left px-4 py-3 text-sm text-gray-400 hover:text-yellow-400 hover:bg-gray-700 transition-colors flex items-center gap-2"
+            >
+              <Key :size="18" />
+              <span class="font-semibold">Join Private League</span>
+              <ChevronDown
+                :size="16"
+                class="ml-auto transition-transform"
+                :class="{ 'rotate-180': showJoinPrivate }"
+              />
+            </button>
+
+            <div v-if="showJoinPrivate" class="px-4 pb-3 space-y-3 bg-gray-750">
+              <input
+                v-model="inviteCode"
+                @keyup.enter="joinWithInviteCode"
+                placeholder="Enter invite code (e.g., ABC123XY)"
+                class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-sm uppercase tracking-wider focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500"
+                maxlength="8"
+              />
+              <button
+                @click="joinWithInviteCode"
+                :disabled="!inviteCode.trim() || isJoining"
+                class="w-full px-3 py-2 bg-yellow-600 disabled:bg-gray-600 text-gray-900 disabled:text-gray-400 rounded text-sm font-medium hover:bg-yellow-500 disabled:hover:bg-gray-600 transition-colors"
+              >
+                {{ isJoining ? 'Joining...' : 'Join League' }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </Transition>

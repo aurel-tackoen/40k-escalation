@@ -64,6 +64,13 @@
       "when": 1760549794073,
       "tag": "0008_nostalgic_human_cannonball",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1760622618322,
+      "tag": "0009_yummy_warlock",
+      "breakpoints": true
     }
   ]
 }

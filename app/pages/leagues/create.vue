@@ -14,8 +14,8 @@
     gameSystemId: null, // NEW: Required field for game system selection
     startDate: '',
     endDate: '',
-    isPublic: true,
-    joinPassword: '',
+    isPrivate: false,
+    allowDirectJoin: true,
     maxPlayers: null,
     rounds: [
       {
@@ -71,10 +71,7 @@
       return false
     }
 
-    if (!form.isPublic && !form.joinPassword.trim()) {
-      error.value = 'Private leagues require a password'
-      return false
-    }
+    // No additional validation needed for private leagues - invite codes are auto-generated
 
     if (form.rounds.length === 0) {
       error.value = 'At least one round is required'
@@ -127,8 +124,8 @@
         gameSystemId: form.gameSystemId,
         startDate: form.startDate,
         endDate: form.endDate || null,
-        isPublic: form.isPublic,
-        joinPassword: form.isPublic ? null : form.joinPassword,
+        isPrivate: form.isPrivate,
+        allowDirectJoin: form.allowDirectJoin,
         maxPlayers: form.maxPlayers || null,
         rounds: sanitizedRounds
       })
@@ -252,31 +249,29 @@
         <div>
           <label class="flex items-center gap-3 cursor-pointer">
             <input
-              v-model="form.isPublic"
+              v-model="form.isPrivate"
               type="checkbox"
               class="w-5 h-5 rounded border-gray-600 bg-gray-700 text-purple-600 focus:ring-purple-500"
             />
-            <span class="text-gray-300 font-semibold">Public League</span>
+            <span class="text-gray-300 font-semibold">Private League</span>
           </label>
           <p class="text-gray-500 text-sm mt-1 ml-8">
-            Public leagues can be discovered and joined by anyone. Private leagues require a password.
+            Private leagues require invite codes or share links to join. Public leagues can be discovered by anyone.
           </p>
         </div>
 
-        <!-- Password (only for private leagues) -->
-        <div v-if="!form.isPublic">
-          <label class="block text-gray-300 font-semibold mb-2">
-            Join Password <span class="text-red-400">*</span>
+        <!-- Direct Join Settings (only for private leagues) -->
+        <div v-if="form.isPrivate">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              v-model="form.allowDirectJoin"
+              type="checkbox"
+              class="w-5 h-5 rounded border-gray-600 bg-gray-700 text-purple-600 focus:ring-purple-500"
+            />
+            <span class="text-gray-300 font-semibold">Allow Direct Join via Share Links</span>
           </label>
-          <input
-            v-model="form.joinPassword"
-            type="text"
-            class="input-field w-full"
-            placeholder="Enter password for joining"
-            :required="!form.isPublic"
-          />
-          <p class="text-gray-500 text-sm mt-1">
-            Players will need this password to join your league
+          <p class="text-gray-500 text-sm mt-1 ml-8">
+            If enabled, anyone with the share link can join immediately. If disabled, you must manually approve join requests.
           </p>
         </div>
 

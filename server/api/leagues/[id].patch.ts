@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { userId, name, description, gameSystemId, startDate, endDate, currentRound, isPublic, maxPlayers, status } = body
+    const { userId, name, description, gameSystemId, startDate, endDate, currentRound, isPrivate, inviteCode, shareToken, allowDirectJoin, maxPlayers, status } = body
 
     if (!userId) {
       throw createError({
@@ -61,14 +61,17 @@ export default defineEventHandler(async (event) => {
     }
 
     // Build update object with only provided fields
-    const updateData = {}
+    const updateData: Record<string, unknown> = {}
     if (name !== undefined) updateData.name = name
     if (description !== undefined) updateData.description = description
     if (gameSystemId !== undefined) updateData.gameSystemId = gameSystemId
     if (startDate !== undefined) updateData.startDate = startDate
     if (endDate !== undefined) updateData.endDate = endDate
     if (currentRound !== undefined) updateData.currentRound = currentRound
-    if (isPublic !== undefined) updateData.isPublic = isPublic
+    if (isPrivate !== undefined) updateData.isPrivate = isPrivate
+    if (inviteCode !== undefined) updateData.inviteCode = inviteCode
+    if (shareToken !== undefined) updateData.shareToken = shareToken
+    if (allowDirectJoin !== undefined) updateData.allowDirectJoin = allowDirectJoin
     if (maxPlayers !== undefined) updateData.maxPlayers = maxPlayers
     if (status !== undefined) updateData.status = status
 
@@ -93,7 +96,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     console.error('Error updating league:', error)
-    if (error.statusCode) {
+    if (error && typeof error === 'object' && 'statusCode' in error) {
       throw error
     }
     throw createError({

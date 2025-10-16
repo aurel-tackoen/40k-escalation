@@ -32,8 +32,8 @@
 
         if (isAlreadyMember) {
           error.value = 'You are already a member of this league'
-        } else if (!response.data.isPublic) {
-          error.value = 'This league is not public'
+        } else if (response.data.isPrivate) {
+          error.value = 'This league is private'
         } else {
           league.value = response.data
         }

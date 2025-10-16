@@ -1,7 +1,6 @@
 import { db } from '../../../db'
 import { leagues, leagueMemberships, rounds } from '../../../db/schema'
 import { eq } from 'drizzle-orm'
-import bcrypt from 'bcryptjs'
 
 /**
  * POST /api/leagues/create
@@ -15,8 +14,8 @@ import bcrypt from 'bcryptjs'
  *   startDate: string (ISO date)
  *   endDate?: string (ISO date)
  *   createdBy: number (userId)
- *   isPublic: boolean
- *   joinPassword?: string (will be hashed)
+ *   isPrivate: boolean
+ *   allowDirectJoin?: boolean
  *   maxPlayers?: number
  *   rounds: Array<{
  *     number: number
@@ -46,10 +45,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Hash password if provided
-    let hashedPassword = null
-    if (body.joinPassword) {
-      hashedPassword = await bcrypt.hash(body.joinPassword, 10)
+    // Generate invite code and share token for private leagues
+    let inviteCode = null
+    let shareToken = null
+    if (body.isPrivate) {
+      // Generate 8-character invite code
+      inviteCode = Math.random().toString(36).substring(2, 10).toUpperCase()
+      // Generate 32-character share token
+      shareToken = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)
     }
 
     // Create league
@@ -61,8 +64,10 @@ export default defineEventHandler(async (event) => {
       endDate: body.endDate || null,
       currentRound: 1,
       createdBy: body.createdBy,
-      isPublic: body.isPublic ?? true,
-      joinPassword: hashedPassword,
+      isPrivate: body.isPrivate ?? false,
+      inviteCode,
+      shareToken,
+      allowDirectJoin: body.allowDirectJoin ?? true,
       maxPlayers: body.maxPlayers || null,
       status: 'active'
     }).returning()

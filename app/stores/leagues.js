@@ -832,6 +832,115 @@ export const useLeaguesStore = defineStore('leagues', {
       this.initializing = false
     },
 
+    // ==================== Private League Support ====================
+
+    /**
+     * Join a league using an invite code
+     */
+    async joinByInviteCode(inviteCode) {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await $fetch('/api/leagues/join-by-code', {
+          method: 'POST',
+          body: { inviteCode: inviteCode.toUpperCase() }
+        })
+
+        if (response.success) {
+          // Refresh user's leagues and switch to the new league
+          await this.fetchMyLeagues()
+          await this.switchLeague(response.data.id)
+        }
+
+        return response
+      } catch (error) {
+        this.error = error.data?.message || 'Failed to join league'
+        console.error('Error joining league with invite code:', error)
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
+     * Join a league using a share token
+     */
+    async joinByShareToken(shareToken) {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await $fetch(`/api/leagues/join-by-token/${shareToken}`, {
+          method: 'POST'
+        })
+
+        if (response.success) {
+          // Refresh user's leagues and switch to the new league
+          await this.fetchMyLeagues()
+          await this.switchLeague(response.data.id)
+        }
+
+        return response
+      } catch (error) {
+        this.error = error.data?.message || 'Failed to join league'
+        console.error('Error joining league with share token:', error)
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
+     * Generate a new share URL for the current league
+     */
+    async generateShareUrl() {
+      if (!this.currentLeagueId) {
+        throw new Error('No league selected')
+      }
+
+      this.loading = true
+      this.error = null
+      try {
+        const response = await $fetch(`/api/leagues/${this.currentLeagueId}/share-url`, {
+          method: 'POST'
+        })
+
+        if (response.success) {
+          // Update cached league data with new share token
+          if (this.leagues[this.currentLeagueId]) {
+            this.leagues[this.currentLeagueId].shareToken = response.data.shareToken
+          }
+        }
+
+        return response
+      } catch (error) {
+        this.error = error.data?.message || 'Failed to generate share URL'
+        console.error('Error generating share URL:', error)
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
+     * Get league info by share token (for preview before joining)
+     */
+    async getLeagueByToken(shareToken) {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await $fetch(`/api/leagues/info-by-token/${shareToken}`)
+        return response
+      } catch (error) {
+        this.error = error.data?.message || 'League not found'
+        console.error('Error fetching league by token:', error)
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // ==================== Store Management ====================
+
     /**
      * Reset store to initial state (called on logout)
      */
