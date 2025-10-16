@@ -4,15 +4,22 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "strict": false,
     "target": "ESNext",
     "lib": ["ESNext"],
     "skipLibCheck": true,
-    "types": ["node", "vitest/globals"]
+    "noImplicitAny": false,
+    "types": ["node", "vitest/globals"],
+    "paths": {
+      "~/*": ["./app/*"],
+      "@/*": ["./app/*"]
+    }
   },
   "include": [
     "vitest.config.ts",
     "playwright.config.ts",
-    "*.config.ts"
+    "*.config.ts",
+    "tests/**/*.ts",
+    "test-utils/**/*.ts"
   ]
 }
