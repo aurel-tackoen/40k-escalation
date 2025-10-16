@@ -240,11 +240,11 @@
       </div>
 
       <!-- Action Bar -->
-      <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between pt-4 border-t border-gray-700">
+      <div class="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between pt-4 border-t border-gray-700">
         <!-- Player Filter -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-1 min-w-0">
           <Users :size="18" class="text-gray-400 flex-shrink-0" />
-          <select v-model="selectedPlayer" class="input-field w-full sm:w-auto sm:min-w-xl">
+          <select v-model="selectedPlayer" class="input-field w-full lg:max-w-xs">
             <option value="">All Players</option>
             <option v-for="player in players" :key="player.id" :value="player.id">
               {{ player.name }}
@@ -253,21 +253,21 @@
         </div>
 
         <!-- Action Button -->
-        <div class="flex flex-col gap-1 w-full sm:w-auto">
+        <div class="flex flex-col gap-1 w-full lg:w-auto lg:flex-shrink-0">
           <button
             @click="handleStartNewArmy"
             :disabled="!canManageLeague && !currentPlayer"
             :class="[
-              'flex items-center justify-center gap-2 w-full sm:w-auto whitespace-nowrap',
+              'flex items-center justify-center gap-2 w-full lg:w-auto px-4 py-2 text-sm lg:text-base',
               (!canManageLeague && !currentPlayer)
                 ? 'btn-secondary cursor-not-allowed opacity-50'
                 : 'btn-primary cursor-pointer'
             ]"
           >
-            <Plus :size="20" />
-            Build New Army
+            <Plus :size="20" class="flex-shrink-0" />
+            <span class="truncate">Build New Army</span>
           </button>
-          <p v-if="!canManageLeague && !currentPlayer" class="text-xs text-red-400 text-center sm:text-right">
+          <p v-if="!canManageLeague && !currentPlayer" class="text-xs text-red-400 text-center lg:text-right">
             Join as player first
           </p>
         </div>
