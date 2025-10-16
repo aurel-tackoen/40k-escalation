@@ -3,6 +3,9 @@
   "files": [],
   "references": [
     {
+      "path": "./tsconfig.node.json"
+    },
+    {
       "path": "./.nuxt/tsconfig.app.json"
     },
     {
