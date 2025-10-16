@@ -320,7 +320,7 @@
                 v-model="editableLeague.isPrivate"
                 type="radio"
                 :value="false"
-                class="mt-0.5 text-yellow-600 bg-gray-700 border-gray-600 focus:ring-yellow-500"
+                class="mt-1"
               />
               <div>
                 <div class="flex items-center gap-2">
@@ -338,7 +338,7 @@
                 v-model="editableLeague.isPrivate"
                 type="radio"
                 :value="true"
-                class="mt-0.5 text-yellow-600 bg-gray-700 border-gray-600 focus:ring-yellow-500"
+                class="mt-1"
               />
               <div>
                 <div class="flex items-center gap-2">
@@ -361,7 +361,6 @@
               <input
                 v-model="editableLeague.allowDirectJoin"
                 type="checkbox"
-                class="text-yellow-600 bg-gray-700 border-gray-600 focus:ring-yellow-500 rounded"
               />
               <div>
                 <div class="font-medium text-gray-200">Allow direct join via share link</div>
