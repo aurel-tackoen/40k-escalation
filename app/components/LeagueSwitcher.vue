@@ -209,7 +209,7 @@
               <button
                 @click="joinWithInviteCode"
                 :disabled="!inviteCode.trim() || isJoining"
-                class="w-full px-3 py-2 bg-yellow-600 disabled:bg-gray-600 text-gray-900 disabled:text-gray-400 rounded text-sm font-medium hover:bg-yellow-500 disabled:hover:bg-gray-600 transition-colors"
+                class="btn-login flex items-center justify-center gap-2 cursor-pointer w-full"
               >
                 {{ isJoining ? 'Joining...' : 'Join League' }}
               </button>

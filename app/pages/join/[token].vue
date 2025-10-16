@@ -1,5 +1,5 @@
 <script setup>
-  import { Shield, Users, CheckCircle, AlertCircle, Loader, LogIn } from 'lucide-vue-next'
+  import { Shield, Users, CheckCircle, AlertCircle, Loader, LogIn, Lock, Globe } from 'lucide-vue-next'
   import { useGameSystems } from '~/composables/useGameSystems'
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
@@ -118,11 +118,27 @@
         </div>
 
         <!-- League Details -->
-        <div class="space-y-4 mb-8">
+        <div class="space-y-4 mb-4">
           <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
-            <h3 class="text-xl font-semibold text-yellow-400 mb-3">{{ league.name }}</h3>
+            <div class="flex items-center gap-2 mb-3">
+              <h3 class="text-xl font-semibold text-yellow-400">{{ league.name }}</h3>
+              <component
+                :is="league.isPrivate ? Lock : Globe"
+                :size="18"
+                :class="league.isPrivate ? 'text-yellow-400' : 'text-green-400'"
+                :title="league.isPrivate ? 'Private League' : 'Public League'"
+              />
+            </div>
 
             <div class="space-y-2 text-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-400">Visibility:</span>
+                <span :class="league.isPrivate ? 'text-yellow-400' : 'text-green-400'" class="font-medium flex items-center gap-1">
+                  <component :is="league.isPrivate ? Lock : Globe" :size="14" />
+                  {{ league.isPrivate ? 'Private (Invite-Only)' : 'Public' }}
+                </span>
+              </div>
+
               <div class="flex items-center justify-between">
                 <span class="text-gray-400">Game System:</span>
                 <span class="text-gray-200 font-medium">{{ getGameSystemNameWithFallback(league.gameSystemId) }}</span>
@@ -156,7 +172,7 @@
           v-if="authStore.isAuthenticated"
           @click="joinLeague"
           :disabled="isJoining"
-          class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-600 text-gray-900 disabled:text-gray-400 font-bold rounded-lg transition-colors"
+          class="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full"
         >
           <Loader v-if="isJoining" class="animate-spin" :size="20" />
           <Users v-else :size="20" />
@@ -167,7 +183,7 @@
         <button
           v-else
           @click="loginAndJoin"
-          class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors"
+          class="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full"
         >
           <LogIn :size="20" />
           Login to Join League
