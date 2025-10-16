@@ -58,7 +58,49 @@ export default defineEventHandler(async (event) => {
 
     console.log('User role from Auth0:', role, 'All roles:', roles)
 
-    // Create session data
+    // Create or update user in database immediately
+    const { db } = await import('../../../db')
+    const { users } = await import('../../../db/schema')
+    const { eq } = await import('drizzle-orm')
+
+    let dbUser
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.auth0Id, user.sub))
+
+    if (!existingUser) {
+      // Create new user
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          auth0Id: user.sub,
+          email: user.email,
+          name: user.name || user.email.split('@')[0],
+          picture: user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}`,
+          role,
+          lastLoginAt: new Date()
+        })
+        .returning()
+
+      dbUser = newUser
+    } else {
+      // Update existing user
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          lastLoginAt: new Date(),
+          role,
+          name: user.name || existingUser.name,
+          picture: user.picture || existingUser.picture
+        })
+        .where(eq(users.id, existingUser.id))
+        .returning()
+
+      dbUser = updatedUser
+    }
+
+    // Create session data with database user ID
     const sessionData = JSON.stringify({
       sub: user.sub,
       email: user.email,
@@ -66,6 +108,7 @@ export default defineEventHandler(async (event) => {
       picture: user.picture,
       role, // Add role to session
       roles, // Add all roles to session
+      userId: dbUser.id, // Add database user ID to session
       access_token: tokenResponse.access_token,
       expires_at: Date.now() + (tokenResponse.expires_in * 1000)
     })

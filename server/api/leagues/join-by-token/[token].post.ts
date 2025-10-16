@@ -38,12 +38,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Get user ID from session
+  // Get user ID from session (set during Auth0 callback)
   const userId = sessionData.userId
   if (!userId) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Invalid user session'
+      statusMessage: 'Invalid user session - no user ID'
     })
   }
 
@@ -83,14 +83,28 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if user is already a member
+    // Check if user is already an active member
     const existingMember = await db.select()
       .from(leagueMemberships)
       .where(and(
         eq(leagueMemberships.leagueId, league[0].id),
-        eq(leagueMemberships.userId, userId)
+        eq(leagueMemberships.userId, userId),
+        eq(leagueMemberships.status, 'active')
       ))
       .limit(1)
+
+    console.log('Debug join-by-token:', {
+      token,
+      userId,
+      leagueId: league[0].id,
+      leagueName: league[0].name,
+      existingMemberCount: existingMember.length,
+      existingMember: existingMember[0] ? {
+        id: existingMember[0].id,
+        status: existingMember[0].status,
+        role: existingMember[0].role
+      } : null
+    })
 
     if (existingMember[0]) {
       // User already member, just return league info
@@ -125,13 +139,10 @@ export default defineEventHandler(async (event) => {
     })
 
     // Create a player record for this user in this league
-    // Get user name from session
-    const userName = sessionData.name || sessionData.email?.split('@')[0] || 'Player'
-
     await db.insert(players).values({
       leagueId: league[0].id,
       userId: userId,
-      name: userName,
+      name: sessionData.name || sessionData.email?.split('@')[0] || 'Player',
       wins: 0,
       losses: 0,
       draws: 0,
