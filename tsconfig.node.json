@@ -1,14 +1,13 @@
 {
   "compilerOptions": {
-    "composite": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "strict": false,
-    "target": "ESNext",
-    "lib": ["ESNext"],
-    "skipLibCheck": true,
     "noImplicitAny": false,
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
     "types": ["node", "vitest/globals"],
     "paths": {
       "~/*": ["./app/*"],
@@ -23,3 +22,4 @@
     "test-utils/**/*.ts"
   ]
 }
+

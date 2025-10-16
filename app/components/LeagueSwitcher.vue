@@ -1,4 +1,6 @@
 <script setup>
+  import { ref, onMounted, onUnmounted } from 'vue'
+  import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target, Globe, Lock } from 'lucide-vue-next'
   import { useGameSystems } from '~/composables/useGameSystems'

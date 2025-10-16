@@ -1,4 +1,5 @@
 <script setup>
+  import { computed, onMounted } from 'vue'
   import { Users, Calendar, Swords, Globe, Settings, LogOut, Trash2, LogIn, Target, Trophy } from 'lucide-vue-next'
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
