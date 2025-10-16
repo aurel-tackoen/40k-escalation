@@ -1,7 +1,7 @@
 <script setup>
   import { ref, watch, onMounted } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { Save, Plus, Trash2, Settings as SettingsIcon, Share2, Copy, RefreshCw, Link, Globe, Lock, RotateCcw } from 'lucide-vue-next'
+  import { Save, Plus, Trash2, Settings as SettingsIcon, Share2, Copy, RefreshCw, Link, Globe, Lock, RotateCcw, AlertTriangle } from 'lucide-vue-next'
   import { useFormatting } from '~/composables/useFormatting'
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
@@ -244,6 +244,45 @@
       }
     }
   })
+
+  const deleteLeague = async () => {
+    if (!editableLeague.value?.id) return
+
+    const confirmDelete = confirm(
+      `Are you sure you want to delete "${editableLeague.value.name}"?\n\n` +
+        `This will permanently delete:\n` +
+        `• All league data\n` +
+        `• All player records\n` +
+        `• All army lists\n` +
+        `• All match results\n\n` +
+        `This action cannot be undone!`
+    )
+
+    if (!confirmDelete) return
+
+    const authStore = useAuthStore()
+    if (!authStore.user?.id) {
+      alert('You must be logged in to delete the league')
+      return
+    }
+
+    try {
+      await $fetch(`/api/leagues/${editableLeague.value.id}`, {
+        method: 'DELETE',
+        body: {
+          userId: authStore.user.id
+        }
+      })
+
+      alert('League deleted successfully')
+
+      // Redirect to leagues page or home
+      window.location.href = '/leagues'
+    } catch (error) {
+      console.error('Failed to delete league:', error)
+      alert('Failed to delete league. Please try again.')
+    }
+  }
 </script>
 
 <template>
@@ -641,6 +680,31 @@
             <p>• Ties broken by head-to-head record</p>
             <p>• Final standings determine league champion</p>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="card border-2 border-red-600/50 bg-red-950/20">
+      <div class="flex items-center gap-3 mb-6">
+        <AlertTriangle class="text-red-500" :size="28" />
+        <h3 class="text-2xl font-serif font-bold text-red-500">Danger Zone</h3>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-red-900/30 border border-red-600/50 rounded-lg p-4">
+          <h4 class="text-lg font-semibold text-red-400 mb-2">Delete This League</h4>
+          <p class="text-gray-300 mb-4">
+            Once you delete a league, there is no going back. This will permanently delete all league data,
+            player records, army lists, and match results.
+          </p>
+          <button
+            @click="deleteLeague"
+            class="btn-secondary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto bg-red-600 hover:bg-red-700 border-red-500"
+          >
+            <Trash2 :size="18" />
+            <span>Delete League</span>
+          </button>
         </div>
       </div>
     </div>
