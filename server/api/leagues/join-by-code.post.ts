@@ -67,19 +67,26 @@ export default defineEventHandler(async (event) => {
     const sql = neon(databaseUrl)
     const db = drizzle(sql)
 
-    // Find league by invite code
+    // Find league by invite code (invite codes are only set for private leagues)
     const league = await db.select()
       .from(leagues)
-      .where(and(
-        eq(leagues.inviteCode, inviteCode.toUpperCase()),
-        eq(leagues.isPrivate, true)
-      ))
+      .where(eq(leagues.inviteCode, inviteCode.toUpperCase()))
       .limit(1)
 
     if (!league[0]) {
+      console.error('No league found with invite code:', inviteCode.toUpperCase())
       throw createError({
         statusCode: 404,
-        statusMessage: 'Invalid invite code'
+        statusMessage: 'Invalid invite code. Please check the code and try again.'
+      })
+    }
+
+    // Verify it's a private league (safety check)
+    if (!league[0].isPrivate) {
+      console.error('League found but not private:', league[0].id, league[0].name)
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'This league is public and does not require an invite code'
       })
     }
 

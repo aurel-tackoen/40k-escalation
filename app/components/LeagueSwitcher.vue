@@ -71,11 +71,24 @@
       alert(`Successfully joined "${response.data.name}"!`)
     } catch (error) {
       console.error('Failed to join league:', error)
+      console.error('Error details:', {
+        statusCode: error.statusCode,
+        statusMessage: error.statusMessage,
+        data: error.data,
+        inviteCode: inviteCode.value.trim().toUpperCase()
+      })
+
       if (error.statusCode === 401) {
         alert('You must be logged in to join a league')
         authStore.login()
+      } else if (error.statusCode === 404) {
+        alert(`Invalid invite code: "${inviteCode.value.trim().toUpperCase()}"\n\nPlease check the code and try again. Invite codes are 8 characters long.`)
+      } else if (error.statusCode === 400) {
+        alert(error.statusMessage || error.data?.message || 'This league does not require an invite code')
+      } else if (error.statusCode === 403) {
+        alert('This league is full and cannot accept new members')
       } else {
-        alert(error.data?.message || 'Failed to join league. Please check your invite code.')
+        alert(error.statusMessage || error.data?.message || 'Failed to join league. Please try again.')
       }
     } finally {
       isJoining.value = false

@@ -1,9 +1,10 @@
 <script setup>
   import { ref, watch, onMounted } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { Save, Plus, Trash2, Download, Upload, Settings as SettingsIcon, Share2, Copy, RefreshCw, Link, Globe, Lock, RotateCcw } from 'lucide-vue-next'
+  import { Save, Plus, Trash2, Settings as SettingsIcon, Share2, Copy, RefreshCw, Link, Globe, Lock, RotateCcw } from 'lucide-vue-next'
   import { useFormatting } from '~/composables/useFormatting'
   import { useLeaguesStore } from '~/stores/leagues'
+  import { useAuthStore } from '~/stores/auth'
 
   // Composables
   const { normalizeDates } = useFormatting()
@@ -30,7 +31,6 @@
 
   // Reactive data
   const editableLeague = ref(normalizeDates(props.league))
-  const fileInput = ref(null)
   const shareUrl = ref('')
   const isGeneratingUrl = ref(false)
   const urlCopied = ref(false)
@@ -92,49 +92,6 @@
     }
   }
 
-  const exportData = () => {
-    // Get all app data (you'd need to pass this from parent or use a store)
-    const exportData = {
-      league: editableLeague.value,
-      exportDate: new Date().toISOString(),
-      version: '1.0'
-    }
-
-    const dataStr = JSON.stringify(exportData, null, 2)
-    const dataBlob = new Blob([dataStr], { type: 'application/json' })
-
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(dataBlob)
-    link.download = `wh40k-league-${editableLeague.value.name.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`
-    link.click()
-  }
-
-  const importData = (event) => {
-    const file = event.target.files[0]
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      try {
-        const importedData = JSON.parse(e.target.result)
-
-        if (importedData.league) {
-          editableLeague.value = importedData.league
-          alert('League data imported successfully!')
-        } else {
-          alert('Invalid file format. Please select a valid league export file.')
-        }
-      } catch (error) {
-        console.log(error)
-        alert('Error reading file. Please ensure it\'s a valid JSON file.')
-      }
-    }
-    reader.readAsText(file)
-
-    // Reset file input
-    event.target.value = ''
-  }
-
   // Privacy and sharing methods
   const generateInviteCode = () => {
     // Generate a random 8-character code
@@ -147,10 +104,43 @@
   }
 
   const regenerateInviteCode = async () => {
+    if (!editableLeague.value?.id) {
+      // If league doesn't exist yet, just generate locally
+      const newCode = generateInviteCode()
+      editableLeague.value.inviteCode = newCode
+      inviteCodeCopied.value = false
+      return
+    }
+
+    // Get userId from auth store
+    const authStore = useAuthStore()
+    if (!authStore.user?.id) {
+      alert('You must be logged in to regenerate the invite code')
+      return
+    }
+
     const newCode = generateInviteCode()
-    editableLeague.value.inviteCode = newCode
-    inviteCodeCopied.value = false
-    // Note: This will be saved when the user saves the league
+
+    try {
+      // Save to database immediately
+      const response = await $fetch(`/api/leagues/${editableLeague.value.id}`, {
+        method: 'PATCH',
+        body: {
+          userId: authStore.user.id,
+          inviteCode: newCode
+        }
+      })
+
+      // Update local state with response
+      editableLeague.value.inviteCode = response.data.inviteCode
+      inviteCodeCopied.value = false
+
+      // Show success notification
+      alert('Invite code regenerated and saved!')
+    } catch (error) {
+      console.error('Failed to regenerate invite code:', error)
+      alert('Failed to regenerate invite code. Please try again.')
+    }
   }
 
   const copyInviteCode = async () => {
@@ -197,15 +187,61 @@
   }
 
   // Initialize share URL if league has token
-  onMounted(() => {
+  onMounted(async () => {
     if (editableLeague.value?.shareToken) {
       const baseUrl = window.location.origin
       shareUrl.value = `${baseUrl}/join/${editableLeague.value.shareToken}`
     }
 
-    // Generate invite code if league is private and doesn't have one
+    // Generate and save invite code if league is private and doesn't have one
     if (editableLeague.value?.isPrivate && !editableLeague.value.inviteCode) {
-      editableLeague.value.inviteCode = generateInviteCode()
+      const newCode = generateInviteCode()
+      editableLeague.value.inviteCode = newCode
+
+      // Save to database if league exists
+      if (editableLeague.value.id) {
+        const authStore = useAuthStore()
+        if (authStore.user?.id) {
+          try {
+            await $fetch(`/api/leagues/${editableLeague.value.id}`, {
+              method: 'PATCH',
+              body: {
+                userId: authStore.user.id,
+                inviteCode: newCode
+              }
+            })
+          } catch (error) {
+            console.error('Failed to save auto-generated invite code:', error)
+          }
+        }
+      }
+    }
+  })
+
+  // Watch for isPrivate changes to auto-generate invite code
+  watch(() => editableLeague.value?.isPrivate, async (newValue, oldValue) => {
+    // Only act when switching from false to true
+    if (newValue === true && oldValue === false && !editableLeague.value.inviteCode) {
+      const newCode = generateInviteCode()
+      editableLeague.value.inviteCode = newCode
+
+      // Save to database if league exists
+      if (editableLeague.value.id) {
+        const authStore = useAuthStore()
+        if (authStore.user?.id) {
+          try {
+            await $fetch(`/api/leagues/${editableLeague.value.id}`, {
+              method: 'PATCH',
+              body: {
+                userId: authStore.user.id,
+                inviteCode: newCode
+              }
+            })
+          } catch (error) {
+            console.error('Failed to save auto-generated invite code:', error)
+          }
+        }
+      }
     }
   })
 </script>
@@ -605,38 +641,6 @@
             <p>• Ties broken by head-to-head record</p>
             <p>• Final standings determine league champion</p>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Export/Import -->
-    <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Data Management</h3>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-gray-700 p-4 rounded-lg">
-          <h4 class="text-lg font-semibold text-yellow-500 mb-3">Export League Data</h4>
-          <p class="text-gray-300 mb-4">Download all league data as JSON for backup or sharing.</p>
-          <button @click="exportData" class="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto">
-            <Download :size="18" class="flex-shrink-0" />
-            <span>Export Data</span>
-          </button>
-        </div>
-
-        <div class="bg-gray-700 p-4 rounded-lg">
-          <h4 class="text-lg font-semibold text-yellow-500 mb-3">Import League Data</h4>
-          <p class="text-gray-300 mb-4">Upload a previously exported league data file.</p>
-          <input
-            ref="fileInput"
-            type="file"
-            accept=".json"
-            @change="importData"
-            class="hidden"
-          />
-          <button @click="fileInput.click()" class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto">
-            <Upload :size="18" class="flex-shrink-0" />
-            <span>Import Data</span>
-          </button>
         </div>
       </div>
     </div>
