@@ -313,7 +313,7 @@
             >
               <!-- Round -->
               <td class="py-3 px-4">
-                <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-semibold text-sm">
+                <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-semibold text-sm whitespace-nowrap">
                   Round {{ match.round }}
                 </span>
               </td>
@@ -361,31 +361,31 @@
               </td>
 
               <!-- Mission -->
-              <td class="py-3 px-4">
-                <span class="text-xs bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold">
+              <td class="py-3 px-4 min-w-[120px]">
+                <span class="inline-block text-xs bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold whitespace-nowrap">
                   {{ match.mission }}
                 </span>
               </td>
 
               <!-- Result -->
-              <td class="py-3 px-4 text-center">
-                <div v-if="match.winnerId" class="inline-flex items-center gap-1 text-green-400 text-sm font-semibold">
+              <td class="py-3 px-4 text-center min-w-[100px]">
+                <div v-if="match.winnerId" class="inline-flex items-center gap-1 text-green-400 text-sm font-semibold whitespace-nowrap">
                   <Trophy :size="14" class="flex-shrink-0" />
                   <span class="hidden lg:inline">{{ getPlayerName(match.winnerId) }}</span>
                   <span class="lg:hidden">Win</span>
                 </div>
-                <div v-else class="inline-flex items-center gap-1 text-yellow-400 text-sm font-semibold">
+                <div v-else class="inline-flex items-center gap-1 text-yellow-400 text-sm font-semibold whitespace-nowrap">
                   <Handshake :size="14" class="flex-shrink-0" />
-                  Draw
+                  <span>Draw</span>
                 </div>
               </td>
 
               <!-- Quality Badge -->
-              <td class="py-3 px-4 text-center">
+              <td class="py-3 px-4 text-center min-w-[120px]">
                 <span v-if="getMatchQualityBadge(match)" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap"
                       :class="getMatchQualityBadge(match).class">
                   <component :is="getMatchQualityBadge(match).icon" :size="12" class="flex-shrink-0" />
-                  <span class="hidden xl:inline">{{ getMatchQualityBadge(match).text }}</span>
+                  <span>{{ getMatchQualityBadge(match).text }}</span>
                 </span>
               </td>
 
