@@ -2,7 +2,7 @@
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
-  import { Plus, X, Calendar, Lock, Swords, RefreshCw, FileText } from 'lucide-vue-next'
+  import { Plus, X, Calendar, Lock, Swords, RefreshCw, FileText, Sparkles } from 'lucide-vue-next'
   import { DEFAULT_LEAGUE_RULES } from '~/data/default-rules'
 
   const leaguesStore = useLeaguesStore()
@@ -32,6 +32,15 @@
 
   const error = ref('')
   const loading = ref(false)
+  const showAutoRoundModal = ref(false)
+
+  // Auto-round configuration
+  const autoConfig = reactive({
+    startingPoints: 500,
+    pointsStep: 500,
+    numberOfRounds: 4,
+    weeksPerRound: 4
+  })
 
   const addRound = () => {
     const lastRound = form.rounds[form.rounds.length - 1]
@@ -55,6 +64,49 @@
         round.number = idx + 1
       })
     }
+  }
+
+  const generateAutoRounds = () => {
+    if (!form.startDate || form.startDate === '') {
+      error.value = 'Please set a league start date first'
+      showAutoRoundModal.value = false
+      return
+    }
+
+    const startDate = new Date(form.startDate)
+    const generatedRounds = []
+    let currentDate = new Date(startDate)
+    let currentPoints = autoConfig.startingPoints
+
+    for (let i = 0; i < autoConfig.numberOfRounds; i++) {
+      const roundStartDate = new Date(currentDate)
+      const roundEndDate = new Date(currentDate)
+      roundEndDate.setDate(roundEndDate.getDate() + (autoConfig.weeksPerRound * 7))
+
+      generatedRounds.push({
+        number: i + 1,
+        name: `${currentPoints} Points`,
+        pointLimit: currentPoints,
+        startDate: roundStartDate.toISOString().split('T')[0],
+        endDate: roundEndDate.toISOString().split('T')[0]
+      })
+
+      // Next round starts day after current ends
+      currentDate = new Date(roundEndDate)
+      currentDate.setDate(currentDate.getDate() + 1)
+      currentPoints += autoConfig.pointsStep
+    }
+
+    // Set league end date to last round's end
+    const lastRound = generatedRounds[generatedRounds.length - 1]
+    form.endDate = lastRound.endDate
+
+    // Update form rounds
+    form.rounds = generatedRounds
+
+    // Close modal
+    showAutoRoundModal.value = false
+    error.value = ''
   }
 
   const validateForm = () => {
@@ -300,14 +352,24 @@
             <Calendar :size="24" />
             Rounds
           </h2>
-          <button
-            type="button"
-            @click="addRound"
-            class="btn-primary text-sm flex items-center gap-2"
-          >
-            <Plus :size="16" />
-            Add Round
-          </button>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              @click="showAutoRoundModal = true"
+              class="btn-primary text-sm flex items-center gap-2"
+            >
+              <Sparkles :size="16" />
+              Auto Generate
+            </button>
+            <button
+              type="button"
+              @click="addRound"
+              class="btn-login text-sm flex items-center gap-2"
+            >
+              <Plus :size="16" />
+              Add Round
+            </button>
+          </div>
         </div>
 
         <!-- Rounds List -->
@@ -443,5 +505,125 @@
         </button>
       </div>
     </form>
+
+    <!-- Auto-Generate Rounds Modal -->
+    <div
+      v-if="showAutoRoundModal"
+      class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+      @click.self="showAutoRoundModal = false"
+    >
+      <div class="bg-gray-800 rounded-lg max-w-md w-full border border-gray-700">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center border-b border-gray-700 p-6">
+          <h3 class="text-2xl font-bold text-gray-100 flex items-center gap-2">
+            <Sparkles :size="24" class="text-purple-400" />
+            Auto-Generate Rounds
+          </h3>
+          <button
+            @click="showAutoRoundModal = false"
+            class="text-gray-400 hover:text-gray-300"
+          >
+            <X :size="24" />
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 space-y-6">
+          <!-- Warning if no start date -->
+          <div v-if="!form.startDate" class="bg-yellow-900/20 border border-yellow-500 text-yellow-300 px-4 py-3 rounded text-sm">
+            ⚠️ Please set a league start date in the Basic Information section before generating rounds.
+          </div>
+
+          <p class="text-gray-400 text-sm">
+            Set the basic parameters and we'll create the rounds for you. You can edit them afterwards.
+          </p>
+
+          <!-- Configuration Grid (2x2) -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Starting Points -->
+            <div>
+              <label class="block text-gray-300 font-semibold mb-2">
+                Starting Points
+              </label>
+              <input
+                v-model.number="autoConfig.startingPoints"
+                type="number"
+                min="100"
+                step="100"
+                class="input-field w-full"
+              />
+            </div>
+
+            <!-- Points Step -->
+            <div>
+              <label class="block text-gray-300 font-semibold mb-2">
+                Points Step
+              </label>
+              <input
+                v-model.number="autoConfig.pointsStep"
+                type="number"
+                min="100"
+                step="100"
+                class="input-field w-full"
+              />
+            </div>
+
+            <!-- Number of Rounds -->
+            <div>
+              <label class="block text-gray-300 font-semibold mb-2">
+                Number of Rounds
+              </label>
+              <input
+                v-model.number="autoConfig.numberOfRounds"
+                type="number"
+                min="1"
+                max="10"
+                class="input-field w-full"
+              />
+            </div>
+
+            <!-- Weeks per Round -->
+            <div>
+              <label class="block text-gray-300 font-semibold mb-2">
+                Weeks per Round
+              </label>
+              <input
+                v-model.number="autoConfig.weeksPerRound"
+                type="number"
+                min="1"
+                max="8"
+                class="input-field w-full"
+              />
+            </div>
+          </div>
+
+          <!-- Helper Text -->
+          <p class="text-xs text-gray-500">
+            Example: 500 starting, 500 step → 500pts, 1000pts, 1500pts, 2000pts...
+          </p>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex justify-end gap-3 border-t border-gray-700 p-6">
+          <button
+            type="button"
+            @click="showAutoRoundModal = false"
+            class="btn-secondary"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            @click="generateAutoRounds"
+            class="btn-primary flex items-center gap-2"
+            :disabled="!form.startDate"
+            :class="{ 'opacity-50 cursor-not-allowed': !form.startDate }"
+          >
+            <Sparkles :size="16" />
+            Generate Rounds
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
