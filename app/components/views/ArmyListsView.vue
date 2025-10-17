@@ -156,6 +156,23 @@
     return currentPlayer.value && army.playerId === currentPlayer.value.id
   }
 
+  // Helper to display player name with (me) indicator
+  const getPlayerDisplayName = (player) => {
+    const baseName = `${player.name} (${player.faction})`
+    if (currentPlayer.value && player.id === currentPlayer.value.id) {
+      return `${baseName} - me`
+    }
+    return baseName
+  }
+
+  // Helper for filter dropdown (name only)
+  const getPlayerFilterName = (player) => {
+    if (currentPlayer.value && player.id === currentPlayer.value.id) {
+      return `${player.name} (me)`
+    }
+    return player.name
+  }
+
   // Methods - Form operations
   const handleStartNewArmy = () => {
     // Prevent opening form if user doesn't have a player and is not an organizer
@@ -289,7 +306,7 @@
           <select v-model="selectedPlayer" class="input-field w-full lg:max-w-xs">
             <option value="">All Players</option>
             <option v-for="player in players" :key="player.id" :value="player.id">
-              {{ player.name }}
+              {{ getPlayerFilterName(player) }}
             </option>
           </select>
         </div>
@@ -442,8 +459,7 @@
               >
                 <option value="">Select Player</option>
                 <option v-for="player in players" :key="player.id" :value="player.id">
-                  {{ player.name }} ({{ player.faction }})
-                  <template v-if="currentPlayer && player.id === currentPlayer.id"> - You</template>
+                  {{ getPlayerDisplayName(player) }}
                 </option>
               </select>
 
