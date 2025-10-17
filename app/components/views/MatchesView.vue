@@ -204,14 +204,16 @@
   <div class="flex flex-col gap-8">
     <!-- Match History -->
     <div class="card">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
-        <div class="flex items-center gap-2">
-          <Trophy :size="24" class="text-yellow-500 flex-shrink-0" />
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
+
+        <div class="flex items-center gap-3">
+          <Trophy :size="32" class="text-yellow-500" />
           <div>
-            <h2 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h2>
+            <h2 class="text-2xl font-serif font-bold text-yellow-500">Match History</h2>
             <p class="text-gray-400 text-sm mt-1">View and filter all recorded matches.</p>
           </div>
         </div>
+
         <div class="flex items-center gap-3">
           <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses() + ' flex-shrink-0'">
             <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
