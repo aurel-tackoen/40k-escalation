@@ -225,7 +225,7 @@
       </div>
 
       <!-- Matches list -->
-      <div v-else class="space-y-4">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <MatchCard
           v-for="match in recentMatches"
           :key="match.id"

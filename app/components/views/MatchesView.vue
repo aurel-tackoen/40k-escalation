@@ -272,7 +272,8 @@
       </div>
 
       <!-- Card View -->
-      <div v-if="filteredMatches.length > 0 && viewMode === 'cards'" class="space-y-4">
+      <!-- Card View -->
+      <div v-if="filteredMatches.length > 0 && viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <MatchCard
           v-for="match in filteredMatches"
           :key="match.id"
