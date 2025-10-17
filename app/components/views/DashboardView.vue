@@ -7,11 +7,15 @@
   import { useFormatting } from '~/composables/useFormatting'
   import { usePlayerStats } from '~/composables/usePlayerStats'
   import { useMatchResults } from '~/composables/useMatchResults'
+  import { useMarkdown } from '~/composables/useMarkdown'
   import MatchCard from '~/components/MatchCard.vue'
 
   // Get current game system
   const leaguesStore = useLeaguesStore()
   const { currentGameSystemName } = storeToRefs(leaguesStore)
+
+  // Markdown rendering
+  const { renderMarkdown } = useMarkdown()
 
   // Props
   const props = defineProps({
@@ -248,8 +252,8 @@
         <SettingsIcon :size="24" class="text-yellow-500" />
         <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">League Rules</h3>
       </div>
-      <div class="bg-gray-700 p-6 rounded-lg">
-        <pre class="text-gray-300 whitespace-pre-wrap font-sans text-sm sm:text-base leading-relaxed">{{ league.rules }}</pre>
+      <div class="bg-gray-700 p-6 rounded-lg prose prose-invert prose-sm sm:prose-base max-w-none">
+        <div v-html="renderMarkdown(league.rules)"></div>
       </div>
     </div>
   </div>

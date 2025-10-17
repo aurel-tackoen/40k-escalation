@@ -35,28 +35,28 @@
     }
   })
 
-  // Default rules text
-  const DEFAULT_RULES = `VICTORY POINTS SYSTEM
-• Primary Objectives: Up to 45 Victory Points
-• Secondary Objectives: Up to 15 Victory Points per objective (max 3)
-• Match Results: Win = 3 League Points, Draw = 1 League Point, Loss = 0 League Points
+  // Default rules text (markdown formatted)
+  const DEFAULT_RULES = `## Victory Points System
+- **Primary Objectives:** Up to 45 Victory Points
+- **Secondary Objectives:** Up to 15 Victory Points per objective (max 3)
+- **Match Results:** Win = 3 League Points, Draw = 1 League Point, Loss = 0 League Points
 
-ARMY BUILDING RULES
-• Players must stay within the point limit for each round
-• Army lists should be submitted before each round begins
-• Players may modify their army between rounds
-• All models must be WYSIWYG (What You See Is What You Get)
+## Army Building Rules
+- Players must stay within the point limit for each round
+- Army lists should be submitted before each round begins
+- Players may modify their army between rounds
+- All models must be **WYSIWYG** (What You See Is What You Get)
 
-MATCH REQUIREMENTS
-• Each player must play at least one match per round
-• Matches should be completed within the round timeframe
-• Results must be reported within 48 hours of completion
-• Disputes should be resolved by the league organizer
+## Match Requirements
+- Each player must play at least one match per round
+- Matches should be completed within the round timeframe
+- Results must be reported within 48 hours of completion
+- Disputes should be resolved by the league organizer
 
-LEAGUE STANDINGS
-• Ranked by total wins, then by total Victory Points scored
-• Ties broken by head-to-head record
-• Final standings determine league champion`
+## League Standings
+- Ranked by total wins, then by total Victory Points scored
+- Ties broken by head-to-head record
+- Final standings determine league champion`
 
   // Reactive data
   const editableLeague = ref(normalizeDates(props.league))
@@ -590,16 +590,21 @@ LEAGUE STANDINGS
           </label>
           <p class="text-sm text-gray-400 mb-3">
             Define your league's rules and scoring system. Players will see these rules on the dashboard.
+            <strong>Markdown formatting is supported!</strong>
           </p>
           <textarea
             v-model="editableLeague.rules"
             rows="20"
             class="input-field font-mono text-sm"
-            placeholder="Enter league rules..."
+            placeholder="Enter league rules using markdown formatting..."
           ></textarea>
-          <p class="text-xs text-gray-500 mt-2">
-            Tip: Use line breaks and bullet points (•) to organize your rules clearly.
-          </p>
+          <div class="text-xs text-gray-500 mt-2 space-y-1">
+            <p class="font-semibold text-yellow-500">Markdown Tips:</p>
+            <p>• Use <code class="bg-gray-700 px-1 rounded">**bold**</code> for bold text, <code class="bg-gray-700 px-1 rounded">*italic*</code> for italic</p>
+            <p>• Start lines with <code class="bg-gray-700 px-1 rounded">##</code> for headers</p>
+            <p>• Use <code class="bg-gray-700 px-1 rounded">-</code> or <code class="bg-gray-700 px-1 rounded">*</code> for bullet lists</p>
+            <p>• Create links with <code class="bg-gray-700 px-1 rounded">[text](url)</code></p>
+          </div>
         </div>
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
