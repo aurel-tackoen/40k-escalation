@@ -35,6 +35,29 @@
     }
   })
 
+  // Default rules text
+  const DEFAULT_RULES = `VICTORY POINTS SYSTEM
+• Primary Objectives: Up to 45 Victory Points
+• Secondary Objectives: Up to 15 Victory Points per objective (max 3)
+• Match Results: Win = 3 League Points, Draw = 1 League Point, Loss = 0 League Points
+
+ARMY BUILDING RULES
+• Players must stay within the point limit for each round
+• Army lists should be submitted before each round begins
+• Players may modify their army between rounds
+• All models must be WYSIWYG (What You See Is What You Get)
+
+MATCH REQUIREMENTS
+• Each player must play at least one match per round
+• Matches should be completed within the round timeframe
+• Results must be reported within 48 hours of completion
+• Disputes should be resolved by the league organizer
+
+LEAGUE STANDINGS
+• Ranked by total wins, then by total Victory Points scored
+• Ties broken by head-to-head record
+• Final standings determine league champion`
+
   // Reactive data
   const editableLeague = ref(normalizeDates(props.league))
   const shareUrl = ref('')
@@ -44,7 +67,18 @@
   // Watchers
   watch(() => props.league, (newLeague) => {
     editableLeague.value = normalizeDates(newLeague)
+    // Set default rules if none exist
+    if (!editableLeague.value.rules) {
+      editableLeague.value.rules = DEFAULT_RULES
+    }
   }, { deep: true })
+
+  // Initialize rules on mount
+  onMounted(() => {
+    if (!editableLeague.value.rules) {
+      editableLeague.value.rules = DEFAULT_RULES
+    }
+  })
 
   // Methods
   const saveLeague = () => {
@@ -545,50 +579,46 @@
       </div>
     </div>
 
-    <!-- Scoring Rules -->
-    <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Scoring & Rules</h3>
+    <!-- League Rules -->
+    <form @submit.prevent="saveLeague" class="card">
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">League Rules</h3>
 
-      <div class="space-y-6">
-        <div class="bg-gray-700 p-4 rounded-lg">
-          <h4 class="text-lg font-semibold text-yellow-500 mb-3">Victory Points System</h4>
-          <div class="text-gray-300 space-y-2">
-            <p>• <strong>Primary Objectives:</strong> Up to 45 Victory Points</p>
-            <p>• <strong>Secondary Objectives:</strong> Up to 15 Victory Points per objective (max 3)</p>
-            <p>• <strong>Match Results:</strong> Win = 3 League Points, Draw = 1 League Point, Loss = 0 League Points</p>
-          </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-yellow-500 mb-2">
+            Custom League Rules
+          </label>
+          <p class="text-sm text-gray-400 mb-3">
+            Define your league's rules and scoring system. Players will see these rules on the dashboard.
+          </p>
+          <textarea
+            v-model="editableLeague.rules"
+            rows="20"
+            class="input-field font-mono text-sm"
+            placeholder="Enter league rules..."
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-2">
+            Tip: Use line breaks and bullet points (•) to organize your rules clearly.
+          </p>
         </div>
 
-        <div class="bg-gray-700 p-4 rounded-lg">
-          <h4 class="text-lg font-semibold text-yellow-500 mb-3">Army Building Rules</h4>
-          <div class="text-gray-300 space-y-2">
-            <p>• Players must stay within the point limit for each round</p>
-            <p>• Army lists should be submitted before each round begins</p>
-            <p>• Players may modify their army between rounds</p>
-            <p>• All models must be WYSIWYG (What You See Is What You Get)</p>
-          </div>
-        </div>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+          <button type="submit" class="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto">
+            <Save :size="18" class="flex-shrink-0" />
+            <span>Save Rules</span>
+          </button>
 
-        <div class="bg-gray-700 p-4 rounded-lg">
-          <h4 class="text-lg font-semibold text-yellow-500 mb-3">Match Requirements</h4>
-          <div class="text-gray-300 space-y-2">
-            <p>• Each player must play at least one match per round</p>
-            <p>• Matches should be completed within the round timeframe</p>
-            <p>• Results must be reported within 48 hours of completion</p>
-            <p>• Disputes should be resolved by the league organizer</p>
-          </div>
-        </div>
-
-        <div class="bg-gray-700 p-4 rounded-lg">
-          <h4 class="text-lg font-semibold text-yellow-500 mb-3">League Standings</h4>
-          <div class="text-gray-300 space-y-2">
-            <p>• Ranked by total wins, then by total Victory Points scored</p>
-            <p>• Ties broken by head-to-head record</p>
-            <p>• Final standings determine league champion</p>
-          </div>
+          <button
+            type="button"
+            @click="editableLeague.rules = DEFAULT_RULES"
+            class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto"
+          >
+            <RefreshCw :size="16" class="flex-shrink-0" />
+            <span>Reset to Default Rules</span>
+          </button>
         </div>
       </div>
-    </div>
+    </form>
 
     <!-- Ownership Transfer (only for owner) -->
     <div v-if="leaguesStore.isLeagueOwner" class="card border-2 border-purple-600/50 bg-purple-950/20">

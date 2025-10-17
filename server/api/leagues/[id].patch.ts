@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { userId, name, description, gameSystemId, startDate, endDate, currentRound, isPrivate, shareToken, allowDirectJoin, maxPlayers, status } = body
+    const { userId, name, description, rules, gameSystemId, startDate, endDate, currentRound, isPrivate, shareToken, allowDirectJoin, maxPlayers, status } = body
 
     if (!userId) {
       throw createError({
@@ -66,6 +66,7 @@ export default defineEventHandler(async (event) => {
     const updateData: Record<string, unknown> = {}
     if (name !== undefined) updateData.name = name
     if (description !== undefined) updateData.description = description
+    if (rules !== undefined) updateData.rules = rules
     if (gameSystemId !== undefined) updateData.gameSystemId = gameSystemId
     if (startDate !== undefined) updateData.startDate = startDate
     if (endDate !== undefined) updateData.endDate = endDate

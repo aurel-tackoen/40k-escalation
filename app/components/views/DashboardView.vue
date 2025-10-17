@@ -1,7 +1,7 @@
 <script setup>
   import { computed, toRef } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { Trophy, Users, Shield, Swords, Calendar, Medal } from 'lucide-vue-next'
+  import { Trophy, Users, Shield, Swords, Calendar, Medal, Settings as SettingsIcon } from 'lucide-vue-next'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
@@ -237,6 +237,19 @@
           :get-player-streak="getPlayerStreak"
           :show-delete="false"
         />
+      </div>
+    </div>
+
+
+
+    <!-- League Rules -->
+    <div v-if="league?.rules" class="card">
+      <div class="flex items-center gap-2 mb-4">
+        <SettingsIcon :size="24" class="text-yellow-500" />
+        <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">League Rules</h3>
+      </div>
+      <div class="bg-gray-700 p-6 rounded-lg">
+        <pre class="text-gray-300 whitespace-pre-wrap font-sans text-sm sm:text-base leading-relaxed">{{ league.rules }}</pre>
       </div>
     </div>
   </div>

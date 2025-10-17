@@ -56,6 +56,7 @@ export default defineEventHandler(async (event) => {
     const [newLeague] = await db.insert(leagues).values({
       name: body.name,
       description: body.description || null,
+      rules: body.rules || null,
       gameSystemId: body.gameSystemId,
       startDate: body.startDate,
       endDate: body.endDate || null,

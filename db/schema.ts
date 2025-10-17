@@ -57,6 +57,7 @@ export const leagues = pgTable('leagues', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
   description: text(),
+  rules: text(), // Custom league rules set by organizer
   gameSystemId: integer('game_system_id').references(() => gameSystems.id).notNull(), // Which game system this league uses
   startDate: date().notNull(),
   endDate: date(),
