@@ -1,13 +1,12 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
-  import { Swords, Users, Calendar, Lock, LogIn, Shield, User } from 'lucide-vue-next'
+  import { Swords, Users, Calendar, LogIn, Shield, User } from 'lucide-vue-next'
 
   const leaguesStore = useLeaguesStore()
   const route = useRoute()
 
   const league = ref(null)
-  const password = ref('')
   const playerName = ref('')
   const faction = ref('')
   const armyName = ref('')
@@ -102,8 +101,7 @@
         league.value.id,
         playerName.value.trim(),
         faction.value,
-        armyName.value.trim(),
-        password.value || null
+        armyName.value.trim()
       )
       // Success - redirect to dashboard
       navigateTo('/dashboard')
@@ -290,29 +288,6 @@
           />
           <p class="text-gray-500 text-sm mt-1">
             Examples: "Emperor's Fist", "Bloodbound Warband", "The Iron Legion"
-          </p>
-        </div>
-      </div>
-
-      <!-- Password Input (if required) -->
-      <div v-if="league.joinPassword" class="card space-y-4">
-        <div class="flex items-center gap-2">
-          <Lock :size="24" class="text-yellow-500" />
-          <h3 class="text-xl font-bold text-gray-100">Password Required</h3>
-        </div>
-        <div>
-          <label class="block text-gray-300 font-semibold mb-2">
-            League Password <span class="text-red-400">*</span>
-          </label>
-          <input
-            v-model="password"
-            type="password"
-            class="input-field"
-            placeholder="Enter the league password"
-            @keyup.enter="handleJoin"
-          />
-          <p class="text-gray-500 text-sm mt-1">
-            Contact the league organizer if you don't have the password
           </p>
         </div>
       </div>
