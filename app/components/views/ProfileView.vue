@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, onMounted, computed } from 'vue'
+  import { ref, onMounted } from 'vue'
   import { Mail, Calendar, Save, Shield, Trophy, Users, Target, Flame, Swords, TrendingUp } from 'lucide-vue-next'
   import { useUser } from '~/composables/useUser'
   import { useAuth } from '~/composables/useAuth'
@@ -14,27 +14,6 @@
   const editPicture = ref('')
   const saveError = ref(null)
   const saveSuccess = ref(false)
-
-  // Computed role badge styling
-  const roleBadgeClass = computed(() => {
-    const role = profile.value?.user?.role || 'player'
-    const baseClasses = 'px-3 py-1 rounded-full text-sm font-semibold'
-
-    switch (role) {
-      case 'admin':
-        return `${baseClasses} bg-red-500/20 text-red-400 border border-red-500`
-      case 'organizer':
-        return `${baseClasses} bg-purple-500/20 text-purple-400 border border-purple-500`
-      case 'player':
-      default:
-        return `${baseClasses} bg-blue-500/20 text-blue-400 border border-blue-500`
-    }
-  })
-
-  const roleDisplayName = computed(() => {
-    const role = profile.value?.user?.role || 'player'
-    return role.charAt(0).toUpperCase() + role.slice(1)
-  })
 
   onMounted(async () => {
     await fetchUserProfile()
@@ -68,13 +47,25 @@
       saveError.value = 'Failed to update profile. Please try again.'
     }
   }
+
+  // Tooltip for performance explanation
+  const getPerformanceTooltip = (player) => {
+    const winRate = (player.wins / Math.max(1, player.wins + player.losses + player.draws)) * 100
+    if (winRate >= 60) {
+      return `Strong Performance: ${Math.round(winRate)}% win rate (60%+ is considered strong)`
+    } else if (winRate >= 40) {
+      return `Competitive Performance: ${Math.round(winRate)}% win rate (40-59% is competitive)`
+    } else {
+      return `Developing Performance: ${Math.round(winRate)}% win rate (under 40% shows room for growth)`
+    }
+  }
 </script>
 
 <template>
   <div class="space-y-8">
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-12">
-      <div class="text-purple-400 text-xl">Loading profile...</div>
+    <div v-if="isLoading" class="py-12">
+      <LoadingSpinner message="Loading Your Profile" />
     </div>
 
     <!-- Profile Content -->
@@ -86,11 +77,14 @@
             <img
               :src="profile.user.picture || getUserAvatar"
               :alt="profile.user.name"
-              class="w-20 h-20 rounded-full object-cover border-2 border-purple-500"
+              class="w-20 h-20 rounded-lg object-cover border-2 border-yellow-500"
             >
             <div>
-              <h2 class="text-2xl sm:text-3xl font-bold text-white">{{ profile.user.name }}</h2>
-              <p class="text-gray-400 break-all sm:break-normal">{{ profile.user.email }}</p>
+              <h2 class="text-xl sm:text-3xl font-bold text-white break-all sm:break-normal">{{ profile.user.name }}</h2>
+              <p class="text-gray-400 break-all sm:break-normal flex items-center gap-2 mt-2">
+                <Mail :size="20" class="text-yellow-400" />
+                {{ profile.user.email }}
+              </p>
             </div>
           </div>
           <button
@@ -161,25 +155,14 @@
         <h2 class="text-xl font-bold text-white mb-4">Account Information</h2>
 
         <div class="space-y-3">
-          <!-- Role Badge -->
-          <div class="flex items-center gap-3">
-            <Shield :size="20" class="text-purple-400" />
-            <span class="text-gray-300">Role:</span>
-            <span :class="roleBadgeClass">{{ roleDisplayName }}</span>
-          </div>
 
           <div class="flex items-center gap-3 text-gray-300">
-            <Mail :size="20" class="text-purple-400" />
-            <span>{{ profile.user.email }}</span>
-          </div>
-
-          <div class="flex items-center gap-3 text-gray-300">
-            <Calendar :size="20" class="text-purple-400" />
+            <Calendar :size="20" class="text-yellow-400" />
             <span>Member since {{ formatDate(profile.user.createdAt) }}</span>
           </div>
 
           <div class="flex items-center gap-3 text-gray-300">
-            <Calendar :size="20" class="text-purple-400" />
+            <Calendar :size="20" class="text-yellow-400" />
             <span>Last login: {{ formatDate(profile.user.lastLoginAt) }}</span>
           </div>
         </div>
@@ -308,7 +291,10 @@
 
             <!-- Performance Badge -->
             <div v-if="player.wins + player.losses + player.draws > 0" class="mt-3 pt-3 border-t border-gray-700">
-              <div class="flex items-center justify-between text-xs">
+              <div
+                class="flex items-center justify-between text-xs cursor-help"
+                :title="getPerformanceTooltip(player)"
+              >
                 <div class="flex items-center gap-1 text-gray-400">
                   <Trophy :size="12" />
                   <span>Performance</span>
