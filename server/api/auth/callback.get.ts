@@ -54,9 +54,9 @@ export default defineEventHandler(async (event) => {
     // See guide/AUTH0_ROLES_SETUP.md for how to create the Action
     const namespace = 'https://40k-escalation.app'
     const role = user[`${namespace}/role`] || 'user'
-    const roles = user[`${namespace}/roles`] || []
+    // const roles = user[`${namespace}/roles`] || []
 
-    console.log('User role from Auth0:', role, 'All roles:', roles)
+    // console.log('User role from Auth0:', role, 'All roles:', roles)
 
     // Create or update user in database immediately
     const { db } = await import('../../../db')
@@ -107,7 +107,7 @@ export default defineEventHandler(async (event) => {
       name: user.name,
       picture: user.picture,
       role, // Add role to session
-      roles, // Add all roles to session
+      // roles, // Add all roles to session
       userId: dbUser.id, // Add database user ID to session
       access_token: tokenResponse.access_token,
       expires_at: Date.now() + (tokenResponse.expires_in * 1000)
