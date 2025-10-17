@@ -138,6 +138,11 @@
       />
     </div>
 
+    <!-- Help Text -->
+    <div v-if="myLeagues && myLeagues.length > 0" class="text-center text-gray-500 text-sm">
+      Click on a league card to switch to it and view its dashboard
+    </div>
+
     <!-- Public Leagues Section -->
     <div v-if="hasPublicLeagues" class="space-y-6">
       <div class="border-t border-gray-700 pt-8">
@@ -159,11 +164,6 @@
           />
         </div>
       </div>
-    </div>
-
-    <!-- Help Text -->
-    <div v-if="myLeagues && myLeagues.length > 0" class="text-center text-gray-500 text-sm">
-      Click on a league card to switch to it and view its dashboard
     </div>
   </div>
 </template>
