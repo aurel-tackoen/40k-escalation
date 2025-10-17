@@ -1,11 +1,13 @@
 <script setup>
   import { computed, toRef } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { Handshake, Trophy, Users, Shield, Swords, Calendar, Medal } from 'lucide-vue-next'
+  import { Trophy, Users, Shield, Swords, Calendar, Medal } from 'lucide-vue-next'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
   import { usePlayerStats } from '~/composables/usePlayerStats'
+  import { useMatchResults } from '~/composables/useMatchResults'
+  import MatchCard from '~/components/MatchCard.vue'
 
   // Get current game system
   const leaguesStore = useLeaguesStore()
@@ -36,9 +38,42 @@
   })
 
   // Composables
-  const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
+  const { getPlayerName, getPlayerFaction } = usePlayerLookup(toRef(props, 'players'))
   const { formatDate } = useFormatting()
   const { sortPlayersByStandings } = usePlayerStats()
+
+  const {
+    getWinStreak
+  } = useMatchResults(toRef(props, 'matches'))
+
+  // Get match quality badge
+  const getMatchQualityBadge = (match) => {
+    const pointDiff = Math.abs(match.player1Points - match.player2Points)
+
+    if (pointDiff <= 10) {
+      return {
+        text: 'Close Game',
+        class: 'bg-orange-900/30 text-orange-400 border border-orange-700/50',
+        icon: 'Handshake'
+      }
+    } else if (pointDiff >= 30) {
+      return {
+        text: 'Decisive Victory',
+        class: 'bg-red-900/30 text-red-400 border border-red-700/50',
+        icon: 'Trophy'
+      }
+    }
+    return null
+  }
+
+  // Get player streak
+  const getPlayerStreak = (playerId) => {
+    const streak = getWinStreak(playerId, props.matches)
+    if (streak >= 2) {
+      return { count: streak }
+    }
+    return null
+  }
 
   // Computed properties
   const currentRound = computed(() => {
@@ -191,77 +226,17 @@
 
       <!-- Matches list -->
       <div v-else class="space-y-4">
-        <div
+        <MatchCard
           v-for="match in recentMatches"
           :key="match.id"
-          class="bg-gray-700 p-3 sm:p-4 rounded-lg"
-        >
-          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs sm:text-sm text-gray-200 font-bold">Round {{ match.round }}</span>
-              <span class="text-xs sm:text-sm text-gray-400">{{ formatDate(match.datePlayed) }}</span>
-            </div>
-            <span class="text-xs sm:text-sm bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold whitespace-nowrap">{{ match.mission }}</span>
-          </div>
-          <div class="mt-3">
-            <!-- Match Score - Responsive Design -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <!-- Scoreboard -->
-              <div class="sm:hidden bg-gray-800 rounded-lg border border-gray-600 overflow-hidden flex-1 sm:max-w-md">
-                <div class="grid grid-cols-[1fr_auto_1fr] items-stretch">
-                  <!-- Player 1 -->
-                  <div class="p-3 text-right flex flex-col justify-center" :class="match.winnerId === match.player1Id ? 'bg-green-900/20' : ''">
-                    <div class="font-semibold text-sm mb-1">{{ getPlayerName(match.player1Id) }}</div>
-                    <div class="text-yellow-500 font-bold text-2xl">{{ match.player1Points }}</div>
-                  </div>
-
-                  <!-- VS Divider -->
-                  <div class="px-3 bg-gray-900/50 border-x border-gray-600 flex items-center justify-center">
-                    <Swords :size="18" class="text-gray-400" />
-                  </div>
-
-                  <!-- Player 2 -->
-                  <div class="p-3 text-left flex flex-col justify-center" :class="match.winnerId === match.player2Id ? 'bg-green-900/20' : ''">
-                    <div class="font-semibold text-sm mb-1">{{ getPlayerName(match.player2Id) }}</div>
-                    <div class="text-yellow-500 font-bold text-2xl">{{ match.player2Points }}</div>
-                  </div>
-                </div>
-              </div>
-              <div class="hidden sm:flex items-center justify-start gap-3 sm:gap-4 min-w-0 flex-1">
-                <!-- Player 1 -->
-                <div class="flex items-center gap-2 min-w-0">
-                  <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player1Id) }}</span>
-                  <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player1Points }}</span>
-                </div>
-
-                <!-- VS separator -->
-                <span class="text-gray-400 text-xs sm:text-sm font-semibold flex-shrink-0 px-1">VS</span>
-
-                <!-- Player 2 -->
-                <div class="flex items-center gap-2 min-w-0 flex-1 justify-end sm:justify-start">
-                  <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player2Points }}</span>
-                  <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player2Id) }}</span>
-                </div>
-              </div>
-
-
-              <!-- Winner/Draw badge -->
-              <div class="flex items-center justify-center sm:justify-end flex-shrink-0">
-                <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center gap-2 text-sm bg-green-900/30 px-4 py-2.5 rounded-lg border border-green-700/50">
-                  <Trophy :size="16" class="flex-shrink-0" />
-                  <span>{{ getPlayerName(match.winnerId) }} Wins!</span>
-                </div>
-                <div v-else class="text-yellow-400 font-semibold flex items-center gap-2 text-sm bg-yellow-900/30 px-4 py-2.5 rounded-lg border border-yellow-700/50">
-                  <Handshake :size="16" class="flex-shrink-0" />
-                  <span>Draw</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div v-if="match.notes" class="text-center sm:text-left mt-2 text-xs sm:text-sm text-gray-400 italic">
-            "{{ match.notes }}"
-          </div>
-        </div>
+          :match="match"
+          :get-player-name="getPlayerName"
+          :get-player-faction="getPlayerFaction"
+          :format-date="formatDate"
+          :get-match-quality-badge="getMatchQualityBadge"
+          :get-player-streak="getPlayerStreak"
+          :show-delete="false"
+        />
       </div>
     </div>
   </div>

@@ -24,9 +24,9 @@
 
   // Set page title and meta
   useHead({
-    title: 'Warhammer 40K Escalation League',
+    title: 'War\'s Path Escalation League',
     meta: [
-      { name: 'description', content: 'Manage your Warhammer 40K escalation league with ease' }
+      { name: 'description', content: 'Manage your Warhammer Escalation League with ease' }
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
