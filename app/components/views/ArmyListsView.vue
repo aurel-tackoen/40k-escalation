@@ -1,6 +1,6 @@
 <script setup>
   import { computed, watch, toRef, ref, nextTick } from 'vue'
-  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, ChevronUp, ChevronDown, CheckCircle } from 'lucide-vue-next'
+  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, ChevronUp, ChevronDown, CheckCircle, LayoutGrid, TableProperties } from 'lucide-vue-next'
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
@@ -117,6 +117,7 @@
 
   // Refs
   const builderFormRef = ref(null)
+  const viewMode = ref('cards') // 'cards' or 'table'
 
   // Helper function to scroll to form
   const scrollToForm = () => {
@@ -727,7 +728,7 @@
 
     <!-- Saved Army Lists -->
     <div class="card">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div class="flex items-center gap-2">
           <Shield :size="24" class="text-yellow-500" />
           <h3 class="text-2xl font-serif font-bold text-yellow-500">
@@ -735,10 +736,38 @@
             <span class="text-lg text-gray-300 font-bold">({{ filteredArmies.length }})</span>
           </h3>
         </div>
+
+        <!-- View Toggle -->
+        <div class="flex items-center gap-2 bg-gray-700 rounded-lg p-1">
+          <button
+            @click="viewMode = 'cards'"
+            :class="[
+              'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium',
+              viewMode === 'cards'
+                ? 'bg-yellow-500 text-gray-900'
+                : 'text-gray-400 hover:text-gray-200'
+            ]"
+          >
+            <LayoutGrid :size="16" />
+            Cards
+          </button>
+          <button
+            @click="viewMode = 'table'"
+            :class="[
+              'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium',
+              viewMode === 'table'
+                ? 'bg-yellow-500 text-gray-900'
+                : 'text-gray-400 hover:text-gray-200'
+            ]"
+          >
+            <TableProperties :size="16" />
+            Table
+          </button>
+        </div>
       </div>
 
-      <!-- Army Cards -->
-      <div v-if="filteredArmies.length > 0" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <!-- Army Cards View -->
+      <div v-if="filteredArmies.length > 0 && viewMode === 'cards'" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         <div
           v-for="army in filteredArmies"
           :key="army.id"
@@ -955,8 +984,131 @@
         </div>
       </div>
 
+      <!-- Army Table View -->
+      <div v-if="filteredArmies.length > 0 && viewMode === 'table'" class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-gray-600">
+              <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Army Name</th>
+              <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Player</th>
+              <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Round</th>
+              <th class="text-right py-3 px-4 text-sm font-semibold text-gray-300">Points</th>
+              <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Units</th>
+              <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Painting</th>
+              <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Status</th>
+              <th class="text-right py-3 px-4 text-sm font-semibold text-gray-300">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="army in filteredArmies"
+              :key="army.id"
+              class="border-b border-gray-700 hover:bg-gray-700/30 transition-colors"
+            >
+              <!-- Army Name -->
+              <td class="py-3 px-4">
+                <div class="font-semibold text-gray-100">{{ army.name }}</div>
+                <div class="text-xs text-gray-400">{{ getRoundName(army.round) }}</div>
+              </td>
+
+              <!-- Player -->
+              <td class="py-3 px-4 text-gray-300">
+                {{ getPlayerName(army.playerId) }}
+              </td>
+
+              <!-- Round -->
+              <td class="py-3 px-4 text-center">
+                <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded text-xs font-semibold">
+                  Round {{ army.round }}
+                </span>
+              </td>
+
+              <!-- Points -->
+              <td class="py-3 px-4 text-right">
+                <div class="font-bold text-yellow-500">{{ army.totalPoints }}</div>
+                <div class="text-xs text-gray-400">/ {{ getRoundLimit(army.round) }}</div>
+              </td>
+
+              <!-- Units -->
+              <td class="py-3 px-4 text-center text-gray-200 font-semibold">
+                {{ army.units.length }}
+              </td>
+
+              <!-- Painting Progress -->
+              <td class="py-3 px-4">
+                <div v-if="getArmyPaintingStats(army).totalModels > 0" class="flex flex-col gap-1">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 h-2 bg-gray-600 rounded-full overflow-hidden">
+                      <div
+                        class="h-full transition-all"
+                        :class="getPaintProgressClass(getArmyPaintingStats(army).percentage)"
+                        :style="{ width: getArmyPaintingStats(army).percentage + '%' }"
+                      ></div>
+                    </div>
+                    <span
+                      class="text-xs font-bold min-w-[35px] text-right"
+                      :class="getPaintPercentageColor(getArmyPaintingStats(army).percentage)"
+                    >
+                      {{ getArmyPaintingStats(army).percentage }}%
+                    </span>
+                  </div>
+                  <div class="text-xs text-gray-400 text-center">
+                    {{ getArmyPaintingStats(army).painted }}/{{ getArmyPaintingStats(army).totalModels }} models
+                  </div>
+                </div>
+                <div v-else class="text-xs text-gray-500 text-center">—</div>
+              </td>
+
+              <!-- Status -->
+              <td class="py-3 px-4 text-center">
+                <span
+                  :class="[
+                    'px-2 py-1 rounded-full text-xs font-bold',
+                    army.isValid
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/50'
+                      : 'bg-red-500/20 text-red-400 border border-red-500/50'
+                  ]"
+                >
+                  {{ army.isValid ? '✓ Valid' : '✗ Invalid' }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="py-3 px-4">
+                <div class="flex gap-1 justify-end">
+                  <button
+                    v-if="canEscalateArmy(army) && canModifyArmy(army)"
+                    @click="escalateArmy(army)"
+                    class="text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 p-1.5 rounded transition-colors"
+                    title="Escalate to Next Round"
+                  >
+                    <TrendingUp :size="16" />
+                  </button>
+                  <button
+                    v-if="canModifyArmy(army)"
+                    @click="handleEditArmy(army)"
+                    class="text-yellow-400 hover:text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/50 p-1.5 rounded transition-colors"
+                    title="Edit Army"
+                  >
+                    <Edit :size="16" />
+                  </button>
+                  <button
+                    v-if="canModifyArmy(army)"
+                    @click="handleDeleteArmy(army)"
+                    class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 p-1.5 rounded transition-colors"
+                    title="Delete Army"
+                  >
+                    <Trash2 :size="16" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <!-- Empty State -->
-      <div v-else class="text-center py-16 bg-gray-800 border-2 border-dashed border-gray-700 rounded-lg">
+      <div v-else-if="filteredArmies.length === 0" class="text-center py-16 bg-gray-800 border-2 border-dashed border-gray-700 rounded-lg">
         <Shield :size="64" class="mx-auto text-gray-700 mb-4" />
         <p class="text-xl text-gray-400 font-medium mb-2">No army lists found</p>
         <p class="text-sm text-gray-500 mb-6">
