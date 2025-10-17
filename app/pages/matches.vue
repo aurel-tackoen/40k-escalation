@@ -3,6 +3,17 @@
 
   const leaguesStore = useLeaguesStore()
   const { matches, players, currentLeague: league, initializing } = storeToRefs(leaguesStore)
+
+  // Debug handler for delete match
+  const handleDeleteMatch = async (matchId) => {
+    console.log('Page received delete-match event with matchId:', matchId)
+    try {
+      await leaguesStore.deleteMatch(matchId)
+      console.log('Match deleted successfully')
+    } catch (error) {
+      console.error('Error deleting match:', error)
+    }
+  }
 </script>
 
 <template>
@@ -16,6 +27,7 @@
       :matches="matches"
       :players="players"
       @add-match="leaguesStore.addMatch"
+      @delete-match="handleDeleteMatch"
     />
   </div>
 </template>

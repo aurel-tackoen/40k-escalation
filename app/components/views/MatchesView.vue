@@ -23,7 +23,7 @@
 
   // Get dynamic missions from store
   const leaguesStore = useLeaguesStore()
-  const { availableMissions, currentGameSystemName, gameSystems } = storeToRefs(leaguesStore)
+  const { availableMissions, currentGameSystemName, gameSystems, canManageLeague, currentPlayer } = storeToRefs(leaguesStore)
 
   // Composables
   const { getPlayerName, getPlayerFaction } = usePlayerLookup(toRef(props, 'players'))
@@ -35,16 +35,18 @@
     getWinStreak
   } = useMatchResults(toRef(props, 'matches'))
 
+  // Emits
+  const emit = defineEmits(['add-match', 'delete-match'])
+
   const {
     item: matchToDelete,
     confirm: confirmDeleteMatch,
     execute: deleteMatchConfirmed
   } = useConfirmation((match) => {
+    console.log('Delete match callback called with match:', match)
     emit('delete-match', match.id)
+    console.log('Emitted delete-match event with id:', match.id)
   })
-
-  // Emits
-  const emit = defineEmits(['add-match', 'delete-match'])
 
   // Reactive data
   const newMatch = ref({
@@ -148,10 +150,206 @@
     }
     return null
   }
+
+  // Check if user can delete a match (owner/organizer or participant)
+  const canDeleteMatch = (match) => {
+    // Organizers can delete any match
+    if (canManageLeague.value) {
+      return true
+    }
+    // Participants can delete their own matches
+    if (currentPlayer.value) {
+      return match.player1Id === currentPlayer.value.id || match.player2Id === currentPlayer.value.id
+    }
+    return false
+  }
+
+  // Helper to display player name with (me) indicator
+  const getPlayerDisplayName = (player) => {
+    const baseName = `${player.name} (${player.faction})`
+    if (currentPlayer.value && player.id === currentPlayer.value.id) {
+      return `${baseName} - me`
+    }
+    return baseName
+  }
+
+  // Helper for filter dropdown (name only)
+  const getPlayerFilterName = (player) => {
+    if (currentPlayer.value && player.id === currentPlayer.value.id) {
+      return `${player.name} (me)`
+    }
+    return player.name
+  }
 </script>
 
 <template>
   <div class="flex flex-col gap-8">
+    <!-- Match History -->
+    <div class="card">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <div class="flex items-center gap-2">
+          <Trophy :size="24" class="text-yellow-500 flex-shrink-0" />
+          <h2 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h2>
+        </div>
+        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses() + ' flex-shrink-0'">
+          <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
+        </div>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="flex items-center gap-2">
+          <Filter :size="18" class="text-yellow-500 flex-shrink-0" />
+          <select v-model="filterRound" class="input-field flex-1">
+            <option value="">All Rounds</option>
+            <option value="1">Round 1</option>
+            <option value="2">Round 2</option>
+            <option value="3">Round 3</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <Users :size="18" class="text-yellow-500 flex-shrink-0" />
+          <select v-model="filterPlayer" class="input-field flex-1">
+            <option value="">All Players</option>
+            <option v-for="player in players" :key="player.id" :value="player.id">
+              {{ getPlayerFilterName(player) }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div
+          v-for="match in filteredMatches"
+          :key="match.id"
+          class="bg-gray-700 p-3 sm:p-4 rounded-lg"
+        >
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs sm:text-sm text-gray-200 font-bold">Round {{ match.round }}</span>
+              <span class="text-xs sm:text-sm text-gray-400">{{ formatDate(match.datePlayed) }}</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs sm:text-sm bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold whitespace-nowrap">{{ match.mission }}</span>
+              <!-- Match Quality Badge -->
+              <span v-if="getMatchQualityBadge(match)" class="flex items-center gap-1 px-2 py-1 rounded text-xs sm:text-sm font-semibold whitespace-nowrap"
+                    :class="getMatchQualityBadge(match).class">
+                <component :is="getMatchQualityBadge(match).icon" :size="12" class="flex-shrink-0" />
+                {{ getMatchQualityBadge(match).text }}
+              </span>
+              <!-- Delete Button -->
+              <button
+                v-if="canDeleteMatch(match)"
+                @click="confirmDeleteMatch(match)"
+                class="p-1.5 sm:p-2 rounded hover:bg-red-900/50 text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+                title="Delete match"
+              >
+                <Trash2 :size="16" class="flex-shrink-0" />
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <!-- Match Score - Responsive Design -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <!-- Mobile Scoreboard -->
+              <div class="sm:hidden bg-gray-800 rounded-lg border border-gray-600 overflow-hidden flex-1">
+                <div class="grid grid-cols-[1fr_auto_1fr] items-stretch">
+                  <!-- Player 1 -->
+                  <div class="p-3 text-right flex flex-col justify-center" :class="match.winnerId === match.player1Id ? 'bg-green-900/20' : ''">
+                    <div class="font-semibold text-sm mb-1">{{ getPlayerName(match.player1Id) }}</div>
+                    <div class="text-xs text-gray-400 mb-2 truncate">{{ getPlayerFaction(match.player1Id) }}</div>
+                    <div class="text-yellow-500 font-bold text-2xl">{{ match.player1Points }}</div>
+                    <!-- Win Streak Badge -->
+                    <div v-if="getPlayerStreak(match.player1Id)" class="mt-2 inline-flex items-center justify-end gap-1 text-red-400 text-xs font-bold">
+                      <Flame :size="12" class="flex-shrink-0" />
+                      <span>{{ getPlayerStreak(match.player1Id).count }}W</span>
+                    </div>
+                  </div>
+
+                  <!-- VS Divider -->
+                  <div class="px-3 bg-gray-900/50 border-x border-gray-600 flex items-center justify-center">
+                    <Swords :size="18" class="text-gray-400" />
+                  </div>
+
+                  <!-- Player 2 -->
+                  <div class="p-3 text-left flex flex-col justify-center" :class="match.winnerId === match.player2Id ? 'bg-green-900/20' : ''">
+                    <div class="font-semibold text-sm mb-1">{{ getPlayerName(match.player2Id) }}</div>
+                    <div class="text-xs text-gray-400 mb-2 truncate">{{ getPlayerFaction(match.player2Id) }}</div>
+                    <div class="text-yellow-500 font-bold text-2xl">{{ match.player2Points }}</div>
+                    <!-- Win Streak Badge -->
+                    <div v-if="getPlayerStreak(match.player2Id)" class="mt-2 inline-flex items-center justify-start gap-1 text-red-400 text-xs font-bold">
+                      <Flame :size="12" class="flex-shrink-0" />
+                      <span>{{ getPlayerStreak(match.player2Id).count }}W</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Desktop Scoreboard -->
+              <div class="hidden sm:flex items-center justify-start gap-3 sm:gap-4 min-w-0 flex-1">
+                <!-- Player 1 -->
+                <div class="flex flex-col gap-1 min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player1Id) }}</span>
+                    <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player1Points }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player1Id) }}</span>
+                    <!-- Win Streak Badge -->
+                    <span v-if="getPlayerStreak(match.player1Id)" class="inline-flex items-center gap-1 text-red-400 text-xs font-bold flex-shrink-0">
+                      <Flame :size="12" class="flex-shrink-0" />
+                      {{ getPlayerStreak(match.player1Id).count }}W
+                    </span>
+                  </div>
+                </div>
+
+                <!-- VS separator -->
+                <span class="text-gray-400 text-xs sm:text-sm font-semibold flex-shrink-0 px-1">VS</span>
+
+                <!-- Player 2 -->
+                <div class="flex flex-col gap-1 min-w-0 flex-1">
+                  <div class="flex items-center gap-2 justify-end">
+                    <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player2Points }}</span>
+                    <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player2Id) }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 justify-end">
+                    <!-- Win Streak Badge -->
+                    <span v-if="getPlayerStreak(match.player2Id)" class="inline-flex items-center gap-1 text-red-400 text-xs font-bold flex-shrink-0">
+                      <Flame :size="12" class="flex-shrink-0" />
+                      {{ getPlayerStreak(match.player2Id).count }}W
+                    </span>
+                    <span class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player2Id) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Winner/Draw badge -->
+              <div class="flex items-center justify-center sm:justify-end flex-shrink-0">
+                <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center gap-2 text-sm bg-green-900/30 px-4 py-2.5 rounded-lg border border-green-700/50">
+                  <Trophy :size="16" class="flex-shrink-0" />
+                  <span>{{ getPlayerName(match.winnerId) }} Wins!</span>
+                </div>
+                <div v-else class="text-yellow-400 font-semibold flex items-center gap-2 text-sm bg-yellow-900/30 px-4 py-2.5 rounded-lg border border-yellow-700/50">
+                  <Handshake :size="16" class="flex-shrink-0" />
+                  <span>Draw</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="match.notes" class="text-center sm:text-left mt-2 text-xs sm:text-sm text-gray-400 italic">
+            "{{ match.notes }}"
+          </div>
+        </div>
+      </div>
+
+      <div v-if="filteredMatches.length === 0" class="text-center py-8 text-gray-400">
+        <p class="text-base sm:text-lg">No matches found.</p>
+        <p class="text-sm sm:text-base">Record your first match above!</p>
+      </div>
+    </div>
+
     <!-- Add Match Form -->
     <div class="card">
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
@@ -176,7 +374,7 @@
                 :value="player.id"
                 :disabled="newMatch.player2Id === player.id"
               >
-                {{ player.name }} ({{ player.faction }})
+                {{ getPlayerDisplayName(player) }}
               </option>
             </select>
             <div>
@@ -203,7 +401,7 @@
                 :value="player.id"
                 :disabled="newMatch.player1Id === player.id"
               >
-                {{ player.name }} ({{ player.faction }})
+                {{ getPlayerDisplayName(player) }}
               </option>
             </select>
             <div>
@@ -328,171 +526,6 @@
       </form>
     </div>
 
-    <!-- Match History -->
-    <div class="card">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <div class="flex items-center gap-2">
-          <Trophy :size="24" class="text-yellow-500 flex-shrink-0" />
-          <h2 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h2>
-        </div>
-        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses() + ' flex-shrink-0'">
-          <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
-        </div>
-      </div>
-
-      <!-- Filter Controls -->
-      <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="flex items-center gap-2">
-          <Filter :size="18" class="text-yellow-500 flex-shrink-0" />
-          <select v-model="filterRound" class="input-field flex-1">
-            <option value="">All Rounds</option>
-            <option value="1">Round 1</option>
-            <option value="2">Round 2</option>
-            <option value="3">Round 3</option>
-          </select>
-        </div>
-        <div class="flex items-center gap-2">
-          <Users :size="18" class="text-yellow-500 flex-shrink-0" />
-          <select v-model="filterPlayer" class="input-field flex-1">
-            <option value="">All Players</option>
-            <option v-for="player in players" :key="player.id" :value="player.id">
-              {{ player.name }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div class="space-y-4">
-        <div
-          v-for="match in filteredMatches"
-          :key="match.id"
-          class="bg-gray-700 p-3 sm:p-4 rounded-lg"
-        >
-          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs sm:text-sm text-gray-200 font-bold">Round {{ match.round }}</span>
-              <span class="text-xs sm:text-sm text-gray-400">{{ formatDate(match.datePlayed) }}</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs sm:text-sm bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold whitespace-nowrap">{{ match.mission }}</span>
-              <!-- Match Quality Badge -->
-              <span v-if="getMatchQualityBadge(match)" class="flex items-center gap-1 px-2 py-1 rounded text-xs sm:text-sm font-semibold whitespace-nowrap"
-                    :class="getMatchQualityBadge(match).class">
-                <component :is="getMatchQualityBadge(match).icon" :size="12" class="flex-shrink-0" />
-                {{ getMatchQualityBadge(match).text }}
-              </span>
-              <!-- Delete Button -->
-              <button
-                @click="confirmDeleteMatch(match)"
-                class="p-1.5 sm:p-2 rounded hover:bg-red-900/50 text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
-                title="Delete match"
-              >
-                <Trash2 :size="16" class="flex-shrink-0" />
-              </button>
-            </div>
-          </div>
-
-          <div class="mt-3">
-            <!-- Match Score - Responsive Design -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <!-- Mobile Scoreboard -->
-              <div class="sm:hidden bg-gray-800 rounded-lg border border-gray-600 overflow-hidden flex-1">
-                <div class="grid grid-cols-[1fr_auto_1fr] items-stretch">
-                  <!-- Player 1 -->
-                  <div class="p-3 text-right flex flex-col justify-center" :class="match.winnerId === match.player1Id ? 'bg-green-900/20' : ''">
-                    <div class="font-semibold text-sm mb-1">{{ getPlayerName(match.player1Id) }}</div>
-                    <div class="text-xs text-gray-400 mb-2 truncate">{{ getPlayerFaction(match.player1Id) }}</div>
-                    <div class="text-yellow-500 font-bold text-2xl">{{ match.player1Points }}</div>
-                    <!-- Win Streak Badge -->
-                    <div v-if="getPlayerStreak(match.player1Id)" class="mt-2 inline-flex items-center justify-end gap-1 text-red-400 text-xs font-bold">
-                      <Flame :size="12" class="flex-shrink-0" />
-                      <span>{{ getPlayerStreak(match.player1Id).count }}W</span>
-                    </div>
-                  </div>
-
-                  <!-- VS Divider -->
-                  <div class="px-3 bg-gray-900/50 border-x border-gray-600 flex items-center justify-center">
-                    <Swords :size="18" class="text-gray-400" />
-                  </div>
-
-                  <!-- Player 2 -->
-                  <div class="p-3 text-left flex flex-col justify-center" :class="match.winnerId === match.player2Id ? 'bg-green-900/20' : ''">
-                    <div class="font-semibold text-sm mb-1">{{ getPlayerName(match.player2Id) }}</div>
-                    <div class="text-xs text-gray-400 mb-2 truncate">{{ getPlayerFaction(match.player2Id) }}</div>
-                    <div class="text-yellow-500 font-bold text-2xl">{{ match.player2Points }}</div>
-                    <!-- Win Streak Badge -->
-                    <div v-if="getPlayerStreak(match.player2Id)" class="mt-2 inline-flex items-center justify-start gap-1 text-red-400 text-xs font-bold">
-                      <Flame :size="12" class="flex-shrink-0" />
-                      <span>{{ getPlayerStreak(match.player2Id).count }}W</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Desktop Scoreboard -->
-              <div class="hidden sm:flex items-center justify-start gap-3 sm:gap-4 min-w-0 flex-1">
-                <!-- Player 1 -->
-                <div class="flex flex-col gap-1 min-w-0 flex-1">
-                  <div class="flex items-center gap-2">
-                    <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player1Id) }}</span>
-                    <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player1Points }}</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player1Id) }}</span>
-                    <!-- Win Streak Badge -->
-                    <span v-if="getPlayerStreak(match.player1Id)" class="inline-flex items-center gap-1 text-red-400 text-xs font-bold flex-shrink-0">
-                      <Flame :size="12" class="flex-shrink-0" />
-                      {{ getPlayerStreak(match.player1Id).count }}W
-                    </span>
-                  </div>
-                </div>
-
-                <!-- VS separator -->
-                <span class="text-gray-400 text-xs sm:text-sm font-semibold flex-shrink-0 px-1">VS</span>
-
-                <!-- Player 2 -->
-                <div class="flex flex-col gap-1 min-w-0 flex-1">
-                  <div class="flex items-center gap-2 justify-end">
-                    <span class="text-yellow-500 font-bold text-base sm:text-lg flex-shrink-0">{{ match.player2Points }}</span>
-                    <span class="font-semibold text-sm sm:text-base truncate">{{ getPlayerName(match.player2Id) }}</span>
-                  </div>
-                  <div class="flex items-center gap-2 justify-end">
-                    <!-- Win Streak Badge -->
-                    <span v-if="getPlayerStreak(match.player2Id)" class="inline-flex items-center gap-1 text-red-400 text-xs font-bold flex-shrink-0">
-                      <Flame :size="12" class="flex-shrink-0" />
-                      {{ getPlayerStreak(match.player2Id).count }}W
-                    </span>
-                    <span class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player2Id) }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Winner/Draw badge -->
-              <div class="flex items-center justify-center sm:justify-end flex-shrink-0">
-                <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center gap-2 text-sm bg-green-900/30 px-4 py-2.5 rounded-lg border border-green-700/50">
-                  <Trophy :size="16" class="flex-shrink-0" />
-                  <span>{{ getPlayerName(match.winnerId) }} Wins!</span>
-                </div>
-                <div v-else class="text-yellow-400 font-semibold flex items-center gap-2 text-sm bg-yellow-900/30 px-4 py-2.5 rounded-lg border border-yellow-700/50">
-                  <Handshake :size="16" class="flex-shrink-0" />
-                  <span>Draw</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="match.notes" class="text-center sm:text-left mt-2 text-xs sm:text-sm text-gray-400 italic">
-            "{{ match.notes }}"
-          </div>
-        </div>
-      </div>
-
-      <div v-if="filteredMatches.length === 0" class="text-center py-8 text-gray-400">
-        <p class="text-base sm:text-lg">No matches found.</p>
-        <p class="text-sm sm:text-base">Record your first match above!</p>
-      </div>
-    </div>
-
     <!-- Delete Confirmation Modal -->
     <div v-if="matchToDelete" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
       <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full border-2 border-red-500">
@@ -506,7 +539,7 @@
         </p>
         <div class="flex gap-3">
           <button
-            @click="deleteMatchConfirmed"
+            @click="deleteMatchConfirmed()"
             class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold transition-colors cursor-pointer"
           >
             Delete

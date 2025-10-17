@@ -759,6 +759,42 @@ export const useLeaguesStore = defineStore('leagues', {
       }
     },
 
+    /**
+     * Delete match from current league
+     * Only owner/organizer or match participants can delete
+     */
+    async deleteMatch(matchId) {
+      try {
+        console.log('Store deleteMatch called with matchId:', matchId, 'type:', typeof matchId)
+        console.log('Current matches before delete:', this.matches.length)
+        console.log('Match IDs in store:', this.matches.map(m => ({ id: m.id, type: typeof m.id })))
+
+        const response = await $fetch(`/api/matches?id=${matchId}`, {
+          method: 'DELETE'
+        })
+
+        console.log('API response:', response)
+
+        if (response.success) {
+          console.log('Filtering out match with id:', matchId)
+          const beforeLength = this.matches.length
+          this.matches = this.matches.filter(m => {
+            console.log(`Comparing m.id (${m.id}, ${typeof m.id}) !== matchId (${matchId}, ${typeof matchId}):`, m.id !== matchId)
+            return m.id !== matchId
+          })
+          console.log('Matches after filter:', this.matches.length, 'removed:', beforeLength - this.matches.length)
+
+          // Refresh players to get updated stats
+          await this.fetchPlayers()
+          console.log('Players refreshed')
+        }
+        return response
+      } catch (error) {
+        console.error('Error deleting match:', error)
+        throw error
+      }
+    },
+
     // ==================== Army Management ====================
 
     /**
