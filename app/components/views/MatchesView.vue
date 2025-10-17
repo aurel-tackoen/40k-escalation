@@ -98,6 +98,9 @@
 
       emit('add-match', { ...newMatch.value })
       resetForm()
+
+      // Scroll to top to see the newly added match
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
