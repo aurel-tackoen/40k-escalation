@@ -63,8 +63,29 @@
       form.rounds.forEach((round, idx) => {
         round.number = idx + 1
       })
+      // Update league end date
+      updateLeagueEndDate()
     }
   }
+
+  // Auto-update league end date based on rounds
+  const updateLeagueEndDate = () => {
+    if (form.rounds.length > 0) {
+      const roundsWithDates = form.rounds.filter(r => r.endDate)
+      if (roundsWithDates.length > 0) {
+        // Find the latest end date
+        const latestEndDate = roundsWithDates.reduce((latest, round) => {
+          return round.endDate > latest ? round.endDate : latest
+        }, roundsWithDates[0].endDate)
+        form.endDate = latestEndDate
+      }
+    }
+  }
+
+  // Watch for changes in round dates to auto-update league end date
+  watch(() => form.rounds.map(r => r.endDate), () => {
+    updateLeagueEndDate()
+  }, { deep: true })
 
   const generateAutoRounds = () => {
     if (!form.startDate || form.startDate === '') {
@@ -282,13 +303,17 @@
           </div>
           <div>
             <label class="block text-gray-300 font-semibold mb-2">
-              End Date <span class="text-gray-500">(optional)</span>
+              End Date <span class="text-gray-500">(auto-set from rounds)</span>
             </label>
             <input
               v-model="form.endDate"
               type="date"
               class="input-field w-full"
+              disabled
             />
+            <p class="text-xs text-gray-500 mt-1">
+              Will be automatically set to the last round's end date
+            </p>
           </div>
         </div>
       </div>
