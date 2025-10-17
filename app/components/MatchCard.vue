@@ -1,5 +1,5 @@
 <script setup>
-  import { Swords, Trophy, Handshake, Flame, Trash2 } from 'lucide-vue-next'
+  import { Swords, Trophy, Flame, Trash2 } from 'lucide-vue-next'
 
   const props = defineProps({
     match: {
@@ -89,44 +89,71 @@
 
     <!-- Scoreboard -->
     <div class="flex-1 p-4">
-      <div class="grid grid-cols-[1fr_auto_1fr] gap-3 items-center h-full">
-        <!-- Player 1 -->
-        <div class="bg-gray-800 rounded-lg border border-gray-600 p-3 text-right" :class="match.winnerId === match.player1Id ? 'border-green-500 bg-green-900/10' : ''">
-          <div class="mb-2">
-            <div class="font-semibold text-base text-gray-100 mb-1">{{ getPlayerName(match.player1Id) }}</div>
-            <div class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player1Id) }}</div>
-          </div>
-          <div class="text-yellow-500 font-bold text-3xl mb-2">{{ match.player1Points }}</div>
-          <!-- Win Streak Badge -->
-          <div v-if="getPlayerStreak && getPlayerStreak(match.player1Id)" class="inline-flex items-center justify-end gap-1 bg-red-900/30 text-red-400 text-xs font-bold px-2 py-1 rounded border border-red-500/50">
-            <Flame :size="12" class="flex-shrink-0" />
-            <span>{{ getPlayerStreak(match.player1Id).count }} Win Streak</span>
-          </div>
-        </div>
+      <!-- Main Battle Display -->
+      <div class="bg-gray-800 rounded-lg border border-gray-600 p-4">
+        <div class="grid grid-cols-5 items-stretch gap-0">
+          <!-- Player 1 (2 columns) -->
+          <div class="col-span-2 text-right pr-4">
+            <div class="mb-2">
+              <div class="flex items-center justify-end gap-2 mb-1">
+                <h4 class="font-bold text-sm text-gray-100 truncate">
+                  {{ getPlayerName(match.player1Id) }}
+                </h4>
+                <Trophy v-if="match.winnerId === match.player1Id" :size="14" class="text-green-400 flex-shrink-0" />
+              </div>
+              <p class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player1Id) }}</p>
+            </div>
 
-        <!-- VS Divider -->
-        <div class="flex flex-col items-center justify-center gap-2 px-2">
-          <Swords :size="24" class="text-yellow-500 flex-shrink-0" />
-          <!-- Winner/Draw badge -->
-          <div v-if="match.winnerId" class="text-green-400 font-semibold flex items-center gap-1 text-xs bg-green-900/30 px-2 py-1 rounded border border-green-500/50">
-            <Trophy :size="14" class="flex-shrink-0" />
-          </div>
-          <div v-else class="text-yellow-400 font-semibold flex items-center gap-1 text-xs bg-yellow-900/30 px-2 py-1 rounded border border-yellow-500/50">
-            <Handshake :size="14" class="flex-shrink-0" />
-          </div>
-        </div>
+            <!-- Score -->
+            <div class="mb-2">
+              <div class="text-4xl font-black leading-none"
+                   :class="match.winnerId === match.player1Id ? 'text-yellow-400' : 'text-gray-500'">
+                {{ match.player1Points }}
+              </div>
+            </div>
 
-        <!-- Player 2 -->
-        <div class="bg-gray-800 rounded-lg border border-gray-600 p-3 text-left" :class="match.winnerId === match.player2Id ? 'border-green-500 bg-green-900/10' : ''">
-          <div class="mb-2">
-            <div class="font-semibold text-base text-gray-100 mb-1">{{ getPlayerName(match.player2Id) }}</div>
-            <div class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player2Id) }}</div>
+            <!-- Win Streak -->
+            <div v-if="getPlayerStreak && getPlayerStreak(match.player1Id)" class="flex justify-end">
+              <div class="inline-flex items-center gap-1 bg-red-900/30 text-red-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-red-500/50">
+                <Flame :size="10" />
+                <span>{{ getPlayerStreak(match.player1Id).count }}W</span>
+              </div>
+            </div>
           </div>
-          <div class="text-yellow-500 font-bold text-3xl mb-2">{{ match.player2Points }}</div>
-          <!-- Win Streak Badge -->
-          <div v-if="getPlayerStreak && getPlayerStreak(match.player2Id)" class="inline-flex items-center justify-start gap-1 bg-red-900/30 text-red-400 text-xs font-bold px-2 py-1 rounded border border-red-500/50">
-            <Flame :size="12" class="flex-shrink-0" />
-            <span>{{ getPlayerStreak(match.player2Id).count }} Win Streak</span>
+
+          <!-- VS Divider (1 column) -->
+          <div class="col-span-1 flex flex-col items-center justify-center border-x border-gray-600">
+            <Swords :size="32" class="text-yellow-500 mb-2" />
+            <span class="text-sm font-bold text-gray-400">VS</span>
+          </div>
+
+          <!-- Player 2 (2 columns) -->
+          <div class="col-span-2 text-left pl-4">
+            <div class="mb-2">
+              <div class="flex items-center justify-start gap-2 mb-1">
+                <Trophy v-if="match.winnerId === match.player2Id" :size="14" class="text-green-400 flex-shrink-0" />
+                <h4 class="font-bold text-sm text-gray-100 truncate">
+                  {{ getPlayerName(match.player2Id) }}
+                </h4>
+              </div>
+              <p class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player2Id) }}</p>
+            </div>
+
+            <!-- Score -->
+            <div class="mb-2">
+              <div class="text-4xl font-black leading-none"
+                   :class="match.winnerId === match.player2Id ? 'text-yellow-400' : 'text-gray-500'">
+                {{ match.player2Points }}
+              </div>
+            </div>
+
+            <!-- Win Streak -->
+            <div v-if="getPlayerStreak && getPlayerStreak(match.player2Id)" class="flex justify-start">
+              <div class="inline-flex items-center gap-1 bg-red-900/30 text-red-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-red-500/50">
+                <Flame :size="10" />
+                <span>{{ getPlayerStreak(match.player2Id).count }}W</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
