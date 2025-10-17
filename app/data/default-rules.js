@@ -10,7 +10,7 @@ Welcome to the escalation league! Please read these rules carefully to ensure a 
 
 ---
 
-## 📊 Scoring System
+## Scoring System
 
 ### Victory Points (VP)
 Each match awards Victory Points based on mission objectives:
@@ -28,7 +28,7 @@ Match results translate to League Points for standings:
 
 ---
 
-## 🎨 Army Building
+## Army Building
 
 ### Point Limits
 - Each round has a specific point limit (see Round Configuration)
@@ -53,7 +53,7 @@ Match results translate to League Points for standings:
 
 ---
 
-## ⚔️ Match Requirements
+## Match Requirements
 
 ### Playing Matches
 - Each player must complete **at least one match per round**
@@ -79,7 +79,7 @@ Match results translate to League Points for standings:
 
 ---
 
-## 🏆 League Standings
+## League Standings
 
 ### Ranking System
 1. **Primary:** Total League Points (wins/draws)
@@ -94,7 +94,7 @@ Match results translate to League Points for standings:
 
 ---
 
-## 🤝 Sportsmanship & Community
+## Sportsmanship & Community
 
 ### Expected Behavior
 - **Be respectful** to all players, regardless of skill level
@@ -116,7 +116,7 @@ Match results translate to League Points for standings:
 
 ---
 
-## 📞 Questions & Support
+## Questions & Support
 
 If you have any questions about these rules or need clarification:
 - Contact the league organizer
