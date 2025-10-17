@@ -264,8 +264,9 @@
                 {{ system.name }}
               </option>
             </select>
-            <p class="text-xs text-gray-400 mt-1">
-              ⚠️ Changing the game system will update available factions and missions
+            <p class="text-xs text-gray-400 mt-1 flex items-center gap-1.5">
+              <AlertTriangle :size="14" class="text-yellow-500 flex-shrink-0" />
+              <span>Changing the game system will update available factions and missions</span>
             </p>
           </div>
 

@@ -1,6 +1,6 @@
 <script setup>
   import { computed, watch, toRef, ref, nextTick } from 'vue'
-  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, ChevronUp, ChevronDown, CheckCircle, LayoutGrid, TableProperties } from 'lucide-vue-next'
+  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, ChevronUp, ChevronDown, CheckCircle, LayoutGrid, TableProperties, Clipboard } from 'lucide-vue-next'
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
@@ -539,14 +539,15 @@
               type="button"
               @click="handleCopyFromPreviousRound"
               :class="[
-                'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap',
+                'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap flex items-center gap-2',
                 hasPreviousRoundArmy
                   ? 'bg-blue-600 text-white hover:bg-blue-500'
                   : 'bg-gray-700 text-gray-500 cursor-not-allowed'
               ]"
               :disabled="!hasPreviousRoundArmy"
             >
-              {{ hasPreviousRoundArmy ? '📋 Copy Army' : 'No Previous Army' }}
+              <Clipboard v-if="hasPreviousRoundArmy" :size="18" />
+              <span>{{ hasPreviousRoundArmy ? 'Copy Army' : 'No Previous Army' }}</span>
             </button>
           </div>
         </div>

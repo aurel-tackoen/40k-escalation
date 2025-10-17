@@ -54,7 +54,7 @@
   }
 
   const handleDelete = async (leagueId, leagueName) => {
-    if (confirm(`⚠️ WARNING: Are you sure you want to DELETE "${leagueName}"?\n\nThis will permanently delete:\n- All players in this league\n- All army lists\n- All match records\n- All league data\n\nThis action CANNOT be undone!`)) {
+    if (confirm(`WARNING: Are you sure you want to DELETE "${leagueName}"?\n\nThis will permanently delete:\n- All players in this league\n- All army lists\n- All match records\n- All league data\n\nThis action CANNOT be undone!`)) {
       const secondConfirm = confirm(`Type the league name to confirm deletion:\n\nExpected: ${leagueName}\n\nAre you absolutely sure?`)
       if (secondConfirm) {
         const originalLeagueId = currentLeagueId.value

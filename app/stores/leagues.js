@@ -259,13 +259,13 @@ export const useLeaguesStore = defineStore('leagues', {
         const authStore = useAuthStore()
         const userId = authStore.user?.id
 
-        console.log('🔍 fetchPublicLeagues - userId:', userId, 'user:', authStore.user)
+        console.log('[fetchPublicLeagues] userId:', userId, 'user:', authStore.user)
 
         // Fetch all public leagues with joined status
         const url = userId ? `/api/leagues/public?userId=${userId}` : '/api/leagues/public'
         const response = await $fetch(url)
 
-        console.log('📥 Public leagues response:', response.data?.map(l => ({ id: l.id, name: l.name, isJoined: l.isJoined })))
+        console.log('[fetchPublicLeagues] Public leagues response:', response.data?.map(l => ({ id: l.id, name: l.name, isJoined: l.isJoined })))
 
         if (response.success) {
           // Server returns all public leagues with isJoined flag
