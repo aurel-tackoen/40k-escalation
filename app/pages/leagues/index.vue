@@ -75,7 +75,7 @@
 <template>
   <div class="space-y-8">
     <!-- Header -->
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
       <div>
         <h1 class="text-4xl font-bold text-gray-100 flex items-center gap-3">
           <Swords :size="40" class="text-purple-400" />
@@ -83,17 +83,17 @@
         </h1>
         <p class="text-gray-400 mt-2">Manage your escalation league campaigns</p>
       </div>
-      <div class="flex gap-3">
+      <div class="flex gap-3 md:mt-0">
         <NuxtLink
           to="/leagues/create"
-          class="btn-primary flex items-center gap-2"
+          class="btn-primary flex items-center justify-center gap-2 flex-1 md:flex-none"
         >
           <Plus :size="20" />
           Create League
         </NuxtLink>
         <NuxtLink
           to="/leagues/join"
-          class="btn-secondary flex items-center gap-2"
+          class="btn-secondary flex items-center justify-center gap-2 flex-1 md:flex-none"
         >
           <LogIn :size="20" />
           Join League
