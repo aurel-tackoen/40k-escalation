@@ -108,7 +108,7 @@
           <h2 class="text-2xl sm:text-3xl font-serif font-bold text-yellow-500">{{ league?.name || 'League' }}</h2>
           <p class="text-sm sm:text-base text-gray-300">{{ league?.description || '' }}</p>
         </div>
-        <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg">
+        <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg whitespace-nowrap">
           <p class="text-base text-purple-300 font-semibold">{{ currentGameSystemName }}</p>
         </div>
       </div>

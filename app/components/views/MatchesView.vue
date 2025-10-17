@@ -219,33 +219,6 @@
           <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses() + ' flex-shrink-0'">
             <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
           </div>
-          <!-- View Toggle -->
-          <div class="flex items-center gap-2 bg-gray-700 rounded-lg p-1">
-            <button
-              @click="viewMode = 'cards'"
-              :class="[
-                'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
-                viewMode === 'cards'
-                  ? 'bg-yellow-500 text-gray-900'
-                  : 'text-gray-400 hover:text-gray-200'
-              ]"
-            >
-              <LayoutGrid :size="16" />
-              Cards
-            </button>
-            <button
-              @click="viewMode = 'table'"
-              :class="[
-                'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
-                viewMode === 'table'
-                  ? 'bg-yellow-500 text-gray-900'
-                  : 'text-gray-400 hover:text-gray-200'
-              ]"
-            >
-              <TableProperties :size="16" />
-              Table
-            </button>
-          </div>
         </div>
       </div>
 
@@ -271,7 +244,33 @@
         </div>
       </div>
 
-      <!-- Card View -->
+      <!-- View Toggle -->
+      <div class="flex items-center gap-2 bg-gray-700 rounded-lg p-1">
+        <button
+          @click="viewMode = 'cards'"
+          :class="[
+            'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
+            viewMode === 'cards'
+              ? 'bg-yellow-500 text-gray-900'
+              : 'text-gray-400 hover:text-gray-200'
+          ]"
+        >
+          <LayoutGrid :size="16" />
+          Cards
+        </button>
+        <button
+          @click="viewMode = 'table'"
+          :class="[
+            'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
+            viewMode === 'table'
+              ? 'bg-yellow-500 text-gray-900'
+              : 'text-gray-400 hover:text-gray-200'
+          ]"
+        >
+          <TableProperties :size="16" />
+          Table
+        </button>
+      </div>
       <!-- Card View -->
       <div v-if="filteredMatches.length > 0 && viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <MatchCard

@@ -189,7 +189,7 @@
           </div>
         </div>
 
-        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()">
+        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()" class="whitespace-nowrap">
           <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
         </div>
       </div>

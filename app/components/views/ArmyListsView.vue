@@ -307,7 +307,7 @@
             <p class="text-gray-400 text-sm mt-1">Build and manage army lists for each round of the escalation league.</p>
           </div>
         </div>
-        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()">
+        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()" class="whitespace-nowrap">
           <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
         </div>
       </div>
