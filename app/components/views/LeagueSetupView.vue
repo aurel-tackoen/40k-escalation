@@ -6,6 +6,7 @@
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
   import { useAuth } from '~/composables/useAuth'
+  import { DEFAULT_LEAGUE_RULES } from '~/data/default-rules'
 
   // Composables
   const { normalizeDates } = useFormatting()
@@ -35,29 +36,6 @@
     }
   })
 
-  // Default rules text (markdown formatted)
-  const DEFAULT_RULES = `## Victory Points System
-- **Primary Objectives:** Up to 45 Victory Points
-- **Secondary Objectives:** Up to 15 Victory Points per objective (max 3)
-- **Match Results:** Win = 3 League Points, Draw = 1 League Point, Loss = 0 League Points
-
-## Army Building Rules
-- Players must stay within the point limit for each round
-- Army lists should be submitted before each round begins
-- Players may modify their army between rounds
-- All models must be **WYSIWYG** (What You See Is What You Get)
-
-## Match Requirements
-- Each player must play at least one match per round
-- Matches should be completed within the round timeframe
-- Results must be reported within 48 hours of completion
-- Disputes should be resolved by the league organizer
-
-## League Standings
-- Ranked by total wins, then by total Victory Points scored
-- Ties broken by head-to-head record
-- Final standings determine league champion`
-
   // Reactive data
   const editableLeague = ref(normalizeDates(props.league))
   const shareUrl = ref('')
@@ -69,14 +47,14 @@
     editableLeague.value = normalizeDates(newLeague)
     // Set default rules if none exist
     if (!editableLeague.value.rules) {
-      editableLeague.value.rules = DEFAULT_RULES
+      editableLeague.value.rules = DEFAULT_LEAGUE_RULES
     }
   }, { deep: true })
 
   // Initialize rules on mount
   onMounted(() => {
     if (!editableLeague.value.rules) {
-      editableLeague.value.rules = DEFAULT_RULES
+      editableLeague.value.rules = DEFAULT_LEAGUE_RULES
     }
   })
 
@@ -615,7 +593,7 @@
 
           <button
             type="button"
-            @click="editableLeague.rules = DEFAULT_RULES"
+            @click="editableLeague.rules = DEFAULT_LEAGUE_RULES"
             class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto"
           >
             <RefreshCw :size="16" class="flex-shrink-0" />

@@ -252,8 +252,8 @@
         <SettingsIcon :size="24" class="text-yellow-500" />
         <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">League Rules</h3>
       </div>
-      <div class="bg-gray-700 p-6 rounded-lg prose prose-invert prose-sm sm:prose-base max-w-none">
-        <div v-html="renderMarkdown(league.rules)"></div>
+      <div class="bg-gray-700 p-6 rounded-lg">
+        <div class="prose prose-sm sm:prose-base max-w-none" v-html="renderMarkdown(league.rules)"></div>
       </div>
     </div>
   </div>

@@ -321,4 +321,213 @@
       box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.3);
     }
   }
+
+  /* Prose styles for markdown content */
+  .prose {
+    color: rgb(209 213 219); /* gray-300 */
+    max-width: 65ch;
+    font-size: 1rem;
+    line-height: 1.75;
+
+    /* Headers */
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--color-wh-gold);
+      font-weight: 700;
+      line-height: 1.25;
+      margin-top: 2em;
+      margin-bottom: 1em;
+    }
+
+    h1 {
+      font-size: 2.25em;
+      margin-top: 0;
+    }
+
+    h2 {
+      font-size: 1.875em;
+      margin-top: 1.5em;
+    }
+
+    h3 {
+      font-size: 1.5em;
+    }
+
+    h4 {
+      font-size: 1.25em;
+    }
+
+    /* Paragraphs */
+    p {
+      margin-top: 1.25em;
+      margin-bottom: 1.25em;
+    }
+
+    /* Links */
+    a {
+      color: var(--color-wh-gold);
+      text-decoration: underline;
+      font-weight: 500;
+
+      &:hover {
+        color: rgb(234 179 8); /* yellow-500 */
+      }
+    }
+
+    /* Strong/Bold */
+    strong {
+      color: rgb(253 224 71); /* yellow-300 */
+      font-weight: 700;
+    }
+
+    /* Emphasis/Italic */
+    em {
+      font-style: italic;
+    }
+
+    /* Lists */
+    ul, ol {
+      margin-top: 1.25em;
+      margin-bottom: 1.25em;
+      padding-left: 1.625em;
+      list-style-position: outside;
+    }
+
+    ul {
+      list-style-type: disc;
+    }
+
+    ol {
+      list-style-type: decimal;
+    }
+
+    li {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+      padding-left: 0.375em;
+      display: list-item;
+    }
+
+    /* List marker colors */
+    ul li::marker {
+      color: var(--color-wh-gold);
+    }
+
+    ol li::marker {
+      color: var(--color-wh-gold);
+      font-weight: 600;
+    }
+
+    /* Nested lists */
+    ul ul, ul ol, ol ul, ol ol {
+      margin-top: 0.75em;
+      margin-bottom: 0.75em;
+    }
+
+    /* Ensure nested lists have proper styles */
+    ul ul {
+      list-style-type: circle;
+    }
+
+    ul ul ul {
+      list-style-type: square;
+    }
+
+    /* Blockquotes */
+    blockquote {
+      font-style: italic;
+      color: rgb(156 163 175); /* gray-400 */
+      border-left-width: 0.25rem;
+      border-left-color: var(--color-wh-gold);
+      padding-left: 1em;
+      margin-top: 1.6em;
+      margin-bottom: 1.6em;
+    }
+
+    /* Code */
+    code {
+      color: rgb(253 224 71); /* yellow-300 */
+      background-color: rgb(31 41 55); /* gray-800 */
+      padding: 0.2em 0.4em;
+      border-radius: 0.25rem;
+      font-size: 0.875em;
+      font-weight: 600;
+    }
+
+    pre {
+      background-color: rgb(31 41 55); /* gray-800 */
+      color: rgb(209 213 219); /* gray-300 */
+      overflow-x: auto;
+      border-radius: 0.5rem;
+      padding: 1em;
+      margin-top: 1.7em;
+      margin-bottom: 1.7em;
+    }
+
+    pre code {
+      background-color: transparent;
+      padding: 0;
+      font-weight: 400;
+      color: inherit;
+    }
+
+    /* Horizontal rules */
+    hr {
+      border-color: rgb(75 85 99); /* gray-600 */
+      border-top-width: 1px;
+      margin-top: 3em;
+      margin-bottom: 3em;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      table-layout: auto;
+      text-align: left;
+      margin-top: 2em;
+      margin-bottom: 2em;
+      border-collapse: collapse;
+    }
+
+    thead {
+      border-bottom-width: 1px;
+      border-bottom-color: rgb(75 85 99); /* gray-600 */
+    }
+
+    thead th {
+      color: var(--color-wh-gold);
+      font-weight: 600;
+      vertical-align: bottom;
+      padding-bottom: 0.5em;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+    }
+
+    tbody tr {
+      border-bottom-width: 1px;
+      border-bottom-color: rgb(55 65 81); /* gray-700 */
+    }
+
+    tbody td {
+      padding: 0.5em;
+      vertical-align: top;
+    }
+
+    /* Responsive sizes */
+    &.prose-sm {
+      font-size: 0.875rem;
+
+      h1 { font-size: 1.875em; }
+      h2 { font-size: 1.5em; }
+      h3 { font-size: 1.25em; }
+      h4 { font-size: 1.125em; }
+    }
+
+    &.prose-base {
+      font-size: 1rem;
+    }
+
+    &.max-w-none {
+      max-width: none;
+    }
+  }
 }
