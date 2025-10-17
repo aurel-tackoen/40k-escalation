@@ -76,10 +76,21 @@ export function useArmyManagement(armies, rounds) {
    * @returns {Object} New army object for next round
    */
   const copyArmyToNextRound = (army, nextRoundNumber) => {
+    // Force consistent "Round X" naming
+    let baseName = army.name
+
+    // Remove any existing round indicators to get base name
+    baseName = baseName.replace(/\s*-?\s*Round \d+/i, '')
+    baseName = baseName.replace(/\s*\(Round \d+\)/i, '')
+    baseName = baseName.trim()
+
+    // Always use "Round X" format
+    const newName = `${baseName} Round ${nextRoundNumber}`
+
     return {
       playerId: army.playerId,
       round: nextRoundNumber,
-      name: `${army.name} (Round ${nextRoundNumber})`,
+      name: newName,
       totalPoints: army.totalPoints,
       units: JSON.parse(JSON.stringify(army.units)),
       isValid: false // Needs validation in new round context

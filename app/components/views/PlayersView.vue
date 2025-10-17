@@ -1,7 +1,7 @@
 <script setup>
-  import { computed, watch } from 'vue'
+  import { ref, computed, watch } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { X, TrendingUp, Shield, Users, Paintbrush, UserCheck } from 'lucide-vue-next'
+  import { X, TrendingUp, Shield, Users, Paintbrush, UserCheck, Swords } from 'lucide-vue-next'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerStats } from '~/composables/usePlayerStats'
@@ -74,6 +74,7 @@
     })
   }
 
+  // Form state
   const {
     formData: newPlayer,
     resetForm,
@@ -81,23 +82,32 @@
     updateField
   } = useFormManagement({
     name: '',
-    faction: ''
+    faction: '',
+    armyName: ''
   })
+
+  // Success/error state for army name update
+  const armyNameUpdateSuccess = ref(false)
+  const armyNameUpdateError = ref(null)
 
   // Pre-fill form with current player data when user is already a player
   watch(currentUserPlayer, (player) => {
     if (player) {
       updateField('name', player.name)
       updateField('faction', player.faction)
+      updateField('armyName', player.armyName || '')
     }
   }, { immediate: true })
 
   // Methods
-  const submitPlayer = () => {
+  const submitPlayer = async () => {
     if (!isAuthenticated.value || !user.value) {
       alert('You must be logged in to join as a player')
       return
     }
+
+    armyNameUpdateSuccess.value = false
+    armyNameUpdateError.value = null
 
     if (isFormValid(['name', 'faction'])) {
       if (isCurrentUserPlayer.value) {
@@ -107,6 +117,29 @@
           name: newPlayer.value.name,
           faction: newPlayer.value.faction
         })
+
+        // Also update army name if provided
+        if (newPlayer.value.armyName && newPlayer.value.armyName.trim() !== '') {
+          try {
+            await $fetch(`/api/users/me/army-name`, {
+              method: 'PUT',
+              body: {
+                userId: currentUserPlayer.value.userId,
+                leagueId: currentUserPlayer.value.leagueId,
+                armyName: newPlayer.value.armyName.trim()
+              }
+            })
+
+            // Refetch players to get updated army name
+            await leaguesStore.fetchPlayers()
+
+            armyNameUpdateSuccess.value = true
+            setTimeout(() => { armyNameUpdateSuccess.value = false }, 3000)
+          } catch (error) {
+            armyNameUpdateError.value = 'Failed to update army name'
+            console.error('Error updating army name:', error)
+          }
+        }
       } else {
         // Add new player
         emit('add-player', {
@@ -140,11 +173,17 @@
           class="bg-gray-700 border border-gray-600 rounded-lg p-4 hover:border-yellow-500 transition-colors"
         >
           <div class="flex justify-between items-start mb-3">
-            <div>
+            <div class="flex-1">
               <h4 class="text-lg font-semibold text-gray-100">{{ player.name }}</h4>
               <div class="flex items-center gap-1 text-sm text-yellow-500">
                 <Shield :size="14" />
                 <p>{{ player.faction }}</p>
+              </div>
+
+              <!-- Army Name (View Only) -->
+              <div v-if="player.armyName" class="text-xs text-yellow-500 flex items-center gap-1 mt-1">
+                <Swords :size="12" />
+                <span>{{ player.armyName }}</span>
               </div>
             </div>
             <button
@@ -228,7 +267,7 @@
           You've already joined this league as {{ currentUserPlayer.name }}
         </p>
         <p class="text-gray-400 text-sm mt-2">
-          You can update your display name and faction below.
+          You can update your display name, faction, and army name below.
         </p>
       </div>
 
@@ -241,7 +280,7 @@
 
       <!-- Join/Update form (show when authenticated) -->
       <form v-if="isAuthenticated" @submit.prevent="submitPlayer" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-semibold text-yellow-500 mb-2">Display Name</label>
             <input
@@ -266,6 +305,33 @@
               </option>
             </select>
           </div>
+
+          <!-- Army Name Field (only show when updating profile) -->
+          <div v-if="isCurrentUserPlayer">
+            <label class="block text-sm font-semibold text-yellow-500 mb-2 flex items-center gap-2">
+              <Swords :size="16" />
+              Army Name
+            </label>
+            <input
+              v-model="newPlayer.armyName"
+              type="text"
+              class="input-field"
+              placeholder="Enter your army name (e.g., Emperor's Fist)"
+              maxlength="255"
+            />
+            <p class="text-xs text-gray-400 mt-1">
+              This name will be used for all your armies in this league (e.g., "Emperor's Fist - Round 1")
+            </p>
+
+            <!-- Success/Error Messages -->
+            <div v-if="armyNameUpdateSuccess" class="text-sm text-green-400 mt-2 flex items-center gap-1">
+              ✓ Army name updated successfully!
+            </div>
+            <div v-if="armyNameUpdateError" class="text-sm text-red-400 mt-2">
+              {{ armyNameUpdateError }}
+            </div>
+          </div>
+
         </div>
         <div class="flex space-x-4">
           <button type="submit" class="btn-primary flex items-center gap-2 cursor-pointer">

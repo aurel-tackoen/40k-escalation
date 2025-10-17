@@ -63,6 +63,13 @@ export const useLeaguesStore = defineStore('leagues', {
       return membership?.role || null
     },
 
+    // User's army name for current league
+    currentArmyName: (state) => {
+      if (!state.currentLeagueId) return null
+      const membership = state.myLeagues.find(l => l.id === state.currentLeagueId)
+      return membership?.armyName || null
+    },
+
     // Check if user is owner of current league
     isLeagueOwner() {
       return this.currentRole === 'owner'
@@ -370,9 +377,9 @@ export const useLeaguesStore = defineStore('leagues', {
     },
 
     /**
-     * Join an existing league
+     * Join an existing league with player creation
      */
-    async joinLeague(leagueId, password) {
+    async joinLeague(leagueId, playerName, faction, armyName, password) {
       this.loading = true
       this.error = null
       try {
@@ -381,6 +388,9 @@ export const useLeaguesStore = defineStore('leagues', {
           method: 'POST',
           body: {
             userId: authStore.user?.id,
+            playerName,
+            faction,
+            armyName,
             password
           }
         })

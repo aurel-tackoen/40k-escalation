@@ -79,6 +79,7 @@ export default defineEventHandler(async (event) => {
           memberCount,
           rounds: leagueRounds,
           role: membership.role,
+          armyName: membership.armyName, // User's army name for this league
           joinedAt: membership.joinedAt
         })
       }

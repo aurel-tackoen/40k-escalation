@@ -16,7 +16,7 @@
 
   // Store
   const leaguesStore = useLeaguesStore()
-  const { currentPlayer, canManageLeague, currentGameSystemName, gameSystems, availableUnitTypes } = storeToRefs(leaguesStore)
+  const { currentPlayer, canManageLeague, currentGameSystemName, gameSystems, availableUnitTypes, currentArmyName } = storeToRefs(leaguesStore)
 
   // Game systems composable
   const { getGameSystemBadgeClasses, getGameSystemTextClasses } = useGameSystems(gameSystems)
@@ -169,6 +169,11 @@
       currentArmy.value.playerId = currentPlayer.value.id
     }
 
+    // Pre-fill army name with user's saved army name
+    if (currentArmyName.value) {
+      currentArmy.value.name = `${currentArmyName.value} - Round ${props.currentRound}`
+    }
+
     // Scroll to form
     scrollToForm()
   }
@@ -196,6 +201,12 @@
     }
     const nextRound = army.round + 1
     const escalatedArmy = copyArmyToNextRound(army, nextRound)
+
+    // Override name with saved army name from league membership
+    if (currentArmyName.value) {
+      escalatedArmy.name = `${currentArmyName.value} - Round ${nextRound}`
+    }
+
     setupEscalation(army, escalatedArmy)
     scrollToForm()
   }

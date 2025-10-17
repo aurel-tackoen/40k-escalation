@@ -191,6 +191,12 @@
                   <div class="font-bold text-white">{{ player.name }}</div>
                   <div class="text-xs text-gray-400">{{ player.faction }}</div>
                   <div class="text-xs text-purple-400">{{ player.leagueName || 'Unknown League' }}</div>
+
+                  <!-- Army Name (View Only) -->
+                  <div class="text-xs text-yellow-500 flex items-center gap-1 mt-1">
+                    <Swords :size="12" />
+                    <span>{{ player.armyName || 'No army name set' }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -246,7 +252,14 @@
                 <div>
                   <div class="font-bold text-white text-lg">{{ player.name }}</div>
                   <div class="text-sm text-gray-400">{{ player.faction }}</div>
-                  <div class="text-xs text-gray-500 flex items-center gap-1">
+
+                  <!-- Army Name (View Only - Desktop) -->
+                  <div class="text-sm text-yellow-500 flex items-center gap-1 mt-1">
+                    <Swords :size="14" />
+                    <span>{{ player.armyName || 'No army name set' }}</span>
+                  </div>
+
+                  <div class="text-xs text-gray-500 flex items-center gap-1 mt-1">
                     <Calendar :size="12" />
                     Joined {{ formatDate(player.createdAt, { month: 'short', year: 'numeric' }) }}
                   </div>

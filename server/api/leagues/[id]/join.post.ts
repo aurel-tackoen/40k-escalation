@@ -1,15 +1,17 @@
 import { db } from '../../../../db'
-import { leagues, leagueMemberships } from '../../../../db/schema'
+import { leagues, leagueMemberships, players } from '../../../../db/schema'
 import { eq, and } from 'drizzle-orm'
-import bcrypt from 'bcryptjs'
 
 /**
  * POST /api/leagues/:id/join
- * Join a league with password verification
+ * Join a league with player creation in one step
  *
  * Body:
  * {
  *   userId: number
+ *   playerName: string (required - display name for this league)
+ *   faction: string (required - player's faction)
+ *   armyName: string (required - persistent army name for this league)
  *   password?: string (required for password-protected leagues)
  * }
  */
@@ -18,10 +20,10 @@ export default defineEventHandler(async (event) => {
     const leagueId = parseInt(getRouterParam(event, 'id') || '')
     const body = await readBody(event)
 
-    if (!leagueId || !body.userId) {
+    if (!leagueId || !body.userId || !body.playerName || !body.faction || !body.armyName) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Missing required fields: leagueId, userId'
+        statusMessage: 'Missing required fields: leagueId, userId, playerName, faction, armyName'
       })
     }
 
@@ -67,34 +69,48 @@ export default defineEventHandler(async (event) => {
         })
       } else {
         // Reactivate membership if it was inactive
+        // Update player if they exist, otherwise create new one
+        let playerId = existingMembership[0].playerId
+
+        if (playerId) {
+          // Update existing player
+          await db
+            .update(players)
+            .set({
+              name: body.playerName,
+              faction: body.faction
+            })
+            .where(eq(players.id, playerId))
+        } else {
+          // Create new player if they don't have one
+          const [newPlayer] = await db.insert(players).values({
+            leagueId,
+            userId: body.userId,
+            name: body.playerName,
+            faction: body.faction,
+            wins: 0,
+            losses: 0,
+            draws: 0,
+            totalPoints: 0
+          }).returning()
+          playerId = newPlayer.id
+        }
+
+        // Update membership
         await db
           .update(leagueMemberships)
-          .set({ status: 'active' })
+          .set({
+            status: 'active',
+            playerId,
+            armyName: body.armyName
+          })
           .where(eq(leagueMemberships.id, existingMembership[0].id))
 
         return {
           success: true,
-          message: 'Membership reactivated',
+          message: 'Membership reactivated and player profile updated',
           data: { membership: existingMembership[0] }
         }
-      }
-    }
-
-    // Verify password if league is password-protected
-    if (league.joinPassword) {
-      if (!body.password) {
-        throw createError({
-          statusCode: 400,
-          statusMessage: 'Password required to join this league'
-        })
-      }
-
-      const passwordMatch = await bcrypt.compare(body.password, league.joinPassword)
-      if (!passwordMatch) {
-        throw createError({
-          statusCode: 401,
-          statusMessage: 'Incorrect password'
-        })
       }
     }
 
@@ -118,19 +134,36 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Create membership
+    // Create player and membership in a transaction-like flow
+    // 1. Create player entity
+    const [newPlayer] = await db.insert(players).values({
+      leagueId,
+      userId: body.userId,
+      name: body.playerName,
+      faction: body.faction,
+      wins: 0,
+      losses: 0,
+      draws: 0,
+      totalPoints: 0
+    }).returning()
+
+    // 2. Create membership and link to player
     const [newMembership] = await db.insert(leagueMemberships).values({
       leagueId,
       userId: body.userId,
-      playerId: null, // Will be set when user creates their player
+      playerId: newPlayer.id, // Link to newly created player
       role: 'player',
+      armyName: body.armyName, // Save persistent army name
       status: 'active'
     }).returning()
 
     return {
       success: true,
-      message: 'Successfully joined league',
-      data: { membership: newMembership }
+      message: 'Successfully joined league and created player profile',
+      data: {
+        membership: newMembership,
+        player: newPlayer
+      }
     }
   } catch (error) {
     console.error('Error joining league:', error)

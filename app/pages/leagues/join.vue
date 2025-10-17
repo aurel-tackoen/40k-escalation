@@ -1,12 +1,17 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
-  import { Swords, Users, Calendar, Lock, LogIn } from 'lucide-vue-next'
+  import { useAuthStore } from '~/stores/auth'
+  import { Swords, Users, Calendar, Lock, LogIn, Shield, User } from 'lucide-vue-next'
 
   const leaguesStore = useLeaguesStore()
   const route = useRoute()
 
   const league = ref(null)
   const password = ref('')
+  const playerName = ref('')
+  const faction = ref('')
+  const armyName = ref('')
+  const availableFactions = ref([])
   const error = ref('')
   const loading = ref(false)
   const loadingLeague = ref(true)
@@ -26,7 +31,7 @@
       // Fetch the specific league
       const response = await $fetch(`/api/leagues/${leagueIdFromUrl}`)
       if (response.success) {
-        // Check if user is already a member
+        // Check if user is already an ACTIVE member
         await leaguesStore.fetchMyLeagues()
         const isAlreadyMember = leaguesStore.myLeagues.some(l => l.id === leagueIdFromUrl)
 
@@ -36,6 +41,30 @@
           error.value = 'This league is private'
         } else {
           league.value = response.data
+
+          // Fetch factions for this game system
+          const factionsResponse = await $fetch(`/api/factions?gameSystemId=${response.data.gameSystemId}`)
+          if (factionsResponse.success) {
+            availableFactions.value = factionsResponse.data
+          }
+
+          // Check for existing inactive membership (user previously joined but left)
+          // Pre-fill form with their previous data
+          try {
+            const authStore = useAuthStore()
+            const membershipResponse = await $fetch(`/api/leagues/${leagueIdFromUrl}/membership?userId=${authStore.user?.id}`)
+            if (membershipResponse.success && membershipResponse.data) {
+              const existingMembership = membershipResponse.data
+              // Pre-fill form with existing data
+              if (existingMembership.player) {
+                playerName.value = existingMembership.player.name || ''
+                faction.value = existingMembership.player.faction || ''
+              }
+              armyName.value = existingMembership.armyName || ''
+            }
+          } catch {
+            // No existing membership, that's fine - form stays empty
+          }
         }
       }
     } catch (err) {
@@ -49,11 +78,33 @@
   const handleJoin = async () => {
     if (!league.value) return
 
+    // Validate required fields
+    if (!playerName.value || playerName.value.trim().length === 0) {
+      error.value = 'Please enter a player name'
+      return
+    }
+
+    if (!faction.value) {
+      error.value = 'Please select a faction'
+      return
+    }
+
+    if (!armyName.value || armyName.value.trim().length === 0) {
+      error.value = 'Please enter an army name'
+      return
+    }
+
     loading.value = true
     error.value = ''
 
     try {
-      await leaguesStore.joinLeague(league.value.id, password.value || null)
+      await leaguesStore.joinLeague(
+        league.value.id,
+        playerName.value.trim(),
+        faction.value,
+        armyName.value.trim(),
+        password.value || null
+      )
       // Success - redirect to dashboard
       navigateTo('/dashboard')
     } catch (err) {
@@ -154,6 +205,92 @@
               <span class="text-gray-100 ml-2 font-semibold">{{ formatDate(league.endDate) }}</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Player Profile Input -->
+      <div class="card space-y-4">
+        <div>
+          <h3 class="text-xl font-bold text-gray-100 mb-2 flex items-center gap-2">
+            <User :size="24" class="text-purple-400" />
+            Your Player Profile
+          </h3>
+          <p class="text-gray-400 text-sm">
+            Set up your player identity for this league.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Player Name -->
+          <div>
+            <label class="block text-gray-300 font-semibold mb-2">
+              Player Name <span class="text-red-400">*</span>
+            </label>
+            <input
+              v-model="playerName"
+              type="text"
+              class="input-field"
+              placeholder="Your display name in this league"
+              maxlength="255"
+              @keyup.enter="handleJoin"
+            />
+            <p class="text-gray-500 text-sm mt-1">
+              This is how you'll appear on leaderboards and in match records
+            </p>
+          </div>
+
+          <!-- Faction Dropdown -->
+          <div>
+            <label class="block text-gray-300 font-semibold mb-2">
+              Faction <span class="text-red-400">*</span>
+            </label>
+            <select
+              v-model="faction"
+              class="input-field"
+              @change="() => {}"
+            >
+              <option value="" disabled>Select your faction</option>
+              <option
+                v-for="factionOption in availableFactions"
+                :key="factionOption.id"
+                :value="factionOption.name"
+              >
+                {{ factionOption.name }}
+              </option>
+            </select>
+            <p class="text-gray-500 text-sm mt-1">
+              Choose the faction you'll be playing in this league
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Army Name Input -->
+      <div class="card space-y-4">
+        <div>
+          <h3 class="text-xl font-bold text-gray-100 mb-2 flex items-center gap-2">
+            <Shield :size="24" class="text-yellow-400" />
+            Your Army
+          </h3>
+          <p class="text-gray-400 text-sm">
+            Choose a name for your army in this league. This will be used for all your army lists.
+          </p>
+        </div>
+        <div>
+          <label class="block text-gray-300 font-semibold mb-2">
+            Army Name <span class="text-red-400">*</span>
+          </label>
+          <input
+            v-model="armyName"
+            type="text"
+            class="input-field"
+            placeholder="e.g., Emperor's Fist, Bloodbound Warband, The Iron Legion"
+            maxlength="255"
+            @keyup.enter="handleJoin"
+          />
+          <p class="text-gray-500 text-sm mt-1">
+            Examples: "Emperor's Fist", "Bloodbound Warband", "The Iron Legion"
+          </p>
         </div>
       </div>
 
