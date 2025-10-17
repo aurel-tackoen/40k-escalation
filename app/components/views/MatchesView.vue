@@ -6,8 +6,8 @@
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
   import { useMatchResults } from '~/composables/useMatchResults'
-  import { useConfirmation } from '~/composables/useConfirmation'
   import { useGameSystems } from '~/composables/useGameSystems'
+  import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Props
   const props = defineProps({
@@ -38,15 +38,29 @@
   // Emits
   const emit = defineEmits(['add-match', 'delete-match'])
 
-  const {
-    item: matchToDelete,
-    confirm: confirmDeleteMatch,
-    execute: deleteMatchConfirmed
-  } = useConfirmation((match) => {
-    console.log('Delete match callback called with match:', match)
-    emit('delete-match', match.id)
-    console.log('Emitted delete-match event with id:', match.id)
-  })
+  // Match deletion state
+  const matchToDelete = ref(null)
+  const showDeleteModal = ref(false)
+
+  const confirmDeleteMatch = (match) => {
+    matchToDelete.value = match
+    showDeleteModal.value = true
+  }
+
+  const deleteMatchConfirmed = () => {
+    if (matchToDelete.value) {
+      console.log('Delete match callback called with match:', matchToDelete.value)
+      emit('delete-match', matchToDelete.value.id)
+      console.log('Emitted delete-match event with id:', matchToDelete.value.id)
+      matchToDelete.value = null
+      showDeleteModal.value = false
+    }
+  }
+
+  const cancelDeleteMatch = () => {
+    matchToDelete.value = null
+    showDeleteModal.value = false
+  }
 
   // Reactive data
   const newMatch = ref({
@@ -278,10 +292,10 @@
               <button
                 v-if="canDeleteMatch(match)"
                 @click="confirmDeleteMatch(match)"
-                class="p-1.5 sm:p-2 rounded hover:bg-red-900/50 text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+                class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer"
                 title="Delete match"
               >
-                <Trash2 :size="16" class="flex-shrink-0" />
+                <Trash2 :size="16" />
               </button>
             </div>
           </div>
@@ -486,10 +500,10 @@
                 <button
                   v-if="canDeleteMatch(match)"
                   @click="confirmDeleteMatch(match)"
-                  class="p-2 rounded hover:bg-red-900/50 text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+                  class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer"
                   title="Delete match"
                 >
-                  <Trash2 :size="16" class="flex-shrink-0" />
+                  <Trash2 :size="16" />
                 </button>
               </td>
             </tr>
@@ -681,31 +695,15 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="matchToDelete" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-      <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full border-2 border-red-500">
-        <h3 class="text-xl font-bold text-red-400 mb-4">Delete Match?</h3>
-        <p class="text-gray-300 mb-6">
-          Are you sure you want to delete this match between
-          <span class="font-semibold text-yellow-500">{{ getPlayerName(matchToDelete.player1Id) }}</span>
-          and
-          <span class="font-semibold text-yellow-500">{{ getPlayerName(matchToDelete.player2Id) }}</span>?
-          This action cannot be undone.
-        </p>
-        <div class="flex gap-3">
-          <button
-            @click="deleteMatchConfirmed()"
-            class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold transition-colors cursor-pointer"
-          >
-            Delete
-          </button>
-          <button
-            @click="matchToDelete = null"
-            class="flex-1 btn-secondary"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
+    <ConfirmationModal
+      :show="showDeleteModal"
+      title="Delete Match?"
+      :message="`Are you sure you want to delete this match between <span class='font-semibold text-yellow-500'>${matchToDelete ? getPlayerName(matchToDelete.player1Id) : ''}</span> and <span class='font-semibold text-yellow-500'>${matchToDelete ? getPlayerName(matchToDelete.player2Id) : ''}</span>? This action cannot be undone.`"
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      variant="danger"
+      @confirm="deleteMatchConfirmed"
+      @cancel="cancelDeleteMatch"
+    />
   </div>
 </template>

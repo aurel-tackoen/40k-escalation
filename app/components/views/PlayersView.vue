@@ -1,14 +1,14 @@
 <script setup>
   import { ref, computed, watch } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { X, TrendingUp, Shield, Users, Paintbrush, UserCheck, Swords } from 'lucide-vue-next'
+  import { TrendingUp, Shield, Users, Paintbrush, UserCheck, Swords, Trash2 } from 'lucide-vue-next'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerStats } from '~/composables/usePlayerStats'
-  import { useConfirmation } from '~/composables/useConfirmation'
   import { useFormManagement } from '~/composables/useFormManagement'
   import { useAuth } from '~/composables/useAuth'
   import { useGameSystems } from '~/composables/useGameSystems'
+  import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Props
   const props = defineProps({
@@ -74,18 +74,27 @@
 
   const { getWinPercentage } = usePlayerStats()
 
-  const {
-    item: playerToRemove,
-    confirm: confirmRemoval,
-    cancel: cancelRemoval,
-    execute: executeRemoval
-  } = useConfirmation()
+  // Player removal state
+  const playerToRemove = ref(null)
+  const showRemovalModal = ref(false)
 
-  // Remove player handler
+  const confirmRemoval = (player) => {
+    playerToRemove.value = player
+    showRemovalModal.value = true
+  }
+
   const removePlayer = () => {
-    executeRemoval((player) => {
-      emit('remove-player', player.id, player.userId === user.value?.id)
-    })
+    if (playerToRemove.value) {
+      const isSelf = playerToRemove.value.userId === user.value?.id
+      emit('remove-player', playerToRemove.value.id, isSelf)
+      playerToRemove.value = null
+      showRemovalModal.value = false
+    }
+  }
+
+  const cancelRemoval = () => {
+    playerToRemove.value = null
+    showRemovalModal.value = false
   }
 
   // Form state
@@ -222,10 +231,10 @@
               <button
                 v-if="canRemovePlayer(player)"
                 @click="confirmRemoval(player)"
-                class="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+                class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 p-1.5 rounded transition-colors cursor-pointer"
                 title="Remove Player"
               >
-                <X :size="20" />
+                <Trash2 :size="18" />
               </button>
             </div>
           </div>
@@ -387,22 +396,30 @@
     </div>
 
     <!-- Confirmation Modal -->
-    <div v-if="playerToRemove" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-gray-800 border border-gray-600 rounded-lg p-6 max-w-md w-full mx-4">
-        <h4 class="text-xl font-bold text-yellow-500 mb-4">
-          {{ playerToRemove.userId === user?.id ? 'Leave League?' : 'Remove Player?' }}
-        </h4>
+    <ConfirmationModal
+      :show="showRemovalModal"
+      :title="playerToRemove?.userId === user?.id ? 'Leave League?' : 'Remove Player?'"
+      variant="danger"
+      confirm-text="Confirm"
+      cancel-text="Cancel"
+      @confirm="removePlayer"
+      @cancel="cancelRemoval"
+    >
+      <!-- Custom message based on self vs other -->
+      <template #default>
         <p class="text-gray-300 mb-4">
-          <template v-if="playerToRemove.userId === user?.id">
+          <template v-if="playerToRemove?.userId === user?.id">
             Are you sure you want to leave this league?
           </template>
           <template v-else>
-            Are you sure you want to remove <strong>{{ playerToRemove.name }}</strong> from this league?
+            Are you sure you want to remove <strong>{{ playerToRemove?.name }}</strong> from this league?
           </template>
         </p>
-        <div class="bg-gray-700 border border-gray-600 rounded-lg p-4 mb-6">
+
+        <!-- Info box -->
+        <div class="bg-gray-700 border border-gray-600 rounded-lg p-4">
           <p class="text-sm text-gray-300 mb-2">
-            <strong class="text-yellow-500">Note:</strong> {{ playerToRemove.userId === user?.id ? 'Leaving' : 'Removing' }} the league will:
+            <strong class="text-yellow-500">Note:</strong> {{ playerToRemove?.userId === user?.id ? 'Leaving' : 'Removing' }} the league will:
           </p>
           <ul class="text-sm text-gray-400 space-y-1 ml-4 list-disc">
             <li>Remove the player from the active roster</li>
@@ -411,15 +428,7 @@
             <li>Allow the player to rejoin later if they wish</li>
           </ul>
         </div>
-        <div class="flex space-x-4">
-          <button @click="removePlayer" class="btn-secondary flex-1">
-            {{ playerToRemove.userId === user?.id ? 'Leave League' : 'Remove Player' }}
-          </button>
-          <button @click="cancelRemoval" class="btn-primary flex-1">
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
+      </template>
+    </ConfirmationModal>
   </div>
 </template>

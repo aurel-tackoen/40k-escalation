@@ -7,12 +7,12 @@
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
   import { useRoundLookup } from '~/composables/useRoundLookup'
-  import { useConfirmation } from '~/composables/useConfirmation'
   import { useArmyManagement } from '~/composables/useArmyManagement'
   import { useArrayFiltering } from '~/composables/useArrayFiltering'
   import { useArmyForm } from '~/composables/useArmyForm'
   import { useArmyFiltering } from '~/composables/useArmyFiltering'
   import { useGameSystems } from '~/composables/useGameSystems'
+  import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Store
   const leaguesStore = useLeaguesStore()
@@ -59,13 +59,27 @@
   const { formatDateShort } = useFormatting()
   const { getRoundName, getRoundLimit } = useRoundLookup(toRef(props, 'rounds'))
 
-  const {
-    item: armyToDelete,
-    confirm: confirmDeleteArmy,
-    execute: deleteArmyConfirmed
-  } = useConfirmation((army) => {
-    emit('delete-army', army.playerId, army.round)
-  })
+  // Army deletion state
+  const armyToDelete = ref(null)
+  const showDeleteModal = ref(false)
+
+  const confirmDeleteArmy = (army) => {
+    armyToDelete.value = army
+    showDeleteModal.value = true
+  }
+
+  const deleteArmyConfirmed = () => {
+    if (armyToDelete.value) {
+      emit('delete-army', armyToDelete.value.playerId, armyToDelete.value.round)
+      armyToDelete.value = null
+      showDeleteModal.value = false
+    }
+  }
+
+  const cancelDeleteArmy = () => {
+    armyToDelete.value = null
+    showDeleteModal.value = false
+  }
 
   const {
     calculateArmyTotal,
@@ -1145,22 +1159,15 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="armyToDelete" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-gray-800 border border-gray-600 rounded-lg p-6 max-w-md w-full mx-4">
-        <h4 class="text-xl font-bold text-yellow-500 mb-4">Confirm Deletion</h4>
-        <p class="text-gray-300 mb-6">
-          Are you sure you want to delete <strong>{{ armyToDelete.name }}</strong>?
-          This action cannot be undone.
-        </p>
-        <div class="flex space-x-4">
-          <button @click="deleteArmyConfirmed()" class="btn-secondary flex-1">
-            Delete Army
-          </button>
-          <button @click="armyToDelete = null" class="btn-primary flex-1">
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
+    <ConfirmationModal
+      :show="showDeleteModal"
+      title="Confirm Deletion"
+      :message="`Are you sure you want to delete <strong>${armyToDelete?.name}</strong>? This action cannot be undone.`"
+      confirm-text="Delete Army"
+      cancel-text="Cancel"
+      variant="danger"
+      @confirm="deleteArmyConfirmed"
+      @cancel="cancelDeleteArmy"
+    />
   </div>
 </template>
