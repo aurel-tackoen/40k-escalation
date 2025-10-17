@@ -126,8 +126,129 @@
       </div>
     </div>
 
+    <!-- Why Escalation League Section -->
+    <div class="bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 py-16 border border-gray-700 rounded-lg mb-8">
+      <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="text-3xl font-bold text-center text-gray-100 mb-4">
+            Why an Escalation League?
+          </h2>
+          <p class="text-center text-yellow-400 text-lg mb-12 font-semibold">
+            The perfect way to grow your army and skills together
+          </p>
+
+          <div class="space-y-8">
+            <!-- Benefit 1 -->
+            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-yellow-600/50 transition-colors">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+                  <span class="text-2xl font-bold text-yellow-500">1</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-gray-100 mb-2">Lower Entry Barrier</h3>
+                  <p class="text-gray-400">
+                    Start with just 500 points instead of a full 2000-point army. Perfect for new players or those testing a new faction.
+                    You can begin playing before your entire collection is painted!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Benefit 2 -->
+            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-yellow-600/50 transition-colors">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+                  <span class="text-2xl font-bold text-yellow-500">2</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-gray-100 mb-2">Progressive Learning</h3>
+                  <p class="text-gray-400">
+                    Master your army's core units before adding complexity. Each round introduces new strategies and synergies
+                    as your force grows from 500 to 1000, 1500, and finally 2000 points.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Benefit 3 -->
+            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-yellow-600/50 transition-colors">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+                  <span class="text-2xl font-bold text-yellow-500">3</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-gray-100 mb-2">Painting Motivation</h3>
+                  <p class="text-gray-400">
+                    Stay motivated with manageable painting goals each round. Track your progress and compete on the painting leaderboard
+                    as you build towards a fully painted army worthy of the tabletop!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Benefit 4 -->
+            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-yellow-600/50 transition-colors">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+                  <span class="text-2xl font-bold text-yellow-500">4</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-gray-100 mb-2">Community Building</h3>
+                  <p class="text-gray-400">
+                    Grow together with your local gaming group. Everyone starts on equal footing and progresses together,
+                    fostering a supportive community and creating memorable campaign moments.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Benefit 5 -->
+            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-yellow-600/50 transition-colors">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+                  <span class="text-2xl font-bold text-yellow-500">5</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-gray-100 mb-2">Budget-Friendly</h3>
+                  <p class="text-gray-400">
+                    Spread your hobby purchases over time instead of buying everything at once. Each round gives you weeks to acquire,
+                    build, and paint your next units—making the hobby more accessible and sustainable.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Call to Action -->
+          <div class="mt-12 text-center">
+            <p class="text-gray-300 text-lg mb-6">
+              Ready to embark on your escalation journey?
+            </p>
+            <div v-if="authStore.isAuthenticated" class="flex flex-wrap gap-4 justify-center">
+              <NuxtLink
+                to="/leagues"
+                class="btn-primary text-base px-6 py-3 flex items-center gap-2"
+              >
+                <Swords :size="18" />
+                Create Your League
+              </NuxtLink>
+            </div>
+            <div v-else>
+              <button
+                @click="authStore.login('signup')"
+                class="btn-primary text-base px-6 py-3 inline-flex items-center gap-2"
+              >
+                <UserPlus :size="18" />
+                Get Started Today
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Public Leagues Section -->
-    <div class="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-gray-850 py-16">
+    <div class="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-gray-850 py-16  border-y border-yellow-600/20">
       <div class="container mx-auto px-4">
         <h2 class="text-3xl font-bold text-center text-gray-100 mb-4">
           Join a Public League
