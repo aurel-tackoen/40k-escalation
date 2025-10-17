@@ -1044,7 +1044,7 @@
             >
               <!-- Army Name -->
               <td class="py-3 px-4">
-                <div class="font-semibold text-gray-100">{{ army.name }}</div>
+                <div class="font-semibold text-gray-100 whitespace-nowrap">{{ army.name }}</div>
                 <div class="text-xs text-gray-400">{{ getRoundName(army.round) }}</div>
               </td>
 
@@ -1055,7 +1055,7 @@
 
               <!-- Round -->
               <td class="py-3 px-4 text-center">
-                <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded text-xs font-semibold">
+                <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap">
                   Round {{ army.round }}
                 </span>
               </td>
@@ -1089,7 +1089,7 @@
                       {{ getArmyPaintingStats(army).percentage }}%
                     </span>
                   </div>
-                  <div class="text-xs text-gray-400 text-center">
+                  <div class="text-xs text-gray-400 text-center whitespace-nowrap">
                     {{ getArmyPaintingStats(army).painted }}/{{ getArmyPaintingStats(army).totalModels }} models
                   </div>
                 </div>
@@ -1100,7 +1100,7 @@
               <td class="py-3 px-4 text-center">
                 <span
                   :class="[
-                    'px-2 py-1 rounded-full text-xs font-bold',
+                    'px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap',
                     army.isValid
                       ? 'bg-green-500/20 text-green-400 border border-green-500/50'
                       : 'bg-red-500/20 text-red-400 border border-red-500/50'
