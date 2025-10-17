@@ -1086,7 +1086,7 @@
                   <button
                     v-if="canEscalateArmy(army) && canModifyArmy(army)"
                     @click="escalateArmy(army)"
-                    class="text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 p-1.5 rounded transition-colors"
+                    class="text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 p-1.5 rounded transition-colors cursor-pointer"
                     title="Escalate to Next Round"
                   >
                     <TrendingUp :size="16" />
@@ -1094,7 +1094,7 @@
                   <button
                     v-if="canModifyArmy(army)"
                     @click="handleEditArmy(army)"
-                    class="text-yellow-400 hover:text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/50 p-1.5 rounded transition-colors"
+                    class="text-yellow-400 hover:text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/50 p-1.5 rounded transition-colors cursor-pointer"
                     title="Edit Army"
                   >
                     <Edit :size="16" />
@@ -1102,7 +1102,7 @@
                   <button
                     v-if="canModifyArmy(army)"
                     @click="handleDeleteArmy(army)"
-                    class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 p-1.5 rounded transition-colors"
+                    class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 p-1.5 rounded transition-colors cursor-pointer"
                     title="Delete Army"
                   >
                     <Trash2 :size="16" />
