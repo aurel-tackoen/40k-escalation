@@ -62,7 +62,7 @@
       :class="{ 'active': isOpen }"
     >
       <Swords :size="20" class="text-purple-400 flex-shrink-0" />
-      <span class="font-semibold truncate">{{ currentLeague?.name || 'No League' }}</span>
+      <span class="font-semibold truncate flex-1 max-w-36">{{ currentLeague?.name || 'No League' }}</span>
       <ChevronDown :size="16" :class="{ 'rotate-180': isOpen }" class="transition-transform ml-auto flex-shrink-0" />
     </button>
 

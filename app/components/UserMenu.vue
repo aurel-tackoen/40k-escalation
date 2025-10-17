@@ -43,8 +43,8 @@
         :alt="getUserName"
         class="w-[34px] h-[34px] rounded-lg object-cover border border-gray-400"
       >
-      <span>{{ getUserName }}</span>
-      <ChevronDown :size="16" class="ml-auto" />
+      <span class="truncate flex-1 max-w-24">{{ getUserName }}</span>
+      <ChevronDown :size="16" class="ml-auto flex-shrink-0" />
     </button>
 
     <!-- Dropdown Menu -->

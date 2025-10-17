@@ -2,14 +2,13 @@
   import { LogIn } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
 
-  const { isAuthenticated, login } = useAuth()
+  const { login } = useAuth()
 </script>
 
 <template>
   <div>
     <!-- Login Button (when not authenticated) -->
     <button
-      v-if="!isAuthenticated"
       @click="login"
       class="btn-primary flex items-center gap-2 text-sm sm:text-base whitespace-nowrap"
     >

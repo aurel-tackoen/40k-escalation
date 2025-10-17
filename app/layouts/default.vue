@@ -131,7 +131,7 @@
               <LeagueSwitcher v-if="authStore.isAuthenticated" />
 
               <UserMenu v-if="authStore.isAuthenticated" />
-              <LoginButton />
+              <LoginButton v-if="!authStore.isAuthenticated"/>
             </div>
 
             <!-- Navigation Links (only show when authenticated) -->
