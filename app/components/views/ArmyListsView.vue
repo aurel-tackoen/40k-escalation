@@ -196,6 +196,7 @@
     const nextRound = army.round + 1
     const escalatedArmy = copyArmyToNextRound(army, nextRound)
     setupEscalation(army, escalatedArmy)
+    scrollToForm()
   }
 
   const handleDeleteArmy = (army) => {
