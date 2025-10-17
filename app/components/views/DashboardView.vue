@@ -158,7 +158,14 @@
           <Medal :size="24" class="text-yellow-500 flex-shrink-0" />
           <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Current Standings</h3>
         </div>
-        <div class="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0 custom-scrollbar">
+
+        <!-- No players message -->
+        <div v-if="sortedPlayers.length === 0" class="text-center py-8 text-gray-400 text-sm">
+          No players yet. Invite players to join the league to see standings!
+        </div>
+
+        <!-- Standings table -->
+        <div v-else class="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0 custom-scrollbar">
           <table class="w-full min-w-[500px] sm:min-w-0">
             <thead>
               <tr class="border-b border-gray-600">
@@ -245,6 +252,71 @@
     </div>
 
 
+
+    <!-- Rounds Information -->
+    <div v-if="league?.rounds && league.rounds.length > 0" class="card">
+      <div class="flex items-center gap-2 mb-4">
+        <Calendar :size="24" class="text-yellow-500" />
+        <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Rounds Schedule</h3>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div
+          v-for="round in league.rounds"
+          :key="round.id"
+          class="bg-gray-700 p-4 rounded-lg border-2 transition-all"
+          :class="round.number === league.currentRound ? 'border-yellow-500 shadow-lg shadow-yellow-500/20' : 'border-gray-600'"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-lg font-bold" :class="round.number === league.currentRound ? 'text-yellow-500' : 'text-white'">
+              {{ round.name }}
+            </h4>
+            <span
+              v-if="round.number === league.currentRound"
+              class="px-2 py-1 text-xs font-bold bg-yellow-500 text-gray-900 rounded"
+            >
+              ACTIVE
+            </span>
+          </div>
+
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center gap-2">
+              <Shield :size="16" class="text-gray-400 flex-shrink-0" />
+              <span class="text-gray-300">
+                <span class="font-semibold text-yellow-500">{{ round.pointLimit }}</span> points
+              </span>
+            </div>
+
+            <div v-if="round.startDate" class="flex items-center gap-2">
+              <Calendar :size="16" class="text-gray-400 flex-shrink-0" />
+              <span class="text-gray-300">
+                Start: <span class="font-semibold">{{ formatDate(round.startDate) }}</span>
+              </span>
+            </div>
+
+            <div v-if="round.endDate" class="flex items-center gap-2">
+              <Calendar :size="16" class="text-gray-400 flex-shrink-0" />
+              <span class="text-gray-300">
+                End: <span class="font-semibold">{{ formatDate(round.endDate) }}</span>
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2 border-t border-gray-600">
+              <Shield :size="16" class="text-gray-400 flex-shrink-0" />
+              <span class="text-gray-300">
+                <span class="font-semibold">{{ armies.filter(a => a.round === round.number).length }}</span> armies submitted
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <Swords :size="16" class="text-gray-400 flex-shrink-0" />
+              <span class="text-gray-300">
+                <span class="font-semibold">{{ matches.filter(m => m.round === round.number).length }}</span> matches played
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- League Rules -->
     <div v-if="league?.rules" class="card">
