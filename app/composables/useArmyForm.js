@@ -132,7 +132,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
   const copyFromPreviousArmy = (previousArmy) => {
     if (previousArmy) {
       currentArmy.value.units = JSON.parse(JSON.stringify(previousArmy.units))
-      currentArmy.value.name = `${previousArmy.name} (Round ${currentArmy.value.round})`
+      currentArmy.value.name = `${previousArmy.name} - Round ${currentArmy.value.round}`
       recalculateArmy()
     }
   }

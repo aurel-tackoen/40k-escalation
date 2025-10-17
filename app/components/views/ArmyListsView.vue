@@ -563,10 +563,6 @@
                 <span class="bg-yellow-500 text-gray-900 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">3</span>
                 Units ({{ currentArmy.units.length }})
               </h4>
-              <p v-if="currentArmy.units.length >= 2" class="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                <ChevronUp :size="14" />
-                Use arrows to reorder units
-              </p>
             </div>
             <button type="button" @click="addUnit" class="btn-primary flex items-center gap-2">
               <Plus :size="18" />
