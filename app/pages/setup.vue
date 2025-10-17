@@ -2,7 +2,7 @@
   import { useLeaguesStore } from '~/stores/leagues'
 
   const leaguesStore = useLeaguesStore()
-  const { currentLeague: league, initializing, canManageLeague } = storeToRefs(leaguesStore)
+  const { currentLeague: league, players, initializing, canManageLeague } = storeToRefs(leaguesStore)
 </script>
 
 <template>
@@ -17,6 +17,7 @@
     <ViewsLeagueSetupView
       v-else
       :league="league"
+      :players="players"
       @update-league="leaguesStore.updateLeague"
     />
   </div>

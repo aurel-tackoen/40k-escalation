@@ -17,11 +17,12 @@ Implemented a complete soft delete system for player memberships in leagues, all
 
 ### Business Rules
 - Players can leave leagues voluntarily
-- League owners can remove any player
+- League owners can remove any player (except themselves)
+- **League owner cannot leave** - must transfer ownership first
 - Regular users can only remove themselves
 - All historical data is preserved (matches, armies, player stats)
 - Inactive players are visually distinguished but still visible
-- Users can rejoin and reactivate their membership
+- Users can rejoin via invite link (backend reactivates membership)
 
 ## 🗄️ Database Changes
 
@@ -133,10 +134,20 @@ const canRemovePlayer = (player) => {
   if (!isAuthenticated.value || !user.value) return false
   if (player.membershipStatus === 'inactive') return false
   
-  // Owner can remove anyone, user can only remove themselves
-  return isLeagueOwner.value || player.userId === user.value.id
+  const isSelf = player.userId === user.value.id
+  
+  // Owner cannot remove themselves (must transfer ownership first)
+  if (isLeagueOwner.value && isSelf) return false
+  
+  // Owner can remove anyone else, regular user can only remove themselves
+  return isLeagueOwner.value || isSelf
 }
 ```
+
+**Visual Indicators**:
+- Purple "Owner" badge on owner's card (not removable)
+- Tooltip: "League owner cannot leave. Transfer ownership first."
+- X button hidden for owner's own card
 
 ### 3. Dynamic Confirmation Modal
 ```vue
@@ -297,7 +308,10 @@ async removePlayer(playerId, isSelf = false) {
 - [ ] **Authorization**
   - [ ] Regular users cannot remove other players
   - [ ] X button hidden for unauthorized users
+  - [ ] **Owner cannot remove themselves** ⭐
+  - [ ] Owner sees purple "Owner" badge on their card
   - [ ] API returns 403 for unauthorized removal attempts
+  - [ ] API returns 403 if owner tries to leave
 
 - [ ] **Edge Cases**
   - [ ] Cannot remove already inactive players
@@ -328,6 +342,14 @@ async removePlayer(playerId, isSelf = false) {
 const isLeagueOwner = membership?.role === 'owner'
 const isSelf = playerToRemove.userId === user.id
 
+// League owner cannot remove themselves
+if (isLeagueOwner && isSelf) {
+  throw createError({
+    statusCode: 403,
+    statusMessage: 'League owner cannot leave. Please transfer ownership first.'
+  })
+}
+
 if (!isLeagueOwner && !isSelf) {
   throw createError({ statusCode: 403, ... })
 }
@@ -335,8 +357,9 @@ if (!isLeagueOwner && !isSelf) {
 
 ### Frontend Protection
 - Remove button hidden via `canRemovePlayer()` function
+- Purple "Owner" badge on owner's card
 - Authorization check uses `isLeagueOwner` getter from store
-- Double validation (frontend + backend)
+- Triple validation (UI, frontend logic, backend)
 
 ## 🎉 Benefits
 

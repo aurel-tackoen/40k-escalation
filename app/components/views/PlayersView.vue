@@ -44,8 +44,13 @@
     if (!isAuthenticated.value || !user.value) return false
     if (player.membershipStatus === 'inactive') return false // Already inactive
 
-    // Owner can remove anyone, user can only remove themselves
-    return isLeagueOwner.value || player.userId === user.value.id
+    const isSelf = player.userId === user.value.id
+
+    // Owner cannot remove themselves (must transfer ownership first)
+    if (isLeagueOwner.value && isSelf) return false
+
+    // Owner can remove anyone else, regular user can only remove themselves
+    return isLeagueOwner.value || isSelf
   }
 
   // Check if current user is already a player in this league
@@ -205,14 +210,24 @@
                 <span>{{ player.armyName }}</span>
               </div>
             </div>
-            <button
-              v-if="canRemovePlayer(player)"
-              @click="confirmRemoval(player)"
-              class="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
-              title="Remove Player"
-            >
-              <X :size="20" />
-            </button>
+            <div class="flex items-center gap-2">
+              <!-- Owner Badge -->
+              <span
+                v-if="isLeagueOwner && player.userId === user?.id"
+                class="text-xs bg-purple-900/30 text-purple-400 border border-purple-600 px-2 py-1 rounded"
+                title="League owner - Transfer ownership in League Setup to leave"
+              >
+                Owner
+              </span>
+              <button
+                v-if="canRemovePlayer(player)"
+                @click="confirmRemoval(player)"
+                class="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+                title="Remove Player"
+              >
+                <X :size="20" />
+              </button>
+            </div>
           </div>
 
           <div class="space-y-2">

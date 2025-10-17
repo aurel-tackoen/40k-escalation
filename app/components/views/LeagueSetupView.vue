@@ -1,21 +1,27 @@
 <script setup>
-  import { ref, watch, onMounted } from 'vue'
+  import { ref, watch, onMounted, computed } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { Save, Plus, Trash2, Settings as SettingsIcon, Share2, Copy, RefreshCw, Link, Globe, Lock, AlertTriangle } from 'lucide-vue-next'
+  import { Save, Plus, Trash2, Settings as SettingsIcon, Share2, Copy, RefreshCw, Link, Globe, Lock, AlertTriangle, Crown } from 'lucide-vue-next'
   import { useFormatting } from '~/composables/useFormatting'
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
+  import { useAuth } from '~/composables/useAuth'
 
   // Composables
   const { normalizeDates } = useFormatting()
   const leaguesStore = useLeaguesStore()
   const { gameSystems } = storeToRefs(leaguesStore)
+  const { user } = useAuth()
 
   // Props
   const props = defineProps({
     league: {
       type: Object,
       required: true
+    },
+    players: {
+      type: Array,
+      default: () => []
     }
   })
 
@@ -129,6 +135,56 @@
       shareUrl.value = `${baseUrl}/join/${editableLeague.value.shareToken}`
     }
   })
+
+  // Ownership Transfer
+  const selectedNewOwner = ref(null)
+  const isTransferringOwnership = ref(false)
+
+  const activePlayers = computed(() => {
+    return props.players.filter(p =>
+      p.membershipStatus === 'active' && p.userId !== user.value?.id
+    )
+  })
+
+  const transferOwnership = async () => {
+    if (!selectedNewOwner.value || !editableLeague.value?.id) return
+
+    const newOwnerPlayer = activePlayers.value.find(p => p.id === selectedNewOwner.value)
+    if (!newOwnerPlayer) return
+
+    const confirmTransfer = confirm(
+      `Transfer ownership to ${newOwnerPlayer.name}?\n\n` +
+        `This will:\n` +
+        `• Make ${newOwnerPlayer.name} the new league owner\n` +
+        `• Change your role to member\n` +
+        `• Allow you to leave the league\n\n` +
+        `This action cannot be undone!`
+    )
+
+    if (!confirmTransfer) return
+
+    isTransferringOwnership.value = true
+    try {
+      await $fetch(`/api/leagues/${editableLeague.value.id}/transfer-ownership`, {
+        method: 'POST',
+        body: {
+          newOwnerUserId: newOwnerPlayer.userId
+        }
+      })
+
+      alert('Ownership transferred successfully! The new owner will now have full control.')
+      selectedNewOwner.value = null
+
+      // Refresh membership data to get updated roles
+      await leaguesStore.fetchMembers()
+      await leaguesStore.fetchMyLeagues()
+    } catch (error) {
+      console.error('Error transferring ownership:', error)
+      alert('Failed to transfer ownership. Please try again.')
+    } finally {
+      isTransferringOwnership.value = false
+    }
+  }
 
   const deleteLeague = async () => {
     if (!editableLeague.value?.id) return
@@ -528,6 +584,58 @@
             <p>• Ranked by total wins, then by total Victory Points scored</p>
             <p>• Ties broken by head-to-head record</p>
             <p>• Final standings determine league champion</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ownership Transfer (only for owner) -->
+    <div v-if="leaguesStore.isLeagueOwner" class="card border-2 border-purple-600/50 bg-purple-950/20">
+      <div class="flex items-center gap-3 mb-6">
+        <Crown class="text-purple-500" :size="28" />
+        <h3 class="text-2xl font-serif font-bold text-purple-500">Transfer Ownership</h3>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-purple-900/30 border border-purple-600/50 rounded-lg p-4">
+          <h4 class="text-lg font-semibold text-purple-400 mb-2">Assign a New Owner</h4>
+          <p class="text-gray-300 mb-4">
+            As league owner, you cannot leave unless you transfer ownership to another active player.
+            Select a new owner from the list below to transfer all league management permissions.
+          </p>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-semibold text-purple-400 mb-2">
+                Select New Owner
+              </label>
+              <select
+                v-model="selectedNewOwner"
+                class="input-field"
+                :disabled="activePlayers.length === 0"
+              >
+                <option :value="null">Choose a player...</option>
+                <option
+                  v-for="player in activePlayers"
+                  :key="player.id"
+                  :value="player.id"
+                >
+                  {{ player.name }} ({{ player.faction }})
+                </option>
+              </select>
+              <p v-if="activePlayers.length === 0" class="text-sm text-gray-400 mt-2">
+                No other active players available. At least one other player must join before you can transfer ownership.
+              </p>
+            </div>
+
+            <button
+              @click="transferOwnership"
+              :disabled="!selectedNewOwner || isTransferringOwnership"
+              class="btn-secondary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto bg-purple-600 hover:bg-purple-700 border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Crown :size="18" />
+              <span>{{ isTransferringOwnership ? 'Transferring...' : 'Transfer Ownership' }}</span>
+            </button>
           </div>
         </div>
       </div>

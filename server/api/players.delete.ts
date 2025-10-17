@@ -83,6 +83,14 @@ export default defineEventHandler(async (event) => {
     const isLeagueOwner = membership?.role === 'owner'
     const isSelf = playerToRemove.userId === user.id
 
+    // League owner cannot remove themselves (must transfer ownership first)
+    if (isLeagueOwner && isSelf) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'League owner cannot leave. Please transfer ownership first.'
+      })
+    }
+
     if (!isLeagueOwner && !isSelf) {
       throw createError({
         statusCode: 403,
