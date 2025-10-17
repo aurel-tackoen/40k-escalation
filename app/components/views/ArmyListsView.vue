@@ -1,6 +1,6 @@
 <script setup>
   import { computed, watch, toRef, ref, nextTick } from 'vue'
-  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, ChevronUp, ChevronDown } from 'lucide-vue-next'
+  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, ChevronUp, ChevronDown, CheckCircle } from 'lucide-vue-next'
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
@@ -816,8 +816,9 @@
                   <span class="text-xs text-gray-400">
                     {{ getArmyPaintingStats(army).painted }} / {{ getArmyPaintingStats(army).totalModels }} models
                   </span>
-                  <span v-if="getArmyPaintingStats(army).percentage === 100" class="text-xs text-purple-400 font-semibold">
-                    ✨ Complete!
+                  <span v-if="getArmyPaintingStats(army).percentage === 100" class="text-xs text-purple-400 font-semibold flex items-center gap-1">
+                    <CheckCircle :size="12" />
+                    Complete!
                   </span>
                 </div>
               </div>
@@ -847,8 +848,9 @@
                   <span class="text-xs text-gray-400">
                     {{ getArmyPaintedPoints(army).paintedPoints }} / {{ getArmyPaintedPoints(army).totalPoints }} pts
                   </span>
-                  <span v-if="getArmyPaintedPoints(army).percentage === 100" class="text-xs text-purple-400 font-semibold">
-                    ✨ Complete!
+                  <span v-if="getArmyPaintedPoints(army).percentage === 100" class="text-xs text-purple-400 font-semibold flex items-center gap-1">
+                    <CheckCircle :size="12" />
+                    Complete!
                   </span>
                 </div>
               </div>
