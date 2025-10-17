@@ -3,6 +3,11 @@
 
   const leaguesStore = useLeaguesStore()
   const { players, armies, currentLeague: league, initializing } = storeToRefs(leaguesStore)
+
+  // Handle player removal with redirect if user removes themselves
+  const handleRemovePlayer = async (playerId, isSelf) => {
+    await leaguesStore.removePlayer(playerId, isSelf)
+  }
 </script>
 
 <template>
@@ -18,7 +23,7 @@
       :currentRound="league?.currentRound || 1"
       @add-player="leaguesStore.addPlayer"
       @update-player="leaguesStore.updatePlayer"
-      @remove-player="leaguesStore.removePlayer"
+      @remove-player="handleRemovePlayer"
     />
   </div>
 </template>

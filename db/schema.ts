@@ -134,7 +134,8 @@ export const leagueMemberships = pgTable('league_memberships', {
   role: varchar({ length: 50 }).default('player').notNull(), // 'owner', 'organizer', 'player'
   armyName: varchar({ length: 255 }), // Persistent army name for this league (e.g., "Emperor's Fist")
   joinedAt: timestamp().defaultNow().notNull(),
-  status: varchar({ length: 50 }).default('active').notNull(), // 'active', 'inactive', 'banned'
+  status: varchar({ length: 50 }).default('active').notNull(), // 'active', 'inactive', 'banned', 'invited'
+  leftAt: timestamp(), // Timestamp when user left/was removed from league (null if active)
 });
 
 // Legacy posts table (can be removed later)

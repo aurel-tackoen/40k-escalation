@@ -1,6 +1,6 @@
 /**
  * POST /api/players
- * Creates a new player in a specific league
+ * Creates a new player in a specific league OR reactivates an inactive membership
  * Also updates the league membership with the player ID
  */
 import { db } from '../../db'
@@ -19,19 +19,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Insert player with stats
-    const newPlayer = await db.insert(players).values({
-      leagueId: body.leagueId,
-      userId: body.userId,
-      name: body.name,
-      faction: body.faction || null,
-      wins: body.wins || 0,
-      losses: body.losses || 0,
-      draws: body.draws || 0,
-      totalPoints: body.totalPoints || 0
-    }).returning()
+    // Check if player already exists in this league (including inactive)
+    const [existingPlayer] = await db
+      .select()
+      .from(players)
+      .where(
+        and(
+          eq(players.leagueId, body.leagueId),
+          eq(players.userId, body.userId)
+        )
+      )
+      .limit(1)
 
-    // Update the league membership with the player ID
+    // Check membership status
     const [membership] = await db
       .select()
       .from(leagueMemberships)
@@ -43,16 +43,69 @@ export default defineEventHandler(async (event) => {
       )
       .limit(1)
 
+    // If player exists and membership is inactive, REACTIVATE
+    if (existingPlayer && membership?.status === 'inactive') {
+      // Reactivate membership
+      await db
+        .update(leagueMemberships)
+        .set({
+          status: 'active',
+          leftAt: null
+        })
+        .where(eq(leagueMemberships.id, membership.id))
+
+      // Update player info (name, faction might have changed)
+      const [updatedPlayer] = await db
+        .update(players)
+        .set({
+          name: body.name,
+          faction: body.faction || null
+        })
+        .where(eq(players.id, existingPlayer.id))
+        .returning()
+
+      return {
+        success: true,
+        data: updatedPlayer,
+        message: 'Successfully rejoined league'
+      }
+    }
+
+    // If player already exists and is active, return error
+    if (existingPlayer && membership?.status === 'active') {
+      throw createError({
+        statusCode: 409,
+        statusMessage: 'Player already exists in this league'
+      })
+    }
+
+    // NEW PLAYER: Insert player with stats
+    const newPlayer = await db.insert(players).values({
+      leagueId: body.leagueId,
+      userId: body.userId,
+      name: body.name,
+      faction: body.faction || null,
+      wins: body.wins || 0,
+      losses: body.losses || 0,
+      draws: body.draws || 0,
+      totalPoints: body.totalPoints || 0
+    }).returning()
+
+    // Update or create the league membership
     if (membership) {
       await db
         .update(leagueMemberships)
-        .set({ playerId: newPlayer[0].id })
+        .set({
+          playerId: newPlayer[0].id,
+          status: 'active'
+        })
         .where(eq(leagueMemberships.id, membership.id))
     }
 
     return {
       success: true,
-      data: newPlayer[0]
+      data: newPlayer[0],
+      message: 'Player added successfully'
     }
   } catch (error) {
     console.error('Error creating player:', error)

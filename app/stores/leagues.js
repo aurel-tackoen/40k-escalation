@@ -583,6 +583,8 @@ export const useLeaguesStore = defineStore('leagues', {
       try {
         const response = await $fetch(`/api/players?leagueId=${this.currentLeagueId}`)
         if (response.success) {
+          // Keep all players (including inactive) for display
+          // UI will handle visual differentiation
           this.players = response.data
         }
       } catch (error) {
@@ -707,13 +709,20 @@ export const useLeaguesStore = defineStore('leagues', {
     /**
      * Remove player from current league
      */
-    async removePlayer(playerId) {
+    async removePlayer(playerId, isSelf = false) {
       try {
         const response = await $fetch(`/api/players?id=${playerId}`, {
           method: 'DELETE'
         })
         if (response.success) {
-          this.players = this.players.filter(p => p.id !== playerId)
+          // Refetch players to get updated status (soft delete)
+          await this.fetchPlayers()
+
+          // If user removed themselves, clear league selection and redirect to home
+          if (isSelf) {
+            this.currentLeagueId = null
+            navigateTo('/')
+          }
         }
         return response
       } catch (error) {

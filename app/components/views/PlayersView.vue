@@ -28,7 +28,7 @@
 
   // Get dynamic factions from store
   const leaguesStore = useLeaguesStore()
-  const { availableFactions, currentGameSystemName, gameSystems } = storeToRefs(leaguesStore)
+  const { availableFactions, currentGameSystemName, gameSystems, isLeagueOwner } = storeToRefs(leaguesStore)
 
   // Game systems composable
   const { getGameSystemBadgeClasses, getGameSystemTextClasses, getGameSystemHintClasses } = useGameSystems(gameSystems)
@@ -38,6 +38,15 @@
 
   // Auth
   const { user, isAuthenticated } = useAuth()
+
+  // Check if current user can remove a specific player
+  const canRemovePlayer = (player) => {
+    if (!isAuthenticated.value || !user.value) return false
+    if (player.membershipStatus === 'inactive') return false // Already inactive
+
+    // Owner can remove anyone, user can only remove themselves
+    return isLeagueOwner.value || player.userId === user.value.id
+  }
 
   // Check if current user is already a player in this league
   const isCurrentUserPlayer = computed(() => {
@@ -70,7 +79,7 @@
   // Remove player handler
   const removePlayer = () => {
     executeRemoval((player) => {
-      emit('remove-player', player.id)
+      emit('remove-player', player.id, player.userId === user.value?.id)
     })
   }
 
@@ -174,7 +183,8 @@
             'rounded-lg p-4 transition-all duration-300',
             player.userId === user?.id
               ? 'bg-yellow-900/20 border-2 border-yellow-500 shadow-lg shadow-yellow-500/20 ring-2 ring-yellow-500/30'
-              : 'bg-gray-700 border border-gray-600 hover:border-yellow-500'
+              : 'bg-gray-700 border border-gray-600 hover:border-yellow-500',
+            player.membershipStatus === 'inactive' && 'opacity-50'
           ]"
         >
           <div class="flex justify-between items-start mb-3">
@@ -182,6 +192,7 @@
               <h4 class="text-lg font-semibold text-gray-100">
                 {{ player.name }}
                 <span v-if="player.userId === user?.id" class="text-yellow-500 font-normal text-sm ml-1">(me)</span>
+                <span v-if="player.membershipStatus === 'inactive'" class="text-red-400 font-normal text-xs ml-1">(inactive)</span>
               </h4>
               <div class="flex items-center gap-1 text-sm text-yellow-500">
                 <Shield :size="14" />
@@ -195,6 +206,7 @@
               </div>
             </div>
             <button
+              v-if="canRemovePlayer(player)"
               @click="confirmRemoval(player)"
               class="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
               title="Remove Player"
@@ -269,13 +281,20 @@
       </div>
 
       <!-- Already joined message -->
-      <div v-if="isCurrentUserPlayer" class="bg-green-900/20 border border-green-600 rounded-lg p-4 mb-4">
+      <div v-if="isCurrentUserPlayer && currentUserPlayer?.membershipStatus === 'active'" class="bg-green-900/20 border border-green-600 rounded-lg p-4 mb-4">
         <p class="text-green-400 flex items-center gap-2">
           <UserCheck :size="18" />
           You've already joined this league as {{ currentUserPlayer.name }}
         </p>
         <p class="text-gray-400 text-sm mt-2">
           You can update your display name, faction, and army name below.
+        </p>
+      </div>
+
+      <!-- Inactive user message -->
+      <div v-if="currentUserPlayer?.membershipStatus === 'inactive'" class="bg-gray-700 border border-gray-600 rounded-lg p-4">
+        <p class="text-gray-300">
+          You previously left this league. To rejoin, please use the league invite link or contact the league organizer.
         </p>
       </div>
 
@@ -286,8 +305,8 @@
         </p>
       </div>
 
-      <!-- Join/Update form (show when authenticated) -->
-      <form v-if="isAuthenticated" @submit.prevent="submitPlayer" class="space-y-4">
+      <!-- Join/Update form (show when authenticated and not inactive) -->
+      <form v-if="isAuthenticated && currentUserPlayer?.membershipStatus !== 'inactive'" @submit.prevent="submitPlayer" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-semibold text-yellow-500 mb-2">Display Name</label>
@@ -314,7 +333,7 @@
             </select>
           </div>
 
-          <!-- Army Name Field (only show when updating profile) -->
+          <!-- Army Name Field (only show when updating active profile) -->
           <div v-if="isCurrentUserPlayer">
             <label class="block text-sm font-semibold text-yellow-500 mb-2 flex items-center gap-2">
               Army Name
@@ -355,14 +374,31 @@
     <!-- Confirmation Modal -->
     <div v-if="playerToRemove" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-gray-800 border border-gray-600 rounded-lg p-6 max-w-md w-full mx-4">
-        <h4 class="text-xl font-bold text-yellow-500 mb-4">Confirm Removal</h4>
-        <p class="text-gray-300 mb-6">
-          Are you sure you want to remove <strong>{{ playerToRemove.name }}</strong> from the league?
-          This action cannot be undone and all their match history will be lost.
+        <h4 class="text-xl font-bold text-yellow-500 mb-4">
+          {{ playerToRemove.userId === user?.id ? 'Leave League?' : 'Remove Player?' }}
+        </h4>
+        <p class="text-gray-300 mb-4">
+          <template v-if="playerToRemove.userId === user?.id">
+            Are you sure you want to leave this league?
+          </template>
+          <template v-else>
+            Are you sure you want to remove <strong>{{ playerToRemove.name }}</strong> from this league?
+          </template>
         </p>
+        <div class="bg-gray-700 border border-gray-600 rounded-lg p-4 mb-6">
+          <p class="text-sm text-gray-300 mb-2">
+            <strong class="text-yellow-500">Note:</strong> {{ playerToRemove.userId === user?.id ? 'Leaving' : 'Removing' }} the league will:
+          </p>
+          <ul class="text-sm text-gray-400 space-y-1 ml-4 list-disc">
+            <li>Remove the player from the active roster</li>
+            <li><strong class="text-green-400">Preserve</strong> all match history and battle records</li>
+            <li><strong class="text-green-400">Preserve</strong> all army lists</li>
+            <li>Allow the player to rejoin later if they wish</li>
+          </ul>
+        </div>
         <div class="flex space-x-4">
           <button @click="removePlayer" class="btn-secondary flex-1">
-            Remove Player
+            {{ playerToRemove.userId === user?.id ? 'Leave League' : 'Remove Player' }}
           </button>
           <button @click="cancelRemoval" class="btn-primary flex-1">
             Cancel

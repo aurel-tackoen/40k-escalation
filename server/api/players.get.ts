@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     let allPlayers
 
     if (leagueId) {
-      // Get players for specific league with armyName from league_memberships
+      // Get players for specific league with armyName and membership status
       const playersWithArmyNames = await db
         .select({
           id: players.id,
@@ -27,7 +27,9 @@ export default defineEventHandler(async (event) => {
           draws: players.draws,
           totalPoints: players.totalPoints,
           createdAt: players.createdAt,
-          armyName: leagueMemberships.armyName
+          armyName: leagueMemberships.armyName,
+          membershipStatus: leagueMemberships.status,
+          leftAt: leagueMemberships.leftAt
         })
         .from(players)
         .leftJoin(

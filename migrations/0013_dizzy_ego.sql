@@ -1,0 +1,1 @@
+ALTER TABLE "league_memberships" ADD COLUMN "leftAt" timestamp;
