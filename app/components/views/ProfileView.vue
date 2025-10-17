@@ -1,6 +1,6 @@
 <script setup>
   import { ref, onMounted, computed } from 'vue'
-  import { Mail, Calendar, Save, Shield } from 'lucide-vue-next'
+  import { Mail, Calendar, Save, Shield, Trophy, Users, Target, Flame, Swords, TrendingUp } from 'lucide-vue-next'
   import { useUser } from '~/composables/useUser'
   import { useAuth } from '~/composables/useAuth'
   import { useFormatting } from '~/composables/useFormatting'
@@ -197,7 +197,64 @@
             :key="player.id"
             class="bg-gray-800 border border-gray-600 rounded-lg p-4 hover:border-yellow-500 transition-colors"
           >
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <!-- Mobile List Layout -->
+            <div class="sm:hidden space-y-3">
+              <!-- Player Header -->
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                  <Shield :size="20" class="text-white" />
+                </div>
+                <div class="flex-1">
+                  <div class="font-bold text-white">{{ player.name }}</div>
+                  <div class="text-xs text-gray-400">{{ player.faction }}</div>
+                  <div class="text-xs text-purple-400">{{ player.leagueName || 'Unknown League' }}</div>
+                </div>
+              </div>
+
+              <!-- Compact Stats List -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between py-1">
+                  <div class="flex items-center gap-2 text-gray-400 text-sm">
+                    <Swords :size="14" />
+                    <span>Record</span>
+                  </div>
+                  <span class="font-semibold text-white text-sm">{{ player.wins }}-{{ player.losses }}-{{ player.draws }}</span>
+                </div>
+                <div class="flex items-center justify-between py-1">
+                  <div class="flex items-center gap-2 text-gray-400 text-sm">
+                    <TrendingUp :size="14" />
+                    <span>Win Rate</span>
+                  </div>
+                  <span class="font-semibold text-yellow-500 text-sm">
+                    {{ Math.round(((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) * 100) }}%
+                  </span>
+                </div>
+                <div class="flex items-center justify-between py-1">
+                  <div class="flex items-center gap-2 text-gray-400 text-sm">
+                    <Users :size="14" />
+                    <span>Games</span>
+                  </div>
+                  <span class="font-semibold text-blue-400 text-sm">{{ player.wins + player.losses + player.draws }}</span>
+                </div>
+                <div class="flex items-center justify-between py-1">
+                  <div class="flex items-center gap-2 text-gray-400 text-sm">
+                    <Target :size="14" />
+                    <span>Points</span>
+                  </div>
+                  <span class="font-semibold text-green-400 text-sm">{{ player.totalPoints || 0 }}</span>
+                </div>
+                <div class="flex items-center justify-between py-1">
+                  <div class="flex items-center gap-2 text-gray-400 text-sm">
+                    <Calendar :size="14" />
+                    <span>Joined</span>
+                  </div>
+                  <span class="text-gray-300 text-sm">{{ formatDate(player.createdAt, { month: 'short', year: 'numeric' }) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desktop Layout -->
+            <div class="hidden sm:flex sm:items-center sm:justify-between gap-4">
               <!-- Player Basic Info -->
               <div class="flex items-center gap-3">
                 <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
@@ -214,7 +271,7 @@
               </div>
 
               <!-- Player Stats -->
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              <div class="grid grid-cols-4 gap-4 text-center">
                 <!-- Record -->
                 <div>
                   <div class="text-xs text-gray-400 uppercase tracking-wide">Record</div>
@@ -252,21 +309,38 @@
             <!-- Performance Badge -->
             <div v-if="player.wins + player.losses + player.draws > 0" class="mt-3 pt-3 border-t border-gray-700">
               <div class="flex items-center justify-between text-xs">
-                <span class="text-gray-400">Performance:</span>
-                <span
+                <div class="flex items-center gap-1 text-gray-400">
+                  <Trophy :size="12" />
+                  <span>Performance</span>
+                </div>
+                <div
                   :class="{
                     'text-green-400': ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.6,
                     'text-yellow-400': ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.4,
                     'text-red-400': ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) < 0.4
                   }"
-                  class="font-semibold"
+                  class="font-semibold flex items-center gap-1"
                 >
-                  {{
-                    ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.6 ? '🔥 Strong' :
-                    ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.4 ? '⚔️ Competitive' :
-                    '📈 Developing'
-                  }}
-                </span>
+                  <Flame
+                    v-if="((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.6"
+                    :size="12"
+                  />
+                  <Swords
+                    v-else-if="((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.4"
+                    :size="12"
+                  />
+                  <TrendingUp
+                    v-else
+                    :size="12"
+                  />
+                  <span>
+                    {{
+                      ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.6 ? 'Strong' :
+                      ((player.wins) / Math.max(1, player.wins + player.losses + player.draws)) >= 0.4 ? 'Competitive' :
+                      'Developing'
+                    }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

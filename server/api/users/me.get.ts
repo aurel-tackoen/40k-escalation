@@ -1,5 +1,5 @@
 import { db } from '../../../db'
-import { users, players } from '../../../db/schema'
+import { users, players, leagues } from '../../../db/schema'
 import { eq } from 'drizzle-orm'
 
 /**
@@ -46,10 +46,23 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Get all players linked to this user
+    // Get all players linked to this user with their leagues
     const linkedPlayers = await db
-      .select()
+      .select({
+        id: players.id,
+        leagueId: players.leagueId,
+        userId: players.userId,
+        name: players.name,
+        faction: players.faction,
+        wins: players.wins,
+        losses: players.losses,
+        draws: players.draws,
+        totalPoints: players.totalPoints,
+        createdAt: players.createdAt,
+        leagueName: leagues.name
+      })
       .from(players)
+      .leftJoin(leagues, eq(players.leagueId, leagues.id))
       .where(eq(players.userId, user.id))
 
     return {
