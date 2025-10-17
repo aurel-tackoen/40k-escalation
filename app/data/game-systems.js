@@ -19,5 +19,10 @@ export const gameSystems = [
     name: 'Middle-Earth Strategy Battle Game',
     shortName: 'mesbg',
     description: 'Recreate the battles of Middle-Earth'
+  },
+  {
+    name: 'The Horus Heresy',
+    shortName: 'hh',
+    description: 'The Age of Darkness - Forge your Legion\'s legacy'
   }
 ]

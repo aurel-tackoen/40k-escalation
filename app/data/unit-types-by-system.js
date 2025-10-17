@@ -47,6 +47,20 @@ export const unitTypesBySystem = {
     { name: 'Monsters', category: 'Elite', displayOrder: 7 },
     { name: 'Siege Engines', category: 'Support', displayOrder: 8 },
     { name: 'War Beasts', category: 'Elite', displayOrder: 9 }
+  ],
+
+  'hh': [
+    // The Horus Heresy Age of Darkness Force Organization
+    { name: 'HQ', category: 'Command', displayOrder: 1 },
+    { name: 'Troops', category: 'Core', displayOrder: 2 },
+    { name: 'Elites', category: 'Specialist', displayOrder: 3 },
+    { name: 'Fast Attack', category: 'Specialist', displayOrder: 4 },
+    { name: 'Heavy Support', category: 'Specialist', displayOrder: 5 },
+    { name: 'Lord of War', category: 'Command', displayOrder: 6 },
+    { name: 'Primarch', category: 'Command', displayOrder: 7 },
+    { name: 'Dedicated Transport', category: 'Support', displayOrder: 8 },
+    { name: 'Fortification', category: 'Support', displayOrder: 9 },
+    { name: 'Legion Specific', category: 'Special', displayOrder: 10 }
   ]
 }
 

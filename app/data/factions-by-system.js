@@ -137,5 +137,39 @@ export const factionsBySystem = {
     { name: 'Azog\'s Hunters', category: 'Evil' },
     { name: 'Azog\'s Legion', category: 'Evil' },
     { name: 'The Black Gate Opens', category: 'Evil' }
+  ],
+
+  'hh': [
+    // Loyalist Legions
+    { name: 'Dark Angels', category: 'Loyalist Legions' },
+    { name: 'White Scars', category: 'Loyalist Legions' },
+    { name: 'Space Wolves', category: 'Loyalist Legions' },
+    { name: 'Imperial Fists', category: 'Loyalist Legions' },
+    { name: 'Blood Angels', category: 'Loyalist Legions' },
+    { name: 'Iron Hands', category: 'Loyalist Legions' },
+    { name: 'Ultramarines', category: 'Loyalist Legions' },
+    { name: 'Salamanders', category: 'Loyalist Legions' },
+    { name: 'Raven Guard', category: 'Loyalist Legions' },
+    // Traitor Legions
+    { name: 'Emperor\'s Children', category: 'Traitor Legions' },
+    { name: 'Iron Warriors', category: 'Traitor Legions' },
+    { name: 'Night Lords', category: 'Traitor Legions' },
+    { name: 'World Eaters', category: 'Traitor Legions' },
+    { name: 'Death Guard', category: 'Traitor Legions' },
+    { name: 'Thousand Sons', category: 'Traitor Legions' },
+    { name: 'Sons of Horus', category: 'Traitor Legions' },
+    { name: 'Word Bearers', category: 'Traitor Legions' },
+    { name: 'Alpha Legion', category: 'Traitor Legions' },
+    // Allied Forces
+    { name: 'Mechanicum', category: 'Allied Forces' },
+    { name: 'Dark Mechanicum', category: 'Allied Forces' },
+    { name: 'Solar Auxilia', category: 'Allied Forces' },
+    { name: 'Imperial Militia', category: 'Allied Forces' },
+    { name: 'Talons of the Emperor', category: 'Allied Forces' },
+    { name: 'Legio Custodes', category: 'Allied Forces' },
+    { name: 'Sisters of Silence', category: 'Allied Forces' },
+    { name: 'Daemons of the Ruinstorm', category: 'Allied Forces' },
+    { name: 'Questoris Knights', category: 'Allied Forces' },
+    { name: 'Cerastus Knights', category: 'Allied Forces' }
   ]
 }

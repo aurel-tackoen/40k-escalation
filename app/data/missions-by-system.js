@@ -64,5 +64,23 @@ export const missionsBySystem = {
     { name: 'Fog of War', category: 'Narrative' },
     { name: 'Ambush', category: 'Narrative' },
     { name: 'Breakthrough', category: 'Narrative' }
+  ],
+
+  'hh': [
+    { name: 'Onslaught', category: 'Age of Darkness' },
+    { name: 'Pride of the Legion', category: 'Age of Darkness' },
+    { name: 'Dominion', category: 'Age of Darkness' },
+    { name: 'Strategic Raid', category: 'Age of Darkness' },
+    { name: 'Shatter Strike', category: 'Age of Darkness' },
+    { name: 'The Price of Betrayal', category: 'Age of Darkness' },
+    { name: 'Tide of Carnage', category: 'Matched Play' },
+    { name: 'War of Lies', category: 'Matched Play' },
+    { name: 'Fury of the Legions', category: 'Matched Play' },
+    { name: 'Armoured Spearhead', category: 'Matched Play' },
+    { name: 'Orbital Assault', category: 'Deployment' },
+    { name: 'Zone Mortalis - Search and Destroy', category: 'Zone Mortalis' },
+    { name: 'Zone Mortalis - The Labyrinth', category: 'Zone Mortalis' },
+    { name: 'Castellan', category: 'Narrative' },
+    { name: 'Reaping', category: 'Narrative' }
   ]
 }

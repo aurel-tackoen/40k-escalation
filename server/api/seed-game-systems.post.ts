@@ -1,6 +1,6 @@
 import { db } from '../../db'
 import { gameSystems, factions, missions, unitTypes } from '../../db/schema'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
@@ -59,7 +59,10 @@ export default defineEventHandler(async () => {
         const existing = await db
           .select()
           .from(factions)
-          .where(eq(factions.name, faction.name))
+          .where(and(
+            eq(factions.gameSystemId, system.id),
+            eq(factions.name, faction.name)
+          ))
           .limit(1)
 
         if (existing.length === 0) {
@@ -88,7 +91,10 @@ export default defineEventHandler(async () => {
         const existing = await db
           .select()
           .from(missions)
-          .where(eq(missions.name, mission.name))
+          .where(and(
+            eq(missions.gameSystemId, system.id),
+            eq(missions.name, mission.name)
+          ))
           .limit(1)
 
         if (existing.length === 0) {
@@ -117,7 +123,10 @@ export default defineEventHandler(async () => {
         const existing = await db
           .select()
           .from(unitTypes)
-          .where(eq(unitTypes.name, unitType.name))
+          .where(and(
+            eq(unitTypes.gameSystemId, system.id),
+            eq(unitTypes.name, unitType.name)
+          ))
           .limit(1)
 
         if (existing.length === 0) {

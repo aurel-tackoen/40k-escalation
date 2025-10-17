@@ -1,17 +1,20 @@
 # Warhammer 40k Escalation League Manager - AI Agent Guide
 
 > **Production-Ready Full-Stack Application** - Nuxt 4 + Vue 3 + PostgreSQL + Netlify  
-> **NEW: Multi-Game System Support** - Now supports 4 Warhammer game systems! 🎮
+> **NEW: Multi-Game System Support** - Now supports 5 Warhammer game systems! 🎮
 
 ## 🎯 Project Overview
 
 A comprehensive full-stack web application for managing escalation league campaigns across multiple Warhammer game systems with database persistence, painting progress tracking, and advanced analytics.
 
 ### Supported Game Systems
-- 🎲 **Warhammer 40,000** - 40 factions, 15 missions
-- ⚔️ **Age of Sigmar** - 24 factions, 13 missions  
-- 🏰 **The Old World** - 17 factions, 12 missions
-- 🗡️ **Middle-Earth Strategy Battle Game** - 29 factions, 14 missions
+- 🎲 **Warhammer 40,000** - 40 factions, 15 missions, 9 unit types
+- ⚔️ **Age of Sigmar** - 24 factions, 13 missions, 8 unit types
+- 🏰 **The Old World** - 17 factions, 12 missions, 7 unit types
+- 🗡️ **Middle-Earth Strategy Battle Game** - 29 factions, 14 missions, 9 unit types
+- ⚡ **The Horus Heresy** - 29 factions, 15 missions, 10 unit types
+
+**Total Content**: 139 factions, 69 missions, 43 unit types across 5 game systems
 
 ### Technology Stack
 - **Framework**: Nuxt v4.1.2 (Vue 3.5.22 Composition API)
@@ -72,9 +75,10 @@ app/                          # Nuxt 4 application directory
 │   ├── useRoundLookup.js    # Round data access (5 functions)
 │   └── useUser.js           # User profile management (new)
 ├── data/                     # Static reference data (NEW: Multi-game system)
-│   ├── game-systems.js      # 4 game systems (40k, AoS, ToW, MESBG)
-│   ├── factions-by-system.js # 110 factions across all systems
-│   └── missions-by-system.js # 53 missions across all systems
+│   ├── game-systems.js      # 5 game systems (40k, AoS, ToW, MESBG, HH)
+│   ├── factions-by-system.js # 139 factions across all systems
+│   ├── missions-by-system.js # 69 missions across all systems
+│   └── unit-types-by-system.js # 43 unit types across all systems
 ├── layouts/
 │   └── default.vue          # Default layout wrapper
 ├── pages/                    # File-based routing (6 pages)
@@ -840,19 +844,20 @@ git push origin main  # Auto-deploys on Netlify
 ## 📊 Multi-Game System Architecture
 
 ### Game Systems Overview
-The application now supports **4 Warhammer game systems** with dynamic faction and mission loading:
+The application now supports **5 Warhammer game systems** with dynamic faction and mission loading:
 
-| Game System | Short Code | Factions | Missions |
-|-------------|------------|----------|----------|
-| Warhammer 40,000 | 40k | 40 | 15 |
-| Age of Sigmar | aos | 24 | 13 |
-| The Old World | tow | 17 | 12 |
-| Middle-Earth SBG | mesbg | 29 | 14 |
-| **TOTAL** | | **110** | **53** |
+| Game System | Short Code | Factions | Missions | Unit Types |
+|-------------|------------|----------|----------|------------|
+| Warhammer 40,000 | 40k | 40 | 15 | 9 |
+| Age of Sigmar | aos | 24 | 13 | 8 |
+| The Old World | tow | 17 | 12 | 7 |
+| Middle-Earth SBG | mesbg | 29 | 14 | 9 |
+| The Horus Heresy | hh | 29 | 15 | 10 |
+| **TOTAL** | | **139** | **69** | **43** |
 
 ### Data Flow
-1. **Database Tables**: `game_systems`, `factions`, `missions` (seeded via `/api/seed-game-systems`)
-2. **API Endpoints**: `/api/game-systems`, `/api/factions?gameSystemId=X`, `/api/missions?gameSystemId=X`
+1. **Database Tables**: `game_systems`, `factions`, `missions`, `unit_types` (seeded via `/api/seed-game-systems`)
+2. **API Endpoints**: `/api/game-systems`, `/api/factions?gameSystemId=X`, `/api/missions?gameSystemId=X`, `/api/unit-types?gameSystemId=X`
 3. **Pinia Store**: `leagues.js` - Fetches and caches game system data
 4. **Components**: Use `storeToRefs(leaguesStore)` to access `availableFactions` and `availableMissions`
 
@@ -864,17 +869,27 @@ The application now supports **4 Warhammer game systems** with dynamic faction a
 ### Adding a New Game System
 1. Add to `app/data/game-systems.js`:
    ```javascript
-   { name: 'New Game', shortName: 'ng' }
+   { name: 'New Game', shortName: 'ng', description: 'Game description' }
    ```
 2. Add factions to `app/data/factions-by-system.js`:
    ```javascript
-   { gameSystemShortName: 'ng', name: 'Faction Name', category: 'Category' }
+   'ng': [
+     { name: 'Faction Name', category: 'Category' }
+   ]
    ```
 3. Add missions to `app/data/missions-by-system.js`:
    ```javascript
-   { gameSystemShortName: 'ng', name: 'Mission Name', category: 'Matched Play' }
+   'ng': [
+     { name: 'Mission Name', category: 'Matched Play' }
+   ]
    ```
-4. Run seed endpoint: `POST /api/seed-game-systems`
+4. Add unit types to `app/data/unit-types-by-system.js`:
+   ```javascript
+   'ng': [
+     { name: 'Unit Type', category: 'Command', displayOrder: 1 }
+   ]
+   ```
+5. Run seed endpoint: `POST /api/seed-game-systems`
 
 ### Migration Guide (Single → Multi System)
 **If you have existing data before this refactor:**
@@ -989,7 +1004,7 @@ git push origin main
 - ✅ **100% Composable Coverage** - 12/12 composables implemented
 - ✅ **Full Database Integration** - PostgreSQL + Drizzle ORM
 - ✅ **Complete API Layer** - 17 RESTful endpoints
-- ✅ **Multi-Game System Support** - 4 Warhammer game systems (110 factions, 53 missions)
+- ✅ **Multi-Game System Support** - 5 Warhammer game systems (139 factions, 69 missions, 43 unit types)
 - ✅ **CSV Export Everywhere** - Players, armies, matches
 - ✅ **Advanced Analytics** - Match quality, win streaks, painting leaderboard
 - ✅ **Production Deployment** - Netlify-ready configuration
