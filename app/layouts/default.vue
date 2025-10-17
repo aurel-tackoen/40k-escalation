@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watch, onMounted } from 'vue'
+  import { ref, watch, onMounted, onUnmounted } from 'vue'
   import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords, HeartHandshake } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
   import { useAuthStore } from '~/stores/auth'
@@ -55,6 +55,20 @@
   const route = useRoute()
   watch(() => route.path, () => {
     closeMobileMenu()
+  })
+
+  // Block body scroll when mobile menu is open
+  watch(() => isMobileMenuOpen.value, (isOpen) => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }, { immediate: true })
+
+  // Cleanup: restore scroll on unmount
+  onUnmounted(() => {
+    document.body.style.overflow = ''
   })
 </script>
 
