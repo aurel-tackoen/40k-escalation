@@ -1,7 +1,7 @@
 <script setup>
   import { ref, computed, toRef } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { Plus, Filter, Users, Trophy, X, Flame, TrendingUp, Handshake, Swords, Trash2 } from 'lucide-vue-next'
+  import { Plus, Filter, Users, Trophy, X, Flame, TrendingUp, Handshake, Swords, Trash2, LayoutGrid, TableProperties } from 'lucide-vue-next'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
@@ -63,6 +63,7 @@
 
   const filterRound = ref('')
   const filterPlayer = ref('')
+  const viewMode = ref('cards') // 'cards' or 'table'
 
   // Computed properties
   const filteredMatches = computed(() => {
@@ -189,13 +190,45 @@
   <div class="flex flex-col gap-8">
     <!-- Match History -->
     <div class="card">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
         <div class="flex items-center gap-2">
           <Trophy :size="24" class="text-yellow-500 flex-shrink-0" />
-          <h2 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h2>
+          <div>
+            <h2 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Match History</h2>
+            <p class="text-gray-400 text-sm mt-1">View and filter all recorded matches.</p>
+          </div>
         </div>
-        <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses() + ' flex-shrink-0'">
-          <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
+        <div class="flex items-center gap-3">
+          <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses() + ' flex-shrink-0'">
+            <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
+          </div>
+          <!-- View Toggle -->
+          <div class="flex items-center gap-2 bg-gray-700 rounded-lg p-1">
+            <button
+              @click="viewMode = 'cards'"
+              :class="[
+                'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
+                viewMode === 'cards'
+                  ? 'bg-yellow-500 text-gray-900'
+                  : 'text-gray-400 hover:text-gray-200'
+              ]"
+            >
+              <LayoutGrid :size="16" />
+              Cards
+            </button>
+            <button
+              @click="viewMode = 'table'"
+              :class="[
+                'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
+                viewMode === 'table'
+                  ? 'bg-yellow-500 text-gray-900'
+                  : 'text-gray-400 hover:text-gray-200'
+              ]"
+            >
+              <TableProperties :size="16" />
+              Table
+            </button>
+          </div>
         </div>
       </div>
 
@@ -221,7 +254,8 @@
         </div>
       </div>
 
-      <div class="space-y-4">
+      <!-- Card View -->
+      <div v-if="filteredMatches.length > 0 && viewMode === 'cards'" class="space-y-4">
         <div
           v-for="match in filteredMatches"
           :key="match.id"
@@ -347,6 +381,123 @@
         </div>
       </div>
 
+      <!-- Table View -->
+      <div v-if="filteredMatches.length > 0 && viewMode === 'table'" class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-gray-600">
+              <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Round</th>
+              <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Date</th>
+              <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Player 1</th>
+              <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Score</th>
+              <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Player 2</th>
+              <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Mission</th>
+              <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Result</th>
+              <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Quality</th>
+              <th class="text-right py-3 px-4 text-sm font-semibold text-gray-300">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="match in filteredMatches"
+              :key="match.id"
+              class="border-b border-gray-700 hover:bg-gray-700/30 transition-colors"
+            >
+              <!-- Round -->
+              <td class="py-3 px-4">
+                <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-semibold text-sm">
+                  Round {{ match.round }}
+                </span>
+              </td>
+
+              <!-- Date -->
+              <td class="py-3 px-4 text-gray-300 text-sm">
+                {{ formatDate(match.datePlayed) }}
+              </td>
+
+              <!-- Player 1 -->
+              <td class="py-3 px-4">
+                <div class="flex flex-col gap-1">
+                  <span class="font-semibold text-gray-200">{{ getPlayerName(match.player1Id) }}</span>
+                  <span class="text-xs text-gray-400">{{ getPlayerFaction(match.player1Id) }}</span>
+                  <span v-if="getPlayerStreak(match.player1Id)" class="inline-flex items-center gap-1 text-red-400 text-xs font-bold">
+                    <Flame :size="12" class="flex-shrink-0" />
+                    {{ getPlayerStreak(match.player1Id).count }}W
+                  </span>
+                </div>
+              </td>
+
+              <!-- Score -->
+              <td class="py-3 px-4 text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <span class="text-yellow-500 font-bold text-lg" :class="match.winnerId === match.player1Id ? 'text-green-400' : ''">
+                    {{ match.player1Points }}
+                  </span>
+                  <span class="text-gray-500">-</span>
+                  <span class="text-yellow-500 font-bold text-lg" :class="match.winnerId === match.player2Id ? 'text-green-400' : ''">
+                    {{ match.player2Points }}
+                  </span>
+                </div>
+              </td>
+
+              <!-- Player 2 -->
+              <td class="py-3 px-4">
+                <div class="flex flex-col gap-1">
+                  <span class="font-semibold text-gray-200">{{ getPlayerName(match.player2Id) }}</span>
+                  <span class="text-xs text-gray-400">{{ getPlayerFaction(match.player2Id) }}</span>
+                  <span v-if="getPlayerStreak(match.player2Id)" class="inline-flex items-center gap-1 text-red-400 text-xs font-bold">
+                    <Flame :size="12" class="flex-shrink-0" />
+                    {{ getPlayerStreak(match.player2Id).count }}W
+                  </span>
+                </div>
+              </td>
+
+              <!-- Mission -->
+              <td class="py-3 px-4">
+                <span class="text-xs bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 px-2 py-1 rounded font-semibold">
+                  {{ match.mission }}
+                </span>
+              </td>
+
+              <!-- Result -->
+              <td class="py-3 px-4 text-center">
+                <div v-if="match.winnerId" class="inline-flex items-center gap-1 text-green-400 text-sm font-semibold">
+                  <Trophy :size="14" class="flex-shrink-0" />
+                  <span class="hidden lg:inline">{{ getPlayerName(match.winnerId) }}</span>
+                  <span class="lg:hidden">Win</span>
+                </div>
+                <div v-else class="inline-flex items-center gap-1 text-yellow-400 text-sm font-semibold">
+                  <Handshake :size="14" class="flex-shrink-0" />
+                  Draw
+                </div>
+              </td>
+
+              <!-- Quality Badge -->
+              <td class="py-3 px-4 text-center">
+                <span v-if="getMatchQualityBadge(match)" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap"
+                      :class="getMatchQualityBadge(match).class">
+                  <component :is="getMatchQualityBadge(match).icon" :size="12" class="flex-shrink-0" />
+                  <span class="hidden xl:inline">{{ getMatchQualityBadge(match).text }}</span>
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="py-3 px-4 text-right">
+                <button
+                  v-if="canDeleteMatch(match)"
+                  @click="confirmDeleteMatch(match)"
+                  class="p-2 rounded hover:bg-red-900/50 text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+                  title="Delete match"
+                >
+                  <Trash2 :size="16" class="flex-shrink-0" />
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
       <div v-if="filteredMatches.length === 0" class="text-center py-8 text-gray-400">
         <p class="text-base sm:text-lg">No matches found.</p>
         <p class="text-sm sm:text-base">Record your first match above!</p>
