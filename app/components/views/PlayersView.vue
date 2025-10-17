@@ -170,11 +170,19 @@
         <div
           v-for="player in players"
           :key="player.id"
-          class="bg-gray-700 border border-gray-600 rounded-lg p-4 hover:border-yellow-500 transition-colors"
+          :class="[
+            'rounded-lg p-4 transition-all duration-300',
+            player.userId === user?.id
+              ? 'bg-yellow-900/20 border-2 border-yellow-500 shadow-lg shadow-yellow-500/20 ring-2 ring-yellow-500/30'
+              : 'bg-gray-700 border border-gray-600 hover:border-yellow-500'
+          ]"
         >
           <div class="flex justify-between items-start mb-3">
             <div class="flex-1">
-              <h4 class="text-lg font-semibold text-gray-100">{{ player.name }}</h4>
+              <h4 class="text-lg font-semibold text-gray-100">
+                {{ player.name }}
+                <span v-if="player.userId === user?.id" class="text-yellow-500 font-normal text-sm ml-1">(me)</span>
+              </h4>
               <div class="flex items-center gap-1 text-sm text-yellow-500">
                 <Shield :size="14" />
                 <p>{{ player.faction }}</p>
@@ -309,7 +317,6 @@
           <!-- Army Name Field (only show when updating profile) -->
           <div v-if="isCurrentUserPlayer">
             <label class="block text-sm font-semibold text-yellow-500 mb-2 flex items-center gap-2">
-              <Swords :size="16" />
               Army Name
             </label>
             <input
