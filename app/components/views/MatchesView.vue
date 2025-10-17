@@ -244,32 +244,43 @@
         </div>
       </div>
 
-      <!-- View Toggle -->
-      <div class="flex items-center gap-2 bg-gray-700 rounded-lg p-1">
-        <button
-          @click="viewMode = 'cards'"
-          :class="[
-            'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
-            viewMode === 'cards'
-              ? 'bg-yellow-500 text-gray-900'
-              : 'text-gray-400 hover:text-gray-200'
-          ]"
-        >
-          <LayoutGrid :size="16" />
-          Cards
-        </button>
-        <button
-          @click="viewMode = 'table'"
-          :class="[
-            'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
-            viewMode === 'table'
-              ? 'bg-yellow-500 text-gray-900'
-              : 'text-gray-400 hover:text-gray-200'
-          ]"
-        >
-          <TableProperties :size="16" />
-          Table
-        </button>
+      <!-- Section Header with View Toggle -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div class="flex items-center gap-2">
+          <Swords :size="24" class="text-yellow-500" />
+          <h3 class="text-2xl font-serif font-bold text-yellow-500">
+            Recorded Matches
+            <span class="text-lg text-gray-300 font-bold">({{ filteredMatches.length }})</span>
+          </h3>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="flex items-center gap-2 bg-gray-700 rounded-lg p-1">
+          <button
+            @click="viewMode = 'cards'"
+            :class="[
+              'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
+              viewMode === 'cards'
+                ? 'bg-yellow-500 text-gray-900'
+                : 'text-gray-400 hover:text-gray-200'
+            ]"
+          >
+            <LayoutGrid :size="16" />
+            Cards
+          </button>
+          <button
+            @click="viewMode = 'table'"
+            :class="[
+              'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
+              viewMode === 'table'
+                ? 'bg-yellow-500 text-gray-900'
+                : 'text-gray-400 hover:text-gray-200'
+            ]"
+          >
+            <TableProperties :size="16" />
+            Table
+          </button>
+        </div>
       </div>
       <!-- Card View -->
       <div v-if="filteredMatches.length > 0 && viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
