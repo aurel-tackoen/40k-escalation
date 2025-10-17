@@ -798,12 +798,16 @@ export const useLeaguesStore = defineStore('leagues', {
      */
     async deleteArmy(playerId, round) {
       try {
-        const response = await $fetch(`/api/armies?playerId=${playerId}&round=${round}`, {
+        if (!this.currentLeagueId) {
+          throw new Error('No league selected')
+        }
+
+        const response = await $fetch(`/api/armies?leagueId=${this.currentLeagueId}&playerId=${playerId}&round=${round}`, {
           method: 'DELETE'
         })
         if (response.success) {
           this.armies = this.armies.filter(a =>
-            !(a.playerId === playerId && a.round === round)
+            !(a.playerId === playerId && a.round === round && a.leagueId === this.currentLeagueId)
           )
         }
         return response

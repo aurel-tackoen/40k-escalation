@@ -1,5 +1,5 @@
 /**
- * DELETE /api/armies?playerId=<playerId>&round=<round>
+ * DELETE /api/armies?leagueId=<leagueId>&playerId=<playerId>&round=<round>
  * Deletes an army list from the database
  */
 import { db } from '../../db'
@@ -9,13 +9,14 @@ import { eq, and } from 'drizzle-orm'
 export default defineEventHandler(async (event) => {
   try {
     const query = getQuery(event)
+    const leagueId = parseInt(query.leagueId as string)
     const playerId = parseInt(query.playerId as string)
     const round = parseInt(query.round as string)
 
-    if (!playerId || isNaN(playerId) || !round || isNaN(round)) {
+    if (!leagueId || isNaN(leagueId) || !playerId || isNaN(playerId) || !round || isNaN(round)) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Valid player ID and round are required'
+        statusMessage: 'Valid league ID, player ID and round are required'
       })
     }
 
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     const deleted = await db.delete(armies)
       .where(
         and(
+          eq(armies.leagueId, leagueId),
           eq(armies.playerId, playerId),
           eq(armies.round, round)
         )

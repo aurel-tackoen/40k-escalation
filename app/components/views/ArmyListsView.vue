@@ -749,7 +749,7 @@
           <button
             @click="viewMode = 'cards'"
             :class="[
-              'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium',
+              'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
               viewMode === 'cards'
                 ? 'bg-yellow-500 text-gray-900'
                 : 'text-gray-400 hover:text-gray-200'
@@ -761,7 +761,7 @@
           <button
             @click="viewMode = 'table'"
             :class="[
-              'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium',
+              'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
               viewMode === 'table'
                 ? 'bg-yellow-500 text-gray-900'
                 : 'text-gray-400 hover:text-gray-200'

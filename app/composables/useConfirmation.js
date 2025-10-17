@@ -4,7 +4,7 @@ import { ref } from 'vue'
  * Composable for confirmation dialog management
  * Provides reusable pattern for confirmation modals
  */
-export function useConfirmation() {
+export function useConfirmation(defaultCallback = null) {
   const item = ref(null)
   const isOpen = ref(false)
   const confirmCallback = ref(null)
@@ -33,10 +33,10 @@ export function useConfirmation() {
 
   /**
    * Execute the confirmation action
-   * @param {Function} defaultCallback - Fallback callback if none was set
+   * @param {Function} callbackOverride - Override callback (optional)
    */
-  const execute = (defaultCallback = null) => {
-    const callback = confirmCallback.value || defaultCallback
+  const execute = (callbackOverride = null) => {
+    const callback = callbackOverride || confirmCallback.value || defaultCallback
 
     if (item.value && callback && typeof callback === 'function') {
       callback(item.value)
