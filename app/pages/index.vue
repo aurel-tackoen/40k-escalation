@@ -126,6 +126,95 @@
       </div>
     </div>
 
+    <!-- Multi-Game System Support Section -->
+    <div class="bg-gray-900 py-16 border-y border-gray-700">
+      <div class="container mx-auto px-4">
+        <div class="max-w-5xl mx-auto">
+          <h2 class="text-3xl font-bold text-center text-gray-100 mb-4">
+            Support for Multiple Game Systems
+          </h2>
+          <p class="text-center text-yellow-400 text-lg mb-12 font-semibold">
+            Each game has its own unique match recording system
+          </p>
+
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <!-- Warhammer 40k / AoS / Horus Heresy -->
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-yellow-600 transition-colors">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <h3 class="text-lg font-bold text-gray-100">Victory Points</h3>
+              </div>
+              <p class="text-sm text-gray-400 mb-3">
+                <span class="font-semibold text-gray-300">Warhammer 40,000</span><br>
+                <span class="font-semibold text-gray-300">Age of Sigmar</span><br>
+                <span class="font-semibold text-gray-300">The Horus Heresy</span>
+              </p>
+              <p class="text-gray-400 text-sm">
+                Record matches using victory points (0-100). Track primary and secondary objectives to determine the winner.
+              </p>
+            </div>
+
+            <!-- The Old World -->
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-yellow-600 transition-colors">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
+                <h3 class="text-lg font-bold text-gray-100">Percentage/Casualties</h3>
+              </div>
+              <p class="text-sm text-gray-400 mb-3">
+                <span class="font-semibold text-gray-300">The Old World</span>
+              </p>
+              <p class="text-gray-400 text-sm">
+                Calculate margin of victory based on army values and casualties inflicted. Supports Crushing Victory, Solid Victory, Minor Victory, and Draws.
+              </p>
+            </div>
+
+            <!-- MESBG -->
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-yellow-600 transition-colors">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                <h3 class="text-lg font-bold text-gray-100">Scenario Objectives</h3>
+              </div>
+              <p class="text-sm text-gray-400 mb-3">
+                <span class="font-semibold text-gray-300">Middle-Earth SBG</span>
+              </p>
+              <p class="text-gray-400 text-sm">
+                Track scenario objectives and objective completion. Winner determined by objectives first, then casualties as a tiebreaker.
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-gray-800/50 border border-yellow-600/30 rounded-lg p-6">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0">
+                <Trophy :size="32" class="text-yellow-500" />
+              </div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold text-gray-100 mb-2">Automatic Match Type Detection</h3>
+                <p class="text-gray-400 mb-4">
+                  When you create a league and select a game system, the match recording form automatically adapts to that game's scoring system.
+                  No manual configuration needed—just pick your game and start recording battles!
+                </p>
+                <ul class="space-y-2 text-sm text-gray-400">
+                  <li class="flex items-start gap-2">
+                    <span class="text-yellow-500 mt-1">•</span>
+                    <span><strong class="text-gray-300">Victory Points leagues</strong> show VP input fields (0-100)</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-yellow-500 mt-1">•</span>
+                    <span><strong class="text-gray-300">The Old World leagues</strong> show army value and casualties with automatic margin calculation</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-yellow-500 mt-1">•</span>
+                    <span><strong class="text-gray-300">MESBG leagues</strong> show objective descriptions and completion checkboxes</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Why Escalation League Section -->
     <div class="bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 py-16 border border-gray-700 rounded-lg mb-8">
       <div class="container mx-auto px-4">

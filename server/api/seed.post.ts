@@ -1,16 +1,34 @@
 /**
  * POST /api/seed
- * Seeds the database with initial data
+ * Seeds the database with test data (players, matches, armies)
+ * Note: Run /api/seed-game-systems first to set up game systems, factions, and missions
  */
 import { db } from '../../db'
-import { leagues, rounds, players, matches, armies } from '../../db/schema'
+import { gameSystems, leagues, rounds, players, matches, armies } from '../../db/schema'
+import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async () => {
   try {
-    // Create league
+    console.log('🏆 Seeding test league data...')
+
+    // Find Warhammer 40k game system (must exist first)
+    const wh40k = await db
+      .select()
+      .from(gameSystems)
+      .where(eq(gameSystems.shortName, '40k'))
+      .limit(1)
+
+    if (wh40k.length === 0) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Game systems not seeded. Run POST /api/seed-game-systems first.'
+      })
+    }
+
     const [league] = await db.insert(leagues).values({
       name: 'Autumn Escalation 2025',
       description: 'Progressive army building campaign',
+      gameSystemId: wh40k[0].id,
       startDate: '2025-10-01',
       endDate: '2025-12-31',
       currentRound: 1
@@ -75,7 +93,7 @@ export default defineEventHandler(async () => {
       totalPoints: 68
     }).returning()
 
-    // Create matches
+    // Create matches with matchType and gameSystemId
     await db.insert(matches).values([
       {
         leagueId: league.id,
@@ -87,7 +105,9 @@ export default defineEventHandler(async () => {
         winnerId: player1.id,
         mission: 'Purge the Enemy',
         datePlayed: '2025-10-05',
-        notes: 'Close game, came down to final turn'
+        notes: 'Close game, came down to final turn',
+        matchType: 'victory_points',
+        gameSystemId: wh40k[0].id
       },
       {
         leagueId: league.id,
@@ -99,7 +119,9 @@ export default defineEventHandler(async () => {
         winnerId: player1.id,
         mission: 'Secure and Control',
         datePlayed: '2025-10-12',
-        notes: 'Magnus dominated the psychic phase'
+        notes: 'Magnus dominated the psychic phase',
+        matchType: 'victory_points',
+        gameSystemId: wh40k[0].id
       }
     ])
 
@@ -136,6 +158,11 @@ export default defineEventHandler(async () => {
       success: true,
       message: 'Database seeded successfully',
       data: {
+        gameSystemsCreated,
+        gameSystemsTotal: allSystems.length,
+        factionsCreated,
+        missionsCreated,
+        unitTypesCreated,
         league,
         playersCreated: 3,
         matchesCreated: 2,

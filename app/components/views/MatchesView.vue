@@ -1,12 +1,13 @@
 <script setup>
-  import { ref, computed, toRef } from 'vue'
+  import { ref, computed, toRef, watch } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { Plus, Filter, Users, Trophy, X, Flame, TrendingUp, Handshake, Trash2, LayoutGrid, TableProperties } from 'lucide-vue-next'
+  import { Plus, Filter, Users, Trophy, X, Flame, TrendingUp, Handshake, Trash2, LayoutGrid, TableProperties, Swords } from 'lucide-vue-next'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
   import { useMatchResults } from '~/composables/useMatchResults'
   import { useGameSystems } from '~/composables/useGameSystems'
+  import { useMatchValidation } from '~/composables/useMatchValidation'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
   import MatchCard from '~/components/MatchCard.vue'
 
@@ -24,7 +25,7 @@
 
   // Get dynamic missions from store
   const leaguesStore = useLeaguesStore()
-  const { availableMissions, currentGameSystemName, gameSystems, canManageLeague, currentPlayer } = storeToRefs(leaguesStore)
+  const { availableMissions, currentGameSystemName, gameSystems, canManageLeague, currentPlayer, currentLeague } = storeToRefs(leaguesStore)
 
   // Composables
   const { getPlayerName, getPlayerFaction } = usePlayerLookup(toRef(props, 'players'))
@@ -63,18 +64,56 @@
     showDeleteModal.value = false
   }
 
-  // Reactive data
+  // Get current game system and match config
+  const currentGameSystem = computed(() =>
+    gameSystems.value.find(gs => gs.id === currentLeague.value?.gameSystemId)
+  )
+
+  const matchConfig = computed(() => currentGameSystem.value?.matchConfig || {})
+  const matchType = computed(() => currentGameSystem.value?.matchType || 'victory_points')
+
+  // Reactive data - with all match type fields
   const newMatch = ref({
     player1Id: null,
     player2Id: null,
+
+    // Match type and game system
+    matchType: matchType.value,
+    gameSystemId: null,
+
+    // Victory Points (40k, AoS, HH)
     player1Points: null,
     player2Points: null,
+
+    // Percentage/Casualties (ToW)
+    player1ArmyValue: null,
+    player2ArmyValue: null,
+    player1CasualtiesValue: null,
+    player2CasualtiesValue: null,
+
+    // Scenario (MESBG)
+    scenarioObjective: '',
+    player1ObjectiveCompleted: false,
+    player2ObjectiveCompleted: false,
+
+    // Common fields
     round: null,
     mission: '',
     datePlayed: new Date().toISOString().split('T')[0],
     winnerId: undefined, // undefined = not set, null = draw
     notes: ''
   })
+
+  // Watch for league changes to update matchType
+  watch(currentLeague, (league) => {
+    if (league?.gameSystemId) {
+      newMatch.value.gameSystemId = league.gameSystemId
+      newMatch.value.matchType = matchType.value
+    }
+  }, { immediate: true })
+
+  // Use validation composable
+  const matchValidation = useMatchValidation(toRef(() => newMatch.value))
 
   const filterRound = ref('')
   const filterPlayer = ref('')
@@ -100,32 +139,60 @@
 
   // Methods
   const submitMatch = () => {
-    if (isValidMatch()) {
-      // Determine winner based on points if not explicitly set
-      if (newMatch.value.winnerId === undefined) {
-        if (newMatch.value.player1Points > newMatch.value.player2Points) {
-          newMatch.value.winnerId = newMatch.value.player1Id
-        } else if (newMatch.value.player2Points > newMatch.value.player1Points) {
-          newMatch.value.winnerId = newMatch.value.player2Id
-        } else {
-          newMatch.value.winnerId = null // Draw
-        }
-      }
-
-      emit('add-match', { ...newMatch.value })
-      resetForm()
-
-      // Scroll to top to see the newly added match
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+    // Validate match using composable
+    const validation = matchValidation.validateMatch()
+    if (!validation.isValid) {
+      alert(validation.errors.join('\n'))
+      return
     }
+
+    // Determine winner using composable (unless explicitly set)
+    if (newMatch.value.winnerId === undefined) {
+      newMatch.value.winnerId = matchValidation.determineWinner()
+    }
+
+    // Calculate ToW margin if applicable
+    if (matchType.value === 'percentage') {
+      newMatch.value.marginOfVictory = matchValidation.calculateTowMargin(
+        newMatch.value.player1CasualtiesValue,
+        newMatch.value.player2CasualtiesValue,
+        newMatch.value.player1ArmyValue,
+        newMatch.value.player2ArmyValue
+      )
+    }
+
+    emit('add-match', { ...newMatch.value })
+    resetForm()
+
+    // Scroll to top to see the newly added match
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const resetForm = () => {
     newMatch.value = {
       player1Id: null,
       player2Id: null,
+
+      // Match type and game system
+      matchType: matchType.value,
+      gameSystemId: currentLeague.value?.gameSystemId || null,
+
+      // Victory Points (40k, AoS, HH)
       player1Points: null,
       player2Points: null,
+
+      // Percentage/Casualties (ToW)
+      player1ArmyValue: null,
+      player2ArmyValue: null,
+      player1CasualtiesValue: null,
+      player2CasualtiesValue: null,
+
+      // Scenario (MESBG)
+      scenarioObjective: '',
+      player1ObjectiveCompleted: false,
+      player2ObjectiveCompleted: false,
+
+      // Common fields
       round: null,
       mission: '',
       datePlayed: new Date().toISOString().split('T')[0],
@@ -138,15 +205,18 @@
     newMatch.value.winnerId = playerId
   }
 
-  const isValidMatch = () => {
-    return newMatch.value.player1Id &&
-      newMatch.value.player2Id &&
-      newMatch.value.player1Points !== null &&
-      newMatch.value.player2Points !== null &&
-      newMatch.value.round &&
-      newMatch.value.mission &&
-      newMatch.value.datePlayed
-  }
+  // Computed ToW margin for real-time display
+  const calculatedTowMargin = computed(() => {
+    if (matchType.value !== 'percentage') return null
+    if (!newMatch.value.player1ArmyValue || !newMatch.value.player2ArmyValue) return null
+
+    return matchValidation.calculateTowMargin(
+      newMatch.value.player1CasualtiesValue || 0,
+      newMatch.value.player2CasualtiesValue || 0,
+      newMatch.value.player1ArmyValue,
+      newMatch.value.player2ArmyValue
+    )
+  })
 
 
   // Get match quality badge
@@ -449,18 +519,6 @@
                 {{ getPlayerDisplayName(player) }}
               </option>
             </select>
-            <div>
-              <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Player 1 Victory Points</label>
-              <input
-                v-model.number="newMatch.player1Points"
-                type="number"
-                min="0"
-                max="45"
-                required
-                class="input-field"
-                placeholder="0-45"
-              />
-            </div>
           </div>
 
           <div class="space-y-4">
@@ -476,20 +534,195 @@
                 {{ getPlayerDisplayName(player) }}
               </option>
             </select>
+          </div>
+        </div>
+
+        <!-- CONDITIONAL SCORING FIELDS BASED ON MATCH TYPE -->
+
+        <!-- Victory Points (40k, AoS, HH) -->
+        <template v-if="matchType === 'victory_points'">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Player 2 Victory Points</label>
+              <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">
+                Player 1 {{ matchConfig.pointsLabel || 'Victory Points' }}
+              </label>
+              <input
+                v-model.number="newMatch.player1Points"
+                type="number"
+                :min="matchConfig.pointsRange?.min || 0"
+                :max="matchConfig.pointsRange?.max || 100"
+                required
+                class="input-field"
+                :placeholder="`${matchConfig.pointsRange?.min || 0}-${matchConfig.pointsRange?.max || 100}`"
+              />
+            </div>
+            <div>
+              <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">
+                Player 2 {{ matchConfig.pointsLabel || 'Victory Points' }}
+              </label>
               <input
                 v-model.number="newMatch.player2Points"
                 type="number"
-                min="0"
-                max="45"
+                :min="matchConfig.pointsRange?.min || 0"
+                :max="matchConfig.pointsRange?.max || 100"
                 required
                 class="input-field"
-                placeholder="0-45"
+                :placeholder="`${matchConfig.pointsRange?.min || 0}-${matchConfig.pointsRange?.max || 100}`"
               />
             </div>
           </div>
-        </div>
+        </template>
+
+        <!-- Percentage/Casualties (The Old World) -->
+        <template v-if="matchType === 'percentage'">
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-yellow-500 flex items-center gap-2">
+              <Swords :size="20" />
+              Army Values
+            </h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-yellow-500 mb-2">
+                  Player 1 Army Value (points)
+                </label>
+                <input
+                  v-model.number="newMatch.player1ArmyValue"
+                  type="number"
+                  min="0"
+                  required
+                  class="input-field"
+                  placeholder="Total army points"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-yellow-500 mb-2">
+                  Player 2 Army Value (points)
+                </label>
+                <input
+                  v-model.number="newMatch.player2ArmyValue"
+                  type="number"
+                  min="0"
+                  required
+                  class="input-field"
+                  placeholder="Total army points"
+                />
+              </div>
+            </div>
+
+            <h3 class="text-lg font-semibold text-yellow-500 flex items-center gap-2 mt-6">
+              <Trophy :size="20" />
+              Casualties Inflicted
+            </h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-yellow-500 mb-2">
+                  Player 1 Casualties (points destroyed)
+                </label>
+                <input
+                  v-model.number="newMatch.player1CasualtiesValue"
+                  type="number"
+                  min="0"
+                  required
+                  class="input-field"
+                  placeholder="Enemy points destroyed"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-yellow-500 mb-2">
+                  Player 2 Casualties (points destroyed)
+                </label>
+                <input
+                  v-model.number="newMatch.player2CasualtiesValue"
+                  type="number"
+                  min="0"
+                  required
+                  class="input-field"
+                  placeholder="Enemy points destroyed"
+                />
+              </div>
+            </div>
+
+            <!-- Show calculated margin -->
+            <div v-if="calculatedTowMargin" class="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
+              <p class="text-sm text-purple-300">
+                Calculated Margin:
+                <span class="font-bold text-purple-100 ml-2">{{ calculatedTowMargin }}</span>
+              </p>
+            </div>
+          </div>
+        </template>
+
+        <!-- Scenario-based (MESBG) -->
+        <template v-if="matchType === 'scenario'">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">
+                Scenario Objective *
+              </label>
+              <textarea
+                v-model="newMatch.scenarioObjective"
+                class="input-field"
+                rows="3"
+                required
+                placeholder="Describe the scenario objective (e.g., 'Control the Ring', 'Defend the Village')..."
+              ></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="flex items-center gap-3 p-4 bg-gray-700/30 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="p1-objective"
+                  v-model="newMatch.player1ObjectiveCompleted"
+                  class="w-5 h-5 cursor-pointer"
+                />
+                <label for="p1-objective" class="text-sm font-semibold text-gray-200 cursor-pointer">
+                  Player 1 Completed Objective
+                </label>
+              </div>
+
+              <div class="flex items-center gap-3 p-4 bg-gray-700/30 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="p2-objective"
+                  v-model="newMatch.player2ObjectiveCompleted"
+                  class="w-5 h-5 cursor-pointer"
+                />
+                <label for="p2-objective" class="text-sm font-semibold text-gray-200 cursor-pointer">
+                  Player 2 Completed Objective
+                </label>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-gray-400 mt-6">Casualties (Optional Tiebreaker)</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-yellow-500 mb-2">
+                  Player 1 Casualties Inflicted
+                </label>
+                <input
+                  v-model.number="newMatch.player1Points"
+                  type="number"
+                  min="0"
+                  class="input-field"
+                  placeholder="Optional"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-yellow-500 mb-2">
+                  Player 2 Casualties Inflicted
+                </label>
+                <input
+                  v-model.number="newMatch.player2Points"
+                  type="number"
+                  min="0"
+                  class="input-field"
+                  placeholder="Optional"
+                />
+              </div>
+            </div>
+          </div>
+        </template>
 
         <!-- Match Details -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -34,11 +34,23 @@ export default defineEventHandler(async () => {
         await db.insert(gameSystems).values({
           name: system.name,
           shortName: system.shortName,
+          description: system.description || '',
+          matchType: system.matchType || 'victory_points',
+          matchConfig: JSON.stringify(system.matchConfig || {}),
           isActive: true
         })
         console.log(`✓ Created game system: ${system.name}`)
       } else {
-        console.log(`- Game system already exists: ${system.name}`)
+        // Update existing game system with new fields
+        await db
+          .update(gameSystems)
+          .set({
+            description: system.description || '',
+            matchType: system.matchType || 'victory_points',
+            matchConfig: JSON.stringify(system.matchConfig || {})
+          })
+          .where(eq(gameSystems.shortName, system.shortName))
+        console.log(`✓ Updated game system: ${system.name}`)
       }
     }
 

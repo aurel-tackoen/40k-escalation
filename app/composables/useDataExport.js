@@ -140,20 +140,68 @@ export function useDataExport() {
   }
 
   /**
-   * Export match history to CSV
+   * Export match history to CSV (supports all match types)
    * @param {Array<Object>} matches - Matches array
    * @param {string} filename - Filename
    */
   const exportMatchHistory = (matches, filename = 'match-history') => {
-    const formattedMatches = matches.map(match => ({
-      date: new Date(match.date).toLocaleDateString(),
-      round: match.round,
-      player1: match.player1Name || match.player1Id,
-      player2: match.player2Name || match.player2Id,
-      score1: match.player1Score,
-      score2: match.player2Score,
-      winner: match.winner
-    }))
+    const formattedMatches = matches.map(match => {
+      const base = {
+        date: match.datePlayed ? new Date(match.datePlayed).toLocaleDateString() : new Date(match.date).toLocaleDateString(),
+        round: match.round,
+        player1: match.player1Name || match.player1Id,
+        player2: match.player2Name || match.player2Id,
+        mission: match.mission || '',
+        matchType: match.matchType || 'victory_points'
+      }
+
+      // Add match type-specific fields
+      const matchType = match.matchType || 'victory_points'
+
+      switch (matchType) {
+        case 'victory_points':
+          return {
+            ...base,
+            player1_vp: match.player1Points || 0,
+            player2_vp: match.player2Points || 0,
+            winner: match.winnerName || match.winnerId || 'Draw',
+            notes: match.notes || ''
+          }
+
+        case 'percentage':
+          return {
+            ...base,
+            player1_army_value: match.player1ArmyValue || 0,
+            player2_army_value: match.player2ArmyValue || 0,
+            player1_casualties: match.player1CasualtiesValue || 0,
+            player2_casualties: match.player2CasualtiesValue || 0,
+            margin_of_victory: match.marginOfVictory || '',
+            winner: match.winnerName || match.winnerId || 'Draw',
+            notes: match.notes || ''
+          }
+
+        case 'scenario':
+          return {
+            ...base,
+            scenario_objective: match.scenarioObjective || '',
+            player1_objective_completed: match.player1ObjectiveCompleted ? 'Yes' : 'No',
+            player2_objective_completed: match.player2ObjectiveCompleted ? 'Yes' : 'No',
+            player1_casualties: match.player1Points || 0,
+            player2_casualties: match.player2Points || 0,
+            winner: match.winnerName || match.winnerId || 'Draw',
+            notes: match.notes || ''
+          }
+
+        default:
+          return {
+            ...base,
+            player1_points: match.player1Points || 0,
+            player2_points: match.player2Points || 0,
+            winner: match.winnerName || match.winnerId || 'Draw',
+            notes: match.notes || ''
+          }
+      }
+    })
 
     downloadCSV(formattedMatches, filename)
   }

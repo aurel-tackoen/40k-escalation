@@ -5,6 +5,9 @@ export const gameSystems = pgTable('game_systems', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull().unique(),
   shortName: varchar('short_name', { length: 50 }).notNull(), // "40k", "aos", "tow", "mesbg"
+  description: text('description'), // Game system description
+  matchType: varchar('match_type', { length: 50 }).default('victory_points').notNull(), // 'victory_points', 'percentage', 'scenario'
+  matchConfig: text('match_config'), // JSON string with matchConfig object (pointsLabel, pointsRange, etc.)
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 });
@@ -103,12 +106,36 @@ export const matches = pgTable('matches', {
   round: integer().notNull(),
   player1Id: integer().references(() => players.id).notNull(),
   player2Id: integer().references(() => players.id).notNull(),
-  player1Points: integer().default(0).notNull(),
-  player2Points: integer().default(0).notNull(),
+
+  // Match type and game system
+  matchType: varchar('match_type', { length: 50 }).default('victory_points').notNull(), // 'victory_points', 'percentage', 'scenario'
+  gameSystemId: integer('game_system_id').references(() => gameSystems.id), // Link to game system (can derive from league, but explicit is clearer)
+
+  // Victory Points (40k, AoS, HH)
+  player1Points: integer('player1_points').default(0).notNull(),
+  player2Points: integer('player2_points').default(0).notNull(),
+
+  // Percentage/Casualties System (The Old World)
+  player1ArmyValue: integer('player1_army_value'), // Total army points
+  player2ArmyValue: integer('player2_army_value'),
+  player1CasualtiesValue: integer('player1_casualties_value'), // Points of casualties inflicted
+  player2CasualtiesValue: integer('player2_casualties_value'),
+  marginOfVictory: varchar('margin_of_victory', { length: 50 }), // 'Massacre', 'Major Victory', 'Minor Victory', 'Draw'
+
+  // Scenario-based (MESBG)
+  scenarioObjective: text('scenario_objective'), // Description of the scenario objective
+  player1ObjectiveCompleted: boolean('player1_objective_completed'), // Did player 1 complete the objective?
+  player2ObjectiveCompleted: boolean('player2_objective_completed'), // Did player 2 complete the objective?
+
+  // Common fields
   winnerId: integer().references(() => players.id),
   mission: varchar({ length: 255 }),
   datePlayed: date(),
   notes: text(),
+
+  // Flexible JSON for future game-specific data
+  additionalData: text('additional_data'), // JSON string for future extensibility
+
   createdAt: timestamp().defaultNow().notNull()
 });
 

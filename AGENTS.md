@@ -27,9 +27,10 @@ A comprehensive full-stack web application for managing escalation league campai
 
 ### Project Status
 ✅ **PRODUCTION READY** - Complete feature set with zero technical debt
-- 12 reusable composables (100% coverage)
+- 13 reusable composables (100% coverage)
 - Full database integration with 40 API endpoints
 - Multi-game system support with dynamic factions/missions
+- **Game-specific match types** - Victory Points (40k/AoS/HH), Percentage/Casualties (ToW), Scenario Objectives (MESBG)
 - **Share link system** for private league access (simplified from dual invite system)
 - CSV export functionality across all data types
 - Painting progress tracking with leaderboard
@@ -58,7 +59,7 @@ app/                          # Nuxt 4 application directory
 │       ├── MatchesView.vue      # Match recording with analytics
 │       ├── PlayersView.vue      # Player management with export
 │       └── ProfileView.vue      # User profile editor
-├── composables/              # Reusable composition functions (11 total)
+├── composables/              # Reusable composition functions (13 total)
 │   ├── useArmyFiltering.js  # Army-specific filtering (new)
 │   ├── useArmyForm.js       # Army form management (new)
 │   ├── useArmyManagement.js # Army validation & escalation (15 functions)
@@ -69,6 +70,7 @@ app/                          # Nuxt 4 application directory
 │   ├── useFormatting.js     # Date/number formatting (9 functions)
 │   ├── useFormManagement.js # Form state & validation (13 functions)
 │   ├── useMatchResults.js   # Match analytics (10 functions)
+│   ├── useMatchValidation.js # Game-specific match validation (4 functions) ⭐ NEW
 │   ├── usePaintingStats.js  # Painting calculations (8 functions)
 │   ├── usePlayerLookup.js   # Player data lookups (4 functions)
 │   ├── usePlayerStats.js    # Player statistics (6 functions)
@@ -314,7 +316,14 @@ Match outcome analysis and statistics
 - `getPlayerRecentForm(playerId, matches, count)` - W/L/D history
 - `getHeadToHeadRecord(p1Id, p2Id, matches)` - H2H stats
 
-#### 9. **usePaintingStats.js** (8 functions)
+#### 9. **useMatchValidation.js** (4 functions) ⭐ NEW
+Game-specific match validation and winner determination
+- `validateMatch(matchData, matchConfig)` - Validate match based on game system rules
+- `determineWinner(matchData, matchConfig)` - Calculate winner for any match type
+- `calculateTowMargin(armyValue, casualties)` - Calculate The Old World margin of victory
+- `getMatchResultDescription(matchData, matchConfig)` - Get human-readable match result
+
+#### 10. **usePaintingStats.js** (8 functions)
 Painting progress calculations and visualization
 - `getUnitPaintPercentage(unit)` - Unit % painted
 - `getArmyPaintingStats(army)` - Army totals & %
@@ -325,14 +334,25 @@ Painting progress calculations and visualization
 - `calculatePaintingLeaderboard(players, armies, round)` - Rankings
 - `getAverageArmyCompletion(armies)` - League-wide average
 
-#### 10. **usePlayerLookup.js** (4 functions)
+#### 10. **usePaintingStats.js** (8 functions)
+Painting progress calculations and visualization
+- `getUnitPaintPercentage(unit)` - Unit % painted
+- `getArmyPaintingStats(army)` - Army totals & %
+- `getPlayerPaintingStats(playerId, round, armies)` - Player stats
+- `getPaintProgressClass(percentage)` - Progress bar color
+- `getPaintStatusText(percentage)` - "Battle Ready", etc.
+- `isPaintingComplete(army)` - Check if 100%
+- `calculatePaintingLeaderboard(players, armies, round)` - Rankings
+- `getAverageArmyCompletion(armies)` - League-wide average
+
+#### 11. **usePlayerLookup.js** (4 functions)
 Player data access helpers
 - `getPlayerName(playerId)` - Get player name
 - `getPlayerFaction(playerId)` - Get player faction
 - `getPlayerById(playerId)` - Get full player object
 - `getPlayersByFaction(faction)` - Filter by faction
 
-#### 11. **usePlayerStats.js** (6 functions)
+#### 12. **usePlayerStats.js** (6 functions)
 Player statistics and rankings
 - `calculateWinPercentage(player)` - Win % with safety
 - `getTotalGames(player)` - Total games played
@@ -341,7 +361,7 @@ Player statistics and rankings
 - `getPlayerStats(playerId, matches)` - Detailed statistics
 - `comparePlayerStats(p1Id, p2Id, players, matches)` - Compare two
 
-#### 12. **useRoundLookup.js** (5 functions)
+#### 13. **useRoundLookup.js** (5 functions)
 Round data access and validation
 - `getRoundByNumber(roundNumber)` - Get round object
 - `getRoundName(roundNumber)` - Get round name
@@ -361,6 +381,9 @@ Round data access and validation
   id: serial (PK, auto-increment)
   name: varchar(100) - Game system name (unique) - "Warhammer 40,000"
   shortName: varchar(50) - Short code - "40k", "aos", "tow", "mesbg"
+  description: text - Game system description
+  matchType: varchar(50) - Match type: 'victory_points', 'percentage', 'scenario' (default: 'victory_points')
+  matchConfig: text - JSON string with match configuration (pointsLabel, pointsRange, etc.)
   isActive: boolean - Active status (default: true)
   createdAt: timestamp - Creation timestamp
 }
@@ -461,6 +484,25 @@ Round data access and validation
   datePlayed: date - Date of battle
   notes: text - Additional notes
   createdAt: timestamp - Record creation
+  
+  // ⭐ NEW: Game-specific match fields
+  matchType: varchar(50) - Match type: 'victory_points', 'percentage', 'scenario'
+  gameSystemId: integer (FK -> game_systems.id) - Game system used
+  
+  // The Old World specific fields
+  player1ArmyValue: integer - Player 1 army value (ToW)
+  player2ArmyValue: integer - Player 2 army value (ToW)
+  player1CasualtiesValue: integer - Player 1 casualties value (ToW)
+  player2CasualtiesValue: integer - Player 2 casualties value (ToW)
+  marginOfVictory: integer - Margin percentage (ToW)
+  
+  // MESBG specific fields
+  scenarioObjective: varchar(255) - Scenario objective description (MESBG)
+  player1ObjectiveCompleted: boolean - Player 1 objective status (MESBG)
+  player2ObjectiveCompleted: boolean - Player 2 objective status (MESBG)
+  
+  // Future extensibility
+  additionalData: text - JSON for future game-specific fields
 }
 ```
 
@@ -664,23 +706,27 @@ emit('delete-army', armyId)
 - `usePlayerLookup` - Get player names/factions
 - `useFormatting` - Format dates
 - `useMatchResults` - Match quality & streaks
+- `useMatchValidation` - Game-specific validation ⭐ NEW
 - `useDataExport` - CSV export
 - `useLeaguesStore` - Dynamic missions by game system (NEW)
 
 **Key Features**:
-- Match recording form (2 players, points, mission, date)
-- **Dynamic mission dropdown** - Shows missions for current game system (NEW)
-- Winner auto-calculation
-- Match quality indicators (Close Game, Decisive Victory)
+- **Conditional match recording forms** based on game system's matchType ⭐ NEW
+  - **Victory Points form** (40k/AoS/HH) - Player VPs, mission, date
+  - **Percentage/Casualties form** (ToW) - Army values, casualties, auto-calculated margin
+  - **Scenario Objectives form** (MESBG) - Objective description, completion checkboxes, casualties
+- **Dynamic mission dropdown** - Shows missions for current game system
+- Winner auto-calculation using `useMatchValidation.determineWinner()`
+- Match quality indicators (Close Game, Decisive Victory, ToW margin badges)
 - Win streak badges
 - Recent form display (last 5 games)
-- Match history table with quality badges
-- Export to CSV
+- Match history table with game-specific result displays
+- Export to CSV (match type-specific columns)
 - Auto-update player stats on save
 
 **Match Quality Badges**:
-- 🔥 **Decisive Victory** - Point diff > 30
-- ⚔️ **Close Game** - Point diff ≤ 10
+- 🔥 **Decisive Victory** - Point diff > 30 (VP), Margin ≥ 15% (ToW), Objective + 10 casualties (MESBG)
+- ⚔️ **Close Game** - Point diff ≤ 10 (VP), Margin < 5% (ToW), Both/neither complete objective (MESBG)
 - 🏆 **Standard Win** - Everything else
 
 ### 5. **LeagueSetupView.vue** (League Configuration)
@@ -866,10 +912,67 @@ The application now supports **5 Warhammer game systems** with dynamic faction a
 - When a league is selected, the store fetches factions/missions for that game system
 - Components dynamically populate dropdowns based on current league's game system
 
+### Match Types by Game System ⭐ NEW
+Each game system has a unique **match type** that determines how battles are scored and recorded:
+
+#### 1. Victory Points (40k, AoS, HH)
+- **Match Type**: `victory_points`
+- **Scoring**: Player 1 VP vs Player 2 VP (0-100)
+- **Winner**: Highest VP total
+- **Fields Used**: `player1Points`, `player2Points`
+- **Close Game**: Point difference ≤ 10
+- **Decisive Victory**: Point difference > 30
+
+#### 2. Percentage/Casualties (The Old World)
+- **Match Type**: `percentage`
+- **Scoring**: Army value vs casualties inflicted
+- **Winner**: Based on margin of victory percentage
+- **Fields Used**: `player1ArmyValue`, `player2ArmyValue`, `player1CasualtiesValue`, `player2CasualtiesValue`, `marginOfVictory`
+- **Victory Levels**:
+  - **Crushing Victory**: Margin ≥ 15%
+  - **Solid Victory**: Margin ≥ 10%
+  - **Minor Victory**: Margin ≥ 5%
+  - **Draw**: Margin < 5%
+- **Margin Calculation**: `((casualties1 - casualties2) / Math.max(armyValue1, armyValue2)) * 100`
+
+#### 3. Scenario Objectives (MESBG)
+- **Match Type**: `scenario`
+- **Scoring**: Objective completion + casualties (tiebreaker)
+- **Winner**: Player who completes objective OR most casualties if neither/both complete
+- **Fields Used**: `scenarioObjective`, `player1ObjectiveCompleted`, `player2ObjectiveCompleted`, `player1Points` (casualties), `player2Points` (casualties)
+- **Close Game**: Both complete or neither complete objective
+- **Decisive Victory**: One completes objective with 10+ more casualties
+
+### Match Configuration
+Each game system in `app/data/game-systems.js` includes a `matchConfig` object:
+
+```javascript
+{
+  matchType: 'victory_points',  // or 'percentage', 'scenario'
+  pointsLabel: 'Victory Points',
+  pointsRange: { min: 0, max: 100 },
+  requiresArmyValue: false,      // true for ToW
+  supportsCasualties: false,     // true for ToW
+  supportsObjectives: false,     // true for MESBG
+  victoryLevels: [...]           // ToW-specific victory thresholds
+}
+```
+
 ### Adding a New Game System
 1. Add to `app/data/game-systems.js`:
    ```javascript
-   { name: 'New Game', shortName: 'ng', description: 'Game description' }
+   { 
+     name: 'New Game', 
+     shortName: 'ng', 
+     description: 'Game description',
+     matchType: 'victory_points',  // Choose: victory_points, percentage, or scenario
+     matchConfig: {
+       matchType: 'victory_points',
+       pointsLabel: 'Victory Points',
+       pointsRange: { min: 0, max: 100 }
+       // Add game-specific config
+     }
+   }
    ```
 2. Add factions to `app/data/factions-by-system.js`:
    ```javascript
@@ -894,9 +997,10 @@ The application now supports **5 Warhammer game systems** with dynamic faction a
 ### Migration Guide (Single → Multi System)
 **If you have existing data before this refactor:**
 1. All existing leagues will default to `gameSystemId = 1` (Warhammer 40k)
-2. Run `POST /api/seed-game-systems` to populate new tables
-3. Update leagues with correct game system: `PATCH /api/leagues/:id` with `{ gameSystemId: X }`
-4. Players/armies/matches remain unchanged (backward compatible)
+2. All existing matches will default to `matchType = 'victory_points'` (backward compatible)
+3. Run `POST /api/seed-game-systems` to populate new tables
+4. Update leagues with correct game system: `PATCH /api/leagues/:id` with `{ gameSystemId: X }`
+5. Players/armies remain unchanged (backward compatible)
 
 ---
 
@@ -1001,14 +1105,15 @@ git push origin main
 
 - ✅ **Zero Technical Debt** - Clean architecture, no known issues
 - ✅ **Zero Lint Errors** - ESLint 9 strict compliance
-- ✅ **100% Composable Coverage** - 12/12 composables implemented
+- ✅ **100% Composable Coverage** - 13/13 composables implemented
 - ✅ **Full Database Integration** - PostgreSQL + Drizzle ORM
 - ✅ **Complete API Layer** - 17 RESTful endpoints
 - ✅ **Multi-Game System Support** - 5 Warhammer game systems (139 factions, 69 missions, 43 unit types)
-- ✅ **CSV Export Everywhere** - Players, armies, matches
+- ✅ **Game-Specific Match Types** - Victory Points, Percentage/Casualties, Scenario Objectives
+- ✅ **CSV Export Everywhere** - Players, armies, matches (with match type-specific columns)
 - ✅ **Advanced Analytics** - Match quality, win streaks, painting leaderboard
 - ✅ **Production Deployment** - Netlify-ready configuration
 - ✅ **Comprehensive Documentation** - 20+ guide files
 
-**Last Updated**: January 2025  
+**Last Updated**: October 2025  
 **Status**: Production Ready ⚡

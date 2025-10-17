@@ -1,5 +1,6 @@
 <script setup>
-  import { Swords, Trophy, Flame, Trash2 } from 'lucide-vue-next'
+  import { Swords, Trophy, Flame, Trash2, CheckCircle, XCircle, Shield } from 'lucide-vue-next'
+  import { computed } from 'vue'
 
   const props = defineProps({
     match: {
@@ -48,6 +49,10 @@
   const handleDelete = () => {
     emit('delete', props.match)
   }
+
+  // Determine match type (default to victory_points for backward compatibility)
+  const matchType = computed(() => props.match.matchType || 'victory_points')
+
 </script>
 
 <template>
@@ -104,12 +109,46 @@
               <p class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player1Id) }}</p>
             </div>
 
-            <!-- Score -->
+            <!-- Score Display - Conditional based on match type -->
             <div class="mb-2">
-              <div class="text-4xl font-black leading-none"
-                   :class="match.winnerId === match.player1Id ? 'text-yellow-400' : 'text-gray-500'">
-                {{ match.player1Points }}
-              </div>
+              <!-- Victory Points (40k, AoS, HH) -->
+              <template v-if="matchType === 'victory_points'">
+                <div class="text-4xl font-black leading-none"
+                     :class="match.winnerId === match.player1Id ? 'text-yellow-400' : 'text-gray-500'">
+                  {{ match.player1Points }}
+                </div>
+                <div class="text-[10px] text-gray-400 mt-1">VP</div>
+              </template>
+
+              <!-- Percentage (ToW) -->
+              <template v-else-if="matchType === 'percentage'">
+                <div class="text-2xl font-black leading-none"
+                     :class="match.winnerId === match.player1Id ? 'text-yellow-400' : 'text-gray-500'">
+                  {{ match.player1CasualtiesValue || 0 }}
+                </div>
+                <div class="text-[10px] text-gray-400 mt-1">
+                  of {{ match.player2ArmyValue || 0 }}pts
+                </div>
+              </template>
+
+              <!-- Scenario (MESBG) -->
+              <template v-else-if="matchType === 'scenario'">
+                <div class="flex items-center justify-end gap-1 mb-1">
+                  <CheckCircle
+                    v-if="match.player1ObjectiveCompleted"
+                    :size="24"
+                    class="text-green-400"
+                  />
+                  <XCircle
+                    v-else
+                    :size="24"
+                    class="text-red-400"
+                  />
+                </div>
+                <div class="text-[10px] text-gray-400">
+                  {{ match.player1ObjectiveCompleted ? 'Objective ✓' : 'Failed' }}
+                </div>
+              </template>
             </div>
 
             <!-- Win Streak -->
@@ -139,12 +178,46 @@
               <p class="text-xs text-gray-400 truncate">{{ getPlayerFaction(match.player2Id) }}</p>
             </div>
 
-            <!-- Score -->
+            <!-- Score Display - Conditional based on match type -->
             <div class="mb-2">
-              <div class="text-4xl font-black leading-none"
-                   :class="match.winnerId === match.player2Id ? 'text-yellow-400' : 'text-gray-500'">
-                {{ match.player2Points }}
-              </div>
+              <!-- Victory Points (40k, AoS, HH) -->
+              <template v-if="matchType === 'victory_points'">
+                <div class="text-4xl font-black leading-none"
+                     :class="match.winnerId === match.player2Id ? 'text-yellow-400' : 'text-gray-500'">
+                  {{ match.player2Points }}
+                </div>
+                <div class="text-[10px] text-gray-400 mt-1">VP</div>
+              </template>
+
+              <!-- Percentage (ToW) -->
+              <template v-else-if="matchType === 'percentage'">
+                <div class="text-2xl font-black leading-none"
+                     :class="match.winnerId === match.player2Id ? 'text-yellow-400' : 'text-gray-500'">
+                  {{ match.player2CasualtiesValue || 0 }}
+                </div>
+                <div class="text-[10px] text-gray-400 mt-1">
+                  of {{ match.player1ArmyValue || 0 }}pts
+                </div>
+              </template>
+
+              <!-- Scenario (MESBG) -->
+              <template v-else-if="matchType === 'scenario'">
+                <div class="flex items-center justify-start gap-1 mb-1">
+                  <CheckCircle
+                    v-if="match.player2ObjectiveCompleted"
+                    :size="24"
+                    class="text-green-400"
+                  />
+                  <XCircle
+                    v-else
+                    :size="24"
+                    class="text-red-400"
+                  />
+                </div>
+                <div class="text-[10px] text-gray-400">
+                  {{ match.player2ObjectiveCompleted ? 'Objective ✓' : 'Failed' }}
+                </div>
+              </template>
             </div>
 
             <!-- Win Streak -->
@@ -159,9 +232,22 @@
       </div>
     </div>
 
-    <!-- Footer: Notes -->
-    <div v-if="match.notes" class="px-4 pb-4">
-      <div class="p-3 bg-gray-800 rounded-lg border border-gray-600">
+    <!-- Footer: ToW Margin or Notes -->
+    <div class="px-4 pb-4">
+      <!-- The Old World Margin of Victory -->
+      <div v-if="matchType === 'percentage' && match.marginOfVictory" class="mb-3">
+        <div class="p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
+          <div class="flex items-center gap-2">
+            <Shield :size="16" class="text-purple-400" />
+            <span class="text-sm font-semibold text-purple-300">
+              {{ match.marginOfVictory }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div v-if="match.notes" class="p-3 bg-gray-800 rounded-lg border border-gray-600">
         <p class="text-xs text-gray-400 italic">
           "{{ match.notes }}"
         </p>

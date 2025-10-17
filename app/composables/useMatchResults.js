@@ -1,10 +1,11 @@
 /**
  * Composable for match result calculations and comparisons
+ * Supports multiple match types: victory_points, percentage, scenario
  * Provides reusable functions for match-related logic
  */
 export function useMatchResults(matches) {
   /**
-   * Determine the winner of a match
+   * Determine the winner of a match (supports all match types)
    * @param {number} score1 - Player 1 score
    * @param {number} score2 - Player 2 score
    * @returns {string} 'player1', 'player2', or 'draw'
@@ -26,39 +27,85 @@ export function useMatchResults(matches) {
   }
 
   /**
-   * Check if match is a close game
+   * Check if match is a close game (supports all match types)
    * @param {number} score1 - Player 1 score
    * @param {number} score2 - Player 2 score
    * @param {number} threshold - Points difference threshold (default 5)
+   * @param {Object} match - Full match object (optional, for advanced type checking)
    * @returns {boolean} True if match is close
    */
-  const isCloseMatch = (score1, score2, threshold = 5) => {
+  const isCloseMatch = (score1, score2, threshold = 5, match = null) => {
+    // Handle The Old World percentage matches
+    if (match?.matchType === 'percentage') {
+      // Close if margin is Draw or Minor Victory
+      const margin = match.marginOfVictory
+      return margin === 'Draw' || margin === 'Minor Victory'
+    }
+
+    // Handle MESBG scenario matches
+    if (match?.matchType === 'scenario') {
+      // If both completed or both failed, check casualties
+      const p1Completed = match.player1ObjectiveCompleted
+      const p2Completed = match.player2ObjectiveCompleted
+
+      if (p1Completed === p2Completed) {
+        // Use casualties as tiebreaker
+        return getScoreDifference(score1 || 0, score2 || 0) <= threshold
+      }
+      // If objectives differ, not a close game
+      return false
+    }
+
+    // Default: Victory Points (40k, AoS, HH) or backward compatibility
     return getScoreDifference(score1, score2) <= threshold
   }
 
   /**
-   * Check if match is a decisive victory
+   * Check if match is a decisive victory (supports all match types)
    * @param {number} score1 - Player 1 score
    * @param {number} score2 - Player 2 score
    * @param {number} threshold - Points difference threshold (default 15)
+   * @param {Object} match - Full match object (optional, for advanced type checking)
    * @returns {boolean} True if match is decisive
    */
-  const isDecisiveVictory = (score1, score2, threshold = 15) => {
+  const isDecisiveVictory = (score1, score2, threshold = 15, match = null) => {
+    // Handle The Old World percentage matches
+    if (match?.matchType === 'percentage') {
+      // Decisive if margin is Massacre or Major Victory
+      const margin = match.marginOfVictory
+      return margin === 'Massacre' || margin === 'Major Victory'
+    }
+
+    // Handle MESBG scenario matches
+    if (match?.matchType === 'scenario') {
+      // If one completed and other didn't, it's decisive
+      const p1Completed = match.player1ObjectiveCompleted
+      const p2Completed = match.player2ObjectiveCompleted
+
+      if (p1Completed !== p2Completed) {
+        return true
+      }
+      // If objectives are same, check casualties
+      return getScoreDifference(score1 || 0, score2 || 0) >= threshold
+    }
+
+    // Default: Victory Points (40k, AoS, HH) or backward compatibility
     return getScoreDifference(score1, score2) >= threshold
   }
 
   /**
-   * Get match result status
+   * Get match result status (supports all match types)
    * @param {number} score1 - Player 1 score
    * @param {number} score2 - Player 2 score
-   * @returns {string} 'decisive', 'close', or 'draw'
+   * @param {Object} match - Full match object (optional)
+   * @returns {string} 'decisive', 'close', 'draw', or 'normal'
    */
-  const getMatchStatus = (score1, score2) => {
+  const getMatchStatus = (score1, score2, match = null) => {
     const winner = determineWinner(score1, score2)
 
     if (winner === 'draw') return 'draw'
-    if (isDecisiveVictory(score1, score2)) return 'decisive'
-    if (isCloseMatch(score1, score2)) return 'close'
+    if (isDecisiveVictory(score1, score2, 15, match)) return 'decisive'
+    if (isCloseMatch(score1, score2, 5, match)) return 'close'
 
     return 'normal'
   }
@@ -100,7 +147,7 @@ export function useMatchResults(matches) {
   }
 
   /**
-   * Get head-to-head record between two players
+   * Get head-to-head record between two players (supports all match types)
    * @param {number|string} player1Id - First player ID
    * @param {number|string} player2Id - Second player ID
    * @returns {Object} Record with wins, losses, draws
@@ -119,17 +166,27 @@ export function useMatchResults(matches) {
     const record = { wins: 0, losses: 0, draws: 0 }
 
     headToHead.forEach(match => {
-      const winner = determineWinner(match.player1Score, match.player2Score)
-
-      if (winner === 'draw') {
-        record.draws++
-      } else if (
-        (winner === 'player1' && match.player1Id === player1Id) ||
-        (winner === 'player2' && match.player2Id === player1Id)
-      ) {
+      // Use winnerId if available (more reliable)
+      if (match.winnerId === player1Id) {
         record.wins++
-      } else {
+      } else if (match.winnerId === null) {
+        record.draws++
+      } else if (match.winnerId) {
         record.losses++
+      } else {
+        // Fallback: calculate from scores (backward compatibility)
+        const winner = determineWinner(match.player1Score || match.player1Points, match.player2Score || match.player2Points)
+
+        if (winner === 'draw') {
+          record.draws++
+        } else if (
+          (winner === 'player1' && match.player1Id === player1Id) ||
+          (winner === 'player2' && match.player2Id === player1Id)
+        ) {
+          record.wins++
+        } else {
+          record.losses++
+        }
       }
     })
 
@@ -161,7 +218,7 @@ export function useMatchResults(matches) {
   }
 
   /**
-   * Calculate win streak for a player
+   * Calculate win streak for a player (supports all match types)
    * @param {number|string} playerId - Player ID
    * @returns {number} Current win streak
    */
@@ -169,21 +226,19 @@ export function useMatchResults(matches) {
     if (!matches.value) return 0
 
     const playerMatches = getPlayerMatches(playerId)
-      .sort((a, b) => new Date(b.date) - new Date(a.date)) // Most recent first
+      .sort((a, b) => new Date(b.datePlayed || b.date) - new Date(a.datePlayed || a.date)) // Most recent first
 
     let streak = 0
 
     for (const match of playerMatches) {
-      const isPlayer1 = match.player1Id === playerId
-      const winner = determineWinner(match.player1Score, match.player2Score)
-
-      if (
-        (winner === 'player1' && isPlayer1) ||
-        (winner === 'player2' && !isPlayer1)
-      ) {
+      // Use winnerId if available (more reliable across all match types)
+      if (match.winnerId === playerId) {
         streak++
+      } else if (match.winnerId === null) {
+        // Draw - streak continues but doesn't increment
+        continue
       } else {
-        break // Streak broken
+        break // Loss - streak broken
       }
     }
 
@@ -200,6 +255,39 @@ export function useMatchResults(matches) {
     return getWinStreak(playerId) >= minStreak
   }
 
+  /**
+   * Get match quality description for all match types
+   * @param {Object} match - Match object
+   * @returns {string|null} Quality description or null
+   */
+  const getMatchQualityText = (match) => {
+    if (!match) return null
+
+    const matchType = match.matchType || 'victory_points'
+
+    switch (matchType) {
+      case 'percentage':
+        // The Old World uses margin of victory
+        return match.marginOfVictory || null
+
+      case 'scenario': {
+        // MESBG: check if objectives match (close game)
+        if (match.player1ObjectiveCompleted === match.player2ObjectiveCompleted) {
+          return 'Close Game'
+        }
+        return 'Decisive Victory'
+      }
+
+      default: {
+        // Victory Points: use score difference
+        const diff = getScoreDifference(match.player1Points || 0, match.player2Points || 0)
+        if (diff <= 5) return 'Close Game'
+        if (diff >= 20) return 'Decisive Victory'
+        return null
+      }
+    }
+  }
+
   return {
     determineWinner,
     getScoreDifference,
@@ -212,6 +300,7 @@ export function useMatchResults(matches) {
     getPlayerMatches,
     getRoundMatches,
     getWinStreak,
-    isOnWinningStreak
+    isOnWinningStreak,
+    getMatchQualityText
   }
 }
