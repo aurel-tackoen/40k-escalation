@@ -29,6 +29,17 @@ export const missions = pgTable('missions', {
   createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
+// Unit types table (dynamic, per game system)
+export const unitTypes = pgTable('unit_types', {
+  id: serial('id').primaryKey(),
+  gameSystemId: integer('game_system_id').references(() => gameSystems.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar('name', { length: 100 }).notNull(), // "HQ", "Troops", "Leaders", "Battleline", etc.
+  category: varchar('category', { length: 50 }), // "Command", "Core", "Elite", "Support", etc.
+  displayOrder: integer('display_order').notNull(), // Order to display in dropdowns
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
 // Users table (Auth0 authentication)
 export const users = pgTable('users', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

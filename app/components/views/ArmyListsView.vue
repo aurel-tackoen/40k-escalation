@@ -16,7 +16,7 @@
 
   // Store
   const leaguesStore = useLeaguesStore()
-  const { currentPlayer, canManageLeague, currentGameSystemName, gameSystems } = storeToRefs(leaguesStore)
+  const { currentPlayer, canManageLeague, currentGameSystemName, gameSystems, availableUnitTypes } = storeToRefs(leaguesStore)
 
   // Game systems composable
   const { getGameSystemBadgeClasses, getGameSystemTextClasses } = useGameSystems(gameSystems)
@@ -637,13 +637,9 @@
                     <label class="block text-xs text-gray-400 mb-1.5">Type *</label>
                     <select v-model="unit.type" required class="input-field text-sm">
                       <option value="">Select</option>
-                      <option value="HQ">HQ</option>
-                      <option value="Troops">Troops</option>
-                      <option value="Elites">Elites</option>
-                      <option value="Fast Attack">Fast Attack</option>
-                      <option value="Heavy Support">Heavy Support</option>
-                      <option value="Flyer">Flyer</option>
-                      <option value="Dedicated Transport">Transport</option>
+                      <option v-for="unitType in availableUnitTypes" :key="unitType.id" :value="unitType.name">
+                        {{ unitType.name }}
+                      </option>
                     </select>
                   </div>
                   <div class="md:col-span-2">

@@ -1,5 +1,5 @@
 import { db } from '../../db'
-import { gameSystems, factions, missions } from '../../db/schema'
+import { gameSystems, factions, missions, unitTypes } from '../../db/schema'
 import { eq } from 'drizzle-orm'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
@@ -15,10 +15,12 @@ export default defineEventHandler(async () => {
     const gameSystemsPath = join(__dirname, '../../app/data/game-systems.js')
     const factionsPath = join(__dirname, '../../app/data/factions-by-system.js')
     const missionsPath = join(__dirname, '../../app/data/missions-by-system.js')
+    const unitTypesPath = join(__dirname, '../../app/data/unit-types-by-system.js')
 
     const { gameSystems: gameSystemsData } = await import(gameSystemsPath)
     const { factionsBySystem } = await import(factionsPath)
     const { missionsBySystem } = await import(missionsPath)
+    const { unitTypesBySystem } = await import(unitTypesPath)
 
     // 1. Seed game systems
     for (const system of gameSystemsData) {
@@ -102,9 +104,40 @@ export default defineEventHandler(async () => {
       console.log(`✓ Processed ${systemMissions.length} missions for ${system.name}`)
     }
 
-    // 5. Get final counts
+    // 5. Seed unit types for each game system
+    let unitTypesCreated = 0
+    for (const system of allSystems) {
+      const systemUnitTypes = unitTypesBySystem[system.shortName]
+      if (!systemUnitTypes) {
+        console.log(`⚠ No unit types defined for ${system.name}`)
+        continue
+      }
+
+      for (const unitType of systemUnitTypes) {
+        const existing = await db
+          .select()
+          .from(unitTypes)
+          .where(eq(unitTypes.name, unitType.name))
+          .limit(1)
+
+        if (existing.length === 0) {
+          await db.insert(unitTypes).values({
+            gameSystemId: system.id,
+            name: unitType.name,
+            category: unitType.category,
+            displayOrder: unitType.displayOrder,
+            isActive: true
+          })
+          unitTypesCreated++
+        }
+      }
+      console.log(`✓ Processed ${systemUnitTypes.length} unit types for ${system.name}`)
+    }
+
+    // 6. Get final counts
     const totalFactions = await db.select().from(factions)
     const totalMissions = await db.select().from(missions)
+    const totalUnitTypes = await db.select().from(unitTypes)
 
     return {
       success: true,
@@ -113,9 +146,11 @@ export default defineEventHandler(async () => {
         gameSystems: allSystems.length,
         factions: totalFactions.length,
         missions: totalMissions.length,
+        unitTypes: totalUnitTypes.length,
         created: {
           factions: factionsCreated,
-          missions: missionsCreated
+          missions: missionsCreated,
+          unitTypes: unitTypesCreated
         }
       }
     }
@@ -124,7 +159,7 @@ export default defineEventHandler(async () => {
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to seed game systems',
-      data: error.message
+      data: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 })

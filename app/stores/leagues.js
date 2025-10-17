@@ -14,6 +14,7 @@ export const useLeaguesStore = defineStore('leagues', {
     currentGameSystem: null,    // Active game system for current league
     factions: [],               // Factions for current game system
     missions: [],               // Missions for current game system
+    unitTypes: [],              // Unit types for current game system
 
     // Current league data
     players: [],
@@ -48,6 +49,11 @@ export const useLeaguesStore = defineStore('leagues', {
     // Available missions for current game system
     availableMissions: (state) => {
       return state.missions
+    },
+
+    // Available unit types for current game system
+    availableUnitTypes: (state) => {
+      return state.unitTypes
     },
 
     // User's role in current league
@@ -185,6 +191,21 @@ export const useLeaguesStore = defineStore('leagues', {
       }
     },
 
+    /**
+     * Fetch unit types for a specific game system
+     */
+    async fetchUnitTypes(gameSystemId) {
+      try {
+        const response = await $fetch(`/api/unit-types?gameSystemId=${gameSystemId}`)
+        if (response.success) {
+          this.unitTypes = response.data
+        }
+      } catch (error) {
+        console.error('Error fetching unit types:', error)
+        this.unitTypes = []
+      }
+    },
+
     // ==================== League Management ====================
 
     /**
@@ -284,7 +305,8 @@ export const useLeaguesStore = defineStore('leagues', {
           // Fetch factions and missions for this game system
           await Promise.all([
             this.fetchFactions(league.gameSystemId),
-            this.fetchMissions(league.gameSystemId)
+            this.fetchMissions(league.gameSystemId),
+            this.fetchUnitTypes(league.gameSystemId)
           ])
         }
 
@@ -466,7 +488,8 @@ export const useLeaguesStore = defineStore('leagues', {
             this.currentGameSystem = this.gameSystems.find(gs => gs.id === updates.gameSystemId)
             await Promise.all([
               this.fetchFactions(updates.gameSystemId),
-              this.fetchMissions(updates.gameSystemId)
+              this.fetchMissions(updates.gameSystemId),
+              this.fetchUnitTypes(updates.gameSystemId)
             ])
           }
         }
@@ -819,7 +842,8 @@ export const useLeaguesStore = defineStore('leagues', {
           // Fetch factions and missions for this game system
           await Promise.all([
             this.fetchFactions(league.gameSystemId),
-            this.fetchMissions(league.gameSystemId)
+            this.fetchMissions(league.gameSystemId),
+            this.fetchUnitTypes(league.gameSystemId)
           ])
         }
 
