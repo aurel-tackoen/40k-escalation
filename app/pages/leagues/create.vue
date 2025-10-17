@@ -2,7 +2,8 @@
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
-  import { Plus, X, Calendar, Lock, Swords } from 'lucide-vue-next'
+  import { Plus, X, Calendar, Lock, Swords, RefreshCw, FileText } from 'lucide-vue-next'
+  import { DEFAULT_LEAGUE_RULES } from '~/data/default-rules'
 
   const leaguesStore = useLeaguesStore()
   const authStore = useAuthStore()
@@ -17,6 +18,7 @@
     isPrivate: false,
     allowDirectJoin: true,
     maxPlayers: null,
+    rules: DEFAULT_LEAGUE_RULES, // Initialize with default rules
     rounds: [
       {
         number: 1,
@@ -127,6 +129,7 @@
         isPrivate: form.isPrivate,
         allowDirectJoin: form.allowDirectJoin,
         maxPlayers: form.maxPlayers || null,
+        rules: form.rules,
         rounds: sanitizedRounds
       })
 
@@ -378,6 +381,48 @@
                 />
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- League Rules -->
+      <div class="card space-y-6">
+        <div class="flex justify-between items-center border-b border-gray-700 pb-3">
+          <h2 class="text-2xl font-bold text-gray-100 flex items-center gap-2">
+            <FileText :size="24" />
+            League Rules
+          </h2>
+          <button
+            type="button"
+            @click="form.rules = DEFAULT_LEAGUE_RULES"
+            class="btn-secondary text-sm flex items-center gap-2"
+            title="Reset to default rules"
+          >
+            <RefreshCw :size="16" />
+            Reset to Default
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-gray-300 font-semibold mb-2">
+            Custom League Rules
+          </label>
+          <p class="text-sm text-gray-400 mb-3">
+            Define your league's rules and scoring system. Players will see these rules on the dashboard.
+            <strong>Markdown formatting is supported!</strong>
+          </p>
+          <textarea
+            v-model="form.rules"
+            rows="20"
+            class="input-field font-mono text-sm"
+            placeholder="Enter league rules using markdown formatting..."
+          ></textarea>
+          <div class="text-xs text-gray-500 mt-2 space-y-1">
+            <p class="font-semibold text-gray-400">Markdown Tips:</p>
+            <p>• Use <code class="bg-gray-700 px-1 rounded">**bold**</code> for bold text, <code class="bg-gray-700 px-1 rounded">*italic*</code> for italic</p>
+            <p>• Start lines with <code class="bg-gray-700 px-1 rounded">##</code> for headers</p>
+            <p>• Use <code class="bg-gray-700 px-1 rounded">-</code> or <code class="bg-gray-700 px-1 rounded">*</code> for bullet lists</p>
+            <p>• Create links with <code class="bg-gray-700 px-1 rounded">[text](url)</code></p>
           </div>
         </div>
       </div>
