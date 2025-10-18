@@ -4,13 +4,14 @@ import { eq, and } from 'drizzle-orm'
 
 /**
  * PUT /api/leagues/:id/members/:userId
- * Update league membership (player ID and army name)
+ * Update league membership (player ID link)
  *
  * Body:
  * {
  *   playerId?: number (optional - link to player entity)
- *   armyName?: string (optional - persistent army name)
  * }
+ *
+ * Note: armyName is now stored in players table, not memberships
  */
 export default defineEventHandler(async (event) => {
   try {
@@ -29,9 +30,6 @@ export default defineEventHandler(async (event) => {
     const updates: Record<string, number | string | null> = {}
     if (body.playerId !== undefined) {
       updates.playerId = body.playerId
-    }
-    if (body.armyName !== undefined) {
-      updates.armyName = body.armyName
     }
 
     if (Object.keys(updates).length === 0) {

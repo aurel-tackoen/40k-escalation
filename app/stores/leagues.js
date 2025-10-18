@@ -63,11 +63,11 @@ export const useLeaguesStore = defineStore('leagues', {
       return membership?.role || null
     },
 
-    // User's army name for current league
+    // User's army name for current league (now from players table)
     currentArmyName: (state) => {
       if (!state.currentLeagueId) return null
-      const membership = state.myLeagues.find(l => l.id === state.currentLeagueId)
-      return membership?.armyName || null
+      const player = state.currentPlayer
+      return player?.armyName || null
     },
 
     // Check if user is owner of current league

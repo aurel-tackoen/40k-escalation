@@ -265,17 +265,17 @@
           leagueId: currentLeague.id,
           userId: authStore.user.id,
           name: playerData.name,
-          faction: playerData.faction
+          faction: playerData.faction,
+          armyName: playerData.armyName // ✅ Include armyName
         }
       })
 
       if (playerResponse.success) {
-        // Update league membership with player ID and army name
+        // Update league membership with player ID (armyName now in players table)
         const membershipResponse = await $fetch(`/api/leagues/${currentLeague.id}/members/${authStore.user.id}`, {
           method: 'PUT',
           body: {
-            playerId: playerResponse.data.id,
-            armyName: playerData.armyName
+            playerId: playerResponse.data.id
           }
         })
 
@@ -748,6 +748,7 @@
       :league-name="createdLeagueName"
       :user-name="authStore.user?.name || ''"
       :available-factions="leaguesStore.factions"
+      :game-system="selectedGameSystem"
       @create-player="handleCreatePlayer"
       @skip="handleSkipPlayer"
       @close="handleSkipPlayer"

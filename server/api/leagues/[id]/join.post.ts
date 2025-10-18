@@ -91,6 +91,7 @@ export default defineEventHandler(async (event) => {
             userId: body.userId,
             name: body.playerName,
             faction: body.faction,
+            armyName: body.armyName, // ✅ Save army name to players table
             wins: 0,
             losses: 0,
             draws: 0,
@@ -104,8 +105,7 @@ export default defineEventHandler(async (event) => {
           .update(leagueMemberships)
           .set({
             status: 'active',
-            playerId,
-            armyName: body.armyName
+            playerId
           })
           .where(eq(leagueMemberships.id, existingMembership[0].id))
 
@@ -144,6 +144,7 @@ export default defineEventHandler(async (event) => {
       userId: user.id, // ✅ Use authenticated user ID
       name: body.playerName,
       faction: body.faction,
+      armyName: body.armyName, // ✅ Save army name to players table
       wins: 0,
       losses: 0,
       draws: 0,
@@ -156,7 +157,6 @@ export default defineEventHandler(async (event) => {
       userId: user.id, // ✅ Use authenticated user ID
       playerId: newPlayer.id, // Link to newly created player
       role: 'player',
-      armyName: body.armyName, // Save persistent army name
       status: 'active'
     }).returning()
 

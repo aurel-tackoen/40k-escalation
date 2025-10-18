@@ -1,6 +1,7 @@
 <script setup>
-  import { ref, watch, onUnmounted } from 'vue'
+  import { ref, watch, onUnmounted, computed } from 'vue'
   import { X, UserPlus, User } from 'lucide-vue-next'
+  import { usePlaceholders } from '~/composables/usePlaceholders'
 
   const props = defineProps({
     show: {
@@ -18,10 +19,18 @@
     availableFactions: {
       type: Array,
       default: () => []
+    },
+    gameSystem: {
+      type: Object,
+      default: null
     }
   })
 
   const emit = defineEmits(['create-player', 'skip', 'close'])
+
+  // Get game-system-specific placeholders
+  const gameSystemRef = computed(() => props.gameSystem)
+  const { placeholders } = usePlaceholders(gameSystemRef)
 
   // Form data
   const form = ref({
@@ -241,7 +250,7 @@
                     v-model="form.armyName"
                     type="text"
                     class="input-field w-full"
-                    placeholder="e.g., Emperor's Finest"
+                    :placeholder="placeholders.armyName"
                     required
                   />
                 </div>

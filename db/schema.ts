@@ -92,6 +92,7 @@ export const players = pgTable('players', {
   userId: integer().references(() => users.id, { onDelete: 'cascade' }).notNull(), // Link to authenticated user (required for Auth0 integration)
   name: varchar({ length: 255 }).notNull(), // Display name (can be different from user.name)
   faction: varchar({ length: 100 }),
+  armyName: varchar({ length: 255 }), // Persistent army name for this league (e.g., "Emperor's Fist")
   wins: integer().default(0).notNull(), // Stats scoped to this league
   losses: integer().default(0).notNull(),
   draws: integer().default(0).notNull(),

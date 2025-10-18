@@ -28,7 +28,6 @@ export default defineEventHandler(async (event) => {
         userId: leagueMemberships.userId,
         playerId: leagueMemberships.playerId,
         role: leagueMemberships.role,
-        armyName: leagueMemberships.armyName,
         joinedAt: leagueMemberships.joinedAt,
         status: leagueMemberships.status
       })
@@ -49,8 +48,9 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // If membership has a player, fetch player data
+    // If membership has a player, fetch player data (includes armyName)
     let player = null
+    let armyName = null
     if (membership.playerId) {
       const [playerData] = await db
         .select()
@@ -59,12 +59,14 @@ export default defineEventHandler(async (event) => {
         .limit(1)
 
       player = playerData
+      armyName = playerData?.armyName || null // ✅ Get armyName from players table
     }
 
     return {
       success: true,
       data: {
         ...membership,
+        armyName, // ✅ Include armyName from player record
         player
       }
     }

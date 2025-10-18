@@ -49,8 +49,8 @@
   // Auth
   const { user, isAuthenticated } = useAuth()
 
-  // Toast notifications
-  const { toastSuccess, toastError, toastWarning } = useToast()
+  // Toasts
+  const { toastSuccess, toastWarning } = useToast()
 
   // Check if current user can remove a specific player
   const canRemovePlayer = (player) => {
@@ -124,10 +124,6 @@
     armyName: ''
   })
 
-  // Success/error state for army name update
-  const armyNameUpdateSuccess = ref(false)
-  const armyNameUpdateError = ref(null)
-
   // Pre-fill form with current player data when user is already a player
   watch(currentUserPlayer, (player) => {
     if (player) {
@@ -144,47 +140,22 @@
       return
     }
 
-    armyNameUpdateSuccess.value = false
-    armyNameUpdateError.value = null
-
     if (isFormValid(['name', 'faction'])) {
       if (isCurrentUserPlayer.value) {
-        // Update existing player
+        // Update existing player (single API call now includes armyName)
         emit('update-player', {
           id: currentUserPlayer.value.id,
           name: newPlayer.value.name,
-          faction: newPlayer.value.faction
+          faction: newPlayer.value.faction,
+          armyName: newPlayer.value.armyName || '' // ✅ Include armyName in single update
         })
-
-        // Also update army name if provided
-        if (newPlayer.value.armyName && newPlayer.value.armyName.trim() !== '') {
-          try {
-            await $fetch(`/api/users/me/army-name`, {
-              method: 'PUT',
-              body: {
-                userId: currentUserPlayer.value.userId,
-                leagueId: currentUserPlayer.value.leagueId,
-                armyName: newPlayer.value.armyName.trim()
-              }
-            })
-
-            // Refetch players to get updated army name
-            await leaguesStore.fetchPlayers()
-
-            armyNameUpdateSuccess.value = true
-            toastSuccess('Army name updated successfully!')
-            setTimeout(() => { armyNameUpdateSuccess.value = false }, 3000)
-          } catch (error) {
-            armyNameUpdateError.value = 'Failed to update army name'
-            toastError('Failed to update army name')
-            console.error('Error updating army name:', error)
-          }
-        }
+        toastSuccess('Profile updated successfully!')
       } else {
         // Add new player
         emit('add-player', {
           name: newPlayer.value.name,
           faction: newPlayer.value.faction,
+          armyName: newPlayer.value.armyName || '', // ✅ Include armyName
           userId: user.value.id
         })
         toastSuccess(`${newPlayer.value.name} joined the league!`)
@@ -394,14 +365,6 @@
             <p class="text-xs text-gray-400 mt-1">
               {{ placeholders.armyNameHint }}
             </p>
-
-            <!-- Success/Error Messages -->
-            <div v-if="armyNameUpdateSuccess" class="text-sm text-green-400 mt-2 flex items-center gap-1">
-              ✓ Army name updated successfully!
-            </div>
-            <div v-if="armyNameUpdateError" class="text-sm text-red-400 mt-2">
-              {{ armyNameUpdateError }}
-            </div>
           </div>
 
         </div>

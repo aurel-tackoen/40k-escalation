@@ -514,9 +514,11 @@ Round data access and validation
 ```typescript
 {
   id: integer (PK, auto-increment)
-  name: varchar(255) - Player name
-  email: varchar(255) - Email (unique)
+  leagueId: integer (FK -> leagues.id) - Players are league-specific
+  userId: integer (FK -> users.id) - Link to authenticated user
+  name: varchar(255) - Player display name
   faction: varchar(100) - Warhammer faction
+  armyName: varchar(255) - Persistent army name for this league (e.g., "Emperor's Fist")
   wins: integer - Total wins (default: 0)
   losses: integer - Total losses (default: 0)
   draws: integer - Total draws (default: 0)

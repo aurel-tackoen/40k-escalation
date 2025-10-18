@@ -54,13 +54,19 @@ export default defineEventHandler(async (event) => {
         })
         .where(eq(leagueMemberships.id, membership.id))
 
-      // Update player info (name, faction might have changed)
+      // Update player info (name, faction, armyName might have changed)
+      const updateData: { name: string; faction: string | null; armyName?: string } = {
+        name: body.name,
+        faction: body.faction || null
+      }
+
+      if (body.armyName !== undefined) {
+        updateData.armyName = body.armyName
+      }
+
       const [updatedPlayer] = await db
         .update(players)
-        .set({
-          name: body.name,
-          faction: body.faction || null
-        })
+        .set(updateData)
         .where(eq(players.id, existingPlayer.id))
         .returning()
 
@@ -80,7 +86,17 @@ export default defineEventHandler(async (event) => {
     }
 
     // NEW PLAYER: Insert player with stats
-    const newPlayer = await db.insert(players).values({
+    const playerData: {
+      leagueId: number
+      userId: number
+      name: string
+      faction: string | null
+      armyName?: string
+      wins: number
+      losses: number
+      draws: number
+      totalPoints: number
+    } = {
       leagueId: body.leagueId,
       userId: body.userId,
       name: body.name,
@@ -89,7 +105,13 @@ export default defineEventHandler(async (event) => {
       losses: body.losses || 0,
       draws: body.draws || 0,
       totalPoints: body.totalPoints || 0
-    }).returning()
+    }
+
+    if (body.armyName !== undefined) {
+      playerData.armyName = body.armyName
+    }
+
+    const newPlayer = await db.insert(players).values(playerData).returning()
 
     // Update or create the league membership
     if (membership) {

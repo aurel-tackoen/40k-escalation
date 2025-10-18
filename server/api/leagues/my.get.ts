@@ -1,5 +1,5 @@
 import { db } from '../../../db'
-import { leagues, leagueMemberships, rounds } from '../../../db/schema'
+import { leagues, leagueMemberships, rounds, players } from '../../../db/schema'
 import { eq, and } from 'drizzle-orm'
 
 /**
@@ -65,6 +65,17 @@ export default defineEventHandler(async (event) => {
           )
         const memberCount = memberCountResult.length
 
+        // Get user's player record for armyName (now from players table)
+        let userArmyName = null
+        if (membership.playerId) {
+          const [playerRecord] = await db
+            .select({ armyName: players.armyName })
+            .from(players)
+            .where(eq(players.id, membership.playerId))
+            .limit(1)
+          userArmyName = playerRecord?.armyName || null
+        }
+
         userLeagues.push({
           id: league.id,
           name: league.name,
@@ -79,7 +90,7 @@ export default defineEventHandler(async (event) => {
           memberCount,
           rounds: leagueRounds,
           role: membership.role,
-          armyName: membership.armyName, // User's army name for this league
+          armyName: userArmyName, // ✅ User's army name from players table
           joinedAt: membership.joinedAt
         })
       }

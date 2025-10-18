@@ -10,7 +10,7 @@ import { eq } from 'drizzle-orm'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { id, name, faction } = body
+    const { id, name, faction, armyName } = body
 
     if (!id) {
       throw createError({
@@ -26,13 +26,21 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Build update object
+    const updateData: { name: string; faction: string; armyName?: string } = {
+      name,
+      faction
+    }
+
+    // Only include armyName if provided
+    if (armyName !== undefined) {
+      updateData.armyName = armyName
+    }
+
     // Update player
     const [updatedPlayer] = await db
       .update(players)
-      .set({
-        name,
-        faction
-      })
+      .set(updateData)
       .where(eq(players.id, id))
       .returning()
 

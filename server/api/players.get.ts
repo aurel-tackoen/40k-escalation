@@ -1,6 +1,6 @@
 /**
  * GET /api/players?leagueId=123
- * Fetches all players from a specific league (includes armyName from league_memberships)
+ * Fetches all players from a specific league (includes armyName from players table)
  * Requires league membership to access player data
  */
 import { db } from '../../db'
@@ -23,20 +23,20 @@ export default defineEventHandler(async (event) => {
     // ✅ Require league membership to view players
     await requireLeagueMembership(event, leagueId)
 
-    // Get players for specific league with armyName and membership status
-    const playersWithArmyNames = await db
+    // Get players for specific league with membership status (armyName now in players table)
+    const playersWithMembership = await db
       .select({
         id: players.id,
         leagueId: players.leagueId,
         userId: players.userId,
         name: players.name,
         faction: players.faction,
+        armyName: players.armyName, // ✅ Now from players table
         wins: players.wins,
         losses: players.losses,
         draws: players.draws,
         totalPoints: players.totalPoints,
         createdAt: players.createdAt,
-        armyName: leagueMemberships.armyName,
         membershipStatus: leagueMemberships.status,
         leftAt: leagueMemberships.leftAt
       })
@@ -52,8 +52,8 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data: playersWithArmyNames,
-      count: playersWithArmyNames.length
+      data: playersWithMembership,
+      count: playersWithMembership.length
     }
   } catch (error) {
     console.error('Error fetching players:', error)
