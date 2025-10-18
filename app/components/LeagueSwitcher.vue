@@ -2,7 +2,7 @@
   import { ref, onMounted, onUnmounted } from 'vue'
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
-  import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target, Globe, Lock } from 'lucide-vue-next'
+  import { ChevronDown, Check, Plus, LogIn, Crown, Settings, Target, Globe, Lock } from 'lucide-vue-next'
   import { useGameSystems } from '~/composables/useGameSystems'
 
   const emit = defineEmits(['league-switched'])
@@ -66,7 +66,7 @@
       class="btn-league w-full"
       :class="{ 'active': isOpen }"
     >
-      <Swords :size="20" class="text-purple-400 flex-shrink-0" />
+      <!-- <Swords :size="20" class="text-purple-400 flex-shrink-0" /> -->
       <span class="font-semibold truncate flex-1 max-w-36">{{ currentLeague?.name || 'No League' }}</span>
       <ChevronDown :size="16" :class="{ 'rotate-180': isOpen }" class="transition-transform ml-auto flex-shrink-0" />
     </button>

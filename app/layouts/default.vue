@@ -84,24 +84,6 @@
       <div class="relative container mx-auto px-3 sm:px-4 lg:px-6 py-5">
         <div class="flex items-center justify-between gap-2 sm:gap-3">
           <!-- Professional Title Section -->
-          <!-- <div class="flex items-center gap-3 flex-1 lg:flex-initial">
-            <div class="text-3xl text-yellow-600 transition-colors hover:text-yellow-500">
-              <Swords :size="32" :stroke-width="1.5" />
-            </div>
-            <div class="flex flex-col min-w-0">
-              <NuxtLink to="/" class="group">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-100 hover:text-yellow-500 transition-colors duration-300 tracking-wide font-serif">
-                  Warhammer 40K
-                </h1>
-              </NuxtLink>
-              <div class="flex items-center gap-2 mt-0.5">
-                <span class="text-base md:text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 tracking-wider">
-                  ESCALATION LEAGUE
-                </span>
-                <span class="hidden md:inline-block w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
-              </div>
-            </div>
-          </div> -->
           <NuxtLink to="/" class="flex-shrink min-w-0">
             <Logo />
           </NuxtLink>
@@ -136,9 +118,7 @@
                 title="My Leagues"
               >
                 <Swords :size="20" :stroke-width="2.5" class="flex-shrink-0" />
-
-                <!-- Sliding Text -->
-                <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 text-sm font-semibold group-hover:ml-2">
+                <span class="whitespace-nowrap text-sm font-semibold ml-2">
                   All Leagues
                 </span>
               </NuxtLink>
@@ -284,7 +264,7 @@
     <!-- Footer - will stick to bottom with flex layout -->
     <footer class="bg-gray-900 border-t border-gray-800 py-8">
       <div class="container mx-auto px-4 text-center text-gray-500">
-        <p class="flex items-center justify-center">&copy; 2025 Manneken Dice <span class="px-1 text-yellow-600"><HeartHandshake :size="20" :stroke-width="1.5" /></span> <a target="_blank" href="https://www.opengraphy.com" class="hover:text-purple-500">OpenGraphy</a></p>
+        <p class="flex items-center justify-center">&copy; 2025 <a target="_blank" href="https://www.facebook.com/groups/3838122196446404/" class="hover:text-purple-500">Manneken Dice</a> <span class="px-1 text-yellow-600"><HeartHandshake :size="20" :stroke-width="1.5" /></span> <a target="_blank" href="https://www.opengraphy.com" class="hover:text-purple-500">OpenGraphy</a></p>
         <p class="mt-2 text-sm">Manage your campaigns with the Emperor's blessing</p>
       </div>
     </footer>
