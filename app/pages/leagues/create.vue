@@ -3,6 +3,7 @@
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
   import { useLeagueRules } from '~/composables/useLeagueRules'
+  import { usePlaceholders } from '~/composables/usePlaceholders'
   import { Plus, X, Calendar, Lock, Swords, RefreshCw, FileText, Sparkles } from 'lucide-vue-next'
 
   const leaguesStore = useLeaguesStore()
@@ -38,6 +39,9 @@
 
   // Get game-specific rules
   const { generatedRules } = useLeagueRules(selectedGameSystem)
+
+  // Get game-specific placeholders
+  const { placeholders } = usePlaceholders(selectedGameSystem)
 
   // Initialize form.rules when game system is selected or changes
   watch(generatedRules, (newRules) => {
@@ -267,7 +271,7 @@
             v-model="form.name"
             type="text"
             class="input-field w-full"
-            placeholder="e.g., Winter Escalation 2025"
+            :placeholder="placeholders.leagueName"
             required
           />
         </div>
@@ -445,7 +449,7 @@
                   v-model="round.name"
                   type="text"
                   class="input-field w-full"
-                  placeholder="e.g., 500 Points"
+                  :placeholder="placeholders.roundName"
                   required
                 />
               </div>

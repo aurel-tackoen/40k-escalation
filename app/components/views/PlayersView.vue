@@ -8,6 +8,7 @@
   import { useFormManagement } from '~/composables/useFormManagement'
   import { useAuth } from '~/composables/useAuth'
   import { useGameSystems } from '~/composables/useGameSystems'
+  import { usePlaceholders } from '~/composables/usePlaceholders'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Props
@@ -28,10 +29,13 @@
 
   // Get dynamic factions from store
   const leaguesStore = useLeaguesStore()
-  const { availableFactions, currentGameSystemName, gameSystems, isLeagueOwner } = storeToRefs(leaguesStore)
+  const { availableFactions, currentGameSystemName, gameSystems, isLeagueOwner, selectedLeague } = storeToRefs(leaguesStore)
 
   // Game systems composable
   const { getGameSystemBadgeClasses, getGameSystemTextClasses, getGameSystemHintClasses } = useGameSystems(gameSystems)
+
+  // Placeholders composable
+  const { placeholders } = usePlaceholders(selectedLeague)
 
   // Emits
   const emit = defineEmits(['add-player', 'remove-player', 'update-player'])
@@ -370,11 +374,11 @@
               v-model="newPlayer.armyName"
               type="text"
               class="input-field"
-              placeholder="Enter your army name (e.g., Emperor's Fist)"
+              :placeholder="placeholders.armyName"
               maxlength="255"
             />
             <p class="text-xs text-gray-400 mt-1">
-              This name will be used for all your armies in this league (e.g., "Emperor's Fist - Round 1")
+              {{ placeholders.armyNameHint }}
             </p>
 
             <!-- Success/Error Messages -->

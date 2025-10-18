@@ -8,6 +8,7 @@
   import { useMatchResults } from '~/composables/useMatchResults'
   import { useGameSystems } from '~/composables/useGameSystems'
   import { useMatchValidation } from '~/composables/useMatchValidation'
+  import { usePlaceholders } from '~/composables/usePlaceholders'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
   import MatchCard from '~/components/MatchCard.vue'
 
@@ -25,12 +26,13 @@
 
   // Get dynamic missions from store
   const leaguesStore = useLeaguesStore()
-  const { availableMissions, currentGameSystemName, gameSystems, canManageLeague, currentPlayer, currentLeague } = storeToRefs(leaguesStore)
+  const { availableMissions, currentGameSystemName, gameSystems, canManageLeague, currentPlayer, currentLeague, selectedLeague } = storeToRefs(leaguesStore)
 
   // Composables
   const { getPlayerName, getPlayerFaction } = usePlayerLookup(toRef(props, 'players'))
   const { formatDate } = useFormatting()
   const { getGameSystemBadgeClasses, getGameSystemTextClasses, getGameSystemHintClasses } = useGameSystems(gameSystems)
+  const { placeholders } = usePlaceholders(selectedLeague)
 
   const {
     isCloseMatch,
@@ -664,7 +666,7 @@
                 class="input-field"
                 rows="3"
                 required
-                placeholder="Describe the scenario objective (e.g., 'Control the Ring', 'Defend the Village')..."
+                :placeholder="placeholders.scenarioObjective"
               ></textarea>
             </div>
 

@@ -12,14 +12,18 @@
   import { useArmyForm } from '~/composables/useArmyForm'
   import { useArmyFiltering } from '~/composables/useArmyFiltering'
   import { useGameSystems } from '~/composables/useGameSystems'
+  import { usePlaceholders } from '~/composables/usePlaceholders'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Store
   const leaguesStore = useLeaguesStore()
-  const { currentPlayer, canManageLeague, currentGameSystemName, gameSystems, availableUnitTypes, currentArmyName } = storeToRefs(leaguesStore)
+  const { currentPlayer, canManageLeague, currentGameSystemName, gameSystems, availableUnitTypes, currentArmyName, selectedLeague } = storeToRefs(leaguesStore)
 
   // Game systems composable
   const { getGameSystemBadgeClasses, getGameSystemTextClasses } = useGameSystems(gameSystems)
+
+  // Placeholders composable
+  const { placeholders } = usePlaceholders(selectedLeague)
 
   // Props
   const props = defineProps({
@@ -514,7 +518,7 @@
                 type="text"
                 required
                 class="input-field"
-                placeholder="e.g., Strike Force Alpha"
+                :placeholder="placeholders.armyName"
               />
             </div>
           </div>
@@ -669,7 +673,7 @@
                       type="text"
                       required
                       class="input-field text-sm"
-                      placeholder="e.g., Tactical Squad"
+                      :placeholder="placeholders.unitName"
                     />
                   </div>
                   <div class="md:col-span-2">

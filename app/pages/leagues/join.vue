@@ -1,6 +1,7 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
+  import { usePlaceholders } from '~/composables/usePlaceholders'
   import { Swords, Users, Calendar, LogIn, Shield, User } from 'lucide-vue-next'
 
   const leaguesStore = useLeaguesStore()
@@ -14,6 +15,9 @@
   const error = ref('')
   const loading = ref(false)
   const loadingLeague = ref(true)
+
+  // Get game-specific placeholders
+  const { placeholders } = usePlaceholders(league)
 
   // Fetch specific league on mount
   onMounted(async () => {
@@ -282,12 +286,12 @@
             v-model="armyName"
             type="text"
             class="input-field"
-            placeholder="e.g., Emperor's Fist, Bloodbound Warband, The Iron Legion"
+            :placeholder="placeholders.armyName"
             maxlength="255"
             @keyup.enter="handleJoin"
           />
           <p class="text-gray-500 text-sm mt-1">
-            Examples: "Emperor's Fist", "Bloodbound Warband", "The Iron Legion"
+            Examples: {{ placeholders.armyExamples }}
           </p>
         </div>
       </div>

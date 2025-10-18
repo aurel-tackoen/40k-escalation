@@ -7,6 +7,7 @@
   import { useAuthStore } from '~/stores/auth'
   import { useAuth } from '~/composables/useAuth'
   import { useLeagueRules } from '~/composables/useLeagueRules'
+  import { usePlaceholders } from '~/composables/usePlaceholders'
 
   // Composables
   const { normalizeDates } = useFormatting()
@@ -47,6 +48,9 @@
     if (!editableLeague.value?.gameSystemId) return null
     return gameSystems.value.find(gs => gs.id === editableLeague.value.gameSystemId)
   })
+
+  // Get game-specific placeholders
+  const { placeholders } = usePlaceholders(currentGameSystem)
 
   // Get game-specific rules
   const { generatedRules } = useLeagueRules(currentGameSystem)
@@ -516,7 +520,7 @@
                 type="text"
                 required
                 class="input-field"
-                placeholder="e.g., Combat Patrol"
+                :placeholder="placeholders.roundName"
               />
             </div>
             <div>
