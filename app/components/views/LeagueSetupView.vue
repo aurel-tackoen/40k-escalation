@@ -8,6 +8,7 @@
   import { useAuth } from '~/composables/useAuth'
   import { useLeagueRules } from '~/composables/useLeagueRules'
   import { usePlaceholders } from '~/composables/usePlaceholders'
+  import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Composables
   const { normalizeDates } = useFormatting()
@@ -42,6 +43,10 @@
   const shareUrl = ref('')
   const isGeneratingUrl = ref(false)
   const urlCopied = ref(false)
+
+  // Delete confirmation modal
+  const showDeleteModal = ref(false)
+  const isDeletingLeague = ref(false)
 
   // Get current game system for rules generation
   const currentGameSystem = computed(() => {
@@ -214,23 +219,21 @@
   const deleteLeague = async () => {
     if (!editableLeague.value?.id) return
 
-    const confirmDelete = confirm(
-      `Are you sure you want to delete "${editableLeague.value.name}"?\n\n` +
-        `This will permanently delete:\n` +
-        `• All league data\n` +
-        `• All player records\n` +
-        `• All army lists\n` +
-        `• All match results\n\n` +
-        `This action cannot be undone!`
-    )
+    // Show confirmation modal instead of browser confirm
+    showDeleteModal.value = true
+  }
 
-    if (!confirmDelete) return
+  const confirmDeleteLeague = async () => {
+    if (!editableLeague.value?.id) return
 
     const authStore = useAuthStore()
     if (!authStore.user?.id) {
       alert('You must be logged in to delete the league')
+      showDeleteModal.value = false
       return
     }
+
+    isDeletingLeague.value = true
 
     try {
       await $fetch(`/api/leagues/${editableLeague.value.id}`, {
@@ -247,7 +250,14 @@
     } catch (error) {
       console.error('Failed to delete league:', error)
       alert('Failed to delete league. Please try again.')
+    } finally {
+      isDeletingLeague.value = false
+      showDeleteModal.value = false
     }
+  }
+
+  const cancelDeleteLeague = () => {
+    showDeleteModal.value = false
   }
 </script>
 
@@ -631,7 +641,7 @@
       </div>
 
       <div class="space-y-4">
-        <div class="bg-purple-900/30 border border-purple-600/50 rounded-lg p-4">
+        <div class="">
           <h4 class="text-lg font-semibold text-purple-400 mb-2">Assign a New Owner</h4>
           <p class="text-gray-300 mb-4">
             As league owner, you cannot leave unless you transfer ownership to another active player.
@@ -683,7 +693,7 @@
       </div>
 
       <div class="space-y-4">
-        <div class="bg-red-900/30 border border-red-600/50 rounded-lg p-4">
+        <div class="">
           <h4 class="text-lg font-semibold text-red-400 mb-2">Delete This League</h4>
           <p class="text-gray-300 mb-4">
             Once you delete a league, there is no going back. This will permanently delete all league data,
@@ -699,5 +709,37 @@
         </div>
       </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <ConfirmationModal
+      :show="showDeleteModal"
+      title="Delete League"
+      variant="danger"
+      confirm-text="Delete League"
+      cancel-text="Cancel"
+      @confirm="confirmDeleteLeague"
+      @cancel="cancelDeleteLeague"
+      @close="cancelDeleteLeague"
+    >
+      <template #default>
+        <div class="space-y-4">
+          <p class="text-gray-200">
+            Are you sure you want to delete <strong class="text-red-400">"{{ editableLeague.name }}"</strong>?
+          </p>
+          <div class="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+            <p class="text-red-300 font-semibold mb-2">This will permanently delete:</p>
+            <ul class="text-red-200 space-y-1 text-sm">
+              <li>• All league data</li>
+              <li>• All player records</li>
+              <li>• All army lists</li>
+              <li>• All match results</li>
+            </ul>
+          </div>
+          <p class="text-yellow-400 font-semibold">
+            ⚠️ This action cannot be undone!
+          </p>
+        </div>
+      </template>
+    </ConfirmationModal>
   </div>
 </template>

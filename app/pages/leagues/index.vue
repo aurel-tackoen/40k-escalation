@@ -2,6 +2,7 @@
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
   import { Swords, Plus, Globe } from 'lucide-vue-next'
+  import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   const authStore = useAuthStore()
   const leaguesStore = useLeaguesStore()
@@ -9,6 +10,10 @@
 
   // Local loading state to prevent flash
   const pageLoading = ref(true)
+
+  // Delete confirmation modal
+  const showDeleteModal = ref(false)
+  const leagueToDelete = ref(null)
 
   // Computed to ensure stable public leagues list
   const hasPublicLeagues = computed(() => {
@@ -67,28 +72,41 @@
   }
 
   const handleDelete = async (leagueId, leagueName) => {
-    if (confirm(`WARNING: Are you sure you want to DELETE "${leagueName}"?\n\nThis will permanently delete:\n- All players in this league\n- All army lists\n- All match records\n- All league data\n\nThis action CANNOT be undone!`)) {
-      const secondConfirm = confirm(`Type the league name to confirm deletion:\n\nExpected: ${leagueName}\n\nAre you absolutely sure?`)
-      if (secondConfirm) {
-        const wasCurrentLeague = leagueId === currentLeagueId.value
+    // Store the league to delete
+    leagueToDelete.value = { id: leagueId, name: leagueName }
+    showDeleteModal.value = true
+  }
 
-        // Temporarily switch to the league we're deleting (if not already there)
-        if (!wasCurrentLeague) {
-          leaguesStore.currentLeagueId = leagueId
-        }
+  const confirmDeleteLeague = async () => {
+    if (!leagueToDelete.value) return
 
-        await leaguesStore.deleteLeague()
+    const { id: leagueId } = leagueToDelete.value
+    const wasCurrentLeague = leagueId === currentLeagueId.value
 
-        // After deleting, navigate appropriately
-        if (wasCurrentLeague) {
-          if (myLeagues.value.length > 0) {
-            navigateTo('/dashboard')
-          } else {
-            navigateTo('/leagues')
-          }
-        }
+    // Temporarily switch to the league we're deleting (if not already there)
+    if (!wasCurrentLeague) {
+      leaguesStore.currentLeagueId = leagueId
+    }
+
+    await leaguesStore.deleteLeague()
+
+    // Close modal and reset
+    showDeleteModal.value = false
+    leagueToDelete.value = null
+
+    // After deleting, navigate appropriately
+    if (wasCurrentLeague) {
+      if (myLeagues.value.length > 0) {
+        navigateTo('/dashboard')
+      } else {
+        navigateTo('/leagues')
       }
     }
+  }
+
+  const cancelDeleteLeague = () => {
+    showDeleteModal.value = false
+    leagueToDelete.value = null
   }
 
   const handleJoin = (leagueId) => {
@@ -178,5 +196,37 @@
         @join="handleJoin"
       />
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <ConfirmationModal
+      :show="showDeleteModal"
+      title="Delete League"
+      variant="danger"
+      confirm-text="Delete League"
+      cancel-text="Cancel"
+      @confirm="confirmDeleteLeague"
+      @cancel="cancelDeleteLeague"
+      @close="cancelDeleteLeague"
+    >
+      <template #default>
+        <div v-if="leagueToDelete" class="space-y-4">
+          <p class="text-gray-200">
+            Are you sure you want to delete <strong class="text-red-400">"{{ leagueToDelete.name }}"</strong>?
+          </p>
+          <div class="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+            <p class="text-red-300 font-semibold mb-2">This will permanently delete:</p>
+            <ul class="text-red-200 space-y-1 text-sm">
+              <li>• All players in this league</li>
+              <li>• All army lists</li>
+              <li>• All match records</li>
+              <li>• All league data</li>
+            </ul>
+          </div>
+          <p class="text-yellow-400 font-semibold">
+            ⚠️ This action CANNOT be undone!
+          </p>
+        </div>
+      </template>
+    </ConfirmationModal>
   </div>
 </template>
