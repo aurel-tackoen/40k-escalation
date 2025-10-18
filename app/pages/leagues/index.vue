@@ -15,6 +15,10 @@
   const showDeleteModal = ref(false)
   const leagueToDelete = ref(null)
 
+  // Leave confirmation modal
+  const showLeaveModal = ref(false)
+  const leagueToLeave = ref(null)
+
   // Computed to ensure stable public leagues list
   const hasPublicLeagues = computed(() => {
     return publicLeagues.value && Array.isArray(publicLeagues.value) && publicLeagues.value.length > 0
@@ -46,29 +50,45 @@
   }
 
   const handleLeave = async (leagueId, leagueName) => {
-    if (confirm(`Are you sure you want to leave "${leagueName}"? This will delete your player profile in this league.`)) {
-      const wasCurrentLeague = leagueId === currentLeagueId.value
+    // Store the league to leave
+    leagueToLeave.value = { id: leagueId, name: leagueName }
+    showLeaveModal.value = true
+  }
 
-      // Temporarily switch to the league we're leaving (if not already there)
-      if (!wasCurrentLeague) {
-        leaguesStore.currentLeagueId = leagueId
-      }
+  const confirmLeaveLeague = async () => {
+    if (!leagueToLeave.value) return
 
-      await leaguesStore.leaveLeague()
+    const { id: leagueId } = leagueToLeave.value
+    const wasCurrentLeague = leagueId === currentLeagueId.value
 
-      // After leaving, navigate appropriately
-      if (wasCurrentLeague) {
-        // If we left the current league, navigate based on what's left
-        if (myLeagues.value.length > 0) {
-          // Store already switched to first available league
-          navigateTo('/dashboard')
-        } else {
-          // No leagues left, go to leagues page
-          navigateTo('/leagues')
-        }
-      }
-      // If we weren't on this league, stay on leagues page (list refreshed)
+    // Temporarily switch to the league we're leaving (if not already there)
+    if (!wasCurrentLeague) {
+      leaguesStore.currentLeagueId = leagueId
     }
+
+    await leaguesStore.leaveLeague()
+
+    // Close modal and reset
+    showLeaveModal.value = false
+    leagueToLeave.value = null
+
+    // After leaving, navigate appropriately
+    if (wasCurrentLeague) {
+      // If we left the current league, navigate based on what's left
+      if (myLeagues.value.length > 0) {
+        // Store already switched to first available league
+        navigateTo('/dashboard')
+      } else {
+        // No leagues left, go to leagues page
+        navigateTo('/leagues')
+      }
+    }
+    // If we weren't on this league, stay on leagues page (list refreshed)
+  }
+
+  const cancelLeaveLeague = () => {
+    showLeaveModal.value = false
+    leagueToLeave.value = null
   }
 
   const handleDelete = async (leagueId, leagueName) => {
@@ -224,6 +244,36 @@
           </div>
           <p class="text-yellow-400 font-semibold">
             ⚠️ This action CANNOT be undone!
+          </p>
+        </div>
+      </template>
+    </ConfirmationModal>
+
+    <!-- Leave Confirmation Modal -->
+    <ConfirmationModal
+      :show="showLeaveModal"
+      title="Leave League"
+      confirm-text="Leave League"
+      cancel-text="Cancel"
+      @confirm="confirmLeaveLeague"
+      @cancel="cancelLeaveLeague"
+      @close="cancelLeaveLeague"
+    >
+      <template #default>
+        <div v-if="leagueToLeave" class="space-y-4">
+          <p class="text-gray-200">
+            Are you sure you want to leave <strong class="text-blue-400">"{{ leagueToLeave.name }}"</strong>?
+          </p>
+          <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+            <p class="text-blue-300 font-semibold mb-2">This will delete:</p>
+            <ul class="text-blue-200 space-y-1 text-sm">
+              <li>• Your player profile in this league</li>
+              <li>• Your army lists</li>
+              <li>• Your match records</li>
+            </ul>
+          </div>
+          <p class="text-yellow-400 font-semibold">
+            ⚠️ You can rejoin later, but your data will be gone.
           </p>
         </div>
       </template>
