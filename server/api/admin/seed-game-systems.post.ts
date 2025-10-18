@@ -1,9 +1,9 @@
-import { db } from '../../db'
-import { gameSystems, factions, missions, unitTypes } from '../../db/schema'
+import { db } from '../../../db'
+import { gameSystems, factions, missions, unitTypes } from '../../../db/schema'
 import { eq, and } from 'drizzle-orm'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
-import { requireAdmin } from '../utils/auth'
+import { requireAdmin } from '../../utils/auth'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -16,10 +16,10 @@ export default defineEventHandler(async (event) => {
     console.log('Starting game systems seed...')
 
     // Use absolute paths for imports
-    const gameSystemsPath = join(__dirname, '../../app/data/game-systems.js')
-    const factionsPath = join(__dirname, '../../app/data/factions-by-system.js')
-    const missionsPath = join(__dirname, '../../app/data/missions-by-system.js')
-    const unitTypesPath = join(__dirname, '../../app/data/unit-types-by-system.js')
+    const gameSystemsPath = join(__dirname, '../../../app/data/game-systems.js')
+    const factionsPath = join(__dirname, '../../../app/data/factions-by-system.js')
+    const missionsPath = join(__dirname, '../../../app/data/missions-by-system.js')
+    const unitTypesPath = join(__dirname, '../../../app/data/unit-types-by-system.js')
 
     const { gameSystems: gameSystemsData } = await import(gameSystemsPath)
     const { factionsBySystem } = await import(factionsPath)

@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watch, onMounted, onUnmounted } from 'vue'
+  import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
   import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords, HeartHandshake } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
   import { useAuthStore } from '~/stores/auth'

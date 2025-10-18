@@ -38,6 +38,7 @@ export default defineConfig([
         useAuthStore: "readonly",
         $fetch: "readonly",
         defineNuxtConfig: "readonly",
+        definePageMeta: "readonly",
         // Vue composition API
         ref: "readonly",
         reactive: "readonly",

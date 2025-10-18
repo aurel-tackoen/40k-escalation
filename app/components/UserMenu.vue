@@ -1,9 +1,16 @@
 <script setup>
-  import { ref, onMounted, onUnmounted } from 'vue'
-  import { User, ChevronDown, LogOut } from 'lucide-vue-next'
+  import { ref, onMounted, onUnmounted, computed } from 'vue'
+  import { User, ChevronDown, LogOut, ShieldAlert } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
+  import { useAuthStore } from '~/stores/auth'
 
   const { isAuthenticated, getUserName, getUserAvatar, logout } = useAuth()
+  const authStore = useAuthStore()
+
+  // Check if user is admin
+  const isAdmin = computed(() => {
+    return authStore.user?.role === 'admin'
+  })
   const isOpen = ref(false)
   const menuRef = ref(null)
 
@@ -59,6 +66,17 @@
       >
         <User :size="18" />
         <span>My Profile</span>
+      </NuxtLink>
+
+      <!-- Admin Link (only for admins) -->
+      <NuxtLink
+        v-if="isAdmin"
+        to="/admin"
+        @click="closeMenu"
+        class="flex items-center gap-2 px-4 py-3 hover:bg-gray-700 text-yellow-400 transition-colors"
+      >
+        <ShieldAlert :size="18" />
+        <span>Admin Dashboard</span>
       </NuxtLink>
 
       <div class="border-t border-gray-600" />
