@@ -420,9 +420,10 @@ export const useLeaguesStore = defineStore('leagues', {
 
       this.loading = true
       this.error = null
+      const leagueIdToLeave = this.currentLeagueId
       try {
         const authStore = useAuthStore()
-        const response = await $fetch(`/api/leagues/${this.currentLeagueId}/leave`, {
+        const response = await $fetch(`/api/leagues/${leagueIdToLeave}/leave`, {
           method: 'POST',
           body: {
             userId: authStore.user?.id
@@ -430,22 +431,33 @@ export const useLeaguesStore = defineStore('leagues', {
         })
 
         if (response.success) {
-          // Remove from user's leagues
-          this.myLeagues = this.myLeagues.filter(l => l.id !== this.currentLeagueId)
-
-          // Clear cache
-          delete this.leagues[this.currentLeagueId]
+          // Clear cache for the league we're leaving
+          delete this.leagues[leagueIdToLeave]
 
           // Clear current league data
           this.currentLeagueId = null
+          this.currentGameSystem = null
           this.players = []
           this.matches = []
           this.armies = []
           this.members = []
+          this.factions = []
+          this.missions = []
+          this.unitTypes = []
 
-          // Switch to first available league or null
-          if (this.myLeagues.length > 0) {
-            await this.switchLeague(this.myLeagues[0].id)
+          // Refresh both my leagues and public leagues to ensure sync
+          await Promise.all([
+            this.fetchMyLeagues(),
+            this.fetchPublicLeagues()
+          ])
+
+          // After refetching, check if user has any leagues left
+          // Note: fetchMyLeagues() will auto-switch to first league if currentLeagueId is null
+          if (this.myLeagues.length === 0) {
+            // No leagues left, clear localStorage
+            if (process.client) {
+              localStorage.removeItem('currentLeagueId')
+            }
           }
         }
 
@@ -522,9 +534,10 @@ export const useLeaguesStore = defineStore('leagues', {
 
       this.loading = true
       this.error = null
+      const leagueIdToDelete = this.currentLeagueId
       try {
         const authStore = useAuthStore()
-        const response = await $fetch(`/api/leagues/${this.currentLeagueId}`, {
+        const response = await $fetch(`/api/leagues/${leagueIdToDelete}`, {
           method: 'DELETE',
           body: {
             userId: authStore.user?.id
@@ -532,17 +545,33 @@ export const useLeaguesStore = defineStore('leagues', {
         })
 
         if (response.success) {
-          // Same cleanup as leave league
-          this.myLeagues = this.myLeagues.filter(l => l.id !== this.currentLeagueId)
-          delete this.leagues[this.currentLeagueId]
+          // Clear cache for the league we're deleting
+          delete this.leagues[leagueIdToDelete]
+
+          // Clear current league data
           this.currentLeagueId = null
+          this.currentGameSystem = null
           this.players = []
           this.matches = []
           this.armies = []
           this.members = []
+          this.factions = []
+          this.missions = []
+          this.unitTypes = []
 
-          if (this.myLeagues.length > 0) {
-            await this.switchLeague(this.myLeagues[0].id)
+          // Refresh both my leagues and public leagues to ensure sync
+          await Promise.all([
+            this.fetchMyLeagues(),
+            this.fetchPublicLeagues()
+          ])
+
+          // After refetching, check if user has any leagues left
+          // Note: fetchMyLeagues() will auto-switch to first league if currentLeagueId is null
+          if (this.myLeagues.length === 0) {
+            // No leagues left, clear localStorage
+            if (process.client) {
+              localStorage.removeItem('currentLeagueId')
+            }
           }
         }
 
@@ -867,17 +896,36 @@ export const useLeaguesStore = defineStore('leagues', {
       // Use initializing flag (not loading) to avoid hiding content
       this.initializing = true
 
-      if (process.client) {
-        const savedLeagueId = localStorage.getItem('currentLeagueId')
-        if (savedLeagueId) {
-          this.currentLeagueId = parseInt(savedLeagueId)
-        }
-      }
-
       // Fetch game systems first (needed for all leagues)
       await this.fetchGameSystems()
 
+      // Fetch user's leagues FIRST before checking localStorage
       await this.fetchMyLeagues()
+
+      // After fetching leagues, validate localStorage league ID
+      if (process.client) {
+        const savedLeagueId = localStorage.getItem('currentLeagueId')
+        if (savedLeagueId) {
+          const leagueId = parseInt(savedLeagueId)
+
+          // Check if the saved league is still in user's leagues
+          const isValidLeague = this.myLeagues.some(l => l.id === leagueId)
+
+          if (isValidLeague) {
+            // Valid league from localStorage, switch to it
+            this.currentLeagueId = leagueId
+          } else {
+            // Invalid league (user left it), clear localStorage
+            localStorage.removeItem('currentLeagueId')
+            this.currentLeagueId = null
+
+            // If user has other leagues, switch to first one
+            if (this.myLeagues.length > 0) {
+              await this.switchLeague(this.myLeagues[0].id)
+            }
+          }
+        }
+      }
 
       // Fetch league data if a league is selected
       if (this.currentLeagueId) {

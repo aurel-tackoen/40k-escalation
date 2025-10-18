@@ -42,14 +42,27 @@
 
   const handleLeave = async (leagueId, leagueName) => {
     if (confirm(`Are you sure you want to leave "${leagueName}"? This will delete your player profile in this league.`)) {
-      const originalLeagueId = currentLeagueId.value
-      leaguesStore.currentLeagueId = leagueId
+      const wasCurrentLeague = leagueId === currentLeagueId.value
+
+      // Temporarily switch to the league we're leaving (if not already there)
+      if (!wasCurrentLeague) {
+        leaguesStore.currentLeagueId = leagueId
+      }
+
       await leaguesStore.leaveLeague()
-      if (leagueId === originalLeagueId) {
+
+      // After leaving, navigate appropriately
+      if (wasCurrentLeague) {
+        // If we left the current league, navigate based on what's left
         if (myLeagues.value.length > 0) {
+          // Store already switched to first available league
           navigateTo('/dashboard')
+        } else {
+          // No leagues left, go to leagues page
+          navigateTo('/leagues')
         }
       }
+      // If we weren't on this league, stay on leagues page (list refreshed)
     }
   }
 
@@ -57,11 +70,22 @@
     if (confirm(`WARNING: Are you sure you want to DELETE "${leagueName}"?\n\nThis will permanently delete:\n- All players in this league\n- All army lists\n- All match records\n- All league data\n\nThis action CANNOT be undone!`)) {
       const secondConfirm = confirm(`Type the league name to confirm deletion:\n\nExpected: ${leagueName}\n\nAre you absolutely sure?`)
       if (secondConfirm) {
-        const originalLeagueId = currentLeagueId.value
-        leaguesStore.currentLeagueId = leagueId
+        const wasCurrentLeague = leagueId === currentLeagueId.value
+
+        // Temporarily switch to the league we're deleting (if not already there)
+        if (!wasCurrentLeague) {
+          leaguesStore.currentLeagueId = leagueId
+        }
+
         await leaguesStore.deleteLeague()
-        if (leagueId === originalLeagueId && myLeagues.value.length > 0) {
-          navigateTo('/dashboard')
+
+        // After deleting, navigate appropriately
+        if (wasCurrentLeague) {
+          if (myLeagues.value.length > 0) {
+            navigateTo('/dashboard')
+          } else {
+            navigateTo('/leagues')
+          }
         }
       }
     }
