@@ -1,6 +1,6 @@
 <script setup>
   import { ref, onMounted } from 'vue'
-  import { Plus, Edit, Trash2, Save, X } from 'lucide-vue-next'
+  import { Plus, Edit, Trash2, Save, X, ChevronDown } from 'lucide-vue-next'
   import AdminModal from '~/components/admin/AdminModal.vue'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
   import { useToast } from '~/composables/useToast'
@@ -304,14 +304,17 @@
 
         <div>
           <label class="admin-label">Match Type</label>
-          <select
-            v-model="formData.matchType"
-            class="admin-select"
-          >
-            <option v-for="type in matchTypes" :key="type.value" :value="type.value">
-              {{ type.label }}
-            </option>
-          </select>
+          <div class="admin-select-wrapper">
+            <select
+              v-model="formData.matchType"
+              class="admin-select"
+            >
+              <option v-for="type in matchTypes" :key="type.value" :value="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+            <ChevronDown class="chevron-icon w-4 h-4" />
+          </div>
         </div>
 
         <div>

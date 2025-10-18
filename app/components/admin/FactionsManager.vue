@@ -1,14 +1,25 @@
 <script setup>
   import { ref, onMounted, computed } from 'vue'
-  import { Plus, Edit, Trash2, Save, X, Filter } from 'lucide-vue-next'
+  import { Plus, Edit, Trash2, Save, X, Filter, ChevronDown } from 'lucide-vue-next'
+  import AdminModal from '~/components/admin/AdminModal.vue'
+  import ConfirmationModal from '~/components/ConfirmationModal.vue'
+  import { useToast } from '~/composables/useToast'
+
+  const { toastSuccess, toastError } = useToast()
 
   const factions = ref([])
   const gameSystems = ref([])
   const loading = ref(false)
   const error = ref(null)
   const editingId = ref(null)
-  const showAddForm = ref(false)
+  const showModal = ref(false)
   const selectedGameSystem = ref(null)
+
+  // Confirmation state
+  const showConfirmation = ref(false)
+  const confirmationMessage = ref('')
+  const confirmationAction = ref(null)
+  const confirmationVariant = ref('default')
 
   // Form state
   const formData = ref({
@@ -71,7 +82,18 @@
       category: ''
     }
     editingId.value = null
-    showAddForm.value = false
+    showModal.value = false
+  }
+
+  // Open add form
+  const openAddForm = () => {
+    formData.value = {
+      gameSystemId: selectedGameSystem.value || null,
+      name: '',
+      category: ''
+    }
+    editingId.value = null
+    showModal.value = true
   }
 
   // Start editing
@@ -82,13 +104,58 @@
       name: faction.name,
       category: faction.category || ''
     }
-    showAddForm.value = false
+    showModal.value = true
+  }
+
+  // Cancel editing
+  const cancelEdit = () => {
+    resetForm()
+  }
+
+  // Confirmation helper
+  const requestConfirmation = (message, action, variant = 'default') => {
+    confirmationMessage.value = message
+    confirmationAction.value = action
+    confirmationVariant.value = variant
+    showConfirmation.value = true
+  }
+
+  const handleConfirm = () => {
+    if (confirmationAction.value) {
+      confirmationAction.value()
+    }
+    showConfirmation.value = false
+    confirmationAction.value = null
+  }
+
+  const handleCancelConfirmation = () => {
+    showConfirmation.value = false
+    confirmationAction.value = null
+  }
+
+  // Save faction (create or update) - with confirmation for updates
+  const confirmSaveFaction = () => {
+    if (!formData.value.name || !formData.value.gameSystemId) {
+      toastError('Name and Game System are required')
+      return
+    }
+
+    if (editingId.value) {
+      // Updating - ask for confirmation
+      requestConfirmation(
+        `Are you sure you want to update "${formData.value.name}"? This may affect existing players using this faction.`,
+        saveFaction
+      )
+    } else {
+      // Creating - no confirmation needed
+      saveFaction()
+    }
   }
 
   // Save faction
   const saveFaction = async () => {
     if (!formData.value.name || !formData.value.gameSystemId) {
-      alert('Name and Game System are required')
+      toastError('Name and Game System are required')
       return
     }
 
@@ -102,6 +169,7 @@
           method: 'PUT',
           body: formData.value
         })
+        toastSuccess(`Faction "${formData.value.name}" updated successfully`)
       }
       else {
         // Create
@@ -109,6 +177,7 @@
           method: 'POST',
           body: formData.value
         })
+        toastSuccess(`Faction "${formData.value.name}" created successfully`)
       }
 
       await fetchFactions()
@@ -116,6 +185,7 @@
     }
     catch (err) {
       error.value = err.message
+      toastError(`Failed to save faction: ${err.message}`)
       console.error('Failed to save faction:', err)
     }
     finally {
@@ -124,11 +194,15 @@
   }
 
   // Delete faction
-  const deleteFaction = async (id, name) => {
-    if (!confirm(`Are you sure you want to delete "${name}"?`)) {
-      return
-    }
+  const confirmDeleteFaction = (id, name) => {
+    requestConfirmation(
+      `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+      () => deleteFaction(id, name),
+      'danger'
+    )
+  }
 
+  const deleteFaction = async (id, name) => {
     loading.value = true
     error.value = null
 
@@ -137,9 +211,11 @@
         method: 'DELETE'
       })
       await fetchFactions()
+      toastSuccess(`Faction "${name}" deleted successfully`)
     }
     catch (err) {
       error.value = err.message
+      toastError(`Failed to delete faction: ${err.message}`)
       console.error('Failed to delete faction:', err)
     }
     finally {
@@ -161,11 +237,14 @@
 <template>
   <div>
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-2xl font-bold text-white">Factions Management</h2>
+    <div class="flex items-center justify-between mb-8">
+      <div class="">
+        <h2 class="text-2xl font-bold text-white mb-2">Factions Management</h2>
+        <p class="text-gray-400 text-sm">Manage factions for each game system</p>
+      </div>
       <button
-        @click="showAddForm = true; editingId = null; resetForm()"
-        class="flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold rounded-lg transition-colors"
+        @click="openAddForm"
+        class="admin-btn-primary"
       >
         <Plus class="w-4 h-4" />
         Add Faction
@@ -182,80 +261,88 @@
       <div class="flex items-center gap-4">
         <Filter class="w-5 h-5 text-gray-400" />
         <label class="text-sm font-medium text-gray-300">Filter by Game System:</label>
-        <select
-          v-model="selectedGameSystem"
-          @change="onGameSystemChange"
-          class="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
-        >
-          <option v-for="system in gameSystems" :key="system.id" :value="system.id">
-            {{ system.name }}
-          </option>
-        </select>
+        <div class="admin-select-wrapper flex-1">
+          <select
+            v-model="selectedGameSystem"
+            @change="onGameSystemChange"
+            class="admin-select"
+          >
+            <option v-for="system in gameSystems" :key="system.id" :value="system.id">
+              {{ system.name }}
+            </option>
+          </select>
+          <ChevronDown class="chevron-icon w-4 h-4" />
+        </div>
         <span class="text-sm text-gray-400">
           {{ filteredFactions.length }} factions
         </span>
       </div>
     </div>
 
-    <!-- Add/Edit Form -->
-    <div v-if="showAddForm || editingId" class="mb-6 p-6 bg-gray-700 border border-gray-600 rounded-lg">
-      <h3 class="text-xl font-bold text-white mb-4">
-        {{ editingId ? 'Edit Faction' : 'Add New Faction' }}
-      </h3>
-
+    <!-- Add/Edit Modal -->
+    <AdminModal
+      :isOpen="showModal"
+      :title="editingId ? 'Edit Faction' : 'Add New Faction'"
+      size="md"
+      @close="cancelEdit"
+    >
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">Game System *</label>
-          <select
-            v-model="formData.gameSystemId"
-            class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          >
-            <option :value="null">Select a game system</option>
-            <option v-for="system in gameSystems" :key="system.id" :value="system.id">
-              {{ system.name }}
-            </option>
-          </select>
+          <label class="admin-label">Game System *</label>
+          <div class="admin-select-wrapper">
+            <select
+              v-model="formData.gameSystemId"
+              class="admin-select"
+            >
+              <option :value="null">Select a game system</option>
+              <option v-for="system in gameSystems" :key="system.id" :value="system.id">
+                {{ system.name }}
+              </option>
+            </select>
+            <ChevronDown class="chevron-icon w-4 h-4" />
+          </div>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">Faction Name *</label>
+          <label class="admin-label">Faction Name *</label>
           <input
             v-model="formData.name"
             type="text"
-            class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            class="admin-input"
             placeholder="Space Marines"
           >
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">Category</label>
+          <label class="admin-label">Category</label>
           <input
             v-model="formData.category"
             type="text"
-            class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            class="admin-input"
             placeholder="Imperium, Chaos, Xenos, etc."
           >
+          <p class="admin-hint">Optional: Faction category or alignment</p>
         </div>
       </div>
 
-      <div class="flex gap-3 mt-6">
+      <template #footer>
         <button
-          @click="saveFaction"
+          @click="cancelEdit"
+          class="admin-btn-neutral"
+        >
+          <X class="w-4 h-4" />
+          Cancel
+        </button>
+        <button
+          @click="confirmSaveFaction"
           :disabled="loading"
           class="admin-btn-secondary"
         >
           <Save class="w-4 h-4" />
           {{ editingId ? 'Update' : 'Create' }}
         </button>
-        <button
-          @click="resetForm"
-          class="admin-btn-neutral"
-        >
-          <X class="w-4 h-4" />
-          Cancel
-        </button>
-      </div>
-    </div>
+      </template>
+    </AdminModal>
 
     <!-- Loading State -->
     <div v-if="loading && !filteredFactions.length" class="text-center py-8 text-gray-400">
@@ -263,39 +350,44 @@
     </div>
 
     <!-- Factions List -->
-    <div v-else-if="filteredFactions.length" class="space-y-2">
+    <div v-else-if="filteredFactions.length" class="space-y-4">
       <div
         v-for="faction in filteredFactions"
         :key="faction.id"
-        class="p-4 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors flex items-center justify-between"
+        class="p-4 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors"
       >
-        <div class="flex-1">
-          <div class="flex items-center gap-3">
-            <h3 class="text-base font-bold text-white">{{ faction.name }}</h3>
-            <span class="px-2 py-1 text-xs bg-purple-500/20 text-purple-300 rounded">
-              {{ getGameSystemName(faction.gameSystemId) }}
-            </span>
-            <span v-if="faction.category" class="px-2 py-1 text-xs bg-gray-800 text-gray-400 rounded">
-              {{ faction.category }}
-            </span>
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <div class="flex items-center gap-3">
+              <h3 class="text-lg font-bold text-white">{{ faction.name }}</h3>
+              <span class="px-2 py-1 text-xs font-mono bg-gray-600 text-gray-300 rounded">
+                ID: {{ faction.id }}
+              </span>
+              <span class="px-2 py-1 text-xs bg-purple-500/20 text-purple-300 rounded">
+                {{ getGameSystemName(faction.gameSystemId) }}
+              </span>
+              <span v-if="faction.category" class="px-2 py-1 text-xs bg-gray-800 text-gray-400 rounded">
+                {{ faction.category }}
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div class="flex gap-2">
-          <button
-            @click="startEdit(faction)"
-            class="admin-btn-info"
-          >
-            <Edit class="w-3 h-3" />
-            Edit
-          </button>
-          <button
-            @click="deleteFaction(faction.id, faction.name)"
-            class="admin-btn-danger"
-          >
-            <Trash2 class="w-3 h-3" />
-            Delete
-          </button>
+          <div class="flex gap-2 ml-4">
+            <button
+              @click="startEdit(faction)"
+              class="admin-btn-info"
+            >
+              <Edit class="w-3 h-3" />
+              Edit
+            </button>
+            <button
+              @click="confirmDeleteFaction(faction.id, faction.name)"
+              class="admin-btn-danger"
+            >
+              <Trash2 class="w-3 h-3" />
+              Delete
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -304,11 +396,20 @@
     <div v-else class="text-center py-12 text-gray-400">
       <p class="mb-4">No factions found for {{ getGameSystemName(selectedGameSystem) }}.</p>
       <button
-        @click="showAddForm = true; resetForm()"
+        @click="openAddForm"
         class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold rounded-lg transition-colors"
       >
         Add First Faction
       </button>
     </div>
+
+    <!-- Confirmation Modal -->
+    <ConfirmationModal
+      :show="showConfirmation"
+      :message="confirmationMessage"
+      :variant="confirmationVariant"
+      @confirm="handleConfirm"
+      @cancel="handleCancelConfirmation"
+    />
   </div>
 </template>

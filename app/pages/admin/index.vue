@@ -130,69 +130,90 @@
   <!-- Statistics Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Game Content Stats -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+    <NuxtLink
+      to="/admin/game-systems"
+      class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-blue-400 hover:bg-gray-750 transition-all cursor-pointer"
+    >
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-sm font-medium text-gray-400">Game Systems</h3>
         <Database class="w-5 h-5 text-blue-400" />
       </div>
       <p class="text-3xl font-bold text-white">{{ stats.gameSystems }}</p>
       <p class="text-xs text-gray-500 mt-1">Active game systems</p>
-    </div>
+    </NuxtLink>
 
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+    <NuxtLink
+      to="/admin/factions"
+      class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-purple-400 hover:bg-gray-750 transition-all cursor-pointer"
+    >
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-sm font-medium text-gray-400">Factions</h3>
         <Shield class="w-5 h-5 text-purple-400" />
       </div>
       <p class="text-3xl font-bold text-white">{{ stats.factions }}</p>
       <p class="text-xs text-gray-500 mt-1">Across all systems</p>
-    </div>
+    </NuxtLink>
 
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+    <NuxtLink
+      to="/admin/missions"
+      class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-green-400 hover:bg-gray-750 transition-all cursor-pointer"
+    >
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-sm font-medium text-gray-400">Missions</h3>
         <Target class="w-5 h-5 text-green-400" />
       </div>
       <p class="text-3xl font-bold text-white">{{ stats.missions }}</p>
       <p class="text-xs text-gray-500 mt-1">Available missions</p>
-    </div>
+    </NuxtLink>
 
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+    <NuxtLink
+      to="/admin/unit-types"
+      class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-yellow-400 hover:bg-gray-750 transition-all cursor-pointer"
+    >
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-sm font-medium text-gray-400">Unit Types</h3>
         <Boxes class="w-5 h-5 text-yellow-400" />
       </div>
       <p class="text-3xl font-bold text-white">{{ stats.unitTypes }}</p>
       <p class="text-xs text-gray-500 mt-1">Army building options</p>
-    </div>
+    </NuxtLink>
 
     <!-- Platform Stats -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+    <NuxtLink
+      to="/admin/users"
+      class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-indigo-400 hover:bg-gray-750 transition-all cursor-pointer"
+    >
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-sm font-medium text-gray-400">Total Users</h3>
         <Users class="w-5 h-5 text-indigo-400" />
       </div>
       <p class="text-3xl font-bold text-white">{{ stats.totalUsers }}</p>
       <p class="text-xs text-gray-500 mt-1">Registered players</p>
-    </div>
+    </NuxtLink>
 
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+    <NuxtLink
+      to="/admin/leagues"
+      class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-orange-400 hover:bg-gray-750 transition-all cursor-pointer"
+    >
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-sm font-medium text-gray-400">Leagues</h3>
         <Swords class="w-5 h-5 text-orange-400" />
       </div>
       <p class="text-3xl font-bold text-white">{{ stats.totalLeagues }}</p>
       <p class="text-xs text-gray-500 mt-1">{{ stats.activeLeagues }} active</p>
-    </div>
+    </NuxtLink>
 
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+    <NuxtLink
+      to="/admin/matches"
+      class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-red-400 hover:bg-gray-750 transition-all cursor-pointer"
+    >
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-sm font-medium text-gray-400">Matches</h3>
         <Trophy class="w-5 h-5 text-red-400" />
       </div>
       <p class="text-3xl font-bold text-white">{{ stats.totalMatches }}</p>
       <p class="text-xs text-gray-500 mt-1">Games played</p>
-    </div>
+    </NuxtLink>
 
     <div
       class="rounded-lg p-6"

@@ -217,10 +217,30 @@
   color: rgb(107 114 128);
 }
 
+/* Select dropdown wrapper (for custom chevron) */
+.admin-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.admin-select-wrapper .chevron-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgb(156 163 175); /* gray-400 */
+  transition: color 150ms;
+}
+
+.admin-select-wrapper:focus-within .chevron-icon {
+  color: rgb(234 179 8); /* yellow-500 */
+}
+
 /* Select dropdown */
 .admin-select {
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
   border-radius: 0.5rem;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -228,6 +248,10 @@
   background-color: rgb(31 41 55);
   border: 1px solid rgb(75 85 99);
   color: rgb(255 255 255);
+  appearance: none; /* Hide native chevron */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
 }
 
 .admin-select:focus {
