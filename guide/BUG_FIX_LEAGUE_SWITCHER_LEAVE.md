@@ -443,6 +443,7 @@ const handleLeave = async (leagueId, leagueName) => {
 1. **`app/stores/leagues.js`**
    - `leaveLeague()` - Changed from manual filter to server refetch
    - `deleteLeague()` - Changed from manual filter to server refetch
+   - `initialize()` - **Added localStorage validation** 🔥 **CRITICAL**
 
 2. **`app/pages/leagues/index.vue`**
    - `handleLeave()` - Improved navigation logic
@@ -451,10 +452,45 @@ const handleLeave = async (leagueId, leagueName) => {
 ## Impact
 
 - **User Experience**: Perfect sync between all UI components showing league data
-- **Data Consistency**: Single source of truth (server)
+- **Data Consistency**: Single source of truth (server) with validation
 - **Performance**: Minimal impact (one extra API call, but prevents bugs)
 - **Security**: No impact
-- **Reliability**: Significantly improved - no more cache/array mismatches
+- **Reliability**: **Significantly improved** - no more cache/array mismatches or ghost leagues
+
+## Key Takeaways
+
+### The localStorage Validation Pattern
+
+This fix introduces an important pattern for working with localStorage in multi-user, multi-entity apps:
+
+```javascript
+// ❌ DON'T: Trust localStorage blindly
+const savedId = localStorage.getItem('entityId')
+if (savedId) {
+  this.currentEntityId = parseInt(savedId)
+}
+await this.fetchUserEntities()
+
+// ✅ DO: Fetch first, then validate
+await this.fetchUserEntities()
+const savedId = localStorage.getItem('entityId')
+if (savedId) {
+  const id = parseInt(savedId)
+  const isValid = this.entities.some(e => e.id === id)
+  if (isValid) {
+    this.currentEntityId = id
+  } else {
+    localStorage.removeItem('entityId')
+    // Handle invalid case
+  }
+}
+```
+
+**Why This Matters**:
+- localStorage persists across sessions
+- User permissions/memberships can change
+- Entities can be deleted
+- Validation prevents stale/invalid references
 
 ## Related Issues
 
@@ -463,12 +499,16 @@ This fix is related to the earlier work on active/inactive players where we:
 - The leave endpoint sets status to 'inactive' instead of deleting
 - The `/api/leagues/my` endpoint filters by `status: 'active'`
 
-By refetching from the server, we ensure the client always reflects the current membership status accurately.
+By:
+1. Refetching from the server after leave/delete
+2. Validating localStorage against server data on initialize
+
+We ensure the client always reflects the current membership status accurately, even across page refreshes and timing edge cases.
 
 ---
 
 **Status**: ✅ Complete and tested  
-**Updated**: October 18, 2025 - Added server refetch fix for data sync issue
+**Updated**: October 18, 2025 - Added localStorage validation fix for ghost league issue
 ```
 
 **Key Improvements**:
