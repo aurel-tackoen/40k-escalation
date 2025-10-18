@@ -12,6 +12,7 @@ import { ref, computed } from 'vue'
 export function useArmyForm(rounds, calculateTotal, isValidArmy) {
   const showBuilder = ref(false)
   const editingArmy = ref(false)
+  const newlyAddedUnitId = ref(null)
   const currentArmy = ref({
     playerId: null,
     round: null,
@@ -92,6 +93,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
 
   /**
    * Add a new empty unit to the current army
+   * Units are added at the top of the list for better UX
    * @returns {Object} The newly created unit
    */
   const addUnit = () => {
@@ -104,8 +106,27 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
       totalModels: 0,
       paintedModels: 0
     }
-    currentArmy.value.units.push(newUnit)
+    // Add unit at the beginning of the array
+    currentArmy.value.units.unshift(newUnit)
+
+    // Track newly added unit for animation
+    newlyAddedUnitId.value = newUnit.id
+
+    // Clear the animation flag after animation completes
+    setTimeout(() => {
+      newlyAddedUnitId.value = null
+    }, 1000)
+
     return newUnit
+  }
+
+  /**
+   * Check if a unit is newly added (for animation purposes)
+   * @param {number} unitId - Unit ID to check
+   * @returns {boolean} True if unit was just added
+   */
+  const isNewlyAdded = (unitId) => {
+    return newlyAddedUnitId.value === unitId
   }
 
   /**
@@ -153,6 +174,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
     showBuilder,
     editingArmy,
     currentArmy,
+    newlyAddedUnitId,
 
     // Computed
     currentRoundLimit,
@@ -167,6 +189,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
     removeUnit,
     recalculateArmy,
     copyFromPreviousArmy,
-    setupEscalation
+    setupEscalation,
+    isNewlyAdded
   }
 }

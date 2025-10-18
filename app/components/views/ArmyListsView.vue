@@ -114,7 +114,8 @@
     removeUnit,
     recalculateArmy,
     copyFromPreviousArmy,
-    setupEscalation
+    setupEscalation,
+    isNewlyAdded
   } = useArmyForm(
     toRef(props, 'rounds'),
     calculateArmyTotal,
@@ -629,6 +630,7 @@
               v-for="(unit, index) in currentArmy.units"
               :key="unit.id || index"
               class="bg-gray-700/50 border border-gray-600 rounded-lg p-4 transition-all duration-200 hover:border-gray-500"
+              :class="{ 'unit-blink': isNewlyAdded(unit.id) }"
             >
               <!-- Unit Header -->
               <div class="flex flex-col md:flex-row gap-3 mb-3">
@@ -1176,3 +1178,32 @@
     />
   </div>
 </template>
+
+<style scoped>
+@keyframes blink-bg {
+  0% {
+    background-color: rgb(55 65 81 / 0.5); /* bg-gray-700/50 */
+    border-color: rgb(75 85 99); /* border-gray-600 */
+  }
+  25% {
+    background-color: rgb(234 179 8 / 0.3); /* yellow glow */
+    border-color: rgb(234 179 8); /* border-yellow-500 */
+  }
+  50% {
+    background-color: rgb(55 65 81 / 0.5);
+    border-color: rgb(75 85 99);
+  }
+  75% {
+    background-color: rgb(234 179 8 / 0.3);
+    border-color: rgb(234 179 8);
+  }
+  100% {
+    background-color: rgb(55 65 81 / 0.5);
+    border-color: rgb(75 85 99);
+  }
+}
+
+.unit-blink {
+  animation: blink-bg 1s ease-in-out;
+}
+</style>
