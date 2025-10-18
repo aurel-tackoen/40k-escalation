@@ -34,8 +34,9 @@
     try {
       const response = await $fetch('/api/game-systems')
       gameSystems.value = response.data || []
-      if (gameSystems.value.length > 0 && !selectedGameSystem.value) {
-        selectedGameSystem.value = gameSystems.value[0].id
+      // Default to "All" (null) instead of first game system
+      if (!selectedGameSystem.value) {
+        selectedGameSystem.value = null
       }
     }
     catch (err) {
@@ -278,6 +279,7 @@
             @change="onGameSystemChange"
             class="admin-select"
           >
+            <option :value="null">All Game Systems</option>
             <option v-for="system in gameSystems" :key="system.id" :value="system.id">
               {{ system.name }}
             </option>
@@ -420,7 +422,9 @@
 
     <!-- Empty State -->
     <div v-else class="text-center py-12 text-gray-400">
-      <p class="mb-4">No unit types found for {{ getGameSystemName(selectedGameSystem) }}.</p>
+      <p class="mb-4">
+        No unit types found{{ selectedGameSystem ? ` for ${getGameSystemName(selectedGameSystem)}` : '' }}.
+      </p>
       <button
         @click="openAddForm"
         class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold rounded-lg transition-colors"

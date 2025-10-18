@@ -264,28 +264,6 @@
         </div>
       </button>
 
-      <NuxtLink
-        to="/admin/game-systems"
-        class="flex items-center gap-3 p-4 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 rounded-lg transition-colors text-left cursor-pointer"
-      >
-        <Database class="w-6 h-6 text-purple-400 flex-shrink-0" />
-        <div>
-          <p class="font-semibold text-white">Manage Game Systems</p>
-          <p class="text-xs text-gray-400">Add or edit game systems</p>
-        </div>
-      </NuxtLink>
-
-      <NuxtLink
-        to="/admin/factions"
-        class="flex items-center gap-3 p-4 bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 rounded-lg transition-colors text-left cursor-pointer"
-      >
-        <Shield class="w-6 h-6 text-green-400 flex-shrink-0" />
-        <div>
-          <p class="font-semibold text-white">Manage Factions</p>
-          <p class="text-xs text-gray-400">Add or edit factions</p>
-        </div>
-      </NuxtLink>
-
       <button
         @click="fetchStats"
         :disabled="loading"
