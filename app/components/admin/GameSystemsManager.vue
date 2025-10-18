@@ -1,12 +1,23 @@
 <script setup>
   import { ref, onMounted } from 'vue'
   import { Plus, Edit, Trash2, Save, X } from 'lucide-vue-next'
+  import AdminModal from '~/components/admin/AdminModal.vue'
+  import ConfirmationModal from '~/components/ConfirmationModal.vue'
+  import { useToast } from '~/composables/useToast'
+
+  const { toastSuccess, toastError } = useToast()
 
   const gameSystems = ref([])
   const loading = ref(false)
   const error = ref(null)
   const editingId = ref(null)
-  const showAddForm = ref(false)
+  const showModal = ref(false)
+
+  // Confirmation state
+  const showConfirmation = ref(false)
+  const confirmationMessage = ref('')
+  const confirmationAction = ref(null)
+  const confirmationVariant = ref('default')
 
   // Form state
   const formData = ref({
@@ -50,7 +61,20 @@
       matchConfig: ''
     }
     editingId.value = null
-    showAddForm.value = false
+    showModal.value = false
+  }
+
+  // Open add form
+  const openAddForm = () => {
+    formData.value = {
+      name: '',
+      shortName: '',
+      description: '',
+      matchType: 'victory_points',
+      matchConfig: ''
+    }
+    editingId.value = null
+    showModal.value = true
   }
 
   // Start editing
@@ -65,7 +89,7 @@
         ? JSON.stringify(system.matchConfig, null, 2)
         : system.matchConfig || ''
     }
-    showAddForm.value = false
+    showModal.value = true
   }
 
   // Cancel editing
@@ -73,15 +97,59 @@
     resetForm()
   }
 
-  // Save game system (create or update)
+  // Confirmation helper
+  const requestConfirmation = (message, action, variant = 'default') => {
+    confirmationMessage.value = message
+    confirmationAction.value = action
+    confirmationVariant.value = variant
+    showConfirmation.value = true
+  }
+
+  const handleConfirm = () => {
+    if (confirmationAction.value) {
+      confirmationAction.value()
+    }
+    showConfirmation.value = false
+    confirmationAction.value = null
+  }
+
+  const handleCancelConfirmation = () => {
+    showConfirmation.value = false
+    confirmationAction.value = null
+  }
+
+  // Save game system (create or update) - with confirmation for updates
+  const confirmSaveGameSystem = () => {
+    if (!formData.value.name || !formData.value.shortName) {
+      toastError('Name and Short Name are required')
+      return
+    }
+
+    if (editingId.value) {
+      // Updating - ask for confirmation
+      requestConfirmation(
+        `Are you sure you want to update "${formData.value.name}"? This may affect existing leagues using this game system.`,
+        saveGameSystem
+      )
+    } else {
+      // Creating - no confirmation needed
+      saveGameSystem()
+    }
+  }
+
   const saveGameSystem = async () => {
     if (!formData.value.name || !formData.value.shortName) {
-      alert('Name and Short Name are required')
+      toastError('Name and Short Name are required')
       return
     }
 
     loading.value = true
     error.value = null
+
+    console.log('saveGameSystem called', {
+      editingId: editingId.value,
+      formData: formData.value
+    })
 
     try {
       // Parse matchConfig if it's a string
@@ -91,7 +159,7 @@
           matchConfig = JSON.parse(matchConfig)
         }
         catch {
-          alert('Invalid JSON in Match Config')
+          toastError('Invalid JSON in Match Config')
           loading.value = false
           return
         }
@@ -102,19 +170,27 @@
         matchConfig
       }
 
+      console.log('Payload:', payload)
+
       if (editingId.value) {
         // Update existing
-        await $fetch(`/api/admin/game-systems/${editingId.value}`, {
+        console.log('Updating game system:', editingId.value)
+        const response = await $fetch(`/api/admin/game-systems/${editingId.value}`, {
           method: 'PUT',
           body: payload
         })
+        console.log('Update response:', response)
+        toastSuccess(`Game system "${formData.value.name}" updated successfully`)
       }
       else {
         // Create new
-        await $fetch('/api/admin/game-systems', {
+        console.log('Creating new game system')
+        const response = await $fetch('/api/admin/game-systems', {
           method: 'POST',
           body: payload
         })
+        console.log('Create response:', response)
+        toastSuccess(`Game system "${formData.value.name}" created successfully`)
       }
 
       await fetchGameSystems()
@@ -122,6 +198,7 @@
     }
     catch (err) {
       error.value = err.message
+      toastError(`Failed to save game system: ${err.message}`)
       console.error('Failed to save game system:', err)
     }
     finally {
@@ -130,10 +207,15 @@
   }
 
   // Delete game system
+  const confirmDeleteGameSystem = (id, name) => {
+    requestConfirmation(
+      `Are you sure you want to delete "${name}"? This will also delete all associated factions, missions, and unit types. This action cannot be undone.`,
+      () => deleteGameSystem(id, name),
+      'danger'
+    )
+  }
+
   const deleteGameSystem = async (id, name) => {
-    if (!confirm(`Are you sure you want to delete "${name}"? This will also delete all associated factions, missions, and unit types.`)) {
-      return
-    }
 
     loading.value = true
     error.value = null
@@ -143,9 +225,11 @@
         method: 'DELETE'
       })
       await fetchGameSystems()
+      toastSuccess(`Game system "${name}" deleted successfully`)
     }
     catch (err) {
       error.value = err.message
+      toastError(`Failed to delete game system: ${err.message}`)
       console.error('Failed to delete game system:', err)
     }
     finally {
@@ -161,11 +245,14 @@
 <template>
   <div>
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-2xl font-bold text-white">Game Systems Management</h2>
+    <div class="flex items-center justify-between mb-8">
+      <div class="">
+        <h2 class="text-2xl font-bold text-white mb-2">Game Systems Management</h2>
+        <p class="text-gray-400 text-sm">Manage game systems, match types, and configurations</p>
+      </div>
       <button
-        @click="showAddForm = true; editingId = null; resetForm()"
-        class="flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold rounded-lg transition-colors"
+        @click="openAddForm"
+        class="admin-btn-primary"
       >
         <Plus class="w-4 h-4" />
         Add Game System
@@ -177,48 +264,49 @@
       {{ error }}
     </div>
 
-    <!-- Add/Edit Form -->
-    <div v-if="showAddForm || editingId" class="mb-6 p-6 bg-gray-700 border border-gray-600 rounded-lg">
-      <h3 class="text-xl font-bold text-white mb-4">
-        {{ editingId ? 'Edit Game System' : 'Add New Game System' }}
-      </h3>
-
+    <!-- Add/Edit Modal -->
+    <AdminModal
+      :isOpen="showModal"
+      :title="editingId ? 'Edit Game System' : 'Add New Game System'"
+      size="lg"
+      @close="cancelEdit"
+    >
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">Name *</label>
+          <label class="admin-label">Name *</label>
           <input
             v-model="formData.name"
             type="text"
-            class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            class="admin-input"
             placeholder="Warhammer 40,000"
           >
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">Short Name *</label>
+          <label class="admin-label">Short Name *</label>
           <input
             v-model="formData.shortName"
             type="text"
-            class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            class="admin-input"
             placeholder="40k"
           >
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+          <label class="admin-label">Description</label>
           <textarea
             v-model="formData.description"
             rows="3"
-            class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            class="admin-textarea"
             placeholder="The grim darkness of the far future..."
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">Match Type</label>
+          <label class="admin-label">Match Type</label>
           <select
             v-model="formData.matchType"
-            class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            class="admin-select"
           >
             <option v-for="type in matchTypes" :key="type.value" :value="type.value">
               {{ type.label }}
@@ -227,26 +315,18 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">Match Config (JSON)</label>
+          <label class="admin-label">Match Config (JSON)</label>
           <textarea
             v-model="formData.matchConfig"
             rows="5"
-            class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            class="admin-textarea font-mono text-sm"
             placeholder='{"pointsLabel": "Victory Points", "pointsRange": {"min": 0, "max": 100}}'
           />
-          <p class="mt-1 text-xs text-gray-400">Optional: Game-specific configuration as JSON</p>
+          <p class="admin-hint">Optional: Game-specific configuration as JSON</p>
         </div>
       </div>
 
-      <div class="flex gap-3 mt-6">
-        <button
-          @click="saveGameSystem"
-          :disabled="loading"
-          class="admin-btn-secondary"
-        >
-          <Save class="w-4 h-4" />
-          {{ editingId ? 'Update' : 'Create' }}
-        </button>
+      <template #footer>
         <button
           @click="cancelEdit"
           class="admin-btn-neutral"
@@ -254,8 +334,16 @@
           <X class="w-4 h-4" />
           Cancel
         </button>
-      </div>
-    </div>
+        <button
+          @click="confirmSaveGameSystem"
+          :disabled="loading"
+          class="admin-btn-secondary"
+        >
+          <Save class="w-4 h-4" />
+          {{ editingId ? 'Update' : 'Create' }}
+        </button>
+      </template>
+    </AdminModal>
 
     <!-- Loading State -->
     <div v-if="loading && !gameSystems.length" class="text-center py-8 text-gray-400">
@@ -287,7 +375,7 @@
               {{ system.description }}
             </p>
             <div v-if="system.matchConfig" class="text-xs text-gray-500 font-mono">
-              <pre class="">{{ typeof system.matchConfig === 'object' ? JSON.stringify(system.matchConfig, null, 2) : system.matchConfig }}</pre>
+              <pre class="admin-pre">{{ typeof system.matchConfig === 'object' ? JSON.stringify(system.matchConfig, null, 2) : system.matchConfig }}</pre>
             </div>
           </div>
 
@@ -300,7 +388,7 @@
               Edit
             </button>
             <button
-              @click="deleteGameSystem(system.id, system.name)"
+              @click="confirmDeleteGameSystem(system.id, system.name)"
               class="admin-btn-danger"
             >
               <Trash2 class="w-3 h-3" />
@@ -321,6 +409,15 @@
         Add Your First Game System
       </button>
     </div>
+
+    <!-- Confirmation Modal -->
+    <ConfirmationModal
+      :show="showConfirmation"
+      :message="confirmationMessage"
+      :variant="confirmationVariant"
+      @confirm="handleConfirm"
+      @cancel="handleCancelConfirmation"
+    />
   </div>
 </template>
 

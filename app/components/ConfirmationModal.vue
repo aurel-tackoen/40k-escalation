@@ -1,5 +1,5 @@
 <script setup>
-  import { watch, onUnmounted } from 'vue'
+  import { watch, onUnmounted, computed } from 'vue'
   import { X } from 'lucide-vue-next'
 
   const props = defineProps({
@@ -80,7 +80,7 @@
   })
 
   // Get variant-specific classes
-  const getVariantClasses = () => {
+  const variantClasses = computed(() => {
     switch (props.variant) {
       case 'danger':
         return {
@@ -101,9 +101,7 @@
           confirmBtn: 'btn-primary'
         }
     }
-  }
-
-  const variantClasses = getVariantClasses()
+  })
 
   const handleConfirm = () => {
     emit('confirm')
