@@ -169,6 +169,7 @@
   // Ownership Transfer
   const selectedNewOwner = ref(null)
   const isTransferringOwnership = ref(false)
+  const showTransferModal = ref(false)
 
   const activePlayers = computed(() => {
     return props.players.filter(p =>
@@ -176,22 +177,16 @@
     )
   })
 
-  const transferOwnership = async () => {
+  const initiateTransferOwnership = () => {
+    if (!selectedNewOwner.value) return
+    showTransferModal.value = true
+  }
+
+  const confirmTransferOwnership = async () => {
     if (!selectedNewOwner.value || !editableLeague.value?.id) return
 
     const newOwnerPlayer = activePlayers.value.find(p => p.id === selectedNewOwner.value)
     if (!newOwnerPlayer) return
-
-    const confirmTransfer = confirm(
-      `Transfer ownership to ${newOwnerPlayer.name}?\n\n` +
-        `This will:\n` +
-        `• Make ${newOwnerPlayer.name} the new league owner\n` +
-        `• Change your role to member\n` +
-        `• Allow you to leave the league\n\n` +
-        `This action cannot be undone!`
-    )
-
-    if (!confirmTransfer) return
 
     isTransferringOwnership.value = true
     try {
@@ -213,7 +208,12 @@
       alert('Failed to transfer ownership. Please try again.')
     } finally {
       isTransferringOwnership.value = false
+      showTransferModal.value = false
     }
+  }
+
+  const cancelTransferOwnership = () => {
+    showTransferModal.value = false
   }
 
   const deleteLeague = async () => {
@@ -673,7 +673,7 @@
             </div>
 
             <button
-              @click="transferOwnership"
+              @click="initiateTransferOwnership"
               :disabled="!selectedNewOwner || isTransferringOwnership"
               class="btn-secondary flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto bg-purple-600 hover:bg-purple-700 border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -733,6 +733,36 @@
               <li>• All player records</li>
               <li>• All army lists</li>
               <li>• All match results</li>
+            </ul>
+          </div>
+          <p class="text-yellow-400 font-semibold">
+            ⚠️ This action cannot be undone!
+          </p>
+        </div>
+      </template>
+    </ConfirmationModal>
+
+    <!-- Transfer Ownership Confirmation Modal -->
+    <ConfirmationModal
+      :show="showTransferModal"
+      title="Transfer Ownership"
+      confirm-text="Transfer Ownership"
+      cancel-text="Cancel"
+      @confirm="confirmTransferOwnership"
+      @cancel="cancelTransferOwnership"
+      @close="cancelTransferOwnership"
+    >
+      <template #default>
+        <div class="space-y-4">
+          <p class="text-gray-200">
+            Transfer ownership to <strong class="text-purple-400">{{ activePlayers.find(p => p.id === selectedNewOwner)?.name }}</strong>?
+          </p>
+          <div class="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
+            <p class="text-purple-300 font-semibold mb-2">This will:</p>
+            <ul class="text-purple-200 space-y-1 text-sm">
+              <li>• Make {{ activePlayers.find(p => p.id === selectedNewOwner)?.name }} the new league owner</li>
+              <li>• Change your role to member</li>
+              <li>• Allow you to leave the league</li>
             </ul>
           </div>
           <p class="text-yellow-400 font-semibold">
