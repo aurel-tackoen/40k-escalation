@@ -241,14 +241,16 @@ WHERE p.user_id = m.user_id
 
 ## 📝 Future Cleanup (Optional)
 
-Consider removing `armyName` from `league_memberships` table entirely:
+~~Consider removing `armyName` from `league_memberships` table entirely:~~
 
 ```sql
--- After verifying everything works
+-- ✅ COMPLETED: armyName column removed
 ALTER TABLE league_memberships DROP COLUMN "armyName";
 ```
 
-**Recommendation**: Keep it for now for backward compatibility. Remove in next major version.
+**Status**: ✅ **COMPLETED** - Migration `0018_elite_sister_grimm.sql` applied.
+
+The `armyName` column has been completely removed from the `league_memberships` table. All armyName data is now exclusively in the `players` table.
 
 ---
 

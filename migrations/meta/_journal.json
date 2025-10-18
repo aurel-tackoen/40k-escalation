@@ -127,6 +127,13 @@
       "when": 1760813557671,
       "tag": "0017_absent_hedge_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1760814949373,
+      "tag": "0018_elite_sister_grimm",
+      "breakpoints": true
     }
   ]
 }
