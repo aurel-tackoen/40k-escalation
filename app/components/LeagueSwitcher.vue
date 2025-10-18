@@ -21,6 +21,8 @@
     if (leagueId !== currentLeagueId.value) {
       await leaguesStore.switchLeague(leagueId)
     }
+    // Always navigate to dashboard when clicking a league
+    navigateTo('/dashboard')
     isOpen.value = false
     emit('league-switched')
   }
