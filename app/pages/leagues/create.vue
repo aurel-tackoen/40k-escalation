@@ -393,16 +393,16 @@
 
       <!-- Rounds Section -->
       <div class="card space-y-6">
-        <div class="flex justify-between items-center border-b border-gray-700 pb-3">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-gray-700 pb-3">
           <h2 class="text-2xl font-bold text-gray-100 flex items-center gap-2">
             <Calendar :size="24" />
             Rounds
           </h2>
-          <div class="flex gap-2">
+          <div class="flex gap-2 w-full sm:w-auto">
             <button
               type="button"
               @click="showAutoRoundModal = true"
-              class="btn-primary text-sm flex items-center gap-2"
+              class="btn-primary text-sm flex items-center justify-center gap-2 flex-1 sm:flex-initial"
             >
               <Sparkles :size="16" />
               Auto Generate
@@ -410,7 +410,7 @@
             <button
               type="button"
               @click="addRound"
-              class="btn-login text-sm flex items-center gap-2"
+              class="btn-login text-sm flex items-center justify-center gap-2 flex-1 sm:flex-initial"
             >
               <Plus :size="16" />
               Add Round
