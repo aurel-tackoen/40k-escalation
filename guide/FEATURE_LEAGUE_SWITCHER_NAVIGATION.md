@@ -63,10 +63,11 @@ const switchToLeague = async (leagueId) => {
 
 ## Edge Cases Handled
 
-- ✅ Clicking current league: No navigation, just closes dropdown
-- ✅ Switching leagues: Navigates to dashboard
+- ✅ Clicking current league: **Navigates to dashboard** (quick shortcut)
+- ✅ Switching leagues: **Navigates to dashboard** (see new league data)
 - ✅ Mobile menu: `@league-switched` event still triggers `closeMobileMenu()`
 - ✅ Desktop: Same behavior, consistent UX
+- ✅ Works from any page: Players, Matches, Setup, etc.
 
 ## Related Components
 
