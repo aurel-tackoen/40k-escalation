@@ -322,7 +322,8 @@
               v-model="editableLeague.startDate"
               type="date"
               required
-              class="input-field"
+              class="input-field cursor-pointer"
+              @click="(e) => e.target.showPicker?.()"
             />
           </div>
           <div>
@@ -330,8 +331,9 @@
             <input
               v-model="editableLeague.endDate"
               type="date"
-              class="input-field"
+              class="input-field cursor-pointer"
               placeholder="Leave empty for ongoing leagues"
+              @click="(e) => e.target.showPicker?.()"
             />
           </div>
         </div>
@@ -542,7 +544,8 @@
                 v-model="round.startDate"
                 type="date"
                 required
-                class="input-field"
+                class="input-field cursor-pointer"
+                @click="(e) => e.target.showPicker?.()"
               />
             </div>
             <div>
@@ -551,7 +554,8 @@
                 v-model="round.endDate"
                 type="date"
                 required
-                class="input-field"
+                class="input-field cursor-pointer"
+                @click="(e) => e.target.showPicker?.()"
               />
             </div>
           </div>

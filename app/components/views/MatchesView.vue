@@ -759,7 +759,8 @@
               v-model="newMatch.datePlayed"
               type="date"
               required
-              class="input-field"
+              class="input-field cursor-pointer"
+              @click="(e) => e.target.showPicker?.()"
             />
           </div>
         </div>

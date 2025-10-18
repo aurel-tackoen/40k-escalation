@@ -5,6 +5,7 @@
   import { useLeagueRules } from '~/composables/useLeagueRules'
   import { usePlaceholders } from '~/composables/usePlaceholders'
   import { Plus, X, Calendar, Lock, Swords, RefreshCw, FileText, Sparkles } from 'lucide-vue-next'
+  import CreatePlayerModal from '~/components/CreatePlayerModal.vue'
 
   const leaguesStore = useLeaguesStore()
   const authStore = useAuthStore()
@@ -54,6 +55,11 @@
   const error = ref('')
   const loading = ref(false)
   const showAutoRoundModal = ref(false)
+
+  // Create Player Modal state
+  const showCreatePlayerModal = ref(false)
+  const createdLeagueName = ref('')
+  const creatingPlayer = ref(false)
 
   // Auto-round configuration
   const autoConfig = reactive({
@@ -227,14 +233,69 @@
         rounds: sanitizedRounds
       })
 
-      // Success - redirect to dashboard
-      navigateTo('/dashboard')
+      // Success - show create player modal
+      createdLeagueName.value = form.name
+      showCreatePlayerModal.value = true
     } catch (err) {
       error.value = err.message || 'Failed to create league'
       console.error('Error creating league:', err)
     } finally {
       loading.value = false
     }
+  }
+
+  // Handle player creation from modal
+  const handleCreatePlayer = async (playerData) => {
+    creatingPlayer.value = true
+    try {
+      // Get current league ID
+      const currentLeague = leaguesStore.currentLeague
+      if (!currentLeague) {
+        throw new Error('No league selected')
+      }
+
+      // Create player with league ID and user ID
+      const playerResponse = await $fetch('/api/players', {
+        method: 'POST',
+        body: {
+          leagueId: currentLeague.id,
+          userId: authStore.user.id,
+          name: playerData.name,
+          faction: playerData.faction
+        }
+      })
+
+      if (playerResponse.success) {
+        // Update league membership with player ID and army name
+        const membershipResponse = await $fetch(`/api/leagues/${currentLeague.id}/members/${authStore.user.id}`, {
+          method: 'PUT',
+          body: {
+            playerId: playerResponse.data.id,
+            armyName: playerData.armyName
+          }
+        })
+
+        if (membershipResponse.success) {
+          // Refresh league data to get the new player
+          await leaguesStore.fetchLeagueData()
+
+          // Close modal and redirect to dashboard
+          showCreatePlayerModal.value = false
+          navigateTo('/dashboard')
+        }
+      }
+    } catch (err) {
+      console.error('Error creating player:', err)
+      alert('Failed to create player profile: ' + (err.message || 'Unknown error'))
+    } finally {
+      creatingPlayer.value = false
+    }
+  }
+
+  // Handle skip player creation
+  const handleSkipPlayer = () => {
+    showCreatePlayerModal.value = false
+    navigateTo('/dashboard')
   }
 </script>
 
@@ -318,8 +379,9 @@
             <input
               v-model="form.startDate"
               type="date"
-              class="input-field w-full"
+              class="input-field w-full cursor-pointer"
               required
+              @click="(e) => e.target.showPicker?.()"
             />
           </div>
           <div>
@@ -473,8 +535,9 @@
                 <input
                   v-model="round.startDate"
                   type="date"
-                  class="input-field w-full"
+                  class="input-field w-full cursor-pointer"
                   required
+                  @click="(e) => e.target.showPicker?.()"
                 />
               </div>
               <div>
@@ -484,8 +547,9 @@
                 <input
                   v-model="round.endDate"
                   type="date"
-                  class="input-field w-full"
+                  class="input-field w-full cursor-pointer"
                   required
+                  @click="(e) => e.target.showPicker?.()"
                 />
               </div>
             </div>
@@ -673,5 +737,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Create Player Modal -->
+    <CreatePlayerModal
+      :show="showCreatePlayerModal"
+      :league-name="createdLeagueName"
+      :user-name="authStore.user?.name || ''"
+      :available-factions="leaguesStore.factions"
+      @create-player="handleCreatePlayer"
+      @skip="handleSkipPlayer"
+      @close="handleSkipPlayer"
+    />
   </div>
 </template>
