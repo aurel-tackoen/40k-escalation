@@ -242,14 +242,14 @@
         <button
           @click="saveFaction"
           :disabled="loading"
-          class="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors disabled:opacity-50"
+          class="admin-btn-secondary"
         >
           <Save class="w-4 h-4" />
           {{ editingId ? 'Update' : 'Create' }}
         </button>
         <button
           @click="resetForm"
-          class="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors"
+          class="admin-btn-neutral"
         >
           <X class="w-4 h-4" />
           Cancel
@@ -284,14 +284,14 @@
         <div class="flex gap-2">
           <button
             @click="startEdit(faction)"
-            class="flex items-center gap-1 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded transition-colors"
+            class="admin-btn-info"
           >
             <Edit class="w-3 h-3" />
             Edit
           </button>
           <button
             @click="deleteFaction(faction.id, faction.name)"
-            class="flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors"
+            class="admin-btn-danger"
           >
             <Trash2 class="w-3 h-3" />
             Delete

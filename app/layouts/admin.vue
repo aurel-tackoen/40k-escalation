@@ -3,6 +3,7 @@
   import { useRouter, useRoute } from 'vue-router'
   import { useAuthStore } from '~/stores/auth'
   import { Shield, Database, Target, Boxes, Activity, Menu, X } from 'lucide-vue-next'
+  import '~/assets/css/admin.css'
 
   const router = useRouter()
   const route = useRoute()

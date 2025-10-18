@@ -1,0 +1,351 @@
+/**
+ * Admin Dashboard Custom Styles
+ * Yellow accent theme with dark gray backgrounds
+ */
+
+/* ===================================
+   Admin Button Styles
+   =================================== */
+
+/* Primary Button (Yellow/Gold) - Main actions */
+.admin-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: rgb(234 179 8);
+  color: rgb(17 24 39);
+  cursor: pointer;
+}
+
+.admin-btn-primary:hover {
+  background-color: rgb(202 138 4);
+}
+
+.admin-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Secondary Button (Green) - Success actions */
+.admin-btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: rgb(34 197 94);
+  color: rgb(255 255 255);
+  cursor: pointer;
+}
+
+.admin-btn-secondary:hover {
+  background-color: rgb(22 163 74);
+}
+
+.admin-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Info Button (Blue) - Edit/Informational actions */
+.admin-btn-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-radius: 0.5rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: rgb(59 130 246);
+  color: rgb(255 255 255);
+  cursor: pointer;
+}
+
+.admin-btn-info:hover {
+  background-color: rgb(37 99 235);
+}
+
+.admin-btn-info:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Danger Button (Red) - Delete/Destructive actions */
+.admin-btn-danger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-radius: 0.5rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: rgb(239 68 68);
+  color: rgb(255 255 255);
+  cursor: pointer;
+}
+
+.admin-btn-danger:hover {
+  background-color: rgb(220 38 38);
+}
+
+.admin-btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Neutral Button (Gray) - Cancel/Secondary actions */
+.admin-btn-neutral {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: rgb(75 85 99);
+  color: rgb(255 255 255);
+  cursor: pointer;
+}
+
+.admin-btn-neutral:hover {
+  background-color: rgb(107 114 128);
+}
+
+.admin-btn-neutral:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Add Button (with plus icon) */
+.admin-btn-add {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: rgb(234 179 8);
+  color: rgb(17 24 39);
+  cursor: pointer;
+}
+
+.admin-btn-add:hover {
+  background-color: rgb(202 138 4);
+}
+
+.admin-btn-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===================================
+   Admin Form Elements
+   =================================== */
+
+/* Input fields */
+.admin-input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: rgb(31 41 55);
+  border: 1px solid rgb(75 85 99);
+  color: rgb(255 255 255);
+}
+
+.admin-input:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-color: rgb(234 179 8);
+}
+
+.admin-input::placeholder {
+  color: rgb(107 114 128);
+}
+
+/* Textarea */
+.admin-textarea {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: rgb(31 41 55);
+  border: 1px solid rgb(75 85 99);
+  color: rgb(255 255 255);
+}
+
+.admin-textarea:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-color: rgb(234 179 8);
+}
+
+.admin-textarea::placeholder {
+  color: rgb(107 114 128);
+}
+
+/* Select dropdown */
+.admin-select {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: rgb(31 41 55);
+  border: 1px solid rgb(75 85 99);
+  color: rgb(255 255 255);
+}
+
+.admin-select:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-color: rgb(234 179 8);
+}
+
+/* Form label */
+.admin-label {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: rgb(209 213 219);
+  margin-bottom: 0.5rem;
+}
+
+/* Form hint/help text */
+.admin-hint {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: rgb(156 163 175);
+}
+
+/* ===================================
+   Admin Cards & Containers
+   =================================== */
+
+/* Card container */
+.admin-card {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: rgb(55 65 81);
+  border-color: rgb(75 85 99);
+}
+
+.admin-card:hover {
+  border-color: rgb(107 114 128);
+}
+
+/* Section container */
+.admin-section {
+  background-color: rgb(31 41 55);
+  border: 1px solid rgb(55 65 81);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+/* ===================================
+   Admin Badges
+   =================================== */
+
+/* Info badge */
+.admin-badge-info {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  border-radius: 0.25rem;
+  background-color: rgb(59 130 246 / 0.2);
+  color: rgb(147 197 253);
+}
+
+/* Success badge */
+.admin-badge-success {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  border-radius: 0.25rem;
+  background-color: rgb(34 197 94 / 0.2);
+  color: rgb(74 222 128);
+}
+
+/* Warning badge */
+.admin-badge-warning {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  border-radius: 0.25rem;
+  background-color: rgb(234 179 8 / 0.2);
+  color: rgb(250 204 21);
+}
+
+/* Danger badge */
+.admin-badge-danger {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  border-radius: 0.25rem;
+  background-color: rgb(239 68 68 / 0.2);
+  color: rgb(248 113 113);
+}
+
+/* Neutral badge */
+.admin-badge-neutral {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  border-radius: 0.25rem;
+  background-color: rgb(31 41 55);
+  color: rgb(209 213 219);
+}
+
+/* Purple badge */
+.admin-badge-purple {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  border-radius: 0.25rem;
+  background-color: rgb(168 85 247 / 0.2);
+  color: rgb(192 132 252);
+}

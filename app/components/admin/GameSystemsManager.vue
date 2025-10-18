@@ -242,14 +242,14 @@
         <button
           @click="saveGameSystem"
           :disabled="loading"
-          class="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors disabled:opacity-50"
+          class="admin-btn-secondary"
         >
           <Save class="w-4 h-4" />
           {{ editingId ? 'Update' : 'Create' }}
         </button>
         <button
           @click="cancelEdit"
-          class="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors"
+          class="admin-btn-neutral"
         >
           <X class="w-4 h-4" />
           Cancel
@@ -273,6 +273,9 @@
           <div class="flex-1">
             <div class="flex items-center gap-3 mb-2">
               <h3 class="text-lg font-bold text-white">{{ system.name }}</h3>
+              <span class="px-2 py-1 text-xs font-mono bg-gray-600 text-gray-300 rounded">
+                ID: {{ system.id }}
+              </span>
               <span class="px-2 py-1 text-xs font-mono bg-gray-800 text-gray-300 rounded">
                 {{ system.shortName }}
               </span>
@@ -284,21 +287,21 @@
               {{ system.description }}
             </p>
             <div v-if="system.matchConfig" class="text-xs text-gray-500 font-mono">
-              {{ typeof system.matchConfig === 'object' ? JSON.stringify(system.matchConfig) : system.matchConfig }}
+              <pre class="">{{ typeof system.matchConfig === 'object' ? JSON.stringify(system.matchConfig, null, 2) : system.matchConfig }}</pre>
             </div>
           </div>
 
           <div class="flex gap-2 ml-4">
             <button
               @click="startEdit(system)"
-              class="flex items-center gap-1 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded transition-colors"
+              class="admin-btn-info"
             >
               <Edit class="w-3 h-3" />
               Edit
             </button>
             <button
               @click="deleteGameSystem(system.id, system.name)"
-              class="flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors"
+              class="admin-btn-danger"
             >
               <Trash2 class="w-3 h-3" />
               Delete
