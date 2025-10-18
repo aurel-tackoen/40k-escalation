@@ -125,28 +125,39 @@
           <p class="text-xl sm:text-2xl font-bold">{{ currentRound.name }}</p>
           <p class="text-xs sm:text-sm text-gray-400">{{ currentRound.pointLimit }} points</p>
         </div>
-        <div class="bg-gray-700 p-4 rounded-lg">
+        <NuxtLink
+          to="/players"
+          class="bg-gray-700 p-4 rounded-lg hover:bg-gray-600 hover:border-yellow-500 border border-gray-600 transition-all cursor-pointer group"
+        >
           <div class="flex items-center gap-2 mb-2">
             <Users :size="20" class="text-yellow-500 flex-shrink-0" />
-            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Players</h3>
+            <h3 class="text-base sm:text-lg font-semibold text-yellow-500 group-hover:text-yellow-400">Players</h3>
           </div>
           <p class="text-xl sm:text-2xl font-bold">{{ players.length }}</p>
-        </div>
-        <div class="bg-gray-700 p-4 rounded-lg">
+          <p class="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300">Click to manage →</p>
+        </NuxtLink>
+        <NuxtLink
+          to="/armies"
+          class="bg-gray-700 p-4 rounded-lg hover:bg-gray-600 hover:border-yellow-500 border border-gray-600 transition-all cursor-pointer group"
+        >
           <div class="flex items-center gap-2 mb-2">
             <Shield :size="20" class="text-yellow-500 flex-shrink-0" />
-            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Army Lists</h3>
+            <h3 class="text-base sm:text-lg font-semibold text-yellow-500 group-hover:text-yellow-400">Army Lists</h3>
           </div>
           <p class="text-xl sm:text-2xl font-bold">{{ currentRoundArmies }}</p>
-          <p class="text-xs sm:text-sm text-gray-400">for current round</p>
-        </div>
-        <div class="bg-gray-700 p-4 rounded-lg">
+          <p class="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300">for current round · Click to view →</p>
+        </NuxtLink>
+        <NuxtLink
+          to="/matches"
+          class="bg-gray-700 p-4 rounded-lg hover:bg-gray-600 hover:border-yellow-500 border border-gray-600 transition-all cursor-pointer group"
+        >
           <div class="flex items-center gap-2 mb-2">
             <Swords :size="20" class="text-yellow-500 flex-shrink-0" />
-            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Matches Played</h3>
+            <h3 class="text-base sm:text-lg font-semibold text-yellow-500 group-hover:text-yellow-400">Matches Played</h3>
           </div>
           <p class="text-xl sm:text-2xl font-bold">{{ matches.length }}</p>
-        </div>
+          <p class="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300">Click to record →</p>
+        </NuxtLink>
       </div>
     </div>
 
