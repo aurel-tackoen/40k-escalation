@@ -6,7 +6,7 @@
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
   import { useAuth } from '~/composables/useAuth'
-  import { DEFAULT_LEAGUE_RULES } from '~/data/default-rules'
+  import { useLeagueRules } from '~/composables/useLeagueRules'
 
   // Composables
   const { normalizeDates } = useFormatting()
@@ -42,19 +42,28 @@
   const isGeneratingUrl = ref(false)
   const urlCopied = ref(false)
 
+  // Get current game system for rules generation
+  const currentGameSystem = computed(() => {
+    if (!editableLeague.value?.gameSystemId) return null
+    return gameSystems.value.find(gs => gs.id === editableLeague.value.gameSystemId)
+  })
+
+  // Get game-specific rules
+  const { generatedRules } = useLeagueRules(currentGameSystem)
+
   // Watchers
   watch(() => props.league, (newLeague) => {
     editableLeague.value = normalizeDates(newLeague)
     // Set default rules if none exist
-    if (!editableLeague.value.rules) {
-      editableLeague.value.rules = DEFAULT_LEAGUE_RULES
+    if (!editableLeague.value.rules && generatedRules.value) {
+      editableLeague.value.rules = generatedRules.value
     }
   }, { deep: true })
 
   // Initialize rules on mount
   onMounted(() => {
-    if (!editableLeague.value.rules) {
-      editableLeague.value.rules = DEFAULT_LEAGUE_RULES
+    if (!editableLeague.value.rules && generatedRules.value) {
+      editableLeague.value.rules = generatedRules.value
     }
   })
 
@@ -593,8 +602,11 @@
 
           <button
             type="button"
-            @click="editableLeague.rules = DEFAULT_LEAGUE_RULES"
+            @click="editableLeague.rules = generatedRules"
+            :disabled="!generatedRules"
             class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto"
+            :class="{ 'opacity-50 cursor-not-allowed': !generatedRules }"
+            title="Reset to default rules for this game system"
           >
             <RefreshCw :size="16" class="flex-shrink-0" />
             <span>Reset to Default Rules</span>

@@ -27,10 +27,11 @@ A comprehensive full-stack web application for managing escalation league campai
 
 ### Project Status
 ✅ **PRODUCTION READY** - Complete feature set with zero technical debt
-- 13 reusable composables (100% coverage)
+- 14 reusable composables (100% coverage)
 - Full database integration with 40 API endpoints
 - Multi-game system support with dynamic factions/missions
 - **Game-specific match types** - Victory Points (40k/AoS/HH), Percentage/Casualties (ToW), Scenario Objectives (MESBG)
+- **Game-specific league rules** - Dynamic rules generation per game system ⭐ NEW
 - **Share link system** for private league access (simplified from dual invite system)
 - CSV export functionality across all data types
 - Painting progress tracking with leaderboard
@@ -59,7 +60,7 @@ app/                          # Nuxt 4 application directory
 │       ├── MatchesView.vue      # Match recording with analytics
 │       ├── PlayersView.vue      # Player management with export
 │       └── ProfileView.vue      # User profile editor
-├── composables/              # Reusable composition functions (13 total)
+├── composables/              # Reusable composition functions (14 total)
 │   ├── useArmyFiltering.js  # Army-specific filtering (new)
 │   ├── useArmyForm.js       # Army form management (new)
 │   ├── useArmyManagement.js # Army validation & escalation (15 functions)
@@ -69,14 +70,16 @@ app/                          # Nuxt 4 application directory
 │   ├── useDataExport.js     # CSV export utilities (7 functions)
 │   ├── useFormatting.js     # Date/number formatting (9 functions)
 │   ├── useFormManagement.js # Form state & validation (13 functions)
+│   ├── useLeagueRules.js    # League rules generation (8 functions) ⭐ NEW
 │   ├── useMatchResults.js   # Match analytics (10 functions)
-│   ├── useMatchValidation.js # Game-specific match validation (4 functions) ⭐ NEW
+│   ├── useMatchValidation.js # Game-specific match validation (4 functions)
 │   ├── usePaintingStats.js  # Painting calculations (8 functions)
 │   ├── usePlayerLookup.js   # Player data lookups (4 functions)
 │   ├── usePlayerStats.js    # Player statistics (6 functions)
 │   ├── useRoundLookup.js    # Round data access (5 functions)
 │   └── useUser.js           # User profile management (new)
 ├── data/                     # Static reference data (NEW: Multi-game system)
+│   ├── default-rules.js     # Game-specific league rules generator ⭐ NEW
 │   ├── game-systems.js      # 5 game systems (40k, AoS, ToW, MESBG, HH)
 │   ├── factions-by-system.js # 139 factions across all systems
 │   ├── missions-by-system.js # 69 missions across all systems
@@ -195,7 +198,7 @@ const activePlayerCount = computed(() =>
 
 ---
 
-## 🧩 Composables Architecture (12 Total)
+## 🧩 Composables Architecture (14 Total)
 
 All composables are **production-ready** and **fully integrated**. Each composable is pure JavaScript (no `.ts`) and follows functional programming principles.
 
@@ -316,14 +319,38 @@ Match outcome analysis and statistics
 - `getPlayerRecentForm(playerId, matches, count)` - W/L/D history
 - `getHeadToHeadRecord(p1Id, p2Id, matches)` - H2H stats
 
-#### 9. **useMatchValidation.js** (4 functions) ⭐ NEW
+#### 9. **useLeagueRules.js** (8 functions) ⭐ NEW
+League rules generation and management
+- `generatedRules` - Complete markdown-formatted rules for game system
+- `rulesSummary` - First few sections for preview
+- `scoringRules` - Scoring System section only
+- `armyBuildingRules` - Army Building section only
+- `matchRequirementsRules` - Match Requirements section only
+- `hasRules` - Whether rules are available
+- `matchTypeLabel` - Human-readable match type label
+- `leaguePointsSystem` - League points awarded for different results
+
+#### 10. **useMatchResults.js** (10 functions)
+Match outcome analysis and statistics
+- `determineWinner(p1Points, p2Points)` - Calculate winner
+- `isCloseGame(p1Points, p2Points, threshold)` - Detect nail-biters
+- `isDecisiveVictory(p1Points, p2Points, threshold)` - Blowouts
+- `getMatchQuality(p1Points, p2Points)` - Quality rating
+- `getMatchQualityClass(quality)` - CSS class for quality
+- `getMatchQualityText(quality)` - Human-readable quality
+- `calculatePointDifferential(p1Points, p2Points)` - Point spread
+- `getPlayerWinStreak(playerId, matches)` - Current streak
+- `getPlayerRecentForm(playerId, matches, count)` - W/L/D history
+- `getHeadToHeadRecord(p1Id, p2Id, matches)` - H2H stats
+
+#### 11. **useMatchValidation.js** (4 functions)
 Game-specific match validation and winner determination
 - `validateMatch(matchData, matchConfig)` - Validate match based on game system rules
 - `determineWinner(matchData, matchConfig)` - Calculate winner for any match type
 - `calculateTowMargin(armyValue, casualties)` - Calculate The Old World margin of victory
 - `getMatchResultDescription(matchData, matchConfig)` - Get human-readable match result
 
-#### 10. **usePaintingStats.js** (8 functions)
+#### 12. **usePaintingStats.js** (8 functions)
 Painting progress calculations and visualization
 - `getUnitPaintPercentage(unit)` - Unit % painted
 - `getArmyPaintingStats(army)` - Army totals & %
@@ -334,25 +361,14 @@ Painting progress calculations and visualization
 - `calculatePaintingLeaderboard(players, armies, round)` - Rankings
 - `getAverageArmyCompletion(armies)` - League-wide average
 
-#### 10. **usePaintingStats.js** (8 functions)
-Painting progress calculations and visualization
-- `getUnitPaintPercentage(unit)` - Unit % painted
-- `getArmyPaintingStats(army)` - Army totals & %
-- `getPlayerPaintingStats(playerId, round, armies)` - Player stats
-- `getPaintProgressClass(percentage)` - Progress bar color
-- `getPaintStatusText(percentage)` - "Battle Ready", etc.
-- `isPaintingComplete(army)` - Check if 100%
-- `calculatePaintingLeaderboard(players, armies, round)` - Rankings
-- `getAverageArmyCompletion(armies)` - League-wide average
-
-#### 11. **usePlayerLookup.js** (4 functions)
+#### 13. **usePlayerLookup.js** (4 functions)
 Player data access helpers
 - `getPlayerName(playerId)` - Get player name
 - `getPlayerFaction(playerId)` - Get player faction
 - `getPlayerById(playerId)` - Get full player object
 - `getPlayersByFaction(faction)` - Filter by faction
 
-#### 12. **usePlayerStats.js** (6 functions)
+#### 14. **usePlayerStats.js** (6 functions)
 Player statistics and rankings
 - `calculateWinPercentage(player)` - Win % with safety
 - `getTotalGames(player)` - Total games played
@@ -361,7 +377,7 @@ Player statistics and rankings
 - `getPlayerStats(playerId, matches)` - Detailed statistics
 - `comparePlayerStats(p1Id, p2Id, players, matches)` - Compare two
 
-#### 13. **useRoundLookup.js** (5 functions)
+#### 15. **useRoundLookup.js** (5 functions)
 Round data access and validation
 - `getRoundByNumber(roundNumber)` - Get round object
 - `getRoundName(roundNumber)` - Get round name

@@ -2,8 +2,8 @@
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
+  import { useLeagueRules } from '~/composables/useLeagueRules'
   import { Plus, X, Calendar, Lock, Swords, RefreshCw, FileText, Sparkles } from 'lucide-vue-next'
-  import { DEFAULT_LEAGUE_RULES } from '~/data/default-rules'
 
   const leaguesStore = useLeaguesStore()
   const authStore = useAuthStore()
@@ -18,7 +18,7 @@
     isPrivate: false,
     allowDirectJoin: true,
     maxPlayers: null,
-    rules: DEFAULT_LEAGUE_RULES, // Initialize with default rules
+    rules: '', // Will be populated when game system is selected
     rounds: [
       {
         number: 1,
@@ -29,6 +29,23 @@
       }
     ]
   })
+
+  // Get selected game system for rules generation
+  const selectedGameSystem = computed(() => {
+    if (!form.gameSystemId) return null
+    return gameSystems.value.find(gs => gs.id === form.gameSystemId)
+  })
+
+  // Get game-specific rules
+  const { generatedRules } = useLeagueRules(selectedGameSystem)
+
+  // Initialize form.rules when game system is selected or changes
+  watch(generatedRules, (newRules) => {
+    if (newRules && !form.rules) {
+      // Only auto-populate if rules are empty
+      form.rules = newRules
+    }
+  }, { immediate: true })
 
   const error = ref('')
   const loading = ref(false)
@@ -481,9 +498,11 @@
           </h2>
           <button
             type="button"
-            @click="form.rules = DEFAULT_LEAGUE_RULES"
+            @click="form.rules = generatedRules"
+            :disabled="!generatedRules"
             class="btn-secondary text-sm flex items-center gap-2"
-            title="Reset to default rules"
+            :class="{ 'opacity-50 cursor-not-allowed': !generatedRules }"
+            title="Reset to default rules for selected game system"
           >
             <RefreshCw :size="16" />
             Reset to Default
