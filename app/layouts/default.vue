@@ -215,7 +215,7 @@
             <!-- League Switcher and Auth Buttons -->
             <div class="space-y-3">
               <UserMenu v-if="authStore.isAuthenticated" class="w-full" />
-              <LeagueSwitcher v-if="authStore.isAuthenticated" />
+              <LeagueSwitcher v-if="authStore.isAuthenticated" @league-switched="closeMobileMenu" />
 
               <!-- Leagues Button -->
               <NuxtLink

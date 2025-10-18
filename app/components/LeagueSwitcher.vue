@@ -5,6 +5,8 @@
   import { Swords, ChevronDown, Check, Plus, LogIn, Crown, Settings, Target, Globe, Lock } from 'lucide-vue-next'
   import { useGameSystems } from '~/composables/useGameSystems'
 
+  const emit = defineEmits(['league-switched'])
+
   const leaguesStore = useLeaguesStore()
   const { myLeagues, currentLeague, currentLeagueId, gameSystems } = storeToRefs(leaguesStore)
   const { getGameSystemNameWithFallback } = useGameSystems(gameSystems)
@@ -20,6 +22,7 @@
       await leaguesStore.switchLeague(leagueId)
     }
     isOpen.value = false
+    emit('league-switched')
   }
 
   const getRoleIcon = (role) => {
