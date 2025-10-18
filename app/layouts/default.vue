@@ -109,7 +109,7 @@
           <button
             v-if="authStore.isAuthenticated"
             @click="toggleMobileMenu"
-            class="lg:hidden p-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600 flex-shrink-0"
+            class="lg:hidden py-2 px-4 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600 flex-shrink-0"
             aria-label="Toggle menu"
           >
             <Menu v-if="!isMobileMenuOpen" :size="24" :stroke-width="2.5" />
@@ -194,7 +194,7 @@
           class="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 border-l-2 border-yellow-600/40 shadow-2xl z-50 lg:hidden overflow-y-auto"
         >
           <!-- Mobile Menu Header -->
-          <div class="flex flex-col gap-4 p-6 border-b border-gray-700/50">
+          <div class="flex flex-col gap-4 p-4 border-b border-gray-700/50">
             <!-- Title and Close Button -->
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
@@ -221,7 +221,7 @@
               <NuxtLink
                 v-if="authStore.isAuthenticated"
                 to="/leagues"
-                class="mobile-nav-link group relative flex items-center gap-4 px-5 py-4 font-semibold transition-all duration-300 rounded-lg border overflow-hidden"
+                class="mobile-nav-link group relative flex items-center gap-4 px-4 py-2 font-semibold transition-all duration-300 rounded-lg border overflow-hidden"
                 active-class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/30"
                 exact-active-class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/30"
                 :class="{
@@ -249,7 +249,7 @@
               v-for="tab in tabs"
               :key="tab.path"
               :to="tab.path"
-              class="mobile-nav-link group relative flex items-center gap-4 px-5 py-4 font-semibold transition-all duration-300 rounded-lg border overflow-hidden"
+              class="mobile-nav-link group relative flex items-center gap-4 px-4 py-2 font-semibold transition-all duration-300 rounded-lg border overflow-hidden"
               active-class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/30"
               exact-active-class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/30"
               :class="{
