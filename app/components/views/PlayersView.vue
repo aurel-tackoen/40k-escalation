@@ -29,13 +29,18 @@
 
   // Get dynamic factions from store
   const leaguesStore = useLeaguesStore()
-  const { availableFactions, currentGameSystemName, gameSystems, isLeagueOwner, selectedLeague } = storeToRefs(leaguesStore)
+  const { availableFactions, currentGameSystemName, gameSystems, isLeagueOwner, currentLeague } = storeToRefs(leaguesStore)
 
   // Game systems composable
   const { getGameSystemBadgeClasses, getGameSystemTextClasses, getGameSystemHintClasses } = useGameSystems(gameSystems)
 
+  // Helper to check if a player is the league owner
+  const isPlayerLeagueOwner = (player) => {
+    return currentLeague.value && player.userId === currentLeague.value.createdBy
+  }
+
   // Placeholders composable
-  const { placeholders } = usePlaceholders(selectedLeague)
+  const { placeholders } = usePlaceholders(currentLeague)
 
   // Emits
   const emit = defineEmits(['add-player', 'remove-player', 'update-player'])
@@ -230,9 +235,9 @@
             <div class="flex items-center gap-2">
               <!-- Owner Badge -->
               <span
-                v-if="isLeagueOwner && player.userId === user?.id"
-                class="text-xs bg-purple-900/30 text-purple-400 border border-purple-600 px-2 py-1 rounded"
-                title="League owner - Transfer ownership in League Setup to leave"
+                v-if="isPlayerLeagueOwner(player)"
+                class="px-2 py-1 rounded text-xs font-bold uppercase bg-yellow-600 text-yellow-100"
+                :title="player.userId === user?.id ? 'You are the league owner - Transfer ownership in League Setup to leave' : 'League owner'"
               >
                 Owner
               </span>
