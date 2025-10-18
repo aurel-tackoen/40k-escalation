@@ -75,22 +75,24 @@
 <template>
   <div class="space-y-8">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-      <div>
-        <h1 class="text-4xl font-bold text-gray-100 flex items-center gap-3">
-          <Swords :size="40" class="text-purple-400" />
-          My Leagues
-        </h1>
-        <p class="text-gray-400 mt-2">Manage your escalation league campaigns</p>
-      </div>
-      <div v-if="myLeagues && myLeagues.length > 0" class="flex gap-3 md:mt-0">
-        <NuxtLink
-          to="/leagues/create"
-          class="btn-primary flex items-center justify-center gap-2 flex-1 md:flex-none"
-        >
-          <Plus :size="20" />
-          Create League
-        </NuxtLink>
+    <div class="card">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+        <div class="flex items-center gap-3">
+          <Swords :size="32" class="text-yellow-500" />
+          <div>
+            <h2 class="text-2xl font-serif font-bold text-yellow-500">My Leagues</h2>
+            <p class="text-gray-400 text-sm mt-1">Manage your escalation league campaigns</p>
+          </div>
+        </div>
+        <div v-if="myLeagues && myLeagues.length > 0" class="flex gap-3">
+          <NuxtLink
+            to="/leagues/create"
+            class="btn-primary flex items-center justify-center gap-2"
+          >
+            <Plus :size="20" />
+            Create League
+          </NuxtLink>
+        </div>
       </div>
     </div>
 
@@ -133,26 +135,24 @@
     </div>
 
     <!-- Public Leagues Section -->
-    <div v-if="hasPublicLeagues" class="space-y-6">
-      <div class="border-t border-gray-700 pt-8">
-        <div class="flex items-center gap-3 mb-6">
-          <Globe :size="32" class="text-green-400" />
-          <div>
-            <h2 class="text-2xl font-bold text-gray-100">Public Leagues</h2>
-            <p class="text-gray-400 text-sm mt-1">Discover and join public leagues</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <LeagueCard
-            v-for="league in publicLeagues"
-            :key="league.id"
-            :league="league"
-            variant="public"
-            @join="handleJoin"
-          />
+    <div v-if="hasPublicLeagues" class="card">
+      <div class="flex items-center gap-3">
+        <Globe :size="32" class="text-yellow-500" />
+        <div>
+          <h2 class="text-2xl font-serif font-bold text-yellow-500">Public Leagues</h2>
+          <p class="text-gray-400 text-sm mt-1">Discover and join public leagues</p>
         </div>
       </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <LeagueCard
+        v-for="league in publicLeagues"
+        :key="league.id"
+        :league="league"
+        variant="public"
+        @join="handleJoin"
+      />
     </div>
   </div>
 </template>
