@@ -2,13 +2,18 @@
  * DELETE /api/players?id=<playerId>
  * Soft deletes a player by setting their membership status to 'inactive'
  * Preserves all historical data (matches, armies)
+ * Requires: user to be league owner/organizer OR the player themselves
  */
 import { db } from '../../db'
-import { players, leagueMemberships, users } from '../../db/schema'
+import { players, leagueMemberships } from '../../db/schema'
 import { eq, and } from 'drizzle-orm'
+import { requireAuth } from '../utils/auth'
 
 export default defineEventHandler(async (event) => {
   try {
+    // ✅ Require authentication
+    const user = await requireAuth(event)
+
     const query = getQuery(event)
     const playerId = parseInt(query.id as string)
 
@@ -16,43 +21,6 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         statusMessage: 'Valid player ID is required'
-      })
-    }
-
-    // Get session from cookie
-    const cookies = parseCookies(event)
-    const sessionCookie = cookies.auth_session
-
-    if (!sessionCookie) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Unauthorized - Please log in'
-      })
-    }
-
-    // Decode session
-    let sessionData
-    try {
-      const decoded = Buffer.from(sessionCookie, 'base64').toString('utf-8')
-      sessionData = JSON.parse(decoded)
-    } catch {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Invalid session'
-      })
-    }
-
-    const auth0Id = sessionData.sub
-
-    // Find user in database
-    const [user] = await db.select()
-      .from(users)
-      .where(eq(users.auth0Id, auth0Id))
-
-    if (!user) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'User not found'
       })
     }
 
@@ -69,7 +37,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check authorization: user must be league owner OR the player themselves
+    // Check authorization: user must be league owner/organizer OR the player themselves
     const [membership] = await db.select()
       .from(leagueMemberships)
       .where(

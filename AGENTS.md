@@ -29,15 +29,55 @@ A comprehensive full-stack web application for managing escalation league campai
 ✅ **PRODUCTION READY** - Complete feature set with zero technical debt
 - 14 reusable composables (100% coverage)
 - Full database integration with 40 API endpoints
+- **🔒 Comprehensive API Security** - Session-based auth with RBAC ⭐ NEW
 - Multi-game system support with dynamic factions/missions
 - **Game-specific match types** - Victory Points (40k/AoS/HH), Percentage/Casualties (ToW), Scenario Objectives (MESBG)
-- **Game-specific league rules** - Dynamic rules generation per game system ⭐ NEW
+- **Game-specific league rules** - Dynamic rules generation per game system
 - **Share link system** for private league access (simplified from dual invite system)
 - CSV export functionality across all data types
 - Painting progress tracking with leaderboard
 - Match analytics (win streaks, close games, decisive victories)
 - Form validation framework
 - Comprehensive test data seeding
+
+---
+
+## 🔒 API Security
+
+All API endpoints are protected with **session-based authentication** and **role-based access control (RBAC)**:
+
+### Security Features
+- ✅ **Session Validation** - Every protected endpoint validates `auth_session` cookie
+- ✅ **User Identity Verification** - No client-provided `userId` accepted
+- ✅ **Role-Based Access Control** - Owner, Organizer, Player, Admin roles enforced
+- ✅ **League Membership Gating** - Data access requires league membership
+- ✅ **Ownership Checks** - Users can only modify their own resources (unless organizer)
+- ✅ **Admin-Only Debug** - Seed and debug endpoints restricted to admins
+
+### Auth Utilities (`server/utils/auth.ts`)
+```typescript
+// Validate session and return user
+const user = await requireAuth(event)
+
+// Require specific league role
+await requireLeagueRole(event, leagueId, ['owner', 'organizer'])
+
+// Require any league membership
+await requireLeagueMembership(event, leagueId)
+
+// Require admin role
+await requireAdmin(event)
+```
+
+### Protection Levels
+- **Public**: Health, game systems, factions, missions, public leagues
+- **Authenticated**: User profile, my leagues, join/leave operations
+- **Member**: View league data (players, armies, matches)
+- **Organizer**: Update league, delete players/armies/matches
+- **Owner**: Delete league, change member roles
+- **Admin**: Seed data, debug endpoints
+
+**📖 Full Documentation**: `guide/SECURITY_IMPLEMENTATION_COMPLETE.md`
 
 ---
 
@@ -560,10 +600,12 @@ npm run db:studio      # Open Drizzle Studio GUI
 
 ---
 
-## 🌐 API Endpoints (17 Total)
+## 🌐 API Endpoints (40+ Total) 🔒 SECURED
 
-All endpoints follow RESTful conventions and return JSON with this structure:
+All endpoints follow RESTful conventions and return JSON. All **protected** endpoints require valid `auth_session` cookie.
+
 ```typescript
+// Response structure
 {
   success: boolean
   data: any           // Actual data
@@ -572,25 +614,50 @@ All endpoints follow RESTful conventions and return JSON with this structure:
 }
 ```
 
-### Game Systems API (NEW)
+### 🟢 Public API (No Auth Required)
+- `GET /api/health` - System health check
 - `GET /api/game-systems` - List all active game systems
 - `GET /api/factions?gameSystemId=X` - List factions (filtered by game system)
 - `GET /api/missions?gameSystemId=X` - List missions (filtered by game system)
-- `POST /api/seed-game-systems` - Populate game systems, factions, missions (idempotent)
+- `GET /api/leagues/public` - List public leagues
+- `GET /api/leagues/info-by-token/:token` - League info for join link
 
-### Players API
-- `GET /api/players` - List all players
-- `POST /api/players` - Create player (body: { name, email, faction })
-- `DELETE /api/players/:id` - Delete player
+### 🔐 Auth API
+- `GET /api/auth/login` - Redirect to Auth0 login
+- `GET /api/auth/callback` - OAuth callback (creates session)
+- `GET /api/auth/logout` - Logout (clears session)
+- `GET /api/auth/user` - Get current user (requires session)
 
-### Armies API
-- `GET /api/armies` - List all armies (units auto-parsed from JSON)
-- `POST /api/armies` - Create army (body: { playerId, round, name, totalPoints, units[] })
-- `DELETE /api/armies/:id` - Delete army
+### 🔐 User API (Protected)
+- `GET /api/users/me` - Get own profile (session required)
+- `PUT /api/users/me` - Update own profile (session required)
 
-### Matches API
-- `GET /api/matches` - List all matches
-- `POST /api/matches` - Record match (auto-updates player stats)
+### 🔐 Leagues API (Protected)
+- `GET /api/leagues/my` - My leagues (session required)
+- `POST /api/leagues/create` - Create league (session required, auto-owner)
+- `PATCH /api/leagues/:id` - Update league (owner/organizer only)
+- `DELETE /api/leagues/:id` - Delete league (owner only)
+- `POST /api/leagues/:id/join` - Join league (session required)
+- `POST /api/leagues/:id/leave` - Leave league (session required)
+- `POST /api/leagues/join-by-token/:token` - Join via share link (session required)
+- `GET /api/leagues/:id/members` - League members (membership required)
+- `PATCH /api/leagues/:id/members/:userId/role` - Change role (owner only)
+- `POST /api/leagues/:id/share-url` - Generate share link (owner/organizer)
+
+### 🔐 Players API (Protected)
+- `GET /api/players?leagueId=X` - List players (membership required)
+- `POST /api/players` - Create player (membership required)
+- `PUT /api/players/:id` - Update player (membership required)
+- `DELETE /api/players/:id` - Delete player (owner/organizer OR self)
+
+### 🔐 Armies API (Protected)
+- `GET /api/armies?leagueId=X` - List armies (membership required)
+- `POST /api/armies` - Create army (membership required)
+- `DELETE /api/armies/:id` - Delete army (owner/organizer OR self)
+
+### 🔐 Matches API (Protected)
+- `GET /api/matches?leagueId=X` - List matches (membership required)
+- `POST /api/matches` - Record match (membership required)
   ```json
   {
     "leagueId": 1,
@@ -605,16 +672,11 @@ All endpoints follow RESTful conventions and return JSON with this structure:
     "notes": "Close game!"
   }
   ```
+- `DELETE /api/matches/:id` - Delete match (owner/organizer only)
 
-### Leagues API
-- `GET /api/leagues` - List all leagues (includes rounds)
-- `POST /api/leagues` - Create league with rounds (requires gameSystemId)
-- `PUT /api/leagues/:id` - Update league (including currentRound, gameSystemId)
-
-### Utility API
-- `GET /api/health` - System health check
-- `GET /api/debug` - Database introspection (table counts)
-- `POST /api/seed` - Populate test data (idempotent)
+### 🔴 Admin API (Admin Only)
+- `POST /api/seed` - Seed test data (admin only)
+- `POST /api/seed-game-systems` - Seed game systems (admin only)
 
 ---
 
@@ -857,9 +919,6 @@ npm run lint:fix
 
 # Check database connection
 # Visit: http://localhost:8888/api/health
-
-# Check all API endpoints
-# Visit: http://localhost:8888/api/debug
 
 # View database in GUI
 npm run db:studio

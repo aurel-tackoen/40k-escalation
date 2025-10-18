@@ -1,6 +1,7 @@
 import { db } from '../../../db'
 import { leagues, leagueMemberships, rounds } from '../../../db/schema'
 import { eq } from 'drizzle-orm'
+import { requireAuth } from '../../utils/auth'
 
 /**
  * POST /api/leagues/create
@@ -13,7 +14,6 @@ import { eq } from 'drizzle-orm'
  *   gameSystemId: number (required - which game system this league uses)
  *   startDate: string (ISO date)
  *   endDate?: string (ISO date)
- *   createdBy: number (userId)
  *   isPrivate: boolean
  *   allowDirectJoin?: boolean
  *   maxPlayers?: number
@@ -28,13 +28,16 @@ import { eq } from 'drizzle-orm'
  */
 export default defineEventHandler(async (event) => {
   try {
+    // ✅ Require authentication - get userId from session
+    const user = await requireAuth(event)
+
     const body = await readBody(event)
 
     // Validation
-    if (!body.name || !body.startDate || !body.createdBy || !body.gameSystemId) {
+    if (!body.name || !body.startDate || !body.gameSystemId) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Missing required fields: name, startDate, createdBy, gameSystemId'
+        statusMessage: 'Missing required fields: name, startDate, gameSystemId'
       })
     }
 
@@ -61,7 +64,7 @@ export default defineEventHandler(async (event) => {
       startDate: body.startDate,
       endDate: body.endDate || null,
       currentRound: 1,
-      createdBy: body.createdBy,
+      createdBy: user.id, // ✅ Use authenticated user ID from session
       isPrivate: body.isPrivate ?? false,
       shareToken,
       allowDirectJoin: body.allowDirectJoin ?? true,
@@ -84,7 +87,7 @@ export default defineEventHandler(async (event) => {
     // Create league membership for creator with 'owner' role
     const [newMembership] = await db.insert(leagueMemberships).values({
       leagueId: newLeague.id,
-      userId: body.createdBy,
+      userId: user.id, // ✅ Use authenticated user ID from session
       playerId: null, // Will be set when user creates their player in this league
       role: 'owner',
       status: 'active'

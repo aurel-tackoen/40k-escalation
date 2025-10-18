@@ -1,25 +1,23 @@
 import { db } from '../../../../db'
 import { leagueMemberships, leagues } from '../../../../db/schema'
 import { eq, and } from 'drizzle-orm'
+import { requireAuth } from '../../../utils/auth'
 
 /**
  * POST /api/leagues/:id/leave
  * Leave a league (sets membership status to inactive)
- *
- * Body:
- * {
- *   userId: number
- * }
  */
 export default defineEventHandler(async (event) => {
   try {
-    const leagueId = parseInt(getRouterParam(event, 'id') || '')
-    const body = await readBody(event)
+    // ✅ Require authentication
+    const user = await requireAuth(event)
 
-    if (!leagueId || !body.userId) {
+    const leagueId = parseInt(getRouterParam(event, 'id') || '')
+
+    if (!leagueId) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Missing required fields: leagueId, userId'
+        statusMessage: 'Missing required field: leagueId'
       })
     }
 
@@ -30,7 +28,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(leagueMemberships.leagueId, leagueId),
-          eq(leagueMemberships.userId, body.userId)
+          eq(leagueMemberships.userId, user.id) // ✅ Use authenticated user ID
         )
       )
       .limit(1)

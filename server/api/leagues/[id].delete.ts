@@ -1,14 +1,14 @@
-import { defineEventHandler, getRouterParams, readBody, createError } from 'h3'
+import { defineEventHandler, getRouterParams, createError } from 'h3'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import { eq } from 'drizzle-orm'
-import { leagues, leagueMemberships, rounds, matches } from '../../../db/schema'
+import { leagues, rounds, matches } from '../../../db/schema'
+import { requireLeagueRole } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   try {
     const { id } = getRouterParams(event)
     const leagueId = parseInt(id)
-    const body = await readBody(event)
 
     if (!leagueId || isNaN(leagueId)) {
       throw createError({
@@ -17,14 +17,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { userId } = body
-
-    if (!userId) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'User ID required'
-      })
-    }
+    // ✅ Require owner role only
+    await requireLeagueRole(event, leagueId, ['owner'])
 
     const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL
     if (!databaseUrl) {
@@ -36,29 +30,6 @@ export default defineEventHandler(async (event) => {
 
     const sql = neon(databaseUrl)
     const db = drizzle(sql)
-
-    // Check if user is owner
-    const membershipResult = await db
-      .select()
-      .from(leagueMemberships)
-      .where(eq(leagueMemberships.leagueId, leagueId))
-      .where(eq(leagueMemberships.userId, userId))
-      .limit(1)
-
-    if (!membershipResult.length) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'You are not a member of this league'
-      })
-    }
-
-    const membership = membershipResult[0]
-    if (membership.role !== 'owner') {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'Only league owner can delete the league'
-      })
-    }
 
     // Manual cascade delete for tables without CASCADE constraint
     // Delete rounds (no CASCADE on rounds.leagueId)

@@ -3,12 +3,16 @@ import { gameSystems, factions, missions, unitTypes } from '../../db/schema'
 import { eq, and } from 'drizzle-orm'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { requireAdmin } from '../utils/auth'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
+    // ✅ Require admin role
+    await requireAdmin(event)
+
     console.log('Starting game systems seed...')
 
     // Use absolute paths for imports

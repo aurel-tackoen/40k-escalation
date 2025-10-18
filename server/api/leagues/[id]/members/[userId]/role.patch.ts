@@ -3,6 +3,7 @@ import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import { eq, and } from 'drizzle-orm'
 import { leagueMemberships } from '../../../../../../db/schema'
+import { requireLeagueRole } from '../../../../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -18,12 +19,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { requestingUserId, newRole } = body
+    // ✅ Require owner role - returns user and membership
+    const { user } = await requireLeagueRole(event, leagueId, ['owner'])
 
-    if (!requestingUserId || !newRole) {
+    const { newRole } = body
+
+    if (!newRole) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Requesting user ID and new role are required'
+        statusMessage: 'New role is required'
       })
     }
 
@@ -45,32 +49,8 @@ export default defineEventHandler(async (event) => {
     const sql = neon(databaseUrl)
     const db = drizzle(sql)
 
-    // Check if requesting user is owner
-    const requestingMembershipResult = await db
-      .select()
-      .from(leagueMemberships)
-      .where(and(
-        eq(leagueMemberships.leagueId, leagueId),
-        eq(leagueMemberships.userId, requestingUserId)
-      ))
-      .limit(1)
-
-    if (!requestingMembershipResult.length) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'You are not a member of this league'
-      })
-    }
-
-    if (requestingMembershipResult[0].role !== 'owner') {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'Only league owner can change member roles'
-      })
-    }
-
     // Prevent owner from demoting themselves
-    if (requestingUserId === targetUserId_int && newRole !== 'owner') {
+    if (user.id === targetUserId_int && newRole !== 'owner') {
       throw createError({
         statusCode: 400,
         statusMessage: 'League owner cannot demote themselves. Transfer ownership first.'

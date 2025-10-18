@@ -2,13 +2,18 @@
  * POST /api/seed
  * Seeds the database with test data (players, matches, armies)
  * Note: Run /api/seed-game-systems first to set up game systems, factions, and missions
+ * ADMIN ONLY
  */
 import { db } from '../../db'
 import { gameSystems, leagues, rounds, players, matches, armies } from '../../db/schema'
 import { eq } from 'drizzle-orm'
+import { requireAdmin } from '../utils/auth'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
+    // ✅ Require admin role
+    await requireAdmin(event)
+
     console.log('🏆 Seeding test league data...')
 
     // Find Warhammer 40k game system (must exist first)

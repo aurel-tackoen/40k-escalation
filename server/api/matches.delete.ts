@@ -1,11 +1,12 @@
 /**
  * DELETE /api/matches?id=<id>
  * Deletes a match from the database
- * TODO: Add proper authentication once Auth0 middleware is set up
+ * Requires: user to be league organizer/owner
  */
 import { db } from '../../db'
 import { matches } from '../../db/schema'
 import { eq } from 'drizzle-orm'
+import { requireLeagueRole } from '../utils/auth'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -32,8 +33,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // TODO: Add permission checks once Auth0 is integrated
-    // For now, allow deletion (permission checks are done on the frontend)
+    if (!match.leagueId) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Match is not associated with a league'
+      })
+    }
+
+    // ✅ Require league organizer or owner role to delete matches
+    await requireLeagueRole(event, match.leagueId, ['owner', 'organizer'])
 
     // Delete the match
     const deleted = await db.delete(matches)

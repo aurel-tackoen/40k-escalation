@@ -1,6 +1,7 @@
 import { db } from '../../../../db'
 import { leagues, leagueMemberships, players } from '../../../../db/schema'
 import { eq, and } from 'drizzle-orm'
+import { requireAuth } from '../../../utils/auth'
 
 /**
  * POST /api/leagues/:id/join
@@ -8,7 +9,6 @@ import { eq, and } from 'drizzle-orm'
  *
  * Body:
  * {
- *   userId: number
  *   playerName: string (required - display name for this league)
  *   faction: string (required - player's faction)
  *   armyName: string (required - persistent army name for this league)
@@ -17,13 +17,16 @@ import { eq, and } from 'drizzle-orm'
  */
 export default defineEventHandler(async (event) => {
   try {
+    // ✅ Require authentication
+    const user = await requireAuth(event)
+
     const leagueId = parseInt(getRouterParam(event, 'id') || '')
     const body = await readBody(event)
 
-    if (!leagueId || !body.userId || !body.playerName || !body.faction || !body.armyName) {
+    if (!leagueId || !body.playerName || !body.faction || !body.armyName) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Missing required fields: leagueId, userId, playerName, faction, armyName'
+        statusMessage: 'Missing required fields: playerName, faction, armyName'
       })
     }
 
@@ -56,7 +59,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(leagueMemberships.leagueId, leagueId),
-          eq(leagueMemberships.userId, body.userId)
+          eq(leagueMemberships.userId, user.id) // ✅ Use authenticated user ID
         )
       )
       .limit(1)
@@ -138,7 +141,7 @@ export default defineEventHandler(async (event) => {
     // 1. Create player entity
     const [newPlayer] = await db.insert(players).values({
       leagueId,
-      userId: body.userId,
+      userId: user.id, // ✅ Use authenticated user ID
       name: body.playerName,
       faction: body.faction,
       wins: 0,
@@ -150,7 +153,7 @@ export default defineEventHandler(async (event) => {
     // 2. Create membership and link to player
     const [newMembership] = await db.insert(leagueMemberships).values({
       leagueId,
-      userId: body.userId,
+      userId: user.id, // ✅ Use authenticated user ID
       playerId: newPlayer.id, // Link to newly created player
       role: 'player',
       armyName: body.armyName, // Save persistent army name

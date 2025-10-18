@@ -1,8 +1,9 @@
 import { defineEventHandler, getRouterParams, readBody, createError } from 'h3'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
-import { eq, and } from 'drizzle-orm'
-import { leagues, leagueMemberships } from '../../../db/schema'
+import { eq } from 'drizzle-orm'
+import { leagues } from '../../../db/schema'
+import { requireLeagueRole } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -17,14 +18,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { userId, name, description, rules, gameSystemId, startDate, endDate, currentRound, isPrivate, shareToken, allowDirectJoin, maxPlayers, status } = body
+    // ✅ Require owner or organizer role
+    await requireLeagueRole(event, leagueId, ['owner', 'organizer'])
 
-    if (!userId) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'User ID required'
-      })
-    }
+    const { name, description, rules, gameSystemId, startDate, endDate, currentRound, isPrivate, shareToken, allowDirectJoin, maxPlayers, status } = body
 
     const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL
     if (!databaseUrl) {
@@ -36,31 +33,6 @@ export default defineEventHandler(async (event) => {
 
     const sql = neon(databaseUrl)
     const db = drizzle(sql)
-
-    // Check if user is owner or organizer
-    const membershipResult = await db
-      .select()
-      .from(leagueMemberships)
-      .where(and(
-        eq(leagueMemberships.leagueId, leagueId),
-        eq(leagueMemberships.userId, userId)
-      ))
-      .limit(1)
-
-    if (!membershipResult.length) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'You are not a member of this league'
-      })
-    }
-
-    const membership = membershipResult[0]
-    if (membership.role !== 'owner' && membership.role !== 'organizer') {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'Only league owner or organizer can update league settings'
-      })
-    }
 
     // Build update object with only provided fields
     const updateData: Record<string, unknown> = {}
