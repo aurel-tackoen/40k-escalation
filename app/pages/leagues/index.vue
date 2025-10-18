@@ -1,7 +1,7 @@
 <script setup>
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
-  import { Swords, Plus, LogIn, Globe } from 'lucide-vue-next'
+  import { Swords, Plus, Globe } from 'lucide-vue-next'
 
   const authStore = useAuthStore()
   const leaguesStore = useLeaguesStore()
@@ -91,13 +91,6 @@
           <Plus :size="20" />
           Create League
         </NuxtLink>
-        <NuxtLink
-          to="/leagues/join"
-          class="btn-secondary flex items-center justify-center gap-2 flex-1 md:flex-none"
-        >
-          <LogIn :size="20" />
-          Join League
-        </NuxtLink>
       </div>
     </div>
 
@@ -115,10 +108,6 @@
         <NuxtLink to="/leagues/create" class="btn-primary flex items-center gap-2">
           <Plus :size="20" />
           Create League
-        </NuxtLink>
-        <NuxtLink to="/leagues/join" class="btn-secondary flex items-center gap-2">
-          <LogIn :size="20" />
-          Join League
         </NuxtLink>
       </div>
     </div>
