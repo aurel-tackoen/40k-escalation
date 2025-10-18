@@ -83,7 +83,7 @@
         </h1>
         <p class="text-gray-400 mt-2">Manage your escalation league campaigns</p>
       </div>
-      <div class="flex gap-3 md:mt-0">
+      <div v-if="myLeagues && myLeagues.length > 0" class="flex gap-3 md:mt-0">
         <NuxtLink
           to="/leagues/create"
           class="btn-primary flex items-center justify-center gap-2 flex-1 md:flex-none"
