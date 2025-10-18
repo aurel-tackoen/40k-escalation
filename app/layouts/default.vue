@@ -221,19 +221,25 @@
               <NuxtLink
                 v-if="authStore.isAuthenticated"
                 to="/leagues"
-                class="group relative flex items-center w-full px-4 py-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-700/50 transition-all duration-300 border border-gray-700 hover:border-yellow-600"
+                class="mobile-nav-link group relative flex items-center gap-4 px-5 py-4 font-semibold transition-all duration-300 rounded-lg border overflow-hidden"
+                active-class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/30"
+                exact-active-class="bg-gradient-to-br from-yellow-500 via-yellow-600 to-amber-600 text-gray-900 border-yellow-500 shadow-lg shadow-yellow-600/30"
                 :class="{
-                  'bg-yellow-600 text-gray-900 border-yellow-600': $route.path === '/leagues'
+                  'text-gray-300 border-gray-700 hover:text-yellow-400 hover:border-yellow-600 hover:bg-gray-700/50 hover:translate-x-1': $route.path !== '/leagues'
                 }"
                 title="My Leagues"
               >
-                <Swords :size="20" :stroke-width="2.5" class="flex-shrink-0" />
-                <span class="ml-2 text-sm font-semibold">
+                <Swords :size="22" :stroke-width="2.5" class="flex-shrink-0" />
+                <span class="relative z-10 flex-1">
                   All Leagues
                 </span>
+                <div
+                  v-if="$route.path === '/leagues'"
+                  class="w-2 h-2 bg-gray-900 rounded-full"
+                ></div>
               </NuxtLink>
 
-              <LoginButton class="w-full" />
+              <LoginButton v-if="!authStore.isAuthenticated" class="w-full" />
             </div>
           </div>
 

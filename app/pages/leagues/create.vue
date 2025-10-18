@@ -262,20 +262,6 @@
           Basic Information
         </h2>
 
-        <!-- League Name -->
-        <div>
-          <label class="block text-gray-300 font-semibold mb-2">
-            League Name <span class="text-red-400">*</span>
-          </label>
-          <input
-            v-model="form.name"
-            type="text"
-            class="input-field w-full"
-            :placeholder="placeholders.leagueName"
-            required
-          />
-        </div>
-
         <!-- Game System Selection -->
         <div>
           <label class="block text-gray-300 font-semibold mb-2">
@@ -294,6 +280,20 @@
           <p class="text-sm text-gray-400 mt-1">
             This determines which factions and missions are available for your league
           </p>
+        </div>
+
+        <!-- League Name -->
+        <div>
+          <label class="block text-gray-300 font-semibold mb-2">
+            League Name <span class="text-red-400">*</span>
+          </label>
+          <input
+            v-model="form.name"
+            type="text"
+            class="input-field w-full"
+            :placeholder="placeholders.leagueName"
+            required
+          />
         </div>
 
         <!-- Description -->
