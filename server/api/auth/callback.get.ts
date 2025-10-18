@@ -126,9 +126,18 @@ export default defineEventHandler(async (event) => {
       secure: isProduction
     })
 
-    // Check for stored redirect URL (from sessionStorage, handled client-side)
-    // Default to dashboard if no specific redirect needed
-    return sendRedirect(event, '/dashboard', 302)
+    // Check if user has any leagues (for redirect logic)
+    const { leagueMemberships } = await import('../../../db/schema')
+    const userMemberships = await db
+      .select()
+      .from(leagueMemberships)
+      .where(eq(leagueMemberships.userId, dbUser.id))
+
+    // If user has no leagues, send them to the leagues page to join/create
+    // Otherwise, send to dashboard
+    const redirectUrl = userMemberships.length === 0 ? '/leagues' : '/dashboard'
+
+    return sendRedirect(event, redirectUrl, 302)
   } catch (err: unknown) {
     console.error('Auth callback error:', err)
     const message = err && typeof err === 'object' && 'message' in err ? err.message : 'Authentication failed'
