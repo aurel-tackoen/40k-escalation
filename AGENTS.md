@@ -28,7 +28,7 @@ A comprehensive full-stack web application for managing escalation league campai
 ### Project Status
 ✅ **PRODUCTION READY** - Complete feature set with zero technical debt
 - 14 reusable composables (100% coverage)
-- Full database integration with 40 API endpoints
+- Full database integration with 38 API endpoints
 - **🔒 Comprehensive API Security** - Session-based auth with RBAC ⭐ NEW
 - Multi-game system support with dynamic factions/missions
 - **Game-specific match types** - Victory Points (40k/AoS/HH), Percentage/Casualties (ToW), Scenario Objectives (MESBG)
@@ -38,7 +38,7 @@ A comprehensive full-stack web application for managing escalation league campai
 - Painting progress tracking with leaderboard
 - Match analytics (win streaks, close games, decisive victories)
 - Form validation framework
-- Comprehensive test data seeding
+- Game system reference data seeding
 
 ---
 
@@ -153,7 +153,7 @@ server/api/                   # Nitro API routes (40 endpoints)
 ├── matches.*.ts             # Match recording (2 endpoints: GET, POST)
 ├── missions.get.ts          # GET /api/missions (game system filtering)
 ├── players.*.ts             # Player management (4 endpoints: GET, POST, PUT, DELETE)
-├── seed*.post.ts            # Data seeding (2 endpoints: game systems, test data)
+├── seed-game-systems.post.ts # Data seeding (game systems, factions, missions)
 └── users/me.*.ts            # User profile (2 endpoints: GET, PUT)
 
 migrations/                   # Drizzle ORM migrations (5 migrations)
@@ -675,7 +675,6 @@ All endpoints follow RESTful conventions and return JSON. All **protected** endp
 - `DELETE /api/matches/:id` - Delete match (owner/organizer only)
 
 ### 🔴 Admin API (Admin Only)
-- `POST /api/seed` - Seed test data (admin only)
 - `POST /api/seed-game-systems` - Seed game systems (admin only)
 
 ---

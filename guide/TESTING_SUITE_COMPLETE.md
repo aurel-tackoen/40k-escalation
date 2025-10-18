@@ -245,7 +245,7 @@ beforeEach(() => {
 
 ### 2. Real Integration Tests
 - Start dev server: `npm run dev`
-- Seed database: `POST /api/seed-game-systems` then `POST /api/seed`
+- Seed database: `POST /api/seed-game-systems`
 - Update integration tests to use `$fetch()` or Playwright for API testing
 - Test full request/response cycles
 

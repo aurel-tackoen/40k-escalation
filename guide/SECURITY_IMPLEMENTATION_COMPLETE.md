@@ -135,7 +135,6 @@ These endpoints are intentionally public for reference data and join flows:
 ### 🔴 Admin Only Endpoints
 | Endpoint | Protection | Purpose |
 |----------|-----------|---------|
-| `POST /api/seed` | Admin role | Seed test data |
 | `POST /api/seed-game-systems` | Admin role | Seed game systems |
 
 ---
