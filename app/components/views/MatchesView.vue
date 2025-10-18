@@ -44,7 +44,7 @@
   } = useMatchResults(toRef(props, 'matches'))
 
   // Toast notifications
-  const { toastError } = useToast()
+  const { toastSuccess, toastError } = useToast()
 
   // Emits
   const emit = defineEmits(['add-match', 'delete-match'])
@@ -63,6 +63,7 @@
       console.log('Delete match callback called with match:', matchToDelete.value)
       emit('delete-match', matchToDelete.value.id)
       console.log('Emitted delete-match event with id:', matchToDelete.value.id)
+      toastSuccess('Match deleted successfully')
       matchToDelete.value = null
       showDeleteModal.value = false
     }
@@ -172,6 +173,8 @@
 
     emit('add-match', { ...newMatch.value })
     resetForm()
+
+    toastSuccess('Match recorded successfully!')
 
     // Scroll to top to see the newly added match
     window.scrollTo({ top: 0, behavior: 'smooth' })

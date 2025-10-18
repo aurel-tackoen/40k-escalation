@@ -50,7 +50,7 @@
   const { user, isAuthenticated } = useAuth()
 
   // Toast notifications
-  const { toastWarning } = useToast()
+  const { toastSuccess, toastError, toastWarning } = useToast()
 
   // Check if current user can remove a specific player
   const canRemovePlayer = (player) => {
@@ -99,7 +99,9 @@
   const removePlayer = () => {
     if (playerToRemove.value) {
       const isSelf = playerToRemove.value.userId === user.value?.id
+      const playerName = playerToRemove.value.name
       emit('remove-player', playerToRemove.value.id, isSelf)
+      toastSuccess(`${playerName} removed from league`)
       playerToRemove.value = null
       showRemovalModal.value = false
     }
@@ -170,9 +172,11 @@
             await leaguesStore.fetchPlayers()
 
             armyNameUpdateSuccess.value = true
+            toastSuccess('Army name updated successfully!')
             setTimeout(() => { armyNameUpdateSuccess.value = false }, 3000)
           } catch (error) {
             armyNameUpdateError.value = 'Failed to update army name'
+            toastError('Failed to update army name')
             console.error('Error updating army name:', error)
           }
         }
@@ -183,6 +187,7 @@
           faction: newPlayer.value.faction,
           userId: user.value.id
         })
+        toastSuccess(`${newPlayer.value.name} joined the league!`)
         resetForm()
       }
     }

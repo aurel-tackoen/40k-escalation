@@ -11,7 +11,7 @@
   const leaguesStore = useLeaguesStore()
   const authStore = useAuthStore()
   const { gameSystems } = storeToRefs(leaguesStore)
-  const { toastError } = useToast()
+  const { toastSuccess, toastError } = useToast()
 
   const form = reactive({
     name: '',
@@ -236,10 +236,12 @@
       })
 
       // Success - show create player modal
+      toastSuccess('League created successfully!')
       createdLeagueName.value = form.name
       showCreatePlayerModal.value = true
     } catch (err) {
       error.value = err.message || 'Failed to create league'
+      toastError(err.message || 'Failed to create league')
       console.error('Error creating league:', err)
     } finally {
       loading.value = false

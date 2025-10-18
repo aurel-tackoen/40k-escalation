@@ -13,11 +13,15 @@
   import { useArmyFiltering } from '~/composables/useArmyFiltering'
   import { useGameSystems } from '~/composables/useGameSystems'
   import { usePlaceholders } from '~/composables/usePlaceholders'
+  import { useToast } from '~/composables/useToast'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Store
   const leaguesStore = useLeaguesStore()
   const { currentPlayer, canManageLeague, currentGameSystemName, gameSystems, availableUnitTypes, currentArmyName, selectedLeague } = storeToRefs(leaguesStore)
+
+  // Toast notifications
+  const { toastSuccess, toastError, toastWarning, toastInfo } = useToast()
 
   // Game systems composable
   const { getGameSystemBadgeClasses, getGameSystemTextClasses } = useGameSystems(gameSystems)
@@ -74,7 +78,9 @@
 
   const deleteArmyConfirmed = () => {
     if (armyToDelete.value) {
+      const armyName = armyToDelete.value.name || 'Army'
       emit('delete-army', armyToDelete.value.playerId, armyToDelete.value.round)
+      toastSuccess(`${armyName} deleted successfully`)
       armyToDelete.value = null
       showDeleteModal.value = false
     }
@@ -233,6 +239,7 @@
     // Check if user has permission to escalate this army
     if (!canModifyArmy(army)) {
       console.error('Cannot escalate army: permission denied')
+      toastError('You do not have permission to escalate this army')
       return
     }
     const nextRound = army.round + 1
@@ -244,6 +251,7 @@
     }
 
     setupEscalation(army, escalatedArmy)
+    toastInfo(`Army escalated to Round ${nextRound} - Ready to add units!`)
     scrollToForm()
   }
 
@@ -251,6 +259,7 @@
     // Check if user has permission to delete this army
     if (!canModifyArmy(army)) {
       console.error('Cannot delete army: permission denied')
+      toastError('You do not have permission to delete this army')
       return
     }
     confirmDeleteArmy(army)
@@ -260,12 +269,16 @@
     // Extra validation: ensure user has permission to create army for selected player
     if (!canManageLeague.value && currentArmy.value.playerId !== currentPlayer.value?.id) {
       console.error('Cannot create army for another player')
+      toastError('You can only create armies for yourself')
       return
     }
 
     if (isCurrentArmyValid.value) {
       emit('save-army', { ...currentArmy.value })
+      toastSuccess('Army list saved successfully!')
       cancelBuilder()
+    } else {
+      toastWarning('Please fix validation errors before saving')
     }
   }
 
