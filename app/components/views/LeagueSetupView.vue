@@ -8,6 +8,7 @@
   import { useAuth } from '~/composables/useAuth'
   import { useLeagueRules } from '~/composables/useLeagueRules'
   import { usePlaceholders } from '~/composables/usePlaceholders'
+  import { useToast } from '~/composables/useToast'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Composables
@@ -15,6 +16,7 @@
   const leaguesStore = useLeaguesStore()
   const { gameSystems } = storeToRefs(leaguesStore)
   const { user } = useAuth()
+  const { toastSuccess, toastError } = useToast()
 
   // Props
   const props = defineProps({
@@ -82,8 +84,7 @@
     editableLeague.value.rounds.sort((a, b) => a.number - b.number)
     emit('update-league', editableLeague.value)
 
-    // Show success message (you could use a toast notification library)
-    alert('League settings saved successfully!')
+    toastSuccess('League settings saved successfully!')
   }
 
   const addRound = () => {
@@ -138,9 +139,10 @@
 
       shareUrl.value = response.data.shareUrl
       editableLeague.value.shareToken = response.data.shareToken
+      toastSuccess('Share URL generated successfully!')
     } catch (error) {
       console.error('Failed to generate share URL:', error)
-      alert('Failed to generate share URL. Please try again.')
+      toastError('Failed to generate share URL. Please try again.')
     } finally {
       isGeneratingUrl.value = false
     }
@@ -150,11 +152,13 @@
     try {
       await navigator.clipboard.writeText(shareUrl.value)
       urlCopied.value = true
+      toastSuccess('Share URL copied to clipboard!')
       setTimeout(() => {
         urlCopied.value = false
       }, 2000)
     } catch (err) {
       console.error('Failed to copy share URL:', err)
+      toastError('Failed to copy share URL')
     }
   }
 
@@ -197,7 +201,7 @@
         }
       })
 
-      alert('Ownership transferred successfully! The new owner will now have full control.')
+      toastSuccess('Ownership transferred successfully! The new owner will now have full control.')
       selectedNewOwner.value = null
 
       // Refresh membership data to get updated roles
@@ -205,7 +209,7 @@
       await leaguesStore.fetchMyLeagues()
     } catch (error) {
       console.error('Error transferring ownership:', error)
-      alert('Failed to transfer ownership. Please try again.')
+      toastError('Failed to transfer ownership. Please try again.')
     } finally {
       isTransferringOwnership.value = false
       showTransferModal.value = false
@@ -228,7 +232,7 @@
 
     const authStore = useAuthStore()
     if (!authStore.user?.id) {
-      alert('You must be logged in to delete the league')
+      toastError('You must be logged in to delete the league')
       showDeleteModal.value = false
       return
     }
@@ -243,13 +247,15 @@
         }
       })
 
-      alert('League deleted successfully')
+      toastSuccess('League deleted successfully')
 
       // Redirect to leagues page or home
-      window.location.href = '/leagues'
+      setTimeout(() => {
+        window.location.href = '/leagues'
+      }, 1000)
     } catch (error) {
       console.error('Failed to delete league:', error)
-      alert('Failed to delete league. Please try again.')
+      toastError('Failed to delete league. Please try again.')
     } finally {
       isDeletingLeague.value = false
       showDeleteModal.value = false

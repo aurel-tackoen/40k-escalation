@@ -4,12 +4,14 @@
   import { useAuthStore } from '~/stores/auth'
   import { useLeagueRules } from '~/composables/useLeagueRules'
   import { usePlaceholders } from '~/composables/usePlaceholders'
+  import { useToast } from '~/composables/useToast'
   import { Plus, X, Calendar, Lock, Swords, RefreshCw, FileText, Sparkles } from 'lucide-vue-next'
   import CreatePlayerModal from '~/components/CreatePlayerModal.vue'
 
   const leaguesStore = useLeaguesStore()
   const authStore = useAuthStore()
   const { gameSystems } = storeToRefs(leaguesStore)
+  const { toastError } = useToast()
 
   const form = reactive({
     name: '',
@@ -286,7 +288,7 @@
       }
     } catch (err) {
       console.error('Error creating player:', err)
-      alert('Failed to create player profile: ' + (err.message || 'Unknown error'))
+      toastError('Failed to create player profile: ' + (err.message || 'Unknown error'))
     } finally {
       creatingPlayer.value = false
     }

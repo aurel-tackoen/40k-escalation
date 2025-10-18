@@ -9,6 +9,7 @@
   import { useGameSystems } from '~/composables/useGameSystems'
   import { useMatchValidation } from '~/composables/useMatchValidation'
   import { usePlaceholders } from '~/composables/usePlaceholders'
+  import { useToast } from '~/composables/useToast'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
   import MatchCard from '~/components/MatchCard.vue'
 
@@ -41,6 +42,9 @@
     isCloseMatch,
     getWinStreak
   } = useMatchResults(toRef(props, 'matches'))
+
+  // Toast notifications
+  const { toastError } = useToast()
 
   // Emits
   const emit = defineEmits(['add-match', 'delete-match'])
@@ -147,7 +151,7 @@
     // Validate match using composable
     const validation = matchValidation.validateMatch()
     if (!validation.isValid) {
-      alert(validation.errors.join('\n'))
+      toastError(validation.errors.join('\n'))
       return
     }
 

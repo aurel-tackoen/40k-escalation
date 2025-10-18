@@ -9,6 +9,7 @@
   import { useAuth } from '~/composables/useAuth'
   import { useGameSystems } from '~/composables/useGameSystems'
   import { usePlaceholders } from '~/composables/usePlaceholders'
+  import { useToast } from '~/composables/useToast'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Props
@@ -47,6 +48,9 @@
 
   // Auth
   const { user, isAuthenticated } = useAuth()
+
+  // Toast notifications
+  const { toastWarning } = useToast()
 
   // Check if current user can remove a specific player
   const canRemovePlayer = (player) => {
@@ -134,7 +138,7 @@
   // Methods
   const submitPlayer = async () => {
     if (!isAuthenticated.value || !user.value) {
-      alert('You must be logged in to join as a player')
+      toastWarning('You must be logged in to join as a player')
       return
     }
 
