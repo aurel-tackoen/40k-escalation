@@ -2,7 +2,7 @@
   import { ref, computed, onMounted } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import { useAuthStore } from '~/stores/auth'
-  import { Shield, Database, Target, Boxes, Activity, Menu, X } from 'lucide-vue-next'
+  import { Shield, Database, Target, Boxes, Activity, Menu, X, Users, Swords, Trophy } from 'lucide-vue-next'
   import '~/assets/css/admin.css'
 
   const router = useRouter()
@@ -45,7 +45,10 @@
     { path: '/admin/game-systems', label: 'Game Systems', icon: Database },
     { path: '/admin/factions', label: 'Factions', icon: Shield },
     { path: '/admin/missions', label: 'Missions', icon: Target },
-    { path: '/admin/unit-types', label: 'Unit Types', icon: Boxes }
+    { path: '/admin/unit-types', label: 'Unit Types', icon: Boxes },
+    { path: '/admin/users', label: 'Users', icon: Users },
+    { path: '/admin/leagues', label: 'Leagues', icon: Swords },
+    { path: '/admin/matches', label: 'Matches', icon: Trophy }
   ]
 
   // Mobile menu state
