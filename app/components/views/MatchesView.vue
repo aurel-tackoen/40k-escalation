@@ -28,6 +28,9 @@
   const leaguesStore = useLeaguesStore()
   const { availableMissions, currentGameSystemName, gameSystems, canManageLeague, currentPlayer, currentLeague, selectedLeague } = storeToRefs(leaguesStore)
 
+  // Get rounds from current league
+  const leagueRounds = computed(() => currentLeague.value?.rounds || [])
+
   // Composables
   const { getPlayerName, getPlayerFaction } = usePlayerLookup(toRef(props, 'players'))
   const { formatDate } = useFormatting()
@@ -300,9 +303,9 @@
           <Filter :size="18" class="text-yellow-500 flex-shrink-0" />
           <select v-model="filterRound" class="input-field flex-1">
             <option value="">All Rounds</option>
-            <option value="1">Round 1</option>
-            <option value="2">Round 2</option>
-            <option value="3">Round 3</option>
+            <option v-for="round in leagueRounds" :key="round.number" :value="round.number">
+              {{ round.name }}
+            </option>
           </select>
         </div>
         <div class="flex items-center gap-2">
@@ -732,9 +735,9 @@
             <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Round</label>
             <select v-model.number="newMatch.round" required class="input-field">
               <option value="">Select Round</option>
-              <option value="1">Round 1 - Combat Patrol (500pts)</option>
-              <option value="2">Round 2 - Incursion (1000pts)</option>
-              <option value="3">Round 3 - Strike Force (2000pts)</option>
+              <option v-for="round in leagueRounds" :key="round.number" :value="round.number">
+                {{ round.name }}
+              </option>
             </select>
           </div>
           <div>
