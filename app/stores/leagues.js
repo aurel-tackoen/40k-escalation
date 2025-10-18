@@ -230,7 +230,9 @@ export const useLeaguesStore = defineStore('leagues', {
           return
         }
 
-        const response = await $fetch(`/api/leagues/my?userId=${authStore.user.id}`)
+        // Add cache buster to ensure fresh data
+        const cacheBuster = Date.now()
+        const response = await $fetch(`/api/leagues/my?userId=${authStore.user.id}&_=${cacheBuster}`)
         if (response.success) {
           this.myLeagues = response.data
 
@@ -321,7 +323,7 @@ export const useLeaguesStore = defineStore('leagues', {
         await this.fetchLeagueData()
 
         // Store in localStorage for persistence
-        if (process.client) {
+        if (import.meta.client) {
           localStorage.setItem('currentLeagueId', leagueId.toString())
         }
       } catch (error) {
@@ -455,7 +457,7 @@ export const useLeaguesStore = defineStore('leagues', {
           // Note: fetchMyLeagues() will auto-switch to first league if currentLeagueId is null
           if (this.myLeagues.length === 0) {
             // No leagues left, clear localStorage
-            if (process.client) {
+            if (import.meta.client) {
               localStorage.removeItem('currentLeagueId')
             }
           }
@@ -569,7 +571,7 @@ export const useLeaguesStore = defineStore('leagues', {
           // Note: fetchMyLeagues() will auto-switch to first league if currentLeagueId is null
           if (this.myLeagues.length === 0) {
             // No leagues left, clear localStorage
-            if (process.client) {
+            if (import.meta.client) {
               localStorage.removeItem('currentLeagueId')
             }
           }
@@ -744,13 +746,49 @@ export const useLeaguesStore = defineStore('leagues', {
           method: 'DELETE'
         })
         if (response.success) {
-          // Refetch players to get updated status (soft delete)
-          await this.fetchPlayers()
-
-          // If user removed themselves, clear league selection and redirect to home
+          // If user removed themselves, handle it like leaving the league
           if (isSelf) {
+            const leagueIdToLeave = this.currentLeagueId
+
+            // Clear cache for the league we're leaving
+            delete this.leagues[leagueIdToLeave]
+
+            // Clear current league data
             this.currentLeagueId = null
-            navigateTo('/')
+            this.currentGameSystem = null
+            this.players = []
+            this.matches = []
+            this.armies = []
+            this.members = []
+            this.factions = []
+            this.missions = []
+            this.unitTypes = []
+
+            // Small delay to ensure database has committed the change
+            await new Promise(resolve => setTimeout(resolve, 100))
+
+            // Refresh both my leagues and public leagues to ensure sync
+            await Promise.all([
+              this.fetchMyLeagues(),
+              this.fetchPublicLeagues()
+            ])
+
+            // After refetching, check if user has any leagues left
+            if (this.myLeagues.length === 0) {
+              // No leagues left, clear localStorage
+              if (import.meta.client) {
+                localStorage.removeItem('currentLeagueId')
+              }
+              // Navigate to leagues page
+              navigateTo('/leagues')
+            } else {
+              // User has other leagues, navigate to dashboard
+              // (fetchMyLeagues will have auto-switched to first league)
+              navigateTo('/dashboard')
+            }
+          } else {
+            // Just removing another player, refresh the player list
+            await this.fetchPlayers()
           }
         }
         return response
@@ -903,7 +941,7 @@ export const useLeaguesStore = defineStore('leagues', {
       await this.fetchMyLeagues()
 
       // After fetching leagues, validate localStorage league ID
-      if (process.client) {
+      if (import.meta.client) {
         const savedLeagueId = localStorage.getItem('currentLeagueId')
         if (savedLeagueId) {
           const leagueId = parseInt(savedLeagueId)
@@ -1095,7 +1133,7 @@ export const useLeaguesStore = defineStore('leagues', {
       this.initialized = false      // Reset initialization flag
 
       // Clear localStorage
-      if (process.client) {
+      if (import.meta.client) {
         localStorage.removeItem('currentLeagueId')
       }
     }

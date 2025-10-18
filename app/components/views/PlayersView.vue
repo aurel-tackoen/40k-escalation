@@ -407,7 +407,7 @@
     <ConfirmationModal
       :show="showRemovalModal"
       :title="playerToRemove?.userId === user?.id ? 'Leave League?' : 'Remove Player?'"
-      variant="danger"
+      variant="default"
       confirm-text="Confirm"
       cancel-text="Cancel"
       @confirm="removePlayer"

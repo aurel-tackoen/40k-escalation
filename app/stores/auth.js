@@ -102,7 +102,7 @@ export const useAuthStore = defineStore('auth', {
      */
     logout() {
       // Clear leagues store before redirecting
-      if (process.client) {
+      if (import.meta.client) {
         const leaguesStore = useLeaguesStore()
         leaguesStore.resetStore()
       }

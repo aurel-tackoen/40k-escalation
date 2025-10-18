@@ -6,7 +6,7 @@
 
   // Handle redirect after login (client-side only)
   onMounted(() => {
-    if (process.client) {
+    if (import.meta.client) {
       const redirectUrl = sessionStorage.getItem('redirect_after_login')
       if (redirectUrl) {
         sessionStorage.removeItem('redirect_after_login')
