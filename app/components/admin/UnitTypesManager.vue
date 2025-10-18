@@ -379,7 +379,7 @@
       <div
         v-for="unitType in filteredUnitTypes"
         :key="unitType.id"
-        class="p-4 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors"
+        class="p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
       >
         <div class="flex items-center justify-between">
           <div class="flex-1">

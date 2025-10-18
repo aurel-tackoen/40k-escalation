@@ -364,9 +364,10 @@
     <!-- Filters -->
     <div class="mb-6 p-4 bg-gray-700 border border-gray-600 rounded-lg">
       <div class="flex items-center gap-4 flex-wrap">
-        <Filter class="w-5 h-5 text-gray-400 flex-shrink-0" />
-        <label class="text-sm font-medium text-gray-300 flex-shrink-0">Filter:</label>
-
+        <div class="flex items-center gap-2 mb-3">
+          <Filter class="w-5 h-5 text-yellow-500" />
+          <h3 class="text-lg font-semibold text-white">Filters</h3>
+        </div>
         <!-- Role Filter -->
         <div class="admin-select-wrapper w-48">
           <select

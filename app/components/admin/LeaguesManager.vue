@@ -1,6 +1,6 @@
 <script setup>
   import { ref, computed, onMounted } from 'vue'
-  import { Edit, Trash2, Save, X, Filter, ChevronDown, Shield, Users as UsersIcon, Trophy, Calendar } from 'lucide-vue-next'
+  import { Edit, Trash2, Save, X, Filter, ChevronDown, Shield, Users as UsersIcon, Trophy, Calendar, ChevronRight, Target } from 'lucide-vue-next'
   import { useToast } from '~/composables/useToast'
   import { useFormatting } from '~/composables/useFormatting'
 
@@ -11,6 +11,7 @@
   const selectedStatus = ref(null)
   const searchQuery = ref('')
   const loadError = ref(null)
+  const expandedLeagues = ref(new Set()) // Track which leagues are expanded
 
   // Edit modal state
   const showEditModal = ref(false)
@@ -24,6 +25,18 @@
     isPrivate: false,
     currentRound: 1,
     maxPlayers: null
+  })
+
+  // Round edit modal state
+  const showRoundModal = ref(false)
+  const editingRound = ref(null)
+  const roundForm = ref({
+    id: null,
+    number: 1,
+    name: '',
+    pointLimit: 500,
+    startDate: '',
+    endDate: ''
   })
 
   // Confirmation state
@@ -206,6 +219,68 @@
     }
   }
 
+  // Expandable league functions
+  const toggleLeagueExpansion = (leagueId) => {
+    if (expandedLeagues.value.has(leagueId)) {
+      expandedLeagues.value.delete(leagueId)
+    } else {
+      expandedLeagues.value.add(leagueId)
+    }
+  }
+
+  const isLeagueExpanded = (leagueId) => {
+    return expandedLeagues.value.has(leagueId)
+  }
+
+  // Round modal functions
+  const openRoundModal = (round) => {
+    editingRound.value = round
+    roundForm.value = {
+      id: round.id,
+      number: round.number,
+      name: round.name,
+      pointLimit: round.pointLimit,
+      startDate: round.startDate,
+      endDate: round.endDate
+    }
+    showRoundModal.value = true
+  }
+
+  const closeRoundModal = () => {
+    showRoundModal.value = false
+    editingRound.value = null
+    roundForm.value = {
+      id: null,
+      number: 1,
+      name: '',
+      pointLimit: 500,
+      startDate: '',
+      endDate: ''
+    }
+  }
+
+  const saveRound = async () => {
+    try {
+      await $fetch(`/api/admin/rounds/${roundForm.value.id}`, {
+        method: 'PUT',
+        body: {
+          number: roundForm.value.number,
+          name: roundForm.value.name,
+          pointLimit: roundForm.value.pointLimit,
+          startDate: roundForm.value.startDate,
+          endDate: roundForm.value.endDate
+        }
+      })
+
+      toastSuccess('Round updated successfully')
+      closeRoundModal()
+      fetchLeagues()
+    } catch (error) {
+      console.error('Error saving round:', error)
+      toastError('Failed to save round')
+    }
+  }
+
   onMounted(() => {
     fetchGameSystems()
     fetchLeagues()
@@ -227,7 +302,7 @@
       <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-gray-400 text-sm">Total Leagues</p>
+            <p class="text-gray-400 text-sm mb-1">Total Leagues</p>
             <p class="text-2xl font-bold text-white">{{ stats.total }}</p>
           </div>
           <Trophy class="w-8 h-8 text-yellow-500" />
@@ -237,7 +312,7 @@
       <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-gray-400 text-sm">Active</p>
+            <p class="text-gray-400 text-sm mb-1">Active</p>
             <p class="text-2xl font-bold text-green-400">{{ stats.active }}</p>
           </div>
           <Shield class="w-8 h-8 text-green-500" />
@@ -247,7 +322,7 @@
       <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-gray-400 text-sm">Public</p>
+            <p class="text-gray-400 text-sm mb-1">Public</p>
             <p class="text-2xl font-bold text-blue-400">{{ stats.public }}</p>
           </div>
           <UsersIcon class="w-8 h-8 text-blue-500" />
@@ -257,7 +332,7 @@
       <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-gray-400 text-sm">Private</p>
+            <p class="text-gray-400 text-sm mb-1">Private</p>
             <p class="text-2xl font-bold text-purple-400">{{ stats.private }}</p>
           </div>
           <Shield class="w-8 h-8 text-purple-500" />
@@ -266,7 +341,7 @@
     </div>
 
     <!-- Filters -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-4">
+    <div class="bg-gray-700 border border-gray-600 rounded-lg p-4 space-y-4">
       <div class="flex items-center gap-2 mb-3">
         <Filter class="w-5 h-5 text-yellow-500" />
         <h3 class="text-lg font-semibold text-white">Filters</h3>
@@ -347,12 +422,12 @@
       <div
         v-for="league in filteredLeagues"
         :key="league.id"
-        class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-yellow-500/50 transition-colors"
+        class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden hover:border-yellow-500/50 transition-colors"
       >
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <!-- League Header -->
-            <div class="flex items-start gap-3 mb-3">
+        <!-- Header Section -->
+        <div class="bg-gray-750 border-b border-gray-700 px-6 py-4">
+          <div class="flex items-start justify-between">
+            <div class="flex items-start gap-3 flex-1">
               <Trophy class="w-6 h-6 text-yellow-500 mt-1" />
               <div class="flex-1">
                 <div class="flex items-center gap-3 mb-2">
@@ -368,64 +443,138 @@
               </div>
             </div>
 
-            <!-- League Info Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span class="text-gray-400">Game System:</span>
-                <span class="text-white ml-2">{{ getGameSystemName(league.gameSystemId) }}</span>
+            <!-- Actions -->
+            <div class="flex gap-2 ml-4">
+              <button
+                @click="openEditModal(league)"
+                class="admin-btn-info"
+                title="Edit league"
+              >
+                <Edit class="w-3 h-3" />
+                Edit
+              </button>
+              <button
+                @click="confirmDeleteLeague(league)"
+                class="admin-btn-danger"
+                title="Delete league"
+              >
+                <Trash2 class="w-3 h-3" />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="px-6 py-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Game & Status Info -->
+            <div class="space-y-3">
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Game System</div>
+              <div class="flex items-center gap-2">
+                <Shield class="w-4 h-4 text-yellow-500" />
+                <span class="text-white font-medium">{{ getGameSystemName(league.gameSystemId) }}</span>
               </div>
-              <div>
-                <span class="text-gray-400">Members:</span>
-                <span class="text-white ml-2">{{ league.memberCount || 0 }}</span>
-                <span v-if="league.maxPlayers" class="text-gray-500">/ {{ league.maxPlayers }}</span>
-              </div>
-              <div>
-                <span class="text-gray-400">Current Round:</span>
-                <span class="text-white ml-2">{{ league.currentRound }}</span>
-              </div>
-              <div>
-                <span class="text-gray-400">Created:</span>
-                <span class="text-white ml-2">{{ formatDate(league.createdAt) }}</span>
+              <div class="mt-3">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Progress</div>
+                <div class="text-white">
+                  Round <span class="text-yellow-500 font-bold">{{ league.currentRound }}</span>
+                </div>
               </div>
             </div>
 
-            <!-- Creator Info -->
-            <div class="mt-3 text-sm">
-              <span class="text-gray-400">Owner:</span>
-              <span class="text-white ml-2">{{ league.creatorName || 'Unknown' }}</span>
-              <span v-if="league.creatorEmail" class="text-gray-500 ml-2">({{ league.creatorEmail }})</span>
+            <!-- Members & Limits -->
+            <div class="space-y-3">
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Members</div>
+              <div class="flex items-center gap-2">
+                <UsersIcon class="w-4 h-4 text-blue-500" />
+                <span class="text-white font-medium">
+                  {{ league.memberCount || 0 }}
+                  <span v-if="league.maxPlayers" class="text-gray-400">/ {{ league.maxPlayers }}</span>
+                  <span v-else class="text-gray-400">/ Unlimited</span>
+                </span>
+              </div>
+              <div class="mt-3">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Owner</div>
+                <div class="text-white text-sm">{{ league.creatorName || 'Unknown' }}</div>
+                <div v-if="league.creatorEmail" class="text-gray-500 text-xs">{{ league.creatorEmail }}</div>
+              </div>
             </div>
 
             <!-- Dates -->
-            <div class="mt-2 flex items-center gap-4 text-sm">
-              <div class="flex items-center gap-2">
-                <Calendar class="w-4 h-4 text-gray-400" />
-                <span class="text-gray-400">Start:</span>
-                <span class="text-white">{{ formatDate(league.startDate) }}</span>
-              </div>
-              <div v-if="league.endDate" class="flex items-center gap-2">
-                <span class="text-gray-400">End:</span>
-                <span class="text-white">{{ formatDate(league.endDate) }}</span>
+            <div class="space-y-3">
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Schedule</div>
+              <div class="space-y-2">
+                <div class="flex items-start gap-2">
+                  <Calendar class="w-4 h-4 text-green-500 mt-0.5" />
+                  <div>
+                    <div class="text-xs text-gray-400">Start Date</div>
+                    <div class="text-white text-sm">{{ formatDate(league.startDate) }}</div>
+                  </div>
+                </div>
+                <div v-if="league.endDate" class="flex items-start gap-2">
+                  <Calendar class="w-4 h-4 text-red-500 mt-0.5" />
+                  <div>
+                    <div class="text-xs text-gray-400">End Date</div>
+                    <div class="text-white text-sm">{{ formatDate(league.endDate) }}</div>
+                  </div>
+                </div>
+                <div v-else class="flex items-start gap-2">
+                  <Calendar class="w-4 h-4 text-gray-600 mt-0.5" />
+                  <div>
+                    <div class="text-xs text-gray-400">End Date</div>
+                    <div class="text-gray-500 text-sm italic">Not set</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Actions -->
-          <div class="flex gap-2 ml-4">
+          <!-- Show Rounds Button -->
+          <button
+            v-if="league.rounds?.length > 0"
+            @click="toggleLeagueExpansion(league.id)"
+            class="mt-4 flex items-center gap-2 text-sm text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer"
+          >
+            <ChevronRight
+              :size="16"
+              :class="['transition-transform', { 'rotate-90': isLeagueExpanded(league.id) }]"
+            />
+            <span>
+              {{ isLeagueExpanded(league.id) ? 'Hide' : 'Show' }} Rounds ({{ league.rounds?.length || 0 }})
+            </span>
+          </button>
+        </div>
+
+        <!-- Expandable Rounds Section -->
+        <div
+          v-if="isLeagueExpanded(league.id) && league.rounds?.length > 0"
+          class="border-t border-gray-700 bg-gray-800/50 px-6 py-4"
+        >
+          <div class="space-y-2">
             <button
-              @click="openEditModal(league)"
-              class="admin-btn-info"
-              title="Edit league"
+              v-for="round in league.rounds"
+              :key="round.id"
+              @click="openRoundModal(round)"
+              class="w-full bg-gray-700 rounded p-4 text-left hover:bg-gray-600 transition-colors cursor-pointer"
             >
-              <Edit class="w-4 h-4" />
-              <span>Edit</span>
-            </button>
-            <button
-              @click="confirmDeleteLeague(league)"
-              class="admin-btn-danger"
-              title="Delete league"
-            >
-              <Trash2 class="w-4 h-4" />
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                  <Target class="w-5 h-5 text-yellow-500" />
+                  <span class="text-white font-semibold">Round {{ round.number }}: {{ round.name }}</span>
+                </div>
+                <span class="text-yellow-500 font-bold">{{ round.pointLimit }} pts</span>
+              </div>
+              <div class="grid grid-cols-2 gap-4 text-sm mt-2">
+                <div>
+                  <span class="text-gray-400">Start:</span>
+                  <span class="text-white ml-2">{{ formatDate(round.startDate) }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-400">End:</span>
+                  <span class="text-white ml-2">{{ formatDate(round.endDate) }}</span>
+                </div>
+              </div>
             </button>
           </div>
         </div>
@@ -556,6 +705,83 @@
           <button type="submit" class="admin-btn-secondary">
             <Save class="w-4 h-4" />
             Update
+          </button>
+        </div>
+      </form>
+    </AdminModal>
+
+    <!-- Round Edit Modal -->
+    <AdminModal
+      :isOpen="showRoundModal"
+      title="Edit Round"
+      @close="closeRoundModal"
+    >
+      <form @submit.prevent="saveRound" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="admin-label">Round Number</label>
+            <input
+              v-model.number="roundForm.number"
+              type="number"
+              min="1"
+              required
+              class="admin-input"
+            />
+          </div>
+
+          <div>
+            <label class="admin-label">Point Limit</label>
+            <input
+              v-model.number="roundForm.pointLimit"
+              type="number"
+              min="1"
+              required
+              class="admin-input"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="admin-label">Round Name</label>
+          <input
+            v-model="roundForm.name"
+            type="text"
+            required
+            class="admin-input"
+            placeholder="e.g., 500 Points, Combat Patrol"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="admin-label">Start Date</label>
+            <input
+              v-model="roundForm.startDate"
+              type="date"
+              required
+              class="admin-input"
+            />
+          </div>
+
+          <div>
+            <label class="admin-label">End Date</label>
+            <input
+              v-model="roundForm.endDate"
+              type="date"
+              required
+              class="admin-input"
+            />
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-4">
+          <button type="button" @click="closeRoundModal" class="admin-btn-neutral">
+            <X class="w-4 h-4" />
+            Cancel
+          </button>
+          <button type="submit" class="admin-btn-secondary">
+            <Save class="w-4 h-4" />
+            Update Round
           </button>
         </div>
       </form>

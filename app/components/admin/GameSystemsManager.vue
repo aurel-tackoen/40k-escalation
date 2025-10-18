@@ -358,7 +358,7 @@
       <div
         v-for="system in gameSystems"
         :key="system.id"
-        class="p-4 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 transition-colors"
+        class="p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-500 transition-colors"
       >
         <div class="flex items-start justify-between">
           <div class="flex-1">
