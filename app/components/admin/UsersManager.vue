@@ -419,24 +419,43 @@
         <div class="p-4">
           <div class="flex items-center justify-between gap-4">
             <!-- User Info -->
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-3 mb-2">
-                <h3 class="text-white font-semibold truncate">{{ user.name }}</h3>
-                <span
-                  :class="[
-                    'px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap',
-                    `bg-${getRoleBadgeColor(user.role)}-900/30 text-${getRoleBadgeColor(user.role)}-400 border border-${getRoleBadgeColor(user.role)}-700`
-                  ]"
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <!-- Avatar -->
+              <div class="flex-shrink-0">
+                <img
+                  v-if="user.picture"
+                  :src="user.picture"
+                  :alt="user.name"
+                  class="w-12 h-12 rounded-full border-2 border-gray-600"
+                />
+                <div
+                  v-else
+                  class="w-12 h-12 rounded-full bg-gray-700 border-2 border-gray-600 flex items-center justify-center"
                 >
-                  <Shield :size="12" class="inline mr-1" />
-                  {{ roles.find(r => r.value === user.role)?.label || user.role }}
-                </span>
+                  <UsersIcon :size="24" class="text-gray-500" />
+                </div>
               </div>
-              <div class="text-sm text-gray-400 space-y-1">
-                <div>{{ user.email }}</div>
-                <div class="flex gap-4 text-xs">
-                  <span>Created: {{ formatDate(user.createdAt) }}</span>
-                  <span>Last login: {{ formatDate(user.lastLoginAt) }}</span>
+
+              <!-- Name & Role -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="text-white font-semibold truncate">{{ user.name }}</h3>
+                  <span
+                    :class="[
+                      'px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap',
+                      `bg-${getRoleBadgeColor(user.role)}-900/30 text-${getRoleBadgeColor(user.role)}-400 border border-${getRoleBadgeColor(user.role)}-700`
+                    ]"
+                  >
+                    <Shield :size="12" class="inline mr-1" />
+                    {{ roles.find(r => r.value === user.role)?.label || user.role }}
+                  </span>
+                </div>
+                <div class="text-sm text-gray-400 space-y-1">
+                  <div>{{ user.email }}</div>
+                  <div class="flex gap-4 text-xs">
+                    <span>Created: {{ formatDate(user.createdAt) }}</span>
+                    <span>Last login: {{ formatDate(user.lastLoginAt) }}</span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -19,12 +19,24 @@
   const editForm = ref({
     id: null,
     round: 1,
+    matchType: 'victory_points',
+    gameSystemId: null,
     player1Points: 0,
     player2Points: 0,
     winnerId: null,
     mission: '',
     datePlayed: '',
-    notes: ''
+    notes: '',
+    // The Old World specific
+    player1ArmyValue: null,
+    player2ArmyValue: null,
+    player1CasualtiesValue: null,
+    player2CasualtiesValue: null,
+    marginOfVictory: null,
+    // MESBG specific
+    scenarioObjective: '',
+    player1ObjectiveCompleted: false,
+    player2ObjectiveCompleted: false
   })
 
   // Confirmation state
@@ -166,12 +178,24 @@
     editForm.value = {
       id: match.id,
       round: match.round,
+      matchType: match.matchType || 'victory_points',
+      gameSystemId: match.gameSystemId,
       player1Points: match.player1Points,
       player2Points: match.player2Points,
       winnerId: match.winnerId,
       mission: match.mission || '',
       datePlayed: match.datePlayed || '',
-      notes: match.notes || ''
+      notes: match.notes || '',
+      // The Old World specific
+      player1ArmyValue: match.player1ArmyValue || null,
+      player2ArmyValue: match.player2ArmyValue || null,
+      player1CasualtiesValue: match.player1CasualtiesValue || null,
+      player2CasualtiesValue: match.player2CasualtiesValue || null,
+      marginOfVictory: match.marginOfVictory || null,
+      // MESBG specific
+      scenarioObjective: match.scenarioObjective || '',
+      player1ObjectiveCompleted: match.player1ObjectiveCompleted || false,
+      player2ObjectiveCompleted: match.player2ObjectiveCompleted || false
     }
     showEditModal.value = true
   }
@@ -182,12 +206,24 @@
     editForm.value = {
       id: null,
       round: 1,
+      matchType: 'victory_points',
+      gameSystemId: null,
       player1Points: 0,
       player2Points: 0,
       winnerId: null,
       mission: '',
       datePlayed: '',
-      notes: ''
+      notes: '',
+      // The Old World specific
+      player1ArmyValue: null,
+      player2ArmyValue: null,
+      player1CasualtiesValue: null,
+      player2CasualtiesValue: null,
+      marginOfVictory: null,
+      // MESBG specific
+      scenarioObjective: '',
+      player1ObjectiveCompleted: false,
+      player2ObjectiveCompleted: false
     }
   }
 
@@ -202,17 +238,34 @@
 
   const saveMatch = async () => {
     try {
+      const updateData = {
+        round: editForm.value.round,
+        player1Points: editForm.value.player1Points,
+        player2Points: editForm.value.player2Points,
+        winnerId: editForm.value.winnerId,
+        mission: editForm.value.mission,
+        datePlayed: editForm.value.datePlayed,
+        notes: editForm.value.notes
+      }
+
+      // Add game-specific fields based on match type
+      if (editForm.value.matchType === 'percentage') {
+        // The Old World fields
+        updateData.player1ArmyValue = editForm.value.player1ArmyValue
+        updateData.player2ArmyValue = editForm.value.player2ArmyValue
+        updateData.player1CasualtiesValue = editForm.value.player1CasualtiesValue
+        updateData.player2CasualtiesValue = editForm.value.player2CasualtiesValue
+        updateData.marginOfVictory = editForm.value.marginOfVictory
+      } else if (editForm.value.matchType === 'scenario') {
+        // MESBG fields
+        updateData.scenarioObjective = editForm.value.scenarioObjective
+        updateData.player1ObjectiveCompleted = editForm.value.player1ObjectiveCompleted
+        updateData.player2ObjectiveCompleted = editForm.value.player2ObjectiveCompleted
+      }
+
       await $fetch(`/api/admin/matches/${editForm.value.id}`, {
         method: 'PUT',
-        body: {
-          round: editForm.value.round,
-          player1Points: editForm.value.player1Points,
-          player2Points: editForm.value.player2Points,
-          winnerId: editForm.value.winnerId,
-          mission: editForm.value.mission,
-          datePlayed: editForm.value.datePlayed,
-          notes: editForm.value.notes
-        }
+        body: updateData
       })
 
       toastSuccess('Match updated successfully')
@@ -465,6 +518,10 @@
                   Round <span class="text-yellow-500 font-bold">{{ match.round }}</span>
                 </div>
               </div>
+              <div v-if="match.notes" class="mt-3">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Notes</div>
+                <div class="text-gray-400 text-sm">{{ match.notes }}</div>
+              </div>
             </div>
 
             <!-- Result Info -->
@@ -484,9 +541,9 @@
             <div class="space-y-3">
               <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Date Played</div>
               <div class="text-white text-sm">{{ formatDate(match.datePlayed) }}</div>
-              <div v-if="match.notes" class="mt-3">
-                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Notes</div>
-                <div class="text-gray-400 text-sm">{{ match.notes }}</div>
+              <div v-if="match.createdAt" class="mt-3">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Created</div>
+                <div class="text-gray-400 text-xs">{{ formatDate(match.createdAt) }}</div>
               </div>
             </div>
           </div>
@@ -565,6 +622,110 @@
               required
               class="admin-input"
             />
+          </div>
+        </div>
+
+        <!-- The Old World specific fields -->
+        <div v-if="editForm.matchType === 'percentage'" class="border border-purple-500/30 rounded-lg p-4 space-y-4">
+          <div class="text-sm font-semibold text-purple-400 mb-3">The Old World Fields</div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="admin-label">{{ editingMatch?.player1Name }} Army Value</label>
+              <input
+                v-model.number="editForm.player1ArmyValue"
+                type="number"
+                min="0"
+                class="admin-input"
+                placeholder="e.g., 2000"
+              />
+            </div>
+
+            <div>
+              <label class="admin-label">{{ editingMatch?.player2Name }} Army Value</label>
+              <input
+                v-model.number="editForm.player2ArmyValue"
+                type="number"
+                min="0"
+                class="admin-input"
+                placeholder="e.g., 2000"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="admin-label">{{ editingMatch?.player1Name }} Casualties</label>
+              <input
+                v-model.number="editForm.player1CasualtiesValue"
+                type="number"
+                min="0"
+                class="admin-input"
+                placeholder="Points of casualties"
+              />
+            </div>
+
+            <div>
+              <label class="admin-label">{{ editingMatch?.player2Name }} Casualties</label>
+              <input
+                v-model.number="editForm.player2CasualtiesValue"
+                type="number"
+                min="0"
+                class="admin-input"
+                placeholder="Points of casualties"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="admin-label">Margin of Victory (%)</label>
+            <input
+              v-model.number="editForm.marginOfVictory"
+              type="number"
+              class="admin-input"
+              placeholder="e.g., 15"
+            />
+          </div>
+        </div>
+
+        <!-- MESBG specific fields -->
+        <div v-if="editForm.matchType === 'scenario'" class="border border-green-500/30 rounded-lg p-4 space-y-4">
+          <div class="text-sm font-semibold text-green-400 mb-3">MESBG Fields</div>
+
+          <div>
+            <label class="admin-label">Scenario Objective</label>
+            <textarea
+              v-model="editForm.scenarioObjective"
+              rows="2"
+              class="admin-input"
+              placeholder="Describe the scenario objective..."
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex items-center gap-2">
+              <input
+                v-model="editForm.player1ObjectiveCompleted"
+                type="checkbox"
+                id="player1Objective"
+                class="w-4 h-4 text-yellow-500 bg-gray-700 border-gray-600 rounded focus:ring-yellow-500"
+              />
+              <label for="player1Objective" class="text-sm text-gray-300">
+                {{ editingMatch?.player1Name }} completed objective
+              </label>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <input
+                v-model="editForm.player2ObjectiveCompleted"
+                type="checkbox"
+                id="player2Objective"
+                class="w-4 h-4 text-yellow-500 bg-gray-700 border-gray-600 rounded focus:ring-yellow-500"
+              />
+              <label for="player2Objective" class="text-sm text-gray-300">
+                {{ editingMatch?.player2Name }} completed objective
+              </label>
+            </div>
           </div>
         </div>
 
