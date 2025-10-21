@@ -1,3 +1,33 @@
+[Release] Escalation League Manager for Warhammer — feature-packed, multi-system, TO-friendly 🎲
+
+I built a league manager focused purely on what organizers and players need:
+
+What it does
+
+Supports 5 game systems: 40k, Age of Sigmar, The Old World, MESBG, Horus Heresy
+
+League setup in minutes: name, dates, rounds, point limits
+
+Player & army management: add players, build lists per round, validate points
+
+Match recording tailored to each game (VPs, %/casualties for ToW, scenario objectives for MESBG)
+
+Standings & stats: win streaks, close/decisive games, head-to-head
+
+Painting tracker + leaderboard: unit progress, round averages, “fully painted” callouts
+
+Easy sharing: private join links for your league
+
+Exports everywhere: players, armies, matches to CSV
+
+Role control: owner/organizer/player permissions so things don’t get messy
+
+Mobile-friendly UI for event nights
+
+If you run leagues, clubs, or campaigns and want to try it, I can share a demo and would love feedback on features you’d like next (pairings, map packs, prize tracking, etc.). 🏆
+
+
+
 # Warhammer 40k Escalation League Manager - AI Agent Guide
 
 > **Production-Ready Full-Stack Application** - Nuxt 4 + Vue 3 + PostgreSQL + Netlify  
