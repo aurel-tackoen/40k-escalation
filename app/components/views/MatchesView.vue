@@ -686,7 +686,7 @@
                   type="checkbox"
                   id="p1-objective"
                   v-model="newMatch.player1ObjectiveCompleted"
-                  class="w-5 h-5 cursor-pointer"
+                  class="w-5 h-5 rounded border-gray-600 bg-gray-700 text-yellow-500 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 checked:bg-yellow-500 checked:border-yellow-500 hover:border-yellow-400 transition-colors cursor-pointer"
                 />
                 <label for="p1-objective" class="text-sm font-semibold text-gray-200 cursor-pointer">
                   Player 1 Completed Objective
@@ -698,7 +698,7 @@
                   type="checkbox"
                   id="p2-objective"
                   v-model="newMatch.player2ObjectiveCompleted"
-                  class="w-5 h-5 cursor-pointer"
+                  class="w-5 h-5 rounded border-gray-600 bg-gray-700 text-yellow-500 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 checked:bg-yellow-500 checked:border-yellow-500 hover:border-yellow-400 transition-colors cursor-pointer"
                 />
                 <label for="p2-objective" class="text-sm font-semibold text-gray-200 cursor-pointer">
                   Player 2 Completed Objective

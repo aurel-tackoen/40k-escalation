@@ -2,6 +2,7 @@ import { db } from '../../../db'
 import { leagues, leagueMemberships, rounds } from '../../../db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAuth } from '../../utils/auth'
+import { generateShareToken } from '../../utils/tokens'
 
 /**
  * POST /api/leagues/create
@@ -50,8 +51,8 @@ export default defineEventHandler(async (event) => {
     // Generate share token for private leagues
     let shareToken = null
     if (body.isPrivate) {
-      // Generate 32-character share token
-      shareToken = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)
+      // Generate 32-character hex token (16 bytes = 32 hex chars)
+      shareToken = generateShareToken()
     }
 
     // Create league

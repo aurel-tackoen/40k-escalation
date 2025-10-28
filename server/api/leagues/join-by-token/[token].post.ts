@@ -3,6 +3,7 @@ import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import { eq, and, count } from 'drizzle-orm'
 import { leagues, leagueMemberships, players } from '../../../../db/schema'
+import { isValidShareToken } from '../../../utils/tokens'
 
 export default defineEventHandler(async (event) => {
   const token = getRouterParam(event, 'token')
@@ -47,7 +48,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (!token || token.length !== 32) {
+  if (!isValidShareToken(token)) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Invalid share token'
@@ -68,9 +69,10 @@ export default defineEventHandler(async (event) => {
     const db = drizzle(sql)
 
     // Find league by share token (for private leagues, share token is required)
+    // TypeScript: token is guaranteed to be valid string here due to validation above
     const league = await db.select()
       .from(leagues)
-      .where(eq(leagues.shareToken, token))
+      .where(eq(leagues.shareToken, token!))
       .limit(1)
 
     if (!league[0]) {

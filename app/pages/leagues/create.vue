@@ -416,7 +416,7 @@
             <input
               v-model="form.isPrivate"
               type="checkbox"
-              class="w-5 h-5 rounded border-gray-600 bg-gray-700 text-purple-600 focus:ring-purple-500"
+              class="w-5 h-5 rounded border-gray-600 bg-gray-700 text-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-0 checked:bg-purple-500 checked:border-purple-500 hover:border-purple-400 transition-colors"
             />
             <span class="text-gray-300 font-semibold">Private League</span>
           </label>

@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import { eq } from 'drizzle-orm'
 import { leagues } from '../../../../db/schema'
-import crypto from 'crypto'
+import { generateShareToken } from '../../../utils/tokens'
 
 export default defineEventHandler(async (event) => {
   const leagueId = getRouterParam(event, 'id')
@@ -60,8 +60,8 @@ export default defineEventHandler(async (event) => {
     //   })
     // }
 
-    // Generate secure random token
-    const shareToken = crypto.randomBytes(16).toString('hex')
+    // Generate secure random token using utility function
+    const shareToken = generateShareToken()
 
     // Update league with new share token
     await db.update(leagues)

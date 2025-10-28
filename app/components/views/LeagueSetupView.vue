@@ -414,24 +414,8 @@
 
         <!-- Private League Settings -->
         <div v-if="editableLeague.isPrivate" class="space-y-6">
-          <!-- Direct Join Setting -->
-          <div class="border-t border-gray-700 pt-6">
-            <label class="flex items-center gap-3 cursor-pointer">
-              <input
-                v-model="editableLeague.allowDirectJoin"
-                type="checkbox"
-              />
-              <div>
-                <div class="font-medium text-gray-200">Allow direct join via share link</div>
-                <div class="text-sm text-gray-400">
-                  Members can share a direct link for instant joining
-                </div>
-              </div>
-            </label>
-          </div>
-
           <!-- Share URL Section -->
-          <div v-if="editableLeague.allowDirectJoin" class="space-y-4">
+          <div class="space-y-4 border-t border-gray-700 pt-6">
             <!-- Generate/Display Share URL -->
             <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
               <div class="flex items-center justify-between mb-3">

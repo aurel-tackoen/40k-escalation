@@ -708,7 +708,7 @@
                 v-model="editForm.player1ObjectiveCompleted"
                 type="checkbox"
                 id="player1Objective"
-                class="w-4 h-4 text-yellow-500 bg-gray-700 border-gray-600 rounded focus:ring-yellow-500"
+                class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-yellow-500 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 checked:bg-yellow-500 checked:border-yellow-500 hover:border-yellow-400 transition-colors"
               />
               <label for="player1Objective" class="text-sm text-gray-300">
                 {{ editingMatch?.player1Name }} completed objective
@@ -720,7 +720,7 @@
                 v-model="editForm.player2ObjectiveCompleted"
                 type="checkbox"
                 id="player2Objective"
-                class="w-4 h-4 text-yellow-500 bg-gray-700 border-gray-600 rounded focus:ring-yellow-500"
+                class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-yellow-500 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 checked:bg-yellow-500 checked:border-yellow-500 hover:border-yellow-400 transition-colors"
               />
               <label for="player2Objective" class="text-sm text-gray-300">
                 {{ editingMatch?.player2Name }} completed objective
