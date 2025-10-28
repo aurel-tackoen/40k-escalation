@@ -15,7 +15,6 @@ import { requireAuth } from '../../utils/auth'
  *   startDate: string (ISO date)
  *   endDate?: string (ISO date)
  *   isPrivate: boolean
- *   allowDirectJoin?: boolean
  *   maxPlayers?: number
  *   rounds: Array<{
  *     number: number
@@ -67,7 +66,6 @@ export default defineEventHandler(async (event) => {
       createdBy: user.id, // ✅ Use authenticated user ID from session
       isPrivate: body.isPrivate ?? false,
       shareToken,
-      allowDirectJoin: body.allowDirectJoin ?? true,
       maxPlayers: body.maxPlayers || null,
       status: 'active'
     }).returning()

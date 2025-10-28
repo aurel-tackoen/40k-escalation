@@ -26,8 +26,7 @@
     isPrivate: false,
     currentRound: 1,
     maxPlayers: null,
-    rules: '',
-    allowDirectJoin: true
+    rules: ''
   })
 
   // Round edit modal state
@@ -152,8 +151,7 @@
       isPrivate: league.isPrivate,
       currentRound: league.currentRound,
       maxPlayers: league.maxPlayers,
-      rules: league.rules || '',
-      allowDirectJoin: league.allowDirectJoin !== false
+      rules: league.rules || ''
     }
     showEditModal.value = true
   }
@@ -170,8 +168,7 @@
       isPrivate: false,
       currentRound: 1,
       maxPlayers: null,
-      rules: '',
-      allowDirectJoin: true
+      rules: ''
     }
   }
 
@@ -583,10 +580,10 @@
               </div>
 
               <!-- Share Settings -->
-              <div v-if="league.shareToken || league.allowDirectJoin !== undefined">
+              <div v-if="league.shareToken">
                 <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Access Settings</div>
                 <div class="space-y-2">
-                  <div v-if="league.shareToken" class="space-y-1">
+                  <div class="space-y-1">
                     <span class="text-gray-400 text-sm">Share Token:</span>
                     <div class="flex items-center gap-2">
                       <code class="text-yellow-500 text-sm font-mono bg-gray-700 px-2 py-1 rounded flex-1">{{ league.shareToken }}</code>
@@ -599,12 +596,6 @@
                         <Copy v-else class="w-4 h-4 text-gray-400" />
                       </button>
                     </div>
-                  </div>
-                  <div v-if="league.allowDirectJoin !== undefined">
-                    <span class="text-gray-400 text-sm">Direct Join:</span>
-                    <span :class="league.allowDirectJoin ? 'text-green-500' : 'text-red-500'" class="ml-2 text-sm font-medium">
-                      {{ league.allowDirectJoin ? 'Enabled' : 'Disabled' }}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -794,18 +785,6 @@
           />
           <label for="isPrivate" class="text-sm text-gray-300">
             Private league (requires share link to join)
-          </label>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <input
-            v-model="editForm.allowDirectJoin"
-            type="checkbox"
-            id="allowDirectJoin"
-            class="w-4 h-4 text-yellow-500 bg-gray-700 border-gray-600 rounded focus:ring-yellow-500"
-          />
-          <label for="allowDirectJoin" class="text-sm text-gray-300">
-            Allow direct join (users can join without invitation)
           </label>
         </div>
 

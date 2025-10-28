@@ -20,7 +20,6 @@
     startDate: '',
     endDate: '',
     isPrivate: false,
-    allowDirectJoin: true,
     maxPlayers: null,
     rules: '', // Will be populated when game system is selected
     rounds: [
@@ -229,7 +228,6 @@
         startDate: form.startDate,
         endDate: form.endDate || null,
         isPrivate: form.isPrivate,
-        allowDirectJoin: form.allowDirectJoin,
         maxPlayers: form.maxPlayers || null,
         rules: form.rules,
         rounds: sanitizedRounds
@@ -423,22 +421,7 @@
             <span class="text-gray-300 font-semibold">Private League</span>
           </label>
           <p class="text-gray-500 text-sm mt-1 ml-8">
-            Private leagues require invite codes or share links to join. Public leagues can be discovered by anyone.
-          </p>
-        </div>
-
-        <!-- Direct Join Settings (only for private leagues) -->
-        <div v-if="form.isPrivate">
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              v-model="form.allowDirectJoin"
-              type="checkbox"
-              class="w-5 h-5 rounded border-gray-600 bg-gray-700 text-purple-600 focus:ring-purple-500"
-            />
-            <span class="text-gray-300 font-semibold">Allow Direct Join via Share Links</span>
-          </label>
-          <p class="text-gray-500 text-sm mt-1 ml-8">
-            If enabled, anyone with the share link can join immediately. If disabled, you must manually approve join requests.
+            Private leagues require share links to join. Public leagues can be discovered by anyone.
           </p>
         </div>
 

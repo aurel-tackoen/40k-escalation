@@ -34,7 +34,6 @@ export default defineEventHandler(async (event) => {
     if (body.endDate !== undefined) updateData.endDate = body.endDate
     if (body.currentRound !== undefined) updateData.currentRound = body.currentRound
     if (body.isPrivate !== undefined) updateData.isPrivate = body.isPrivate
-    if (body.allowDirectJoin !== undefined) updateData.allowDirectJoin = body.allowDirectJoin
     if (body.maxPlayers !== undefined) updateData.maxPlayers = body.maxPlayers
     if (body.status !== undefined) {
       // Validate status

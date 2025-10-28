@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     // ✅ Require owner or organizer role
     await requireLeagueRole(event, leagueId, ['owner', 'organizer'])
 
-    const { name, description, rules, gameSystemId, startDate, endDate, currentRound, isPrivate, shareToken, allowDirectJoin, maxPlayers, status } = body
+    const { name, description, rules, gameSystemId, startDate, endDate, currentRound, isPrivate, shareToken, maxPlayers, status } = body
 
     const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL
     if (!databaseUrl) {
@@ -45,7 +45,6 @@ export default defineEventHandler(async (event) => {
     if (currentRound !== undefined) updateData.currentRound = currentRound
     if (isPrivate !== undefined) updateData.isPrivate = isPrivate
     if (shareToken !== undefined) updateData.shareToken = shareToken
-    if (allowDirectJoin !== undefined) updateData.allowDirectJoin = allowDirectJoin
     if (maxPlayers !== undefined) updateData.maxPlayers = maxPlayers
     if (status !== undefined) updateData.status = status
 

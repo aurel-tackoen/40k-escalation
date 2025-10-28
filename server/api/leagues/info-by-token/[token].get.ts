@@ -35,7 +35,6 @@ export default defineEventHandler(async (event) => {
       gameSystemId: leagues.gameSystemId,
       currentRound: leagues.currentRound,
       startDate: leagues.startDate,
-      allowDirectJoin: leagues.allowDirectJoin,
       isPrivate: leagues.isPrivate,
       maxPlayers: leagues.maxPlayers
     })
@@ -47,13 +46,6 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 404,
         statusMessage: 'League not found'
-      })
-    }
-
-    if (!league[0].allowDirectJoin) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'Direct joining is disabled for this league'
       })
     }
 

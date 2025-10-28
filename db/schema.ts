@@ -68,7 +68,6 @@ export const leagues = pgTable('leagues', {
   createdBy: integer().references(() => users.id).notNull(), // League owner
   isPrivate: boolean().default(false).notNull(), // Private leagues require share links
   shareToken: varchar({ length: 32 }).unique(), // 32-character URL token for direct sharing
-  allowDirectJoin: boolean().default(true).notNull(), // Allow joining via share links
   maxPlayers: integer(), // Optional player limit
   status: varchar({ length: 50 }).default('active').notNull(), // 'draft', 'active', 'completed', 'archived'
   createdAt: timestamp().defaultNow().notNull()

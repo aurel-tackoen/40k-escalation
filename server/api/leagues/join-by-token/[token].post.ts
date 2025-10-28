@@ -67,19 +67,16 @@ export default defineEventHandler(async (event) => {
     const sql = neon(databaseUrl)
     const db = drizzle(sql)
 
-    // Find league by share token
+    // Find league by share token (for private leagues, share token is required)
     const league = await db.select()
       .from(leagues)
-      .where(and(
-        eq(leagues.shareToken, token),
-        eq(leagues.allowDirectJoin, true)
-      ))
+      .where(eq(leagues.shareToken, token))
       .limit(1)
 
     if (!league[0]) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'League not found or joining disabled'
+        statusMessage: 'League not found'
       })
     }
 

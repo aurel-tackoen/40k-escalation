@@ -30,7 +30,6 @@ export default defineEventHandler(async (event) => {
         creatorEmail: users.email,
         isPrivate: leagues.isPrivate,
         shareToken: leagues.shareToken,
-        allowDirectJoin: leagues.allowDirectJoin,
         maxPlayers: leagues.maxPlayers,
         status: leagues.status,
         createdAt: leagues.createdAt
