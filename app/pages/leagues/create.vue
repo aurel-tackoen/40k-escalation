@@ -19,7 +19,7 @@
     gameSystemId: null, // NEW: Required field for game system selection
     startDate: '',
     endDate: '',
-    isPrivate: false,
+    isPrivate: true, // Default to private league
     maxPlayers: null,
     rules: '', // Will be populated when game system is selected
     rounds: [

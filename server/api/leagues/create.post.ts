@@ -48,9 +48,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Default to private league (user can explicitly set to public)
+    const isPrivate = body.isPrivate ?? true
+
     // Generate share token for private leagues
     let shareToken = null
-    if (body.isPrivate) {
+    if (isPrivate) {
       // Generate 32-character hex token (16 bytes = 32 hex chars)
       shareToken = generateShareToken()
     }
@@ -65,7 +68,7 @@ export default defineEventHandler(async (event) => {
       endDate: body.endDate || null,
       currentRound: 1,
       createdBy: user.id, // ✅ Use authenticated user ID from session
-      isPrivate: body.isPrivate ?? false,
+      isPrivate,
       shareToken,
       maxPlayers: body.maxPlayers || null,
       status: 'active'
