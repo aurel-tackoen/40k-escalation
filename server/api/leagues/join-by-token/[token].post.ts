@@ -82,13 +82,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if user is already an active member
+    // Check if user has ANY membership (active or inactive)
     const existingMember = await db.select()
       .from(leagueMemberships)
       .where(and(
         eq(leagueMemberships.leagueId, league[0].id),
-        eq(leagueMemberships.userId, userId),
-        eq(leagueMemberships.status, 'active')
+        eq(leagueMemberships.userId, userId)
       ))
       .limit(1)
 
@@ -106,11 +105,31 @@ export default defineEventHandler(async (event) => {
     })
 
     if (existingMember[0]) {
-      // User already member, just return league info
-      return {
-        success: true,
-        data: league[0],
-        message: 'You are already a member of this league'
+      // If membership is active, user is already a member
+      if (existingMember[0].status === 'active') {
+        return {
+          success: true,
+          data: league[0],
+          message: 'You are already a member of this league'
+        }
+      }
+
+      // If membership is inactive, REACTIVATE it
+      if (existingMember[0].status === 'inactive') {
+        await db.update(leagueMemberships)
+          .set({
+            status: 'active',
+            leftAt: null
+          })
+          .where(eq(leagueMemberships.id, existingMember[0].id))
+
+        return {
+          success: true,
+          data: league[0],
+          message: 'Successfully rejoined the league!',
+          reactivated: true,
+          existingPlayerId: existingMember[0].playerId // Return existing player ID if any
+        }
       }
     }
 

@@ -59,7 +59,7 @@
         joinStatus.value = 'success'
 
         // Show success toast immediately
-        toastSuccess('Successfully joined the league!')
+        toastSuccess(response.message || 'Successfully joined the league!')
 
         // Refresh user's leagues and switch to the new league
         try {
@@ -72,8 +72,13 @@
           // The user will see the league in their switcher anyway
         }
 
-        // Show player creation modal
-        showCreatePlayerModal.value = true
+        // Only show player creation modal if this is a NEW join (not a reactivation with existing player)
+        if (!response.reactivated || !response.existingPlayerId) {
+          showCreatePlayerModal.value = true
+        } else {
+          // User rejoined with existing player - go directly to dashboard
+          router.push('/dashboard')
+        }
       }
     } catch (error) {
       console.error('Error in joinLeague:', error)
