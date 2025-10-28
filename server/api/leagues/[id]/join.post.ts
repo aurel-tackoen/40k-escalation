@@ -81,7 +81,8 @@ export default defineEventHandler(async (event) => {
             .update(players)
             .set({
               name: body.playerName,
-              faction: body.faction
+              faction: body.faction,
+              armyName: body.armyName // ✅ Update army name when rejoining
             })
             .where(eq(players.id, playerId))
         } else {

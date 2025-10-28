@@ -373,9 +373,6 @@
             <UserCheck :size="18" />
             {{ isCurrentUserPlayer ? 'Update Profile' : 'Join League' }}
           </button>
-          <button type="button" @click="resetForm" class="btn-secondary">
-            Reset
-          </button>
         </div>
       </form>
     </div>
