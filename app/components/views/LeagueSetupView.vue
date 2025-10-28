@@ -626,7 +626,7 @@
 
           <button
             type="button"
-            @click="editableLeague.rules = generatedRules"
+            @click="() => { editableLeague.rules = generatedRules; toastSuccess('Rules reset to default template!') }"
             :disabled="!generatedRules"
             class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto"
             :class="{ 'opacity-50 cursor-not-allowed': !generatedRules }"
