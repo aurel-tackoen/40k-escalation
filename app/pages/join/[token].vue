@@ -54,19 +54,29 @@
       if (response.message?.includes('already a member')) {
         joinStatus.value = 'already_member'
       } else {
-        // Refresh user's leagues and switch to the new league
-        await leaguesStore.fetchMyLeagues()
-        await leaguesStore.switchLeague(response.data.id)
-
-        // Fetch factions for the league's game system
-        await leaguesStore.fetchGameSystemData()
-
-        // Store the league ID and show player creation modal
+        // Store the league ID first
         joinedLeagueId.value = response.data.id
         joinStatus.value = 'success'
+
+        // Show success toast immediately
+        toastSuccess('Successfully joined the league!')
+
+        // Refresh user's leagues and switch to the new league
+        try {
+          await leaguesStore.fetchMyLeagues()
+          await leaguesStore.switchLeague(response.data.id)
+          await leaguesStore.fetchGameSystemData()
+        } catch (storeError) {
+          console.error('Error fetching league data after join:', storeError)
+          // Don't fail - the join was successful, just log the error
+          // The user will see the league in their switcher anyway
+        }
+
+        // Show player creation modal
         showCreatePlayerModal.value = true
       }
     } catch (error) {
+      console.error('Error in joinLeague:', error)
       if (error.statusCode === 401) {
         joinStatus.value = 'not_authenticated'
       } else if (error.statusCode === 400 && error.data?.message?.includes('already a member')) {
@@ -82,6 +92,12 @@
 
   // Handle player creation from modal
   const handleCreatePlayer = async (playerData) => {
+    // Prevent double submission
+    if (creatingPlayer.value) {
+      console.log('Player creation already in progress, ignoring duplicate call')
+      return
+    }
+
     creatingPlayer.value = true
     try {
       // Get current league ID
@@ -310,7 +326,7 @@
       </div>
 
       <!-- Error State -->
-      <div v-else class="text-center">
+      <div v-else-if="joinStatus === 'error'" class="text-center">
         <div class="card">
           <AlertCircle class="text-red-500 mx-auto mb-4" :size="48" />
           <h2 class="text-xl font-semibold text-gray-100 mb-2">Unable to Join</h2>
@@ -328,6 +344,7 @@
     <!-- Create Player Modal -->
     <CreatePlayerModal
       :show="showCreatePlayerModal"
+      :is-loading="creatingPlayer"
       :league-name="league?.name || ''"
       :user-name="authStore.user?.name || ''"
       :available-factions="leaguesStore.factions"

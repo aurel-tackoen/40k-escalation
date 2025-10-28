@@ -350,8 +350,8 @@
             </select>
           </div>
 
-          <!-- Army Name Field (only show when updating active profile) -->
-          <div v-if="isCurrentUserPlayer">
+          <!-- Army Name Field -->
+          <div>
             <label class="block text-sm font-semibold text-yellow-500 mb-2 flex items-center gap-2">
               Army Name
             </label>
