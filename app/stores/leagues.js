@@ -216,9 +216,9 @@ export const useLeaguesStore = defineStore('leagues', {
     // ==================== League Management ====================
 
     /**
-     * Fetch all leagues the user is a member of
+     * Fetch user's leagues (leagues they are a member of)
      */
-    async fetchMyLeagues() {
+    async fetchMyLeagues(options = {}) {
       this.loading = true
       this.error = null
       try {
@@ -237,7 +237,8 @@ export const useLeaguesStore = defineStore('leagues', {
           this.myLeagues = response.data
 
           // If no league selected but user has leagues, select first one
-          if (!this.currentLeagueId && this.myLeagues.length > 0) {
+          // Skip auto-selection during initialization (will be handled by initialize() after localStorage check)
+          if (!this.currentLeagueId && this.myLeagues.length > 0 && !options.skipAutoSelect) {
             await this.switchLeague(this.myLeagues[0].id)
           }
         }
@@ -247,9 +248,7 @@ export const useLeaguesStore = defineStore('leagues', {
       } finally {
         this.loading = false
       }
-    },
-
-    /**
+    },    /**
      * Fetch all public leagues available to join
      * Server will mark leagues the user has already joined with isJoined flag
      */
@@ -937,63 +936,41 @@ export const useLeaguesStore = defineStore('leagues', {
       // Fetch game systems first (needed for all leagues)
       await this.fetchGameSystems()
 
-      // Fetch user's leagues FIRST before checking localStorage
-      await this.fetchMyLeagues()
-
-      // After fetching leagues, validate localStorage league ID
+      // Check localStorage BEFORE fetching leagues to preserve user's selection
+      let savedLeagueId = null
       if (import.meta.client) {
-        const savedLeagueId = localStorage.getItem('currentLeagueId')
-        if (savedLeagueId) {
-          const leagueId = parseInt(savedLeagueId)
-
-          // Check if the saved league is still in user's leagues
-          const isValidLeague = this.myLeagues.some(l => l.id === leagueId)
-
-          if (isValidLeague) {
-            // Valid league from localStorage, switch to it
-            this.currentLeagueId = leagueId
-          } else {
-            // Invalid league (user left it), clear localStorage
-            localStorage.removeItem('currentLeagueId')
-            this.currentLeagueId = null
-
-            // If user has other leagues, switch to first one
-            if (this.myLeagues.length > 0) {
-              await this.switchLeague(this.myLeagues[0].id)
-            }
-          }
+        const saved = localStorage.getItem('currentLeagueId')
+        if (saved) {
+          savedLeagueId = parseInt(saved)
         }
       }
 
-      // Fetch league data if a league is selected
-      if (this.currentLeagueId) {
-        // Fetch league details if not cached
-        if (!this.leagues[this.currentLeagueId]) {
-          try {
-            const response = await $fetch(`/api/leagues/${this.currentLeagueId}`)
-            if (response.success) {
-              this.leagues[this.currentLeagueId] = response.data
-            }
-          } catch (error) {
-            console.error('Error fetching league details:', error)
+      // Fetch user's leagues (skip auto-select, we'll handle it below)
+      await this.fetchMyLeagues({ skipAutoSelect: true })
+
+      // After fetching leagues, validate and restore from localStorage
+      if (savedLeagueId) {
+        // Check if the saved league is still in user's leagues
+        const isValidLeague = this.myLeagues.some(l => l.id === savedLeagueId)
+
+        if (isValidLeague) {
+          // Valid league from localStorage, switch to it
+          await this.switchLeague(savedLeagueId)
+        } else {
+          // Invalid league (user left it), clear localStorage
+          if (import.meta.client) {
+            localStorage.removeItem('currentLeagueId')
+          }
+          this.currentLeagueId = null
+
+          // If user has other leagues, switch to first one
+          if (this.myLeagues.length > 0) {
+            await this.switchLeague(this.myLeagues[0].id)
           }
         }
-
-        // Set current game system
-        const league = this.leagues[this.currentLeagueId]
-        if (league?.gameSystemId) {
-          this.currentGameSystem = this.gameSystems.find(gs => gs.id === league.gameSystemId)
-
-          // Fetch factions and missions for this game system
-          await Promise.all([
-            this.fetchFactions(league.gameSystemId),
-            this.fetchMissions(league.gameSystemId),
-            this.fetchUnitTypes(league.gameSystemId)
-          ])
-        }
-
-        // Fetch all league data
-        await this.fetchLeagueData()
+      } else if (this.myLeagues.length > 0) {
+        // No saved league but user has leagues, switch to first one
+        await this.switchLeague(this.myLeagues[0].id)
       }
 
       // Mark as initialized
