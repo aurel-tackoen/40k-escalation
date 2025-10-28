@@ -10,7 +10,9 @@ const COMMON_RULES = {
 
 Welcome to the ${gameSystemName} escalation league! Please read these rules carefully to ensure a fair and enjoyable experience for all participants.
 
----`,
+---
+
+`,
 
   armyBuilding: `## Army Building
 
@@ -35,7 +37,9 @@ Welcome to the ${gameSystemName} escalation league! Please read these rules care
 - Track your painting progress in the Army Lists section
 - Fully painted armies earn bonus glory (and bragging rights!)
 
----`,
+---
+
+`,
 
   matchScheduling: `### Playing Matches
 - Each player must complete **at least one match per round**
@@ -53,7 +57,9 @@ Welcome to the ${gameSystemName} escalation league! Please read these rules care
 - The organizer's ruling is final
 - *Remember: This is about fun and community!*
 
----`,
+---
+
+`,
 
   leagueStandings: `## League Standings
 
@@ -62,7 +68,9 @@ Welcome to the ${gameSystemName} escalation league! Please read these rules care
 - Top 3 players receive recognition and eternal glory
 - Special awards may be given for painting, sportsmanship, and narrative excellence
 
----`,
+---
+
+`,
 
   sportsmanship: `## Sportsmanship & Community
 
@@ -84,7 +92,9 @@ Welcome to the ${gameSystemName} escalation league! Please read these rules care
 - Respect the venue and leave play areas clean
 - Report any issues to the league organizer promptly
 
----`,
+---
+
+`,
 
   support: `## Questions & Support
 
@@ -115,7 +125,9 @@ Match results translate to League Points for standings:
 
 > **Tiebreaker:** If players have equal League Points, rankings are determined by total ${pointsLabel} scored across all matches.
 
----`,
+---
+
+`,
 
     reporting: (pointsLabel) => `### Results Reporting
 - Results must be reported **within 48 hours** of match completion
@@ -123,7 +135,9 @@ Match results translate to League Points for standings:
 - Record ${pointsLabel} scored by each player and the mission played
 - Optional: Share photos or battle reports for extra community engagement!
 
----`,
+---
+
+`,
 
     standings: (pointsLabel) => `### Ranking System
 1. **Primary:** Total League Points (wins/draws)
@@ -131,7 +145,9 @@ Match results translate to League Points for standings:
 3. **Tiebreaker 2:** Head-to-head record
 4. **Tiebreaker 3:** Point differential in head-to-head matches
 
----`
+---
+
+`
   },
 
   percentage: {
@@ -165,7 +181,9 @@ Victory level translates to League Points:
 
 > **Tiebreaker:** If players have equal League Points, rankings are determined by total casualties inflicted across all matches.
 
----`,
+---
+
+`,
 
     reporting: () => `### Results Reporting
 - Results must be reported **within 48 hours** of match completion
@@ -174,7 +192,9 @@ Victory level translates to League Points:
 - Include the **margin of victory** and resulting victory level
 - Optional: Share photos or battle reports for extra community engagement!
 
----`,
+---
+
+`,
 
     standings: () => `### Ranking System
 1. **Primary:** Total League Points (based on victory levels)
@@ -182,7 +202,9 @@ Victory level translates to League Points:
 3. **Tiebreaker 2:** Head-to-head record
 4. **Tiebreaker 3:** Average margin of victory
 
----`
+---
+
+`
   },
 
   scenario: {
@@ -207,7 +229,9 @@ Match results translate to League Points for standings:
 
 > **Tiebreaker:** If players have equal League Points, rankings are determined by total wins, then total casualties inflicted.
 
----`,
+---
+
+`,
 
     reporting: () => `### Results Reporting
 - Results must be reported **within 48 hours** of match completion
@@ -217,7 +241,9 @@ Match results translate to League Points for standings:
 - Include the mission/scenario played
 - Optional: Share photos or battle reports for extra community engagement!
 
----`,
+---
+
+`,
 
     standings: () => `### Ranking System
 1. **Primary:** Total League Points (wins/draws)
@@ -225,7 +251,9 @@ Match results translate to League Points for standings:
 3. **Tiebreaker 2:** Head-to-head record
 4. **Tiebreaker 3:** Total casualties inflicted
 
----`
+---
+
+`
   }
 }
 
