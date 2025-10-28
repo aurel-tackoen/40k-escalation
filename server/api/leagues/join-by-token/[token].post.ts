@@ -2,7 +2,7 @@ import { defineEventHandler, getRouterParam, createError } from 'h3'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import { eq, and, count } from 'drizzle-orm'
-import { leagues, leagueMemberships, players } from '../../../../db/schema'
+import { leagues, leagueMemberships } from '../../../../db/schema'
 import { isValidShareToken } from '../../../utils/tokens'
 
 export default defineEventHandler(async (event) => {
@@ -128,24 +128,13 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Add user to league as player
+    // Add user to league as member (player will be created separately via modal)
     await db.insert(leagueMemberships).values({
       leagueId: league[0].id,
       userId: userId,
       role: 'player',
       joinedAt: new Date(),
       status: 'active'
-    })
-
-    // Create a player record for this user in this league
-    await db.insert(players).values({
-      leagueId: league[0].id,
-      userId: userId,
-      name: sessionData.name || sessionData.email?.split('@')[0] || 'Player',
-      wins: 0,
-      losses: 0,
-      draws: 0,
-      totalPoints: 0
     })
 
     return {

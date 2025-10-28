@@ -3,6 +3,8 @@
   import { useGameSystems } from '~/composables/useGameSystems'
   import { useLeaguesStore } from '~/stores/leagues'
   import { useAuthStore } from '~/stores/auth'
+  import { useToast } from '~/composables/useToast'
+  import CreatePlayerModal from '~/components/CreatePlayerModal.vue'
 
   const route = useRoute()
   const router = useRouter()
@@ -10,12 +12,18 @@
   const leaguesStore = useLeaguesStore()
   const { gameSystems } = storeToRefs(leaguesStore)
   const { getGameSystemNameWithFallback } = useGameSystems(gameSystems)
+  const { toastSuccess, toastError } = useToast()
 
   const token = route.params.token
   const league = ref(null)
   const isJoining = ref(false)
   const joinStatus = ref('loading') // loading, success, error, already_member, ready, not_authenticated
   const errorMessage = ref('')
+
+  // Player creation modal state
+  const showCreatePlayerModal = ref(false)
+  const creatingPlayer = ref(false)
+  const joinedLeagueId = ref(null)
 
   // Fetch league info by token (without joining)
   const fetchLeagueInfo = async () => {
@@ -46,16 +54,17 @@
       if (response.message?.includes('already a member')) {
         joinStatus.value = 'already_member'
       } else {
-        joinStatus.value = 'success'
-
         // Refresh user's leagues and switch to the new league
         await leaguesStore.fetchMyLeagues()
         await leaguesStore.switchLeague(response.data.id)
 
-        // Redirect to dashboard after short delay
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 2000)
+        // Fetch factions for the league's game system
+        await leaguesStore.fetchGameSystemData()
+
+        // Store the league ID and show player creation modal
+        joinedLeagueId.value = response.data.id
+        joinStatus.value = 'success'
+        showCreatePlayerModal.value = true
       }
     } catch (error) {
       if (error.statusCode === 401) {
@@ -69,6 +78,61 @@
     } finally {
       isJoining.value = false
     }
+  }
+
+  // Handle player creation from modal
+  const handleCreatePlayer = async (playerData) => {
+    creatingPlayer.value = true
+    try {
+      // Get current league ID
+      const leagueId = joinedLeagueId.value
+      if (!leagueId) {
+        throw new Error('No league selected')
+      }
+
+      // Create player with league ID and user ID
+      const playerResponse = await $fetch('/api/players', {
+        method: 'POST',
+        body: {
+          leagueId: leagueId,
+          userId: authStore.user.id,
+          name: playerData.name,
+          faction: playerData.faction,
+          armyName: playerData.armyName
+        }
+      })
+
+      if (playerResponse.success) {
+        // Update league membership with player ID
+        const membershipResponse = await $fetch(`/api/leagues/${leagueId}/members/${authStore.user.id}`, {
+          method: 'PUT',
+          body: {
+            playerId: playerResponse.data.id
+          }
+        })
+
+        if (membershipResponse.success) {
+          // Refresh league data to get the new player
+          await leaguesStore.fetchLeagueData()
+
+          // Close modal and redirect to dashboard
+          showCreatePlayerModal.value = false
+          toastSuccess('Player profile created successfully!')
+          router.push('/dashboard')
+        }
+      }
+    } catch (err) {
+      console.error('Error creating player:', err)
+      toastError('Failed to create player profile: ' + (err.message || 'Unknown error'))
+    } finally {
+      creatingPlayer.value = false
+    }
+  }
+
+  // Handle skip player creation
+  const handleSkipPlayer = () => {
+    showCreatePlayerModal.value = false
+    router.push('/dashboard')
   }
 
   // Login and redirect to this page
@@ -195,12 +259,12 @@
       </div>
 
       <!-- Success State -->
-      <div v-else-if="joinStatus === 'success'" class="text-center">
+      <div v-else-if="joinStatus === 'success' && !showCreatePlayerModal" class="text-center">
         <div class="card">
           <CheckCircle class="text-green-500 mx-auto mb-4" :size="48" />
-          <h2 class="text-xl font-semibold text-gray-100 mb-2">Welcome to the League!</h2>
-          <p class="text-gray-400 mb-4">You've successfully joined "{{ league?.name }}"</p>
-          <p class="text-sm text-green-400">Redirecting to dashboard...</p>
+          <h2 class="text-xl font-semibold text-gray-100 mb-2">Successfully Joined!</h2>
+          <p class="text-gray-400 mb-4">You've joined "{{ league?.name }}"</p>
+          <p class="text-sm text-gray-400">Setting up your player profile...</p>
         </div>
       </div>
 
@@ -260,5 +324,17 @@
         </div>
       </div>
     </div>
+
+    <!-- Create Player Modal -->
+    <CreatePlayerModal
+      :show="showCreatePlayerModal"
+      :league-name="league?.name || ''"
+      :user-name="authStore.user?.name || ''"
+      :available-factions="leaguesStore.factions"
+      :game-system="league ? gameSystems.find(gs => gs.id === league.gameSystemId) : null"
+      @create-player="handleCreatePlayer"
+      @skip="handleSkipPlayer"
+      @close="handleSkipPlayer"
+    />
   </div>
 </template>
