@@ -83,7 +83,6 @@
     // Sort rounds by number
     editableLeague.value.rounds.sort((a, b) => a.number - b.number)
     emit('update-league', editableLeague.value)
-
     toastSuccess('League settings saved successfully!')
   }
 
@@ -523,7 +522,7 @@
             <button
               v-if="editableLeague.rounds.length > 1"
               @click="removeRound(index)"
-              class="text-red-400 hover:text-red-300 transition-colors"
+              class="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
               title="Remove Round"
             >
               <Trash2 :size="20" />
