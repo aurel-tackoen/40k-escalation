@@ -61,6 +61,27 @@
       transform: translateY(0);
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3), 0 0 15px rgb(250 204 21 / 0.4);
     }
+    
+    &:disabled,
+    &.disabled {
+      cursor: not-allowed;
+      background: linear-gradient(135deg, rgb(75 85 99) 0%, rgb(55 65 81) 100%);
+      color: rgb(156 163 175);
+      border-color: rgb(75 85 99);
+      opacity: 0.6;
+      box-shadow: none;
+      
+      &::before {
+        display: none;
+      }
+      
+      &:hover {
+        background: linear-gradient(135deg, rgb(75 85 99) 0%, rgb(55 65 81) 100%);
+        border-color: rgb(75 85 99);
+        box-shadow: none;
+        transform: none;
+      }
+    }
   }
   
   .btn-secondary {
@@ -100,6 +121,27 @@
     &:active {
       transform: translateY(0);
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3), 0 0 15px rgb(185 28 28 / 0.4);
+    }
+    
+    &:disabled,
+    &.disabled {
+      cursor: not-allowed;
+      background: linear-gradient(135deg, rgb(75 85 99) 0%, rgb(55 65 81) 100%);
+      color: rgb(156 163 175);
+      border-color: rgb(75 85 99);
+      opacity: 0.6;
+      box-shadow: none;
+      
+      &::before {
+        display: none;
+      }
+      
+      &:hover {
+        background: linear-gradient(135deg, rgb(75 85 99) 0%, rgb(55 65 81) 100%);
+        border-color: rgb(75 85 99);
+        box-shadow: none;
+        transform: none;
+      }
     }
   }
 
@@ -141,6 +183,27 @@
       transform: translateY(0);
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3), 0 0 15px rgb(107 114 128 / 0.4);
     }
+    
+    &:disabled,
+    &.disabled {
+      cursor: not-allowed;
+      background: linear-gradient(135deg, rgb(55 65 81) 0%, rgb(31 41 55) 100%);
+      color: rgb(107 114 128);
+      border-color: rgb(55 65 81);
+      opacity: 0.5;
+      box-shadow: none;
+      
+      &::before {
+        display: none;
+      }
+      
+      &:hover {
+        background: linear-gradient(135deg, rgb(55 65 81) 0%, rgb(31 41 55) 100%);
+        border-color: rgb(55 65 81);
+        box-shadow: none;
+        transform: none;
+      }
+    }
   }
 
   .btn-league {
@@ -180,6 +243,27 @@
     
     &:active {
       transform: translateY(1px);
+    }
+    
+    &:disabled,
+    &.disabled {
+      cursor: not-allowed;
+      background: rgb(31 41 55);
+      color: rgb(75 85 99);
+      border-color: rgb(55 65 81);
+      opacity: 0.5;
+      box-shadow: none;
+      
+      &::before {
+        display: none;
+      }
+      
+      &:hover {
+        background: rgb(31 41 55);
+        border-color: rgb(55 65 81);
+        box-shadow: none;
+        transform: none;
+      }
     }
     
     &.active {
