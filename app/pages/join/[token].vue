@@ -340,8 +340,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Create Player Modal -->
     <CreatePlayerModal
       :show="showCreatePlayerModal"
       :is-loading="creatingPlayer"
