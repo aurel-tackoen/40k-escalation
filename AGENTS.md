@@ -57,10 +57,12 @@ A comprehensive full-stack web application for managing escalation league campai
 
 ### Project Status
 ✅ **PRODUCTION READY** - Complete feature set with zero technical debt
-- 14 reusable composables (100% coverage)
-- Full database integration with 38 API endpoints
+- 16 reusable composables (100% coverage)
+- Full database integration with 45+ API endpoints
 - **🔒 Comprehensive API Security** - Session-based auth with RBAC ⭐ NEW
 - Multi-game system support with dynamic factions/missions
+- **🎯 Automated Pairing System** - Swiss, Random, and Manual pairing with BYE handling ⭐ NEW
+- **📊 Advanced Standings** - Multi-level tiebreakers (SOS, H2H, point differential) ⭐ NEW
 - **Game-specific match types** - Victory Points (40k/AoS/HH), Percentage/Casualties (ToW), Scenario Objectives (MESBG)
 - **Game-specific league rules** - Dynamic rules generation per game system
 - **Share link system** for private league access (simplified from dual invite system)
@@ -123,14 +125,15 @@ app/                          # Nuxt 4 application directory
 │   ├── LoginButton.vue      # Auth0 login button
 │   ├── PaintingProgress.vue # Painting leaderboard widget
 │   ├── UserMenu.vue         # User profile menu
-│   └── views/               # View components (6 total)
+│   └── views/               # View components (7 total)
 │       ├── ArmyListsView.vue    # Army builder with validation & export
 │       ├── DashboardView.vue    # League overview & standings
 │       ├── LeagueSetupView.vue  # League configuration
 │       ├── MatchesView.vue      # Match recording with analytics
+│       ├── PairingsView.vue     # Pairing management (Swiss/Random/Manual) ⭐ NEW
 │       ├── PlayersView.vue      # Player management with export
 │       └── ProfileView.vue      # User profile editor
-├── composables/              # Reusable composition functions (14 total)
+├── composables/              # Reusable composition functions (16 total)
 │   ├── useArmyFiltering.js  # Army-specific filtering (new)
 │   ├── useArmyForm.js       # Army form management (new)
 │   ├── useArmyManagement.js # Army validation & escalation (15 functions)
@@ -144,9 +147,11 @@ app/                          # Nuxt 4 application directory
 │   ├── useMatchResults.js   # Match analytics (10 functions)
 │   ├── useMatchValidation.js # Game-specific match validation (4 functions)
 │   ├── usePaintingStats.js  # Painting calculations (8 functions)
+│   ├── usePairings.js       # Pairing algorithms (11 functions) ⭐ NEW
 │   ├── usePlayerLookup.js   # Player data lookups (4 functions)
 │   ├── usePlayerStats.js    # Player statistics (6 functions)
 │   ├── useRoundLookup.js    # Round data access (5 functions)
+│   ├── useStandings.js      # Advanced standings with tiebreakers (10 functions) ⭐ NEW
 │   └── useUser.js           # User profile management (new)
 ├── data/                     # Static reference data (NEW: Multi-game system)
 │   ├── default-rules.js     # Game-specific league rules generator ⭐ NEW
@@ -156,41 +161,50 @@ app/                          # Nuxt 4 application directory
 │   └── unit-types-by-system.js # 43 unit types across all systems
 ├── layouts/
 │   └── default.vue          # Default layout wrapper
-├── pages/                    # File-based routing (6 pages)
+├── pages/                    # File-based routing (7 pages)
 │   ├── index.vue            # Home/welcome page
 │   ├── dashboard.vue        # Main dashboard
 │   ├── players.vue          # Player management
 │   ├── armies.vue           # Army list builder
 │   ├── matches.vue          # Match recording
+│   ├── pairings.vue         # Pairing management ⭐ NEW
 │   ├── profile.vue          # User profile page (new)
 │   └── setup.vue            # League setup
 └── stores/
     ├── auth.js              # Auth store (user, login, logout)
-    └── leagues.js           # Multi-league Pinia store (game systems support, 800+ lines)
+    └── leagues.js           # Multi-league Pinia store with pairing support (1000+ lines) ⭐ UPDATED
+                            # New state: pairings[], leagueSettings
+                            # New getters: currentRoundPairings, unpairedPlayersCount, activePlayers
+                            # New actions: fetchPairings, generatePairings, createManualPairing, deletePairing,
+                            #              fetchLeagueSettings, updateLeagueSettings, togglePlayerActive
 
 db/                           # Database layer
 ├── index.ts                 # Neon database connection
-└── schema.ts                # Drizzle schema (8 tables, 80+ fields) - NEW: +3 tables
+└── schema.ts                # Drizzle schema (10 tables, 100+ fields) - NEW: +3 tables (pairings, league_settings, updated players)
 
-server/api/                   # Nitro API routes (40 endpoints)
+server/api/                   # Nitro API routes (45+ endpoints)
 ├── armies.*.ts              # Army management (3 endpoints: GET, POST, DELETE)
 ├── auth/*.ts                # Auth0 authentication (4 endpoints: login, logout, callback, user)
 ├── debug*.ts                # Debug utilities (3 endpoints: main, token check, memberships)
 ├── factions.get.ts          # GET /api/factions (game system filtering)
 ├── game-systems.get.ts      # GET /api/game-systems
 ├── health.get.ts            # GET /api/health (system check)
+├── league-settings/*.ts     # League settings (2 endpoints: GET, PUT) ⭐ NEW
 ├── leagues/*.ts             # League management (14 endpoints: CRUD, join, members, sharing)
 ├── matches.*.ts             # Match recording (2 endpoints: GET, POST)
 ├── missions.get.ts          # GET /api/missions (game system filtering)
-├── players.*.ts             # Player management (4 endpoints: GET, POST, PUT, DELETE)
+├── pairings/*.ts            # Pairing management (4 endpoints: generate, get, manual, delete) ⭐ NEW
+├── players.*.ts             # Player management (5 endpoints: GET, POST, PUT, DELETE, toggle-active) ⭐ UPDATED
 ├── seed-game-systems.post.ts # Data seeding (game systems, factions, missions)
 └── users/me.*.ts            # User profile (2 endpoints: GET, PUT)
 
-migrations/                   # Drizzle ORM migrations (5 migrations)
+migrations/                   # Drizzle ORM migrations (21 migrations)
 ├── 0000_aspiring_molly_hayes.sql
 ├── 0001_military_giant_girl.sql
 ├── 0002_open_thundra.sql
 ├── 0003_lumpy_mockingbird.sql
+├── ...
+├── 0020_slimy_zaladane.sql  # Pairing system migration ⭐ NEW
 └── meta/                    # Migration metadata & snapshots
 
 guide/                        # Comprehensive documentation (20 files)
@@ -431,14 +445,28 @@ Painting progress calculations and visualization
 - `calculatePaintingLeaderboard(players, armies, round)` - Rankings
 - `getAverageArmyCompletion(armies)` - League-wide average
 
-#### 13. **usePlayerLookup.js** (4 functions)
+#### 13. **usePairings.js** (11 functions) ⭐ NEW
+Pairing algorithms and BYE handling
+- `generateSwissPairings(players, matches, round)` - Swiss pairing algorithm (pairs similar records, avoids rematches)
+- `generateRandomPairings(players, round)` - Random shuffled pairings
+- `createManualPairing(player1Id, player2Id, round)` - Organizer-created pairing
+- `selectByePlayer(players, matches)` - Select player for BYE (fairness-based rotation)
+- `getActivePlayers(players, round)` - Filter active players for current round
+- `getUnpairedPlayers(players, pairings)` - Find players without pairings
+- `hasPlayedBefore(p1Id, p2Id, matches)` - Check for previous match
+- `getPreviousByes(playerId, pairings)` - Count player's BYEs
+- `isPairingValid(player1Id, player2Id, matches)` - Validate pairing (no rematches)
+- `formatPairingForDisplay(pairing, players)` - Format pairing for UI
+- `getPairingStatus(pairing, matches)` - Get pairing status (pending/completed)
+
+#### 14. **usePlayerLookup.js** (4 functions)
 Player data access helpers
 - `getPlayerName(playerId)` - Get player name
 - `getPlayerFaction(playerId)` - Get player faction
 - `getPlayerById(playerId)` - Get full player object
 - `getPlayersByFaction(faction)` - Filter by faction
 
-#### 14. **usePlayerStats.js** (6 functions)
+#### 15. **usePlayerStats.js** (6 functions)
 Player statistics and rankings
 - `calculateWinPercentage(player)` - Win % with safety
 - `getTotalGames(player)` - Total games played
@@ -447,13 +475,26 @@ Player statistics and rankings
 - `getPlayerStats(playerId, matches)` - Detailed statistics
 - `comparePlayerStats(p1Id, p2Id, players, matches)` - Compare two
 
-#### 15. **useRoundLookup.js** (5 functions)
+#### 16. **useRoundLookup.js** (5 functions)
 Round data access and validation
 - `getRoundByNumber(roundNumber)` - Get round object
 - `getRoundName(roundNumber)` - Get round name
 - `getRoundPointLimit(roundNumber)` - Get point limit
 - `isValidRound(roundNumber)` - Check if round exists
 - `getCurrentRound()` - Get active round
+
+#### 17. **useStandings.js** (10 functions) ⭐ NEW
+Advanced standings calculation with multi-level tiebreakers
+- `calculateStandings(players, matches)` - Calculate complete standings with all tiebreakers
+- `calculateSOS(playerId, players, matches)` - Strength of Schedule calculation
+- `getHeadToHead(p1Id, p2Id, matches)` - Head-to-head record between two players
+- `calculatePointDifferential(playerId, matches)` - Total point differential
+- `calculateTotalPointsScored(playerId, matches)` - Total points scored across all matches
+- `applyTiebreakers(standings)` - Apply multi-level tiebreaker rules
+- `getTiebreakerInfo(player, players, matches)` - Get all tiebreaker values for player
+- `sortByTiebreakers(players, matches)` - Sort players by tiebreaker priority
+- `getStandingsWithRank(players, matches)` - Get standings with explicit rank numbers
+- `formatStandingsForExport(standings)` - Format standings for CSV export
 
 ---
 
@@ -540,7 +581,7 @@ Round data access and validation
 }
 ```
 
-#### 4. **players** (Player Registration)
+#### 7. **players** (Player Registration)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -554,10 +595,15 @@ Round data access and validation
   draws: integer - Total draws (default: 0)
   totalPoints: integer - Battle points earned (default: 0)
   createdAt: timestamp - Registration date
+  
+  // ⭐ NEW: Pairing system fields
+  isActive: boolean - Active status for pairings (default: true)
+  joinedRound: integer - Round when player joined (default: 1)
+  leftRound: integer - Round when player left (optional, null if active)
 }
 ```
 
-#### 5. **matches** (Battle Results)
+#### 8. **matches** (Battle Results)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -594,7 +640,45 @@ Round data access and validation
 }
 ```
 
-#### 6. **armies** (Army Lists)
+#### 9. **pairings** (Match Pairings) ⭐ NEW
+```typescript
+{
+  id: integer (PK, auto-increment)
+  leagueId: integer (FK -> leagues.id) - League reference
+  round: integer - Round number
+  player1Id: integer (FK -> players.id) - First player
+  player2Id: integer (FK -> players.id, optional) - Second player (null for BYE)
+  matchId: integer (FK -> matches.id, optional) - Linked match result
+  status: varchar(50) - Status: 'pending', 'completed', 'cancelled' (default: 'pending')
+  isBye: boolean - Is this a BYE pairing (default: false)
+  generatedBy: varchar(50) - Generation method: 'swiss', 'random', 'manual' (default: 'manual')
+  dueDate: date - Deadline for match completion (optional)
+  createdAt: timestamp - Creation timestamp
+}
+```
+
+#### 10. **league_settings** (League Pairing Settings) ⭐ NEW
+```typescript
+{
+  id: integer (PK, auto-increment)
+  leagueId: integer (FK -> leagues.id, unique) - One settings per league
+  pairingMethod: varchar(50) - Default method: 'swiss', 'random', 'manual' (default: 'swiss')
+  allowRematches: boolean - Allow repeat matchups (default: false)
+  autoAdvanceRound: boolean - Auto-advance after all matches complete (default: false)
+  defaultDueDateDays: integer - Default days until match due (default: 7)
+  byeRotation: varchar(50) - BYE assignment: 'fairest', 'bottom_standing', 'random' (default: 'fairest')
+  tiebreaker1: varchar(50) - 1st tiebreaker: 'wins', 'point_differential', 'sos', 'total_points' (default: 'wins')
+  tiebreaker2: varchar(50) - 2nd tiebreaker (default: 'point_differential')
+  tiebreaker3: varchar(50) - 3rd tiebreaker (default: 'sos')
+  tiebreaker4: varchar(50) - 4th tiebreaker (default: 'total_points')
+  useHeadToHead: boolean - Use H2H before other tiebreakers (default: true)
+  notifyOnPairing: boolean - Notify players when paired (default: false)
+  createdAt: timestamp - Settings creation
+  updatedAt: timestamp - Last settings update
+}
+```
+
+#### 11. **armies** (Army Lists)
 ```typescript
 {
   id: integer (PK, auto-increment)
@@ -681,11 +765,49 @@ All endpoints follow RESTful conventions and return JSON. All **protected** endp
 - `POST /api/players` - Create player (membership required)
 - `PUT /api/players/:id` - Update player (membership required)
 - `DELETE /api/players/:id` - Delete player (owner/organizer OR self)
+- `PATCH /api/players/:id/toggle-active` - Toggle player active status (owner/organizer only) ⭐ NEW
 
 ### 🔐 Armies API (Protected)
 - `GET /api/armies?leagueId=X` - List armies (membership required)
 - `POST /api/armies` - Create army (membership required)
 - `DELETE /api/armies/:id` - Delete army (owner/organizer OR self)
+
+### 🔐 Pairings API (Protected) ⭐ NEW
+- `GET /api/pairings/:leagueId` - List pairings for league (membership required)
+- `POST /api/pairings/generate` - Generate pairings (owner/organizer only)
+  ```json
+  {
+    "leagueId": 1,
+    "round": 1,
+    "method": "swiss"  // "swiss", "random", or "manual"
+  }
+  ```
+- `POST /api/pairings/manual` - Create manual pairing (owner/organizer only)
+  ```json
+  {
+    "leagueId": 1,
+    "round": 1,
+    "player1Id": 1,
+    "player2Id": 2  // null for BYE
+  }
+  ```
+- `DELETE /api/pairings/:id` - Delete pairing (owner/organizer only)
+
+### 🔐 League Settings API (Protected) ⭐ NEW
+- `GET /api/league-settings/:leagueId` - Get league settings (membership required)
+- `PUT /api/league-settings/:leagueId` - Update league settings (owner/organizer only)
+  ```json
+  {
+    "pairingMethod": "swiss",
+    "allowRematches": false,
+    "byeRotation": "fairest",
+    "tiebreaker1": "wins",
+    "tiebreaker2": "point_differential",
+    "tiebreaker3": "sos",
+    "tiebreaker4": "total_points",
+    "useHeadToHead": true
+  }
+  ```
 
 ### 🔐 Matches API (Protected)
 - `GET /api/matches?leagueId=X` - List matches (membership required)
@@ -838,7 +960,79 @@ emit('delete-army', armyId)
 - ⚔️ **Close Game** - Point diff ≤ 10 (VP), Margin < 5% (ToW), Both/neither complete objective (MESBG)
 - 🏆 **Standard Win** - Everything else
 
-### 5. **LeagueSetupView.vue** (League Configuration)
+### 5. **PairingsView.vue** (Pairing Management) ⭐ NEW
+**Purpose**: View and manage match pairings with automated pairing generation
+
+**Composables Used**:
+- `usePairings` - Pairing algorithms and BYE handling
+- `usePlayerLookup` - Get player names
+- `useStandings` - Calculate standings for Swiss pairing
+- `useLeaguesStore` - State management
+- `useToast` - User notifications
+
+**Key Features**:
+- **Automated Pairing Generation**
+  - **Swiss Pairing** - Pairs players with similar records, avoids rematches
+  - **Random Pairing** - Random shuffled assignments
+  - Suggested method badge based on league settings
+- **Manual Pairing** - Organizer can manually pair any two players
+- **BYE Handling** - Automatic BYE assignment for odd player count with fairness rotation
+- **Pairing List** - Shows all pairings with VS/BYE indicators
+- **Status Badges** - Pending (gray), Completed (green), Cancelled (red)
+- **Active Player Filtering** - Only active players included in pairings
+- **Unpaired Players Count** - Shows how many players need pairing
+- **Delete Confirmation** - Modal for removing pairings
+- **Linked Matches** - Can navigate to completed match results
+
+**Props**:
+```javascript
+{
+  players: Array,   // All players
+  pairings: Array,  // All pairings
+  matches: Array    // All matches for status checking
+}
+```
+
+**Events Emitted**:
+```javascript
+emit('generate-pairings', { round, method })
+emit('add-manual-pairing', { player1Id, player2Id, round })
+emit('delete-pairing', pairingId)
+```
+
+### 6. **PlayersView.vue** (Player Management) ⭐ UPDATED
+**Purpose**: Add, view, and manage players with export and status toggle
+
+**Composables Used**:
+- `usePaintingStats` - Calculate painting progress
+- `usePlayerStats` - Calculate win %
+- `useConfirmation` - Delete confirmations
+- `useFormManagement` - Form state & validation
+- `useDataExport` - CSV export
+- `useLeaguesStore` - Dynamic factions by game system
+
+**Key Features**:
+- Add player form with validation (name, faction, army name)
+- Dynamic faction dropdown (shows factions for current game system)
+- **Player Active/Inactive Toggle** ⭐ NEW
+  - Play/Pause icon buttons (organizer/owner only)
+  - Visual inactive badge with "Left Round X" indicator
+  - Confirmation modal for status changes
+  - Excludes inactive players from future pairings
+- Player cards with faction, record, and painting progress
+- Export to CSV (includes win %, all stats)
+- Delete with confirmation
+- Trophy icon header
+- Form auto-reset after submission
+
+**Events Emitted**:
+```javascript
+emit('add-player', { name, faction, armyName })
+emit('delete-player', playerId)
+emit('toggle-player-status', playerId)
+```
+
+### 7. **LeagueSetupView.vue** (League Configuration)
 **Purpose**: Configure league settings and rounds
 
 **Key Features**:
@@ -853,7 +1047,7 @@ emit('delete-army', armyId)
 emit('save-league', leagueData)
 ```
 
-### 6. **PaintingProgress.vue** (Painting Leaderboard Widget)
+### 8. **PaintingProgress.vue** (Painting Leaderboard Widget)
 **Purpose**: Display painting completion rankings
 
 **Props**:
@@ -1211,9 +1405,11 @@ git push origin main
 
 - ✅ **Zero Technical Debt** - Clean architecture, no known issues
 - ✅ **Zero Lint Errors** - ESLint 9 strict compliance
-- ✅ **100% Composable Coverage** - 13/13 composables implemented
-- ✅ **Full Database Integration** - PostgreSQL + Drizzle ORM
-- ✅ **Complete API Layer** - 17 RESTful endpoints
+- ✅ **100% Composable Coverage** - 17/17 composables implemented
+- ✅ **Full Database Integration** - PostgreSQL + Drizzle ORM (10 tables)
+- ✅ **Complete API Layer** - 45+ RESTful endpoints
+- ✅ **🎯 Automated Pairing System** - Swiss, Random, and Manual pairing with BYE handling ⭐ NEW
+- ✅ **📊 Advanced Standings** - Multi-level tiebreakers (Wins → Point Diff → SOS → Total Points) ⭐ NEW
 - ✅ **Multi-Game System Support** - 5 Warhammer game systems (139 factions, 69 missions, 43 unit types)
 - ✅ **Game-Specific Match Types** - Victory Points, Percentage/Casualties, Scenario Objectives
 - ✅ **CSV Export Everywhere** - Players, armies, matches (with match type-specific columns)

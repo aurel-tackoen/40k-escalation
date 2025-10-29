@@ -38,7 +38,11 @@ export default defineEventHandler(async (event) => {
         totalPoints: players.totalPoints,
         createdAt: players.createdAt,
         membershipStatus: leagueMemberships.status,
-        leftAt: leagueMemberships.leftAt
+        leftAt: leagueMemberships.leftAt,
+        // ⭐ NEW: Pairing system fields
+        isActive: players.isActive,
+        joinedRound: players.joinedRound,
+        leftRound: players.leftRound
       })
       .from(players)
       .leftJoin(
