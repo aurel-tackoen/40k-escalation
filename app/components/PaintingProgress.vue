@@ -1,5 +1,5 @@
 <script setup>
-  import { Brush, TrendingUp } from 'lucide-vue-next'
+  import { Brush, TrendingUp, Star } from 'lucide-vue-next'
   import { usePaintingStats } from '~/composables/usePaintingStats'
 
   defineProps({
@@ -98,8 +98,9 @@
             </div>
           </div>
 
-          <div v-if="entry.percentage === 100" class="mt-2 text-purple-400 text-xs font-semibold text-right">
-            ✨ Fully Painted!
+          <div v-if="entry.percentage === 100" class="mt-2 text-purple-400 text-xs font-semibold text-right flex items-center justify-end gap-1">
+            <Star :size="14" />
+            Fully Painted!
           </div>
         </div>
       </div>
