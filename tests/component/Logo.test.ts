@@ -92,7 +92,7 @@ describe('Logo', () => {
       // Mobile icon
       const mobileIcon = wrapper.find('.sm\\:hidden.sword-icon-chrome')
       expect(mobileIcon.exists()).toBe(true)
-      
+
       // Desktop icon
       const desktopIcon = wrapper.find('.hidden.sm\\:block.sword-icon-chrome')
       expect(desktopIcon.exists()).toBe(true)
