@@ -5,6 +5,8 @@
   import { useLeagueRules } from '~/composables/useLeagueRules'
   import { usePlaceholders } from '~/composables/usePlaceholders'
   import { useToast } from '~/composables/useToast'
+  import { useRoundGenerator } from '~/composables/useRoundGenerator'
+  import { useLeagueFormValidation } from '~/composables/useLeagueFormValidation'
   import { Plus, X, Calendar, Lock, Swords, RefreshCw, FileText, Sparkles } from 'lucide-vue-next'
   import CreatePlayerModal from '~/components/CreatePlayerModal.vue'
 
@@ -12,6 +14,19 @@
   const authStore = useAuthStore()
   const { gameSystems } = storeToRefs(leaguesStore)
   const { toastSuccess, toastError } = useToast()
+
+  // Round generator composable
+  const {
+    autoConfig,
+    generateAutoRounds,
+    calculateLeagueEndDate,
+    createNextRound,
+    renumberRounds,
+    sanitizeRounds
+  } = useRoundGenerator()
+
+  // Form validation composable
+  const { validateLeagueForm, getFirstError } = useLeagueFormValidation()
 
   const form = reactive({
     name: '',
@@ -62,35 +77,16 @@
   const createdLeagueName = ref('')
   const creatingPlayer = ref(false)
 
-  // Auto-round configuration
-  const autoConfig = reactive({
-    startingPoints: 500,
-    pointsStep: 500,
-    numberOfRounds: 4,
-    weeksPerRound: 4
-  })
-
   const addRound = () => {
-    const lastRound = form.rounds[form.rounds.length - 1]
-    const nextNumber = lastRound.number + 1
-    const nextLimit = lastRound.pointLimit + 500
-
-    form.rounds.push({
-      number: nextNumber,
-      name: `${nextLimit} Points`,
-      pointLimit: nextLimit,
-      startDate: '',
-      endDate: ''
-    })
+    const newRound = createNextRound(form.rounds)
+    form.rounds.push(newRound)
   }
 
   const removeRound = (index) => {
     if (form.rounds.length > 1) {
       form.rounds.splice(index, 1)
       // Renumber remaining rounds
-      form.rounds.forEach((round, idx) => {
-        round.number = idx + 1
-      })
+      form.rounds = renumberRounds(form.rounds)
       // Update league end date
       updateLeagueEndDate()
     }
@@ -98,15 +94,9 @@
 
   // Auto-update league end date based on rounds
   const updateLeagueEndDate = () => {
-    if (form.rounds.length > 0) {
-      const roundsWithDates = form.rounds.filter(r => r.endDate)
-      if (roundsWithDates.length > 0) {
-        // Find the latest end date
-        const latestEndDate = roundsWithDates.reduce((latest, round) => {
-          return round.endDate > latest ? round.endDate : latest
-        }, roundsWithDates[0].endDate)
-        form.endDate = latestEndDate
-      }
+    const endDate = calculateLeagueEndDate(form.rounds)
+    if (endDate) {
+      form.endDate = endDate
     }
   }
 
@@ -115,109 +105,50 @@
     updateLeagueEndDate()
   }, { deep: true })
 
-  const generateAutoRounds = () => {
+  const handleGenerateAutoRounds = () => {
     if (!form.startDate || form.startDate === '') {
       error.value = 'Please set a league start date first'
       showAutoRoundModal.value = false
       return
     }
 
-    const startDate = new Date(form.startDate)
-    const generatedRounds = []
-    let currentDate = new Date(startDate)
-    let currentPoints = autoConfig.startingPoints
+    try {
+      const generatedRounds = generateAutoRounds(form.startDate, autoConfig.value)
 
-    for (let i = 0; i < autoConfig.numberOfRounds; i++) {
-      const roundStartDate = new Date(currentDate)
-      const roundEndDate = new Date(currentDate)
-      roundEndDate.setDate(roundEndDate.getDate() + (autoConfig.weeksPerRound * 7))
+      // Set league end date to last round's end
+      const lastRound = generatedRounds[generatedRounds.length - 1]
+      form.endDate = lastRound.endDate
 
-      generatedRounds.push({
-        number: i + 1,
-        name: `${currentPoints} Points`,
-        pointLimit: currentPoints,
-        startDate: roundStartDate.toISOString().split('T')[0],
-        endDate: roundEndDate.toISOString().split('T')[0]
-      })
+      // Update form rounds
+      form.rounds = generatedRounds
 
-      // Next round starts day after current ends
-      currentDate = new Date(roundEndDate)
-      currentDate.setDate(currentDate.getDate() + 1)
-      currentPoints += autoConfig.pointsStep
+      // Close modal
+      showAutoRoundModal.value = false
+      error.value = ''
+    } catch (err) {
+      error.value = err.message
     }
-
-    // Set league end date to last round's end
-    const lastRound = generatedRounds[generatedRounds.length - 1]
-    form.endDate = lastRound.endDate
-
-    // Update form rounds
-    form.rounds = generatedRounds
-
-    // Close modal
-    showAutoRoundModal.value = false
-    error.value = ''
   }
 
-  const validateForm = () => {
-    if (!form.name.trim()) {
-      error.value = 'League name is required'
+  const handleValidateForm = () => {
+    const validation = validateLeagueForm(form)
+    if (!validation.isValid) {
+      error.value = getFirstError(form)
       return false
     }
-
-    if (!form.gameSystemId) {
-      error.value = 'Game system selection is required'
-      return false
-    }
-
-    if (!form.startDate) {
-      error.value = 'Start date is required'
-      return false
-    }
-
-    // No additional validation needed for private leagues - invite codes are auto-generated
-
-    if (form.rounds.length === 0) {
-      error.value = 'At least one round is required'
-      return false
-    }
-
-    // Validate rounds
-    for (const round of form.rounds) {
-      if (!round.name.trim()) {
-        error.value = `Round ${round.number} name is required`
-        return false
-      }
-      if (!round.pointLimit || round.pointLimit <= 0) {
-        error.value = `Round ${round.number} must have a valid point limit`
-        return false
-      }
-      if (!round.startDate) {
-        error.value = `Round ${round.number} start date is required`
-        return false
-      }
-      if (!round.endDate) {
-        error.value = `Round ${round.number} end date is required`
-        return false
-      }
-    }
-
     error.value = ''
     return true
   }
 
   const handleSubmit = async () => {
-    if (!validateForm()) return
+    if (!handleValidateForm()) return
 
     loading.value = true
     error.value = ''
 
     try {
       // Sanitize rounds data - convert empty strings to null
-      const sanitizedRounds = form.rounds.map(round => ({
-        ...round,
-        startDate: round.startDate || null,
-        endDate: round.endDate || null
-      }))
+      const sanitizedRounds = sanitizeRounds(form.rounds)
 
       // Create league
       await leaguesStore.createLeague({
@@ -713,7 +644,7 @@
           </button>
           <button
             type="button"
-            @click="generateAutoRounds"
+            @click="handleGenerateAutoRounds"
             class="btn-primary flex items-center gap-2"
             :disabled="!form.startDate"
             :class="{ 'opacity-50 cursor-not-allowed': !form.startDate }"
