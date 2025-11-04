@@ -8,9 +8,10 @@
  * - Navigation to profile
  * - Logout functionality
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
 import { ref } from 'vue'
+import { createTestingPinia } from '@pinia/testing'
 import UserMenu from '~/components/UserMenu.vue'
 
 // Mock Nuxt's auto-imports
@@ -35,8 +36,41 @@ vi.mock('~/composables/useAuth', () => ({
   })
 }))
 
+// Mock Lucide icons
+vi.mock('lucide-vue-next', () => ({
+  User: { name: 'User', template: '<svg data-testid="user-icon"></svg>' },
+  ChevronDown: { name: 'ChevronDown', template: '<svg data-testid="chevron-down-icon"></svg>' },
+  LogOut: { name: 'LogOut', template: '<svg data-testid="logout-icon"></svg>' },
+  ShieldAlert: { name: 'ShieldAlert', template: '<svg data-testid="shield-alert-icon"></svg>' }
+}))
+
 describe('UserMenu.vue', () => {
   let wrapper: VueWrapper
+
+  const mountComponent = (options = {}) => {
+    return mount(UserMenu, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            stubActions: false,
+            initialState: {
+              auth: {
+                user: { role: 'player' }
+              }
+            }
+          })
+        ],
+        stubs: {
+          NuxtLink: {
+            template: '<a><slot /></a>',
+            props: ['to']
+          }
+        }
+      },
+      ...options
+    })
+  }
 
   beforeEach(() => {
     // Reset all mocks before each test
@@ -54,16 +88,7 @@ describe('UserMenu.vue', () => {
 
   describe('Rendering', () => {
     it('should render when user is authenticated', () => {
-      wrapper = mount(UserMenu, {
-        global: {
-          stubs: {
-            NuxtLink: {
-              template: '<a><slot /></a>',
-              props: ['to']
-            }
-          }
-        }
-      })
+      wrapper = mountComponent()
 
       expect(wrapper.find('[data-testid="user-menu"]').exists()).toBe(false) // No test ID in original
       expect(wrapper.find('button').exists()).toBe(true)
@@ -72,16 +97,7 @@ describe('UserMenu.vue', () => {
     it('should not render when user is not authenticated', () => {
       mockIsAuthenticated.value = false
 
-      wrapper = mount(UserMenu, {
-        global: {
-          stubs: {
-            NuxtLink: {
-              template: '<a><slot /></a>',
-              props: ['to']
-            }
-          }
-        }
-      })
+      wrapper = mountComponent()
 
       expect(wrapper.find('button').exists()).toBe(false)
       expect(wrapper.html()).toBe('<!--v-if-->')
@@ -90,16 +106,7 @@ describe('UserMenu.vue', () => {
     it('should display user name', () => {
       mockGetUserName.value = 'John Doe'
 
-      wrapper = mount(UserMenu, {
-        global: {
-          stubs: {
-            NuxtLink: {
-              template: '<a><slot /></a>',
-              props: ['to']
-            }
-          }
-        }
-      })
+      wrapper = mountComponent()
 
       expect(wrapper.text()).toContain('John Doe')
     })
@@ -108,16 +115,7 @@ describe('UserMenu.vue', () => {
       mockGetUserName.value = 'Jane Smith'
       mockGetUserAvatar.value = 'https://example.com/jane.jpg'
 
-      wrapper = mount(UserMenu, {
-        global: {
-          stubs: {
-            NuxtLink: {
-              template: '<a><slot /></a>',
-              props: ['to']
-            }
-          }
-        }
-      })
+      wrapper = mountComponent()
 
       const avatar = wrapper.find('img')
       expect(avatar.exists()).toBe(true)
@@ -128,16 +126,7 @@ describe('UserMenu.vue', () => {
 
   describe('Dropdown Menu Toggle', () => {
     it('should start with menu closed', () => {
-      wrapper = mount(UserMenu, {
-        global: {
-          stubs: {
-            NuxtLink: {
-              template: '<a><slot /></a>',
-              props: ['to']
-            }
-          }
-        }
-      })
+      wrapper = mountComponent()
 
       // Dropdown should not be visible initially
       const dropdown = wrapper.find('.absolute.right-0')
@@ -145,16 +134,7 @@ describe('UserMenu.vue', () => {
     })
 
     it('should open menu when button is clicked', async () => {
-      wrapper = mount(UserMenu, {
-        global: {
-          stubs: {
-            NuxtLink: {
-              template: '<a><slot /></a>',
-              props: ['to']
-            }
-          }
-        }
-      })
+      wrapper = mountComponent()
 
       const button = wrapper.find('button')
       await button.trigger('click')
@@ -164,16 +144,7 @@ describe('UserMenu.vue', () => {
     })
 
     it('should close menu when button is clicked again', async () => {
-      wrapper = mount(UserMenu, {
-        global: {
-          stubs: {
-            NuxtLink: {
-              template: '<a><slot /></a>',
-              props: ['to']
-            }
-          }
-        }
-      })
+      wrapper = mountComponent()
 
       const button = wrapper.find('button')
 
@@ -187,7 +158,7 @@ describe('UserMenu.vue', () => {
     })
 
     it('should toggle menu multiple times', async () => {
-      wrapper = mount(UserMenu, {
+      wrapper = mountComponent( {
         global: {
           stubs: {
             NuxtLink: {
@@ -216,7 +187,7 @@ describe('UserMenu.vue', () => {
 
   describe('Dropdown Menu Content', () => {
     beforeEach(async () => {
-      wrapper = mount(UserMenu, {
+      wrapper = mountComponent( {
         global: {
           stubs: {
             NuxtLink: {
@@ -254,7 +225,7 @@ describe('UserMenu.vue', () => {
 
   describe('Menu Interactions', () => {
     beforeEach(async () => {
-      wrapper = mount(UserMenu, {
+      wrapper = mountComponent( {
         global: {
           stubs: {
             NuxtLink: {
@@ -290,7 +261,7 @@ describe('UserMenu.vue', () => {
 
   describe('Click Outside Behavior', () => {
     it('should close menu when clicking outside', async () => {
-      wrapper = mount(UserMenu, {
+      wrapper = mountComponent( {
         attachTo: document.body,
         global: {
           stubs: {
@@ -321,7 +292,7 @@ describe('UserMenu.vue', () => {
     })
 
     it('should not close menu when clicking inside', async () => {
-      wrapper = mount(UserMenu, {
+      wrapper = mountComponent( {
         attachTo: document.body,
         global: {
           stubs: {
@@ -351,7 +322,7 @@ describe('UserMenu.vue', () => {
     it('should add click listener on mount', () => {
       const addEventListenerSpy = vi.spyOn(document, 'addEventListener')
 
-      wrapper = mount(UserMenu, {
+      wrapper = mountComponent( {
         global: {
           stubs: {
             NuxtLink: {
@@ -370,7 +341,7 @@ describe('UserMenu.vue', () => {
     it('should remove click listener on unmount', () => {
       const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener')
 
-      wrapper = mount(UserMenu, {
+      wrapper = mountComponent( {
         global: {
           stubs: {
             NuxtLink: {
@@ -391,7 +362,7 @@ describe('UserMenu.vue', () => {
 
   describe('Accessibility', () => {
     it('should have accessible button', () => {
-      wrapper = mount(UserMenu, {
+      wrapper = mountComponent( {
         global: {
           stubs: {
             NuxtLink: {
@@ -410,7 +381,7 @@ describe('UserMenu.vue', () => {
     it('should have meaningful avatar alt text', () => {
       mockGetUserName.value = 'Alice Wonder'
 
-      wrapper = mount(UserMenu, {
+      wrapper = mountComponent( {
         global: {
           stubs: {
             NuxtLink: {

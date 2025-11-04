@@ -5,6 +5,7 @@
 
 import { mount, config } from '@vue/test-utils'
 import { vi } from 'vitest'
+import { createTestingPinia } from '@pinia/testing'
 
 // Global component stubs
 config.global.stubs = {
@@ -29,8 +30,33 @@ config.global.mocks = {
   }
 }
 
+/**
+ * Create a wrapper with common test configuration
+ * Includes Pinia testing setup by default
+ */
 export function createWrapper(component, options = {}) {
   return mount(component, {
+    global: {
+      plugins: [
+        createTestingPinia({
+          createSpy: vi.fn,
+          stubActions: false
+        })
+      ],
+      ...options.global
+    },
+    ...options
+  })
+}
+
+/**
+ * Create testing Pinia instance
+ * Use this for tests that need to customize Pinia setup
+ */
+export function createPinia(options = {}) {
+  return createTestingPinia({
+    createSpy: vi.fn,
+    stubActions: false,
     ...options
   })
 }
