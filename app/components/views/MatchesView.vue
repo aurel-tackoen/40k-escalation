@@ -10,6 +10,9 @@
   import { useMatchValidation } from '~/composables/useMatchValidation'
   import { usePlaceholders } from '~/composables/usePlaceholders'
   import { useToast } from '~/composables/useToast'
+  import { usePlayerDisplay } from '~/composables/usePlayerDisplay'
+  import { usePermissions } from '~/composables/usePermissions'
+  import { useViewMode } from '~/composables/useViewMode'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
   import MatchCard from '~/components/MatchCard.vue'
 
@@ -37,11 +40,16 @@
   const { formatDate } = useFormatting()
   const { getGameSystemBadgeClasses, getGameSystemTextClasses, getGameSystemHintClasses } = useGameSystems(gameSystems)
   const { placeholders } = usePlaceholders(selectedLeague)
+  const { getPlayerDisplayName, getPlayerFilterName } = usePlayerDisplay(currentPlayer)
 
   const {
     isCloseMatch,
     getWinStreak
   } = useMatchResults(toRef(props, 'matches'))
+
+  const { canDeleteMatch } = usePermissions(currentPlayer, canManageLeague, null)
+
+  const { viewMode, setViewMode } = useViewMode('cards')
 
   // Toast notifications
   const { toastSuccess, toastError } = useToast()
@@ -127,7 +135,6 @@
 
   const filterRound = ref('')
   const filterPlayer = ref('')
-  const viewMode = ref('cards') // 'cards' or 'table'
 
   // Computed properties
   const filteredMatches = computed(() => {
@@ -251,36 +258,6 @@
     }
     return null
   }
-
-  // Check if user can delete a match (owner/organizer or participant)
-  const canDeleteMatch = (match) => {
-    // Organizers can delete any match
-    if (canManageLeague.value) {
-      return true
-    }
-    // Participants can delete their own matches
-    if (currentPlayer.value) {
-      return match.player1Id === currentPlayer.value.id || match.player2Id === currentPlayer.value.id
-    }
-    return false
-  }
-
-  // Helper to display player name with (me) indicator
-  const getPlayerDisplayName = (player) => {
-    const baseName = `${player.name} (${player.faction})`
-    if (currentPlayer.value && player.id === currentPlayer.value.id) {
-      return `${baseName} - me`
-    }
-    return baseName
-  }
-
-  // Helper for filter dropdown (name only)
-  const getPlayerFilterName = (player) => {
-    if (currentPlayer.value && player.id === currentPlayer.value.id) {
-      return `${player.name} (me)`
-    }
-    return player.name
-  }
 </script>
 
 <template>
@@ -339,7 +316,7 @@
         <!-- View Toggle -->
         <div class="flex items-center gap-2 bg-gray-700 rounded-lg p-1">
           <button
-            @click="viewMode = 'cards'"
+            @click="setViewMode('cards')"
             :class="[
               'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
               viewMode === 'cards'
@@ -351,7 +328,7 @@
             Cards
           </button>
           <button
-            @click="viewMode = 'table'"
+            @click="setViewMode('table')"
             :class="[
               'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
               viewMode === 'table'

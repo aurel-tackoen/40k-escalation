@@ -14,6 +14,9 @@
   import { useGameSystems } from '~/composables/useGameSystems'
   import { usePlaceholders } from '~/composables/usePlaceholders'
   import { useToast } from '~/composables/useToast'
+  import { usePlayerDisplay } from '~/composables/usePlayerDisplay'
+  import { usePermissions } from '~/composables/usePermissions'
+  import { useViewMode } from '~/composables/useViewMode'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Store
@@ -28,6 +31,15 @@
 
   // Placeholders composable
   const { placeholders } = usePlaceholders(selectedLeague)
+
+  // Player display composable
+  const { getPlayerDisplayName, getPlayerFilterName } = usePlayerDisplay(currentPlayer)
+
+  // Permissions composable
+  const { canModifyArmy } = usePermissions(currentPlayer, canManageLeague, null)
+
+  // View mode composable
+  const { viewMode, setViewMode } = useViewMode('cards')
 
   // Props
   const props = defineProps({
@@ -142,7 +154,6 @@
 
   // Refs
   const builderFormRef = ref(null)
-  const viewMode = ref('cards') // 'cards' or 'table'
 
   // Helper function to scroll to form
   const scrollToForm = () => {
@@ -169,33 +180,6 @@
   const getPreviousArmyName = () => {
     const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
     return previousArmy ? previousArmy.name : ''
-  }
-
-  // Permission check: Can user modify a specific army?
-  const canModifyArmy = (army) => {
-    // Organizers can modify any army
-    if (canManageLeague.value) {
-      return true
-    }
-    // Regular users can only modify their own armies
-    return currentPlayer.value && army.playerId === currentPlayer.value.id
-  }
-
-  // Helper to display player name with (me) indicator
-  const getPlayerDisplayName = (player) => {
-    const baseName = `${player.name} (${player.faction})`
-    if (currentPlayer.value && player.id === currentPlayer.value.id) {
-      return `${baseName} - me`
-    }
-    return baseName
-  }
-
-  // Helper for filter dropdown (name only)
-  const getPlayerFilterName = (player) => {
-    if (currentPlayer.value && player.id === currentPlayer.value.id) {
-      return `${player.name} (me)`
-    }
-    return player.name
   }
 
   // Methods - Form operations
@@ -797,7 +781,7 @@
         <!-- View Toggle -->
         <div class="flex items-center gap-2 bg-gray-700 rounded-lg p-1">
           <button
-            @click="viewMode = 'cards'"
+            @click="setViewMode('cards')"
             :class="[
               'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
               viewMode === 'cards'
@@ -809,7 +793,7 @@
             Cards
           </button>
           <button
-            @click="viewMode = 'table'"
+            @click="setViewMode('table')"
             :class="[
               'flex items-center gap-2 px-3 py-1.5 rounded transition-all text-sm font-medium cursor-pointer',
               viewMode === 'table'
