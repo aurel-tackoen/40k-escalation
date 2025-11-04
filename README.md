@@ -1,4 +1,4 @@
-# Warhammer 40K Escalation League Manager
+# Warhammer Escalation League Manager
 
 A comprehensive web application for managing Warhammer 40K escalation league campaigns. Built with Nuxt v4, Vue 3, and Tailwind CSS v4.
 
