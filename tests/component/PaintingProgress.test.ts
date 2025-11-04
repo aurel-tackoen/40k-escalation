@@ -29,6 +29,10 @@ vi.mock('lucide-vue-next', () => ({
   TrendingUp: {
     name: 'TrendingUp',
     template: '<svg data-testid="trending-up-icon"></svg>'
+  },
+  Star: {
+    name: 'Star',
+    template: '<svg data-testid="star-icon"></svg>'
   }
 }))
 
@@ -281,7 +285,9 @@ describe('PaintingProgress', () => {
           leaderboard: mockLeaderboard
         }
       })
-      expect(wrapper.text()).toContain('✨ Fully Painted!')
+      expect(wrapper.text()).toContain('Fully Painted!')
+      // Should also include the star icon
+      expect(wrapper.find('[data-testid="star-icon"]').exists()).toBe(true)
     })
 
     it('does not show "Fully Painted!" for less than 100%', () => {
