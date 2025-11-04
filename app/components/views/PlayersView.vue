@@ -10,6 +10,7 @@
   import { useGameSystems } from '~/composables/useGameSystems'
   import { usePlaceholders } from '~/composables/usePlaceholders'
   import { useToast } from '~/composables/useToast'
+  import { usePermissions } from '~/composables/usePermissions'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Props
@@ -52,19 +53,8 @@
   // Toasts
   const { toastSuccess, toastWarning } = useToast()
 
-  // Check if current user can remove a specific player
-  const canRemovePlayer = (player) => {
-    if (!isAuthenticated.value || !user.value) return false
-    if (player.membershipStatus === 'inactive') return false // Already inactive
-
-    const isSelf = player.userId === user.value.id
-
-    // Owner cannot remove themselves (must transfer ownership first)
-    if (isLeagueOwner.value && isSelf) return false
-
-    // Owner can remove anyone else, regular user can only remove themselves
-    return isLeagueOwner.value || isSelf
-  }
+  // Permissions composable
+  const { canRemovePlayer } = usePermissions(null, null, isLeagueOwner)
 
   // Check if current user is already a player in this league
   const isCurrentUserPlayer = computed(() => {
@@ -222,7 +212,7 @@
                 Owner
               </span>
               <button
-                v-if="canRemovePlayer(player)"
+                v-if="canRemovePlayer(player, user)"
                 @click="confirmRemoval(player)"
                 class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 p-1.5 rounded transition-colors cursor-pointer"
                 title="Remove Player"

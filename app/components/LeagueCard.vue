@@ -5,6 +5,7 @@
   import { useLeaguesStore } from '~/stores/leagues'
   import { useFormatting } from '~/composables/useFormatting'
   import { useGameSystems } from '~/composables/useGameSystems'
+  import { useBadges } from '~/composables/useBadges'
 
   const props = defineProps({
     league: {
@@ -30,6 +31,7 @@
 
   const { formatDate } = useFormatting()
   const { getGameSystemName } = useGameSystems(gameSystems)
+  const { getRoleBadgeClass, getStatusBadgeClass } = useBadges()
 
   // Fetch game systems if not already loaded
   onMounted(async () => {
@@ -42,22 +44,6 @@
   const gameSystemName = computed(() => {
     return getGameSystemName(props.league.gameSystemId)
   })
-
-  const getRoleBadgeClass = (role) => {
-    switch (role) {
-      case 'owner': return 'bg-yellow-600 text-yellow-100'
-      case 'organizer': return 'bg-blue-600 text-blue-100'
-      default: return 'bg-gray-600 text-gray-100'
-    }
-  }
-
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case 'active': return 'bg-green-600/20 text-green-400 border border-green-600/40'
-      case 'completed': return 'bg-blue-600/20 text-blue-400 border border-blue-600/40'
-      default: return 'bg-gray-600/20 text-gray-400 border border-gray-600/40'
-    }
-  }
 
   const handleClick = () => {
     if (props.variant === 'my-league') {
