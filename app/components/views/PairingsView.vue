@@ -300,13 +300,14 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <select
           v-model="manualForm.player1Id"
-          class="input"
+          class="px-4 py-3 rounded-lg bg-gray-700 border-2 border-gray-500 text-white text-base font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 hover:border-gray-400 transition-colors"
         >
-          <option :value="null">Select Player 1</option>
+          <option :value="null" class="bg-gray-800">Select Player 1</option>
           <option
             v-for="player in unpairedPlayers"
             :key="player.id"
             :value="player.id"
+            class="bg-gray-800"
           >
             {{ player.name }}
           </option>
@@ -314,13 +315,14 @@
 
         <select
           v-model="manualForm.player2Id"
-          class="input"
+          class="px-4 py-3 rounded-lg bg-gray-700 border-2 border-gray-500 text-white text-base font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 hover:border-gray-400 transition-colors"
         >
-          <option :value="null">Select Player 2 (or BYE)</option>
+          <option :value="null" class="bg-gray-800">Select Player 2 (or BYE)</option>
           <option
             v-for="player in unpairedPlayers.filter(p => p.id !== manualForm.player1Id)"
             :key="player.id"
             :value="player.id"
+            class="bg-gray-800"
           >
             {{ player.name }}
           </option>
@@ -329,9 +331,9 @@
         <button
           @click="addManualPairing"
           :disabled="!manualForm.player1Id"
-          class="btn-success flex items-center gap-2 justify-center"
+          class="px-6 py-3 rounded-lg font-semibold text-base flex items-center gap-2 justify-start transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white border-2 border-green-500 hover:border-green-400 shadow-lg hover:shadow-green-500/50 disabled:from-gray-600 disabled:to-gray-700 disabled:border-gray-600 disabled:shadow-none cursor-pointer"
         >
-          <Plus class="w-4 h-4" />
+          <Plus class="w-5 h-5" />
           Create Pairing
         </button>
       </div>
