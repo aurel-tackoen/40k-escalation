@@ -2,7 +2,7 @@ import { defineEventHandler, getRouterParams, readBody, createError } from 'h3'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import { eq } from 'drizzle-orm'
-import { leagues } from '../../../db/schema'
+import { leagues, rounds } from '../../../db/schema'
 import { requireLeagueRole } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     // ✅ Require owner or organizer role
     await requireLeagueRole(event, leagueId, ['owner', 'organizer'])
 
-    const { name, description, rules, gameSystemId, startDate, endDate, currentRound, isPrivate, shareToken, maxPlayers, status } = body
+    const { name, description, rules, gameSystemId, startDate, endDate, currentRound, isPrivate, shareToken, maxPlayers, status, rounds: leagueRounds } = body
 
     const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL
     if (!databaseUrl) {
@@ -48,23 +48,65 @@ export default defineEventHandler(async (event) => {
     if (maxPlayers !== undefined) updateData.maxPlayers = maxPlayers
     if (status !== undefined) updateData.status = status
 
-    if (Object.keys(updateData).length === 0) {
+    if (Object.keys(updateData).length === 0 && !leagueRounds) {
       throw createError({
         statusCode: 400,
         statusMessage: 'No fields to update'
       })
     }
 
-    // Update league
-    const updatedLeague = await db
-      .update(leagues)
-      .set(updateData)
-      .where(eq(leagues.id, leagueId))
-      .returning()
+    // Update league if there are league-level changes
+    let updatedLeague
+    if (Object.keys(updateData).length > 0) {
+      const result = await db
+        .update(leagues)
+        .set(updateData)
+        .where(eq(leagues.id, leagueId))
+        .returning()
+      updatedLeague = result[0]
+    } else {
+      // Fetch current league data if only rounds are being updated
+      const result = await db
+        .select()
+        .from(leagues)
+        .where(eq(leagues.id, leagueId))
+        .limit(1)
+      updatedLeague = result[0]
+    }
+
+    // Handle rounds update if provided
+    if (leagueRounds && Array.isArray(leagueRounds)) {
+      // Delete existing rounds
+      await db.delete(rounds).where(eq(rounds.leagueId, leagueId))
+
+      // Insert new rounds
+      if (leagueRounds.length > 0) {
+        const roundsToInsert = leagueRounds.map((round: { number: number; name: string; pointLimit: number; startDate: string; endDate: string }) => ({
+          leagueId,
+          number: round.number,
+          name: round.name,
+          pointLimit: round.pointLimit,
+          startDate: round.startDate,
+          endDate: round.endDate
+        }))
+
+        await db.insert(rounds).values(roundsToInsert)
+      }
+    }
+
+    // Fetch updated rounds to return complete data
+    const updatedRounds = await db
+      .select()
+      .from(rounds)
+      .where(eq(rounds.leagueId, leagueId))
+      .orderBy(rounds.number)
 
     return {
       success: true,
-      data: updatedLeague[0],
+      data: {
+        ...updatedLeague,
+        rounds: updatedRounds
+      },
       message: 'League updated successfully'
     }
   } catch (error) {

@@ -561,12 +561,12 @@
         </div>
       </div>
       <div class="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-        <button type="submit" class="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto">
+        <button @click="saveLeague" type="button" class="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto">
           <Save :size="18" class="flex-shrink-0" />
           <span>Save Round Settings</span>
         </button>
 
-        <button @click="addRound" class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto">
+        <button @click="addRound" type="button" class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto">
           <Plus :size="18" class="flex-shrink-0" />
           <span>Add New Round</span>
         </button>
