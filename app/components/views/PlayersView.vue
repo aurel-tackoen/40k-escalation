@@ -1,7 +1,7 @@
 <script setup>
   import { ref, computed, watch } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { TrendingUp, Shield, Users, Paintbrush, UserCheck, Swords, Trash2 } from 'lucide-vue-next'
+  import { TrendingUp, Shield, Users, Paintbrush, UserCheck, Swords, Trash2, Play, Pause } from 'lucide-vue-next'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerStats } from '~/composables/usePlayerStats'
@@ -30,7 +30,7 @@
 
   // Get dynamic factions from store
   const leaguesStore = useLeaguesStore()
-  const { availableFactions, currentGameSystemName, gameSystems, isLeagueOwner, currentLeague } = storeToRefs(leaguesStore)
+  const { availableFactions, currentGameSystemName, gameSystems, isLeagueOwner, currentLeague, canManageLeague } = storeToRefs(leaguesStore)
 
   // Game systems composable
   const { getGameSystemBadgeClasses, getGameSystemTextClasses, getGameSystemHintClasses } = useGameSystems(gameSystems)
@@ -110,6 +110,47 @@
   const cancelRemoval = () => {
     playerToRemove.value = null
     showRemovalModal.value = false
+  }
+
+  // Player status toggle state
+  const playerToToggle = ref(null)
+  const showToggleModal = ref(false)
+
+  const confirmToggleStatus = (player) => {
+    playerToToggle.value = player
+    showToggleModal.value = true
+  }
+
+  const togglePlayerStatus = async () => {
+    if (!playerToToggle.value) return
+
+    const player = playerToToggle.value
+    const newStatus = !player.isActive
+
+    try {
+      await leaguesStore.togglePlayerActive(
+        player.id,
+        newStatus,
+        props.currentRound
+      )
+
+      toastSuccess(
+        newStatus
+          ? `${player.name} activated for Round ${props.currentRound}+`
+          : `${player.name} deactivated from Round ${props.currentRound}`
+      )
+    } catch (error) {
+      console.error('Error toggling player status:', error)
+      toastWarning('Failed to update player status')
+    }
+
+    playerToToggle.value = null
+    showToggleModal.value = false
+  }
+
+  const cancelToggleStatus = () => {
+    playerToToggle.value = null
+    showToggleModal.value = false
   }
 
   // Form state
@@ -211,6 +252,15 @@
                 <Swords :size="12" />
                 <span>{{ player.armyName }}</span>
               </div>
+
+              <!-- Inactive Status Badge -->
+              <div
+                v-if="!player.isActive"
+                class="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-700 text-gray-400 text-xs mt-1"
+              >
+                <Pause :size="12" />
+                <span>Inactive (Left Round {{ player.leftRound }})</span>
+              </div>
             </div>
             <div class="flex items-center gap-2">
               <!-- Owner Badge -->
@@ -221,6 +271,23 @@
               >
                 Owner
               </span>
+
+              <!-- Toggle Active/Inactive Button (Organizer/Owner only) -->
+              <button
+                v-if="canManageLeague && !isPlayerLeagueOwner(player)"
+                @click="confirmToggleStatus(player)"
+                :class="[
+                  'p-1.5 rounded transition-colors cursor-pointer',
+                  player.isActive
+                    ? 'text-yellow-400 hover:text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/50'
+                    : 'text-green-400 hover:text-green-300 bg-green-900/30 hover:bg-green-900/50'
+                ]"
+                :title="player.isActive ? 'Deactivate player' : 'Activate player'"
+              >
+                <Pause v-if="player.isActive" :size="18" />
+                <Play v-else :size="18" />
+              </button>
+
               <button
                 v-if="canRemovePlayer(player)"
                 @click="confirmRemoval(player)"
@@ -412,5 +479,19 @@
         </div>
       </template>
     </ConfirmationModal>
+
+    <!-- Toggle Status Confirmation Modal -->
+    <ConfirmationModal
+      v-if="showToggleModal"
+      :title="playerToToggle?.isActive ? 'Deactivate Player' : 'Activate Player'"
+      :message="playerToToggle?.isActive
+        ? `Are you sure you want to deactivate ${playerToToggle?.name}? They will be excluded from future pairings but their history will be preserved.`
+        : `Are you sure you want to activate ${playerToToggle?.name}? They will be included in future pairings.`"
+      confirmText="Confirm"
+      cancelText="Cancel"
+      :confirmClass="playerToToggle?.isActive ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'"
+      @confirm="togglePlayerStatus"
+      @cancel="cancelToggleStatus"
+    />
   </div>
 </template>

@@ -21,6 +21,8 @@ export const useLeaguesStore = defineStore('leagues', {
     matches: [],
     armies: [],
     members: [],                // League members
+    pairings: [],               // Pairings for current league
+    leagueSettings: null,       // League settings (pairing config)
 
     // UI state
     loading: false,
@@ -148,6 +150,45 @@ export const useLeaguesStore = defineStore('leagues', {
     // Check if current user has a player entity in current league
     hasPlayerInLeague() {
       return this.currentPlayer !== null
+    },
+
+    // Pairings for current round
+    currentRoundPairings(state) {
+      if (!this.currentLeague) return []
+      const currentRound = this.currentLeague.currentRound || 1
+      return state.pairings.filter(p => p.round === currentRound)
+    },
+
+    // Count of unpaired active players in current round
+    unpairedPlayersCount(state) {
+      if (!this.currentLeague) return 0
+      const currentRound = this.currentLeague.currentRound || 1
+      const activePlayers = state.players.filter(p =>
+        p.isActive &&
+        (p.joinedRound || 1) <= currentRound &&
+        (!p.leftRound || p.leftRound >= currentRound)
+      )
+
+      const pairedIds = new Set()
+      state.pairings
+        .filter(p => p.round === currentRound)
+        .forEach(p => {
+          pairedIds.add(p.player1Id)
+          if (p.player2Id) pairedIds.add(p.player2Id)
+        })
+
+      return activePlayers.filter(p => !pairedIds.has(p.id)).length
+    },
+
+    // Active players for current round
+    activePlayers(state) {
+      if (!this.currentLeague) return []
+      const currentRound = this.currentLeague.currentRound || 1
+      return state.players.filter(p =>
+        p.isActive &&
+        (p.joinedRound || 1) <= currentRound &&
+        (!p.leftRound || p.leftRound >= currentRound)
+      )
     }
   },
 
@@ -598,7 +639,9 @@ export const useLeaguesStore = defineStore('leagues', {
         this.fetchPlayers(),
         this.fetchMatches(),
         this.fetchArmies(),
-        this.fetchMembers()
+        this.fetchMembers(),
+        this.fetchPairings(),
+        this.fetchLeagueSettings()
       ])
     },
 
@@ -915,6 +958,173 @@ export const useLeaguesStore = defineStore('leagues', {
         return response
       } catch (error) {
         console.error('Error deleting army:', error)
+        throw error
+      }
+    },
+
+    // ==================== Pairing Management ====================
+
+    /**
+     * Fetch pairings for current league
+     */
+    async fetchPairings(round = null) {
+      if (!this.currentLeagueId) return
+
+      try {
+        const url = round
+          ? `/api/pairings?leagueId=${this.currentLeagueId}&round=${round}`
+          : `/api/pairings?leagueId=${this.currentLeagueId}`
+
+        const response = await $fetch(url)
+        if (response.success) {
+          this.pairings = response.data
+        }
+      } catch (error) {
+        console.error('Error fetching pairings:', error)
+        this.pairings = []
+      }
+    },
+
+    /**
+     * Generate pairings for a round
+     */
+    async generatePairings(round, pairings) {
+      if (!this.currentLeagueId) return
+
+      try {
+        const response = await $fetch('/api/pairings/generate', {
+          method: 'POST',
+          body: {
+            leagueId: this.currentLeagueId,
+            round,
+            pairings
+          }
+        })
+
+        if (response.success) {
+          // Refresh ALL pairings (not just the current round)
+          await this.fetchPairings()
+        }
+
+        return response
+      } catch (error) {
+        console.error('Error generating pairings:', error)
+        throw error
+      }
+    },
+
+    /**
+     * Create manual pairing
+     */
+    async createManualPairing(pairingData) {
+      if (!this.currentLeagueId) return
+
+      try {
+        const response = await $fetch('/api/pairings/manual', {
+          method: 'POST',
+          body: {
+            ...pairingData,
+            leagueId: this.currentLeagueId
+          }
+        })
+
+        if (response.success) {
+          // Add to local state
+          this.pairings.push(response.data)
+        }
+
+        return response
+      } catch (error) {
+        console.error('Error creating manual pairing:', error)
+        throw error
+      }
+    },
+
+    /**
+     * Delete pairing
+     */
+    async deletePairing(pairingId) {
+      try {
+        const response = await $fetch(`/api/pairings/${pairingId}`, {
+          method: 'DELETE'
+        })
+
+        if (response.success) {
+          // Remove from local state
+          this.pairings = this.pairings.filter(p => p.id !== pairingId)
+        }
+
+        return response
+      } catch (error) {
+        console.error('Error deleting pairing:', error)
+        throw error
+      }
+    },
+
+    /**
+     * Fetch league settings
+     */
+    async fetchLeagueSettings() {
+      if (!this.currentLeagueId) return
+
+      try {
+        const response = await $fetch(`/api/league-settings/${this.currentLeagueId}`)
+        if (response.success) {
+          this.leagueSettings = response.data
+        }
+      } catch (error) {
+        console.error('Error fetching league settings:', error)
+        this.leagueSettings = null
+      }
+    },
+
+    /**
+     * Update league settings
+     */
+    async updateLeagueSettings(settings) {
+      if (!this.currentLeagueId) return
+
+      try {
+        const response = await $fetch(`/api/league-settings/${this.currentLeagueId}`, {
+          method: 'PUT',
+          body: settings
+        })
+
+        if (response.success) {
+          this.leagueSettings = response.data
+        }
+
+        return response
+      } catch (error) {
+        console.error('Error updating league settings:', error)
+        throw error
+      }
+    },
+
+    /**
+     * Toggle player active status
+     */
+    async togglePlayerActive(playerId, isActive, currentRound) {
+      try {
+        const response = await $fetch(`/api/players/${playerId}/toggle-active`, {
+          method: 'PATCH',
+          body: {
+            isActive,
+            currentRound
+          }
+        })
+
+        if (response.success) {
+          // Update local player state
+          const playerIndex = this.players.findIndex(p => p.id === playerId)
+          if (playerIndex !== -1) {
+            this.players[playerIndex] = response.data
+          }
+        }
+
+        return response
+      } catch (error) {
+        console.error('Error toggling player status:', error)
         throw error
       }
     },

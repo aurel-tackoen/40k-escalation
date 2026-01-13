@@ -171,6 +171,12 @@
             <!-- Actions -->
             <div class="flex gap-3 mt-6">
               <button
+                @click="handleCancel"
+                class="btn-login flex-1"
+              >
+                {{ cancelText }}
+              </button>
+              <button
                 @click="handleConfirm"
                 :class="[
                   'btn-primary flex-1 ',
@@ -178,12 +184,6 @@
                 ]"
               >
                 {{ confirmText }}
-              </button>
-              <button
-                @click="handleCancel"
-                class="btn-login flex-1"
-              >
-                {{ cancelText }}
               </button>
             </div>
           </div>

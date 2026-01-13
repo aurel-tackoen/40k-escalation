@@ -4,8 +4,8 @@
  * Supports multiple match types: victory_points, percentage, scenario
  */
 import { db } from '../../db'
-import { matches, players } from '../../db/schema'
-import { eq } from 'drizzle-orm'
+import { matches, players, pairings } from '../../db/schema'
+import { eq, and } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -82,6 +82,59 @@ export default defineEventHandler(async (event) => {
       // Future extensibility
       additionalData: body.additionalData || null
     }).returning()
+
+    // Update corresponding pairing if it exists
+    if (body.leagueId && body.round) {
+      // Find the pairing for these two players in this round
+      const [existingPairing] = await db
+        .select()
+        .from(pairings)
+        .where(
+          and(
+            eq(pairings.leagueId, body.leagueId),
+            eq(pairings.round, body.round),
+            eq(pairings.player1Id, body.player1Id),
+            eq(pairings.player2Id, body.player2Id)
+          )
+        )
+        .limit(1)
+
+      // Also check reverse pairing (player2 vs player1)
+      if (!existingPairing) {
+        const [reversePairing] = await db
+          .select()
+          .from(pairings)
+          .where(
+            and(
+              eq(pairings.leagueId, body.leagueId),
+              eq(pairings.round, body.round),
+              eq(pairings.player1Id, body.player2Id),
+              eq(pairings.player2Id, body.player1Id)
+            )
+          )
+          .limit(1)
+
+        if (reversePairing) {
+          // Update the reverse pairing
+          await db
+            .update(pairings)
+            .set({
+              matchId: newMatch.id,
+              status: 'completed'
+            })
+            .where(eq(pairings.id, reversePairing.id))
+        }
+      } else {
+        // Update the normal pairing
+        await db
+          .update(pairings)
+          .set({
+            matchId: newMatch.id,
+            status: 'completed'
+          })
+          .where(eq(pairings.id, existingPairing.id))
+      }
+    }
 
     // Update player stats
     const [player1] = await db.select().from(players).where(eq(players.id, body.player1Id))

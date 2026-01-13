@@ -96,6 +96,41 @@ export const players = pgTable('players', {
   losses: integer().default(0).notNull(),
   draws: integer().default(0).notNull(),
   totalPoints: integer().default(0).notNull(),
+  // Pairing system fields
+  isActive: boolean('is_active').default(true).notNull(), // Active in league
+  joinedRound: integer('joined_round').default(1).notNull(), // Round when player joined
+  leftRound: integer('left_round'), // Round when player left (null if active)
+  createdAt: timestamp().defaultNow().notNull()
+});
+
+// League settings table (pairing configuration)
+export const leagueSettings = pgTable('league_settings', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  leagueId: integer().references(() => leagues.id, { onDelete: 'cascade' }).notNull().unique(), // One setting per league
+  pairingMethod: varchar('pairing_method', { length: 50 }).default('swiss').notNull(), // 'swiss', 'random', 'manual', 'round_robin'
+  allowRematches: boolean('allow_rematches').default(false).notNull(),
+  autoGeneratePairings: boolean('auto_generate_pairings').default(false).notNull(),
+  tiebreakMethod: varchar('tiebreak_method', { length: 50 }).default('points_differential').notNull(), // 'points_differential', 'head_to_head', 'sos'
+  playoffEnabled: boolean('playoff_enabled').default(false).notNull(),
+  playoffTopN: integer('playoff_top_n').default(4).notNull(),
+  allowMidLeagueJoins: boolean('allow_mid_league_joins').default(true).notNull(),
+  byeHandling: varchar('bye_handling', { length: 50 }).default('auto').notNull(), // 'auto', 'manual', 'rotate'
+  firstRoundPairingMethod: varchar('first_round_pairing_method', { length: 50 }).default('manual').notNull(), // 'manual', 'swiss', 'random'
+  subsequentRoundMethod: varchar('subsequent_round_method', { length: 50 }).default('swiss').notNull(), // 'swiss', 'random', 'manual'
+  createdAt: timestamp().defaultNow().notNull()
+});
+
+// Pairings table (match assignments)
+export const pairings = pgTable('pairings', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  leagueId: integer().references(() => leagues.id, { onDelete: 'cascade' }).notNull(),
+  round: integer().notNull(),
+  player1Id: integer().references(() => players.id, { onDelete: 'cascade' }).notNull(),
+  player2Id: integer().references(() => players.id, { onDelete: 'cascade' }), // Null for BYE
+  matchId: integer('match_id'), // References matches.id - will be set when match is recorded
+  status: varchar({ length: 50 }).default('pending').notNull(), // 'pending', 'completed', 'bye'
+  isBye: boolean('is_bye').default(false).notNull(), // True if this is a BYE round
+  dueDate: date('due_date'), // Optional deadline for match completion
   createdAt: timestamp().defaultNow().notNull()
 });
 

@@ -141,6 +141,13 @@
       "when": 1761665353813,
       "tag": "0019_opposite_komodo",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1761743509922,
+      "tag": "0020_slimy_zaladane",
+      "breakpoints": true
     }
   ]
 }

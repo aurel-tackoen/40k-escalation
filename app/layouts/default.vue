@@ -1,6 +1,6 @@
 <script setup>
   import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
-  import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords, HeartHandshake } from 'lucide-vue-next'
+  import { LayoutDashboard, Users, Shield, Settings, Trophy, Menu, X, Swords, HeartHandshake, UserCog } from 'lucide-vue-next'
   import { useAuth } from '~/composables/useAuth'
   import { useAuthStore } from '~/stores/auth'
   import { useLeaguesStore } from '~/stores/leagues'
@@ -23,6 +23,7 @@
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { path: '/players', name: 'Players', icon: Users },
     { path: '/armies', name: 'Army Lists', icon: Shield },
+    { path: '/pairings', name: 'Pairings', icon: UserCog },
     { path: '/matches', name: 'Matches', icon: Trophy },
     { path: '/setup', name: 'Settings', icon: Settings, requiresRole: ['owner', 'organizer'] }
   ]
