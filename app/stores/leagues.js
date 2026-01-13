@@ -904,6 +904,39 @@ export const useLeaguesStore = defineStore('leagues', {
       }
     },
 
+    /**
+     * Update an existing match
+     * Only owner/organizer or match participants can edit
+     */
+    async updateMatch(matchData) {
+      try {
+        console.log('Store updateMatch called with:', matchData)
+
+        const response = await $fetch('/api/matches', {
+          method: 'PUT',
+          body: matchData
+        })
+
+        console.log('Update API response:', response)
+
+        if (response.success) {
+          // Update the match in the local state
+          const index = this.matches.findIndex(m => m.id === matchData.id)
+          if (index !== -1) {
+            this.matches[index] = { ...this.matches[index], ...response.data }
+          }
+
+          // Note: Player stats are NOT automatically recalculated on edit
+          // Organizers may need to manually adjust if needed
+          console.log('Match updated in store')
+        }
+        return response
+      } catch (error) {
+        console.error('Error updating match:', error)
+        throw error
+      }
+    },
+
     // ==================== Army Management ====================
 
     /**

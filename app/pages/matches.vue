@@ -14,6 +14,17 @@
       console.error('Error deleting match:', error)
     }
   }
+
+  // Handler for update match
+  const handleUpdateMatch = async (matchData) => {
+    console.log('Page received update-match event with:', matchData)
+    try {
+      await leaguesStore.updateMatch(matchData)
+      console.log('Match updated successfully')
+    } catch (error) {
+      console.error('Error updating match:', error)
+    }
+  }
 </script>
 
 <template>
@@ -27,6 +38,7 @@
       :matches="matches"
       :players="players"
       @add-match="leaguesStore.addMatch"
+      @update-match="handleUpdateMatch"
       @delete-match="handleDeleteMatch"
     />
   </div>

@@ -1,7 +1,7 @@
 <script setup>
   import { ref, computed, toRef, watch } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { Plus, Filter, Users, Trophy, X, Flame, TrendingUp, Handshake, Trash2, LayoutGrid, TableProperties, Swords } from 'lucide-vue-next'
+  import { Plus, Filter, Users, Trophy, X, Flame, TrendingUp, Handshake, Trash2, LayoutGrid, TableProperties, Swords, Edit } from 'lucide-vue-next'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
@@ -47,7 +47,11 @@
   const { toastSuccess, toastError } = useToast()
 
   // Emits
-  const emit = defineEmits(['add-match', 'delete-match'])
+  const emit = defineEmits(['add-match', 'update-match', 'delete-match'])
+
+  // Edit mode state
+  const isEditMode = ref(false)
+  const editingMatchId = ref(null)
 
   // Match deletion state
   const matchToDelete = ref(null)
@@ -72,6 +76,52 @@
   const cancelDeleteMatch = () => {
     matchToDelete.value = null
     showDeleteModal.value = false
+  }
+
+  const startEditMatch = (match) => {
+    isEditMode.value = true
+    editingMatchId.value = match.id
+
+    // Populate form with match data
+    newMatch.value = {
+      player1Id: match.player1Id,
+      player2Id: match.player2Id,
+
+      // Match type and game system
+      matchType: match.matchType || matchType.value,
+      gameSystemId: match.gameSystemId || currentLeague.value?.gameSystemId || null,
+
+      // Victory Points (40k, AoS, HH)
+      player1Points: match.player1Points,
+      player2Points: match.player2Points,
+
+      // Percentage/Casualties (ToW)
+      player1ArmyValue: match.player1ArmyValue,
+      player2ArmyValue: match.player2ArmyValue,
+      player1CasualtiesValue: match.player1CasualtiesValue,
+      player2CasualtiesValue: match.player2CasualtiesValue,
+
+      // Scenario (MESBG)
+      scenarioObjective: match.scenarioObjective || '',
+      player1ObjectiveCompleted: match.player1ObjectiveCompleted || false,
+      player2ObjectiveCompleted: match.player2ObjectiveCompleted || false,
+
+      // Common fields
+      round: match.round,
+      mission: match.mission || '',
+      datePlayed: match.datePlayed ? new Date(match.datePlayed).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      winnerId: match.winnerId,
+      notes: match.notes || ''
+    }
+
+    // Scroll to form
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+  }
+
+  const cancelEdit = () => {
+    isEditMode.value = false
+    editingMatchId.value = null
+    resetForm()
   }
 
   // Get current game system and match config
@@ -171,12 +221,19 @@
       )
     }
 
-    emit('add-match', { ...newMatch.value })
-    resetForm()
+    if (isEditMode.value) {
+      // Update existing match
+      emit('update-match', { ...newMatch.value, id: editingMatchId.value })
+      toastSuccess('Match updated successfully!')
+      cancelEdit()
+    } else {
+      // Add new match
+      emit('add-match', { ...newMatch.value })
+      toastSuccess('Match recorded successfully!')
+      resetForm()
+    }
 
-    toastSuccess('Match recorded successfully!')
-
-    // Scroll to top to see the newly added match
+    // Scroll to top to see the match
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -263,6 +320,11 @@
       return match.player1Id === currentPlayer.value.id || match.player2Id === currentPlayer.value.id
     }
     return false
+  }
+
+  const canEditMatch = (match) => {
+    // Same logic as delete - organizers or participants
+    return canDeleteMatch(match)
   }
 
   // Helper to display player name with (me) indicator
@@ -377,7 +439,10 @@
           :get-player-streak="getPlayerStreak"
           :show-delete="true"
           :can-delete="canDeleteMatch(match)"
+          :show-edit="true"
+          :can-edit="canEditMatch(match)"
           @delete="confirmDeleteMatch"
+          @edit="startEditMatch"
         />
       </div>
 
@@ -483,14 +548,24 @@
 
               <!-- Actions -->
               <td class="py-3 px-4 text-right">
-                <button
-                  v-if="canDeleteMatch(match)"
-                  @click="confirmDeleteMatch(match)"
-                  class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer"
-                  title="Delete match"
-                >
-                  <Trash2 :size="16" />
-                </button>
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    v-if="canEditMatch(match)"
+                    @click="startEditMatch(match)"
+                    class="text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer"
+                    title="Edit match"
+                  >
+                    <Edit :size="16" />
+                  </button>
+                  <button
+                    v-if="canDeleteMatch(match)"
+                    @click="confirmDeleteMatch(match)"
+                    class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer"
+                    title="Delete match"
+                  >
+                    <Trash2 :size="16" />
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -504,12 +579,16 @@
       </div>
     </div>
 
-    <!-- Add Match Form -->
+    <!-- Add/Edit Match Form -->
     <div class="card">
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div class="flex items-center gap-2">
-          <Plus :size="24" class="text-yellow-500 flex-shrink-0" />
-          <h2 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Record New Match</h2>
+          <component :is="isEditMode ? Edit : Plus" :size="24" class="text-yellow-500 flex-shrink-0" />
+          <div>
+            <h2 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">
+              {{ isEditMode ? 'Edit Match' : 'Record New Match' }}
+            </h2>
+          </div>
         </div>
         <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()">
           <p :class="getGameSystemTextClasses()">{{ currentGameSystemName }}</p>
@@ -833,12 +912,12 @@
 
         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button type="submit" class="btn-primary flex items-center justify-center gap-2">
-            <Plus :size="18" class="flex-shrink-0" />
-            <span>Save Match</span>
+            <component :is="isEditMode ? Edit : Plus" :size="18" class="flex-shrink-0" />
+            <span>{{ isEditMode ? 'Update Match' : 'Save Match' }}</span>
           </button>
-          <button type="button" @click="resetForm" class="btn-secondary flex items-center justify-center gap-2">
+          <button type="button" @click="isEditMode ? cancelEdit() : resetForm()" class="btn-secondary flex items-center justify-center gap-2">
             <X :size="18" class="flex-shrink-0" />
-            <span>Reset</span>
+            <span>{{ isEditMode ? 'Cancel Edit' : 'Reset' }}</span>
           </button>
         </div>
       </form>

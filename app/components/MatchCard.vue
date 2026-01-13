@@ -1,5 +1,5 @@
 <script setup>
-  import { Swords, Trophy, Flame, Trash2, CheckCircle, XCircle, Shield } from 'lucide-vue-next'
+  import { Swords, Trophy, Flame, Trash2, Edit, CheckCircle, XCircle, Shield } from 'lucide-vue-next'
   import { computed } from 'vue'
 
   const props = defineProps({
@@ -41,13 +41,27 @@
     canDelete: {
       type: Boolean,
       default: false
+    },
+    // Show edit button
+    showEdit: {
+      type: Boolean,
+      default: false
+    },
+    // Can edit this specific match
+    canEdit: {
+      type: Boolean,
+      default: false
     }
   })
 
-  const emit = defineEmits(['delete'])
+  const emit = defineEmits(['delete', 'edit'])
 
   const handleDelete = () => {
     emit('delete', props.match)
+  }
+
+  const handleEdit = () => {
+    emit('edit', props.match)
   }
 
   // Determine match type (default to victory_points for backward compatibility)
@@ -66,14 +80,24 @@
           </span>
           <span class="text-xs text-gray-400">{{ formatDate(match.datePlayed) }}</span>
         </div>
-        <button
-          v-if="showDelete && canDelete"
-          @click="handleDelete"
-          class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 p-1.5 rounded transition-colors cursor-pointer"
-          title="Delete match"
-        >
-          <Trash2 :size="16" />
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            v-if="showEdit && canEdit"
+            @click="handleEdit"
+            class="text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 p-1.5 rounded transition-colors cursor-pointer"
+            title="Edit match"
+          >
+            <Edit :size="16" />
+          </button>
+          <button
+            v-if="showDelete && canDelete"
+            @click="handleDelete"
+            class="text-red-400 hover:text-red-300 bg-red-900/30 hover:bg-red-900/50 p-1.5 rounded transition-colors cursor-pointer"
+            title="Delete match"
+          >
+            <Trash2 :size="16" />
+          </button>
+        </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">

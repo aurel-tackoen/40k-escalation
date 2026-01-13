@@ -1,12 +1,12 @@
 /**
  * DELETE /api/matches?id=<id>
  * Deletes a match from the database
- * Requires: user to be league organizer/owner
+ * Requires: user to be league organizer/owner OR a participant in the match
  */
 import { db } from '../../db'
-import { matches } from '../../db/schema'
+import { matches, players } from '../../db/schema'
 import { eq } from 'drizzle-orm'
-import { requireLeagueRole } from '../utils/auth'
+import { requireLeagueMembership } from '../utils/auth'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -40,8 +40,74 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // ✅ Require league organizer or owner role to delete matches
-    await requireLeagueRole(event, match.leagueId, ['owner', 'organizer'])
+    // ✅ Get authenticated user and check league membership
+    const { user, membership } = await requireLeagueMembership(event, match.leagueId)
+
+    // Check if user can delete: organizer/owner OR participant in the match
+    const isOrganizer = membership.role === 'owner' || membership.role === 'organizer'
+
+    // Get player IDs for this user
+    const [player1] = await db.select()
+      .from(players)
+      .where(eq(players.id, match.player1Id))
+      .limit(1)
+
+    const [player2] = await db.select()
+      .from(players)
+      .where(eq(players.id, match.player2Id))
+      .limit(1)
+
+    const isParticipant = (player1?.userId === user.id) || (player2?.userId === user.id)
+
+    if (!isOrganizer && !isParticipant) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'You can only delete matches you participated in'
+      })
+    }
+
+    // Reverse player stats before deleting
+    if (player1) {
+      const updates: {
+        totalPoints: number;
+        wins?: number;
+        losses?: number;
+        draws?: number;
+      } = {
+        totalPoints: player1.totalPoints - (match.player1Points || 0)
+      }
+
+      if (match.winnerId === match.player1Id) {
+        updates.wins = Math.max(0, player1.wins - 1)
+      } else if (match.winnerId === match.player2Id) {
+        updates.losses = Math.max(0, player1.losses - 1)
+      } else if (match.winnerId === null) {
+        updates.draws = Math.max(0, player1.draws - 1)
+      }
+
+      await db.update(players).set(updates).where(eq(players.id, match.player1Id))
+    }
+
+    if (player2) {
+      const updates: {
+        totalPoints: number;
+        wins?: number;
+        losses?: number;
+        draws?: number;
+      } = {
+        totalPoints: player2.totalPoints - (match.player2Points || 0)
+      }
+
+      if (match.winnerId === match.player2Id) {
+        updates.wins = Math.max(0, player2.wins - 1)
+      } else if (match.winnerId === match.player1Id) {
+        updates.losses = Math.max(0, player2.losses - 1)
+      } else if (match.winnerId === null) {
+        updates.draws = Math.max(0, player2.draws - 1)
+      }
+
+      await db.update(players).set(updates).where(eq(players.id, match.player2Id))
+    }
 
     // Delete the match
     const deleted = await db.delete(matches)
