@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
           name: body.name,
           totalPoints: body.totalPoints,
           units: unitsJson,
+          builderLink: body.builderLink || null,
           isValid: body.isValid !== undefined ? body.isValid : true,
           lastModified: today
         })
@@ -58,6 +59,7 @@ export default defineEventHandler(async (event) => {
         name: body.name,
         totalPoints: body.totalPoints,
         units: unitsJson,
+        builderLink: body.builderLink || null,
         isValid: body.isValid !== undefined ? body.isValid : true,
         lastModified: today
       }).returning()

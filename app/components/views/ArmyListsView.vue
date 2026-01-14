@@ -1,6 +1,6 @@
 <script setup>
   import { computed, watch, toRef, ref, nextTick } from 'vue'
-  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, ChevronUp, ChevronDown, CheckCircle, LayoutGrid, TableProperties, Clipboard } from 'lucide-vue-next'
+  import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, ChevronUp, ChevronDown, CheckCircle, LayoutGrid, TableProperties, Clipboard, ExternalLink } from 'lucide-vue-next'
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
@@ -536,6 +536,20 @@
               />
             </div>
           </div>
+
+          <!-- Builder Link (Optional) -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">Builder Link (Optional)</label>
+            <input
+              v-model="currentArmy.builderLink"
+              type="url"
+              class="input-field"
+              placeholder="https://newrecruit.eu/app/list-builder or https://oldworldbuilder.com/..."
+            />
+            <p class="text-xs text-gray-500 mt-1">
+              Add a link to your army list on New Recruit, Old World Builder, or other list builder tools
+            </p>
+          </div>
         </div>
 
         <!-- Copy from Previous Round (if applicable) -->
@@ -875,6 +889,21 @@
               </div>
             </div>
 
+            <!-- Builder Link -->
+            <div v-if="army.builderLink" class="mb-4 p-3 bg-blue-900/20 border border-blue-700 rounded-lg">
+              <div class="flex items-center justify-between gap-2">
+                <div class="text-xs text-blue-300 font-semibold">Builder Link</div>
+                <a
+                  :href="army.builderLink"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-sm text-blue-400 hover:text-blue-300 underline break-all transition-colors"
+                >
+                  View on Builder →
+                </a>
+              </div>
+            </div>
+
             <!-- Painting Progress -->
             <div v-if="getArmyPaintingStats(army).totalModels > 0" class="mb-4 p-3 bg-gray-800 rounded-lg border border-gray-600">
               <!-- Models Progress -->
@@ -1052,6 +1081,7 @@
               <th class="text-right py-3 px-4 text-sm font-semibold text-gray-300">Points</th>
               <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Units</th>
               <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Painting</th>
+              <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Builder</th>
               <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Status</th>
               <th class="text-right py-3 px-4 text-sm font-semibold text-gray-300">Actions</th>
             </tr>
@@ -1114,6 +1144,22 @@
                   </div>
                 </div>
                 <div v-else class="text-xs text-gray-500 text-center">—</div>
+              </td>
+
+              <!-- Builder Link -->
+              <td class="py-3 px-4 text-center">
+                <a
+                  v-if="army.builderLink"
+                  :href="army.builderLink"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors text-sm"
+                  title="View on Builder"
+                >
+                  <ExternalLink :size="16" />
+                  <span class="hidden lg:inline">View</span>
+                </a>
+                <span v-else class="text-xs text-gray-500">—</span>
               </td>
 
               <!-- Status -->

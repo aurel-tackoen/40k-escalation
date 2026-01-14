@@ -1,0 +1,1 @@
+ALTER TABLE "armies" ADD COLUMN "builder_link" text;

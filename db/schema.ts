@@ -183,6 +183,7 @@ export const armies = pgTable('armies', {
   name: varchar({ length: 255 }).notNull(),
   totalPoints: integer().notNull(),
   units: text().notNull(), // JSON string of units array
+  builderLink: text('builder_link'), // URL to external army builder (New Recruit, Old World Builder, etc.)
   isValid: boolean().default(true).notNull(),
   lastModified: date().notNull(),
   createdAt: timestamp().defaultNow().notNull()

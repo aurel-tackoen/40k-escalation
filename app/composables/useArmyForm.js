@@ -19,6 +19,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
     name: '',
     totalPoints: 0,
     units: [],
+    builderLink: '',
     isValid: false
   })
 
@@ -59,6 +60,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
       name: '',
       totalPoints: 0,
       units: [],
+      builderLink: '',
       isValid: false
     }
     editingArmy.value = false
@@ -87,6 +89,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
       name: '',
       totalPoints: 0,
       units: [],
+      builderLink: '',
       isValid: false
     }
   }
