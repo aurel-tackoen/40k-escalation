@@ -195,7 +195,7 @@ describe('LeagueSwitcher', () => {
       expect(wrapper.find('button').text()).toContain('No League')
     })
 
-    it('renders swords icon in trigger button', () => {
+    it('renders trigger button without swords icon', () => {
       const wrapper = mount(LeagueSwitcher, {
         global: {
           stubs: {
@@ -203,7 +203,8 @@ describe('LeagueSwitcher', () => {
           }
         }
       })
-      expect(wrapper.find('[data-testid="swords-icon"]').exists()).toBe(true)
+      // Swords icon is commented out in the component
+      expect(wrapper.find('[data-testid="swords-icon"]').exists()).toBe(false)
     })
 
     it('renders chevron down icon in trigger button', () => {
