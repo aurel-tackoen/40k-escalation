@@ -24,12 +24,24 @@
 
   // Set page title and meta
   useHead({
-    title: 'War\'s Path Escalation League',
+    title: 'War\'s Path - Warhammer Escalation League Manager',
     meta: [
-      { name: 'description', content: 'Manage your Warhammer Escalation League with ease' }
+      { name: 'description', content: 'Organize and track Warhammer escalation campaigns for 40k, Age of Sigmar, The Old World, MESBG, and The Horus Heresy. Manage players, armies, matches, pairings, and painting progress all in one place.' },
+      { name: 'keywords', content: 'Warhammer 40k, Age of Sigmar, The Old World, MESBG, Horus Heresy, escalation league, tournament organizer, army list builder, match tracker, painting tracker' },
+      // Open Graph / Facebook
+      { property: 'og:type', content: 'website' },
+      { property: 'og:title', content: 'War\'s Path - Warhammer Escalation League Manager' },
+      { property: 'og:description', content: 'Organize and track Warhammer escalation campaigns for 40k, Age of Sigmar, The Old World, MESBG, and The Horus Heresy. Manage players, armies, matches, pairings, and painting progress all in one place.' },
+      { property: 'og:image', content: '/logo.png' },
+      // Twitter
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'War\'s Path - Warhammer Escalation League Manager' },
+      { name: 'twitter:description', content: 'Organize and track Warhammer escalation campaigns for 40k, Age of Sigmar, The Old World, MESBG, and The Horus Heresy.' },
+      { name: 'twitter:image', content: '/logo.png' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'canonical', href: 'https://warspath.netlify.app' }
     ]
   })
 </script>
