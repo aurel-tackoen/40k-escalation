@@ -22,7 +22,7 @@
     isPrivate: true, // Default to private league
     maxPlayers: null,
     rules: '', // Will be populated when game system is selected
-    rounds: [
+    stages: [
       {
         number: 1,
         name: '500 Points',
@@ -62,20 +62,20 @@
   const createdLeagueName = ref('')
   const creatingPlayer = ref(false)
 
-  // Auto-round configuration
+  // Auto-stage configuration
   const autoConfig = reactive({
     startingPoints: 500,
     pointsStep: 500,
-    numberOfRounds: 4,
-    weeksPerRound: 4
+    numberOfStages: 4,
+    weeksPerStage: 4
   })
 
-  const addRound = () => {
-    const lastRound = form.rounds[form.rounds.length - 1]
-    const nextNumber = lastRound.number + 1
-    const nextLimit = lastRound.pointLimit + 500
+  const addStage = () => {
+    const lastStage = form.stages[form.stages.length - 1]
+    const nextNumber = lastStage.number + 1
+    const nextLimit = lastStage.pointLimit + 500
 
-    form.rounds.push({
+    form.stages.push({
       number: nextNumber,
       name: `${nextLimit} Points`,
       pointLimit: nextLimit,
@@ -84,38 +84,38 @@
     })
   }
 
-  const removeRound = (index) => {
-    if (form.rounds.length > 1) {
-      form.rounds.splice(index, 1)
-      // Renumber remaining rounds
-      form.rounds.forEach((round, idx) => {
-        round.number = idx + 1
+  const removeStage = (index) => {
+    if (form.stages.length > 1) {
+      form.stages.splice(index, 1)
+      // Renumber remaining stages
+      form.stages.forEach((stage, idx) => {
+        stage.number = idx + 1
       })
       // Update league end date
       updateLeagueEndDate()
     }
   }
 
-  // Auto-update league end date based on rounds
+  // Auto-update league end date based on stages
   const updateLeagueEndDate = () => {
-    if (form.rounds.length > 0) {
-      const roundsWithDates = form.rounds.filter(r => r.endDate)
-      if (roundsWithDates.length > 0) {
+    if (form.stages.length > 0) {
+      const stagesWithDates = form.stages.filter(s => s.endDate)
+      if (stagesWithDates.length > 0) {
         // Find the latest end date
-        const latestEndDate = roundsWithDates.reduce((latest, round) => {
-          return round.endDate > latest ? round.endDate : latest
-        }, roundsWithDates[0].endDate)
+        const latestEndDate = stagesWithDates.reduce((latest, stage) => {
+          return stage.endDate > latest ? stage.endDate : latest
+        }, stagesWithDates[0].endDate)
         form.endDate = latestEndDate
       }
     }
   }
 
-  // Watch for changes in round dates to auto-update league end date
-  watch(() => form.rounds.map(r => r.endDate), () => {
+  // Watch for changes in stage dates to auto-update league end date
+  watch(() => form.stages.map(s => s.endDate), () => {
     updateLeagueEndDate()
   }, { deep: true })
 
-  const generateAutoRounds = () => {
+  const generateAutoStages = () => {
     if (!form.startDate || form.startDate === '') {
       error.value = 'Please set a league start date first'
       showAutoRoundModal.value = false
@@ -123,35 +123,35 @@
     }
 
     const startDate = new Date(form.startDate)
-    const generatedRounds = []
+    const generatedStages = []
     let currentDate = new Date(startDate)
     let currentPoints = autoConfig.startingPoints
 
-    for (let i = 0; i < autoConfig.numberOfRounds; i++) {
-      const roundStartDate = new Date(currentDate)
-      const roundEndDate = new Date(currentDate)
-      roundEndDate.setDate(roundEndDate.getDate() + (autoConfig.weeksPerRound * 7))
+    for (let i = 0; i < autoConfig.numberOfStages; i++) {
+      const stageStartDate = new Date(currentDate)
+      const stageEndDate = new Date(currentDate)
+      stageEndDate.setDate(stageEndDate.getDate() + (autoConfig.weeksPerStage * 7))
 
-      generatedRounds.push({
+      generatedStages.push({
         number: i + 1,
         name: `${currentPoints} Points`,
         pointLimit: currentPoints,
-        startDate: roundStartDate.toISOString().split('T')[0],
-        endDate: roundEndDate.toISOString().split('T')[0]
+        startDate: stageStartDate.toISOString().split('T')[0],
+        endDate: stageEndDate.toISOString().split('T')[0]
       })
 
-      // Next round starts day after current ends
-      currentDate = new Date(roundEndDate)
+      // Next stage starts day after current ends
+      currentDate = new Date(stageEndDate)
       currentDate.setDate(currentDate.getDate() + 1)
       currentPoints += autoConfig.pointsStep
     }
 
-    // Set league end date to last round's end
-    const lastRound = generatedRounds[generatedRounds.length - 1]
-    form.endDate = lastRound.endDate
+    // Set league end date to last stage's end
+    const lastStage = generatedStages[generatedStages.length - 1]
+    form.endDate = lastStage.endDate
 
-    // Update form rounds
-    form.rounds = generatedRounds
+    // Update form stages
+    form.stages = generatedStages
 
     // Close modal
     showAutoRoundModal.value = false
@@ -176,27 +176,27 @@
 
     // No additional validation needed for private leagues - invite codes are auto-generated
 
-    if (form.rounds.length === 0) {
-      error.value = 'At least one round is required'
+    if (form.stages.length === 0) {
+      error.value = 'At least one stage is required'
       return false
     }
 
-    // Validate rounds
-    for (const round of form.rounds) {
-      if (!round.name.trim()) {
-        error.value = `Round ${round.number} name is required`
+    // Validate stages
+    for (const stage of form.stages) {
+      if (!stage.name.trim()) {
+        error.value = `Stage ${stage.number} name is required`
         return false
       }
-      if (!round.pointLimit || round.pointLimit <= 0) {
-        error.value = `Round ${round.number} must have a valid point limit`
+      if (!stage.pointLimit || stage.pointLimit <= 0) {
+        error.value = `Stage ${stage.number} must have a valid point limit`
         return false
       }
-      if (!round.startDate) {
-        error.value = `Round ${round.number} start date is required`
+      if (!stage.startDate) {
+        error.value = `Stage ${stage.number} start date is required`
         return false
       }
-      if (!round.endDate) {
-        error.value = `Round ${round.number} end date is required`
+      if (!stage.endDate) {
+        error.value = `Stage ${stage.number} end date is required`
         return false
       }
     }
@@ -212,11 +212,11 @@
     error.value = ''
 
     try {
-      // Sanitize rounds data - convert empty strings to null
-      const sanitizedRounds = form.rounds.map(round => ({
-        ...round,
-        startDate: round.startDate || null,
-        endDate: round.endDate || null
+      // Sanitize stages data - convert empty strings to null
+      const sanitizedStages = form.stages.map(stage => ({
+        ...stage,
+        startDate: stage.startDate || null,
+        endDate: stage.endDate || null
       }))
 
       // Create league
@@ -230,7 +230,7 @@
         isPrivate: form.isPrivate,
         maxPlayers: form.maxPlayers || null,
         rules: form.rules,
-        rounds: sanitizedRounds
+        stages: sanitizedStages
       })
 
       // Success - show create player modal
@@ -388,7 +388,7 @@
           </div>
           <div>
             <label class="block text-gray-300 font-semibold mb-2">
-              End Date <span class="text-gray-500">(auto-set from rounds)</span>
+              End Date <span class="text-gray-500">(auto-set from stages)</span>
             </label>
             <input
               v-model="form.endDate"
@@ -397,7 +397,7 @@
               disabled
             />
             <p class="text-xs text-gray-500 mt-1">
-              Will be automatically set to the last round's end date
+              Will be automatically set to the last stage's end date
             </p>
           </div>
         </div>
@@ -440,12 +440,12 @@
         </div>
       </div>
 
-      <!-- Rounds Section -->
+      <!-- Stages Section -->
       <div class="card space-y-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-gray-700 pb-3">
           <h2 class="text-2xl font-bold text-gray-100 flex items-center gap-2">
             <Calendar :size="24" />
-            Rounds
+            Stages
           </h2>
           <div class="flex gap-2 w-full sm:w-auto">
             <button
@@ -458,47 +458,47 @@
             </button>
             <button
               type="button"
-              @click="addRound"
+              @click="addStage"
               class="btn-login text-sm flex items-center justify-center gap-2 flex-1 sm:flex-initial"
             >
               <Plus :size="16" />
-              Add Round
+              Add Stage
             </button>
           </div>
         </div>
 
-        <!-- Rounds List -->
+        <!-- Stages List -->
         <div class="space-y-4">
           <div
-            v-for="(round, index) in form.rounds"
+            v-for="(stage, index) in form.stages"
             :key="index"
             class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 space-y-4"
           >
-            <!-- Round Header -->
+            <!-- Stage Header -->
             <div class="flex justify-between items-center">
-              <h3 class="text-lg font-bold text-gray-100">Round {{ round.number }}</h3>
+              <h3 class="text-lg font-bold text-gray-100">Stage {{ stage.number }}</h3>
               <button
-                v-if="form.rounds.length > 1"
+                v-if="form.stages.length > 1"
                 type="button"
-                @click="removeRound(index)"
+                @click="removeStage(index)"
                 class="text-red-400 hover:text-red-300 p-2"
-                title="Remove Round"
+                title="Remove Stage"
               >
                 <X :size="20" />
               </button>
             </div>
 
-            <!-- Round Fields -->
+            <!-- Stage Fields -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-gray-300 text-sm font-semibold mb-2">
-                  Round Name <span class="text-red-400">*</span>
+                  Stage Name <span class="text-red-400">*</span>
                 </label>
                 <input
-                  v-model="round.name"
+                  v-model="stage.name"
                   type="text"
                   class="input-field w-full"
-                  :placeholder="placeholders.roundName"
+                  :placeholder="placeholders.stageName"
                   required
                 />
               </div>
@@ -507,7 +507,7 @@
                   Point Limit <span class="text-red-400">*</span>
                 </label>
                 <input
-                  v-model.number="round.pointLimit"
+                  v-model.number="stage.pointLimit"
                   type="number"
                   min="1"
                   class="input-field w-full"
@@ -520,7 +520,7 @@
                   Start Date <span class="text-red-400">*</span>
                 </label>
                 <input
-                  v-model="round.startDate"
+                  v-model="stage.startDate"
                   type="date"
                   class="input-field w-full cursor-pointer"
                   required
@@ -532,7 +532,7 @@
                   End Date <span class="text-red-400">*</span>
                 </label>
                 <input
-                  v-model="round.endDate"
+                  v-model="stage.endDate"
                   type="date"
                   class="input-field w-full cursor-pointer"
                   required
@@ -605,7 +605,7 @@
       </div>
     </form>
 
-    <!-- Auto-Generate Rounds Modal -->
+    <!-- Auto-Generate Stages Modal -->
     <div
       v-if="showAutoRoundModal"
       class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
@@ -616,7 +616,7 @@
         <div class="flex justify-between items-center border-b border-gray-700 p-6">
           <h3 class="text-2xl font-bold text-gray-100 flex items-center gap-2">
             <Sparkles :size="24" class="text-purple-400" />
-            Auto-Generate Rounds
+            Auto-Generate Stages
           </h3>
           <button
             @click="showAutoRoundModal = false"
@@ -630,11 +630,11 @@
         <div class="p-6 space-y-6">
           <!-- Warning if no start date -->
           <div v-if="!form.startDate" class="bg-yellow-900/20 border border-yellow-500 text-yellow-300 px-4 py-3 rounded text-sm">
-            ⚠️ Please set a league start date in the Basic Information section before generating rounds.
+            ⚠️ Please set a league start date in the Basic Information section before generating stages.
           </div>
 
           <p class="text-gray-400 text-sm">
-            Set the basic parameters and we'll create the rounds for you. You can edit them afterwards.
+            Set the basic parameters and we'll create the stages for you. You can edit them afterwards.
           </p>
 
           <!-- Configuration Grid (2x2) -->
@@ -667,13 +667,13 @@
               />
             </div>
 
-            <!-- Number of Rounds -->
+            <!-- Number of Stages -->
             <div>
               <label class="block text-gray-300 font-semibold mb-2">
-                Number of Rounds
+                Number of Stages
               </label>
               <input
-                v-model.number="autoConfig.numberOfRounds"
+                v-model.number="autoConfig.numberOfStages"
                 type="number"
                 min="1"
                 max="10"
@@ -681,13 +681,13 @@
               />
             </div>
 
-            <!-- Weeks per Round -->
+            <!-- Weeks per Stage -->
             <div>
               <label class="block text-gray-300 font-semibold mb-2">
-                Weeks per Round
+                Weeks per Stage
               </label>
               <input
-                v-model.number="autoConfig.weeksPerRound"
+                v-model.number="autoConfig.weeksPerStage"
                 type="number"
                 min="1"
                 max="8"
@@ -713,13 +713,13 @@
           </button>
           <button
             type="button"
-            @click="generateAutoRounds"
+            @click="generateAutoStages"
             class="btn-primary flex items-center gap-2"
             :disabled="!form.startDate"
             :class="{ 'opacity-50 cursor-not-allowed': !form.startDate }"
           >
             <Sparkles :size="16" />
-            Generate Rounds
+            Generate Stages
           </button>
         </div>
       </div>

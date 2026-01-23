@@ -7,7 +7,7 @@
       type: Array,
       required: true
     },
-    currentRound: {
+    currentStage: {
       type: Number,
       default: 1
     }

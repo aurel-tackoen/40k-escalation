@@ -119,7 +119,7 @@
             <Swords :size="40" class="text-yellow-500 mb-4" />
             <h3 class="text-xl font-bold text-gray-100 mb-2">Army List Builder</h3>
             <p class="text-gray-400">
-              Build armies with point validation, track painting progress, and manage escalation across rounds.
+              Build armies with point validation, track painting progress, and manage escalation across stages.
             </p>
           </div>
         </div>
@@ -252,7 +252,7 @@
                 <div class="flex-1">
                   <h3 class="text-xl font-bold text-gray-100 mb-2">Progressive Learning</h3>
                   <p class="text-gray-400">
-                    Master your army's core units before adding complexity. Each round introduces new strategies and synergies
+                    Master your army's core units before adding complexity. Each stage introduces new strategies and synergies
                     as your force grows from 500 to 1000, 1500, and finally 2000 points.
                   </p>
                 </div>
@@ -268,7 +268,7 @@
                 <div class="flex-1">
                   <h3 class="text-xl font-bold text-gray-100 mb-2">Painting Motivation</h3>
                   <p class="text-gray-400">
-                    Stay motivated with manageable painting goals each round. Track your progress and compete on the painting leaderboard
+                    Stay motivated with manageable painting goals each stage. Track your progress and compete on the painting leaderboard
                     as you build towards a fully painted army worthy of the tabletop!
                   </p>
                 </div>
@@ -300,7 +300,7 @@
                 <div class="flex-1">
                   <h3 class="text-xl font-bold text-gray-100 mb-2">Budget-Friendly</h3>
                   <p class="text-gray-400">
-                    Spread your hobby purchases over time instead of buying everything at once. Each round gives you weeks to acquire,
+                    Spread your hobby purchases over time instead of buying everything at once. Each stage gives you weeks to acquire,
                     build, and paint your next units—making the hobby more accessible and sustainable.
                   </p>
                 </div>

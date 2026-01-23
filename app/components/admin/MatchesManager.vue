@@ -18,7 +18,7 @@
   const editingMatch = ref(null)
   const editForm = ref({
     id: null,
-    round: 1,
+    stage: 1,
     matchType: 'victory_points',
     gameSystemId: null,
     player1Points: 0,
@@ -177,7 +177,7 @@
     editingMatch.value = match
     editForm.value = {
       id: match.id,
-      round: match.round,
+      stage: match.stage,
       matchType: match.matchType || 'victory_points',
       gameSystemId: match.gameSystemId,
       player1Points: match.player1Points,
@@ -205,7 +205,7 @@
     editingMatch.value = null
     editForm.value = {
       id: null,
-      round: 1,
+      stage: 1,
       matchType: 'victory_points',
       gameSystemId: null,
       player1Points: 0,
@@ -239,7 +239,7 @@
   const saveMatch = async () => {
     try {
       const updateData = {
-        round: editForm.value.round,
+        stage: editForm.value.stage,
         player1Points: editForm.value.player1Points,
         player2Points: editForm.value.player2Points,
         winnerId: editForm.value.winnerId,
@@ -505,7 +505,7 @@
         <!-- Content Section -->
         <div class="px-6 py-4">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- League & Round Info -->
+            <!-- League & Stage Info -->
             <div class="space-y-3">
               <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">League</div>
               <div class="flex items-center gap-2">
@@ -513,9 +513,9 @@
                 <span class="text-white font-medium">{{ match.leagueName || 'N/A' }}</span>
               </div>
               <div class="mt-3">
-                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Round</div>
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Stage</div>
                 <div class="text-white">
-                  Round <span class="text-yellow-500 font-bold">{{ match.round }}</span>
+                  Round <span class="text-yellow-500 font-bold">{{ match.stage }}</span>
                 </div>
               </div>
               <div v-if="match.notes" class="mt-3">
@@ -581,9 +581,9 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="admin-label">Round</label>
+            <label class="admin-label">Stage</label>
             <input
-              v-model.number="editForm.round"
+              v-model.number="editForm.stage"
               type="number"
               min="1"
               required

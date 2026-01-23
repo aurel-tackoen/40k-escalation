@@ -22,7 +22,7 @@
       type: Array,
       default: () => []
     },
-    currentRound: {
+    currentStage: {
       type: Number,
       default: 1
     }
@@ -131,13 +131,13 @@
       await leaguesStore.togglePlayerActive(
         player.id,
         newStatus,
-        props.currentRound
+        props.currentStage
       )
 
       toastSuccess(
         newStatus
-          ? `${player.name} activated for Round ${props.currentRound}+`
-          : `${player.name} deactivated from Round ${props.currentRound}`
+          ? `${player.name} activated for Stage ${props.currentStage}+`
+          : `${player.name} deactivated from Stage ${props.currentStage}`
       )
     } catch (error) {
       console.error('Error toggling player status:', error)
@@ -259,7 +259,7 @@
                 class="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-700 text-gray-400 text-xs mt-1"
               >
                 <Pause :size="12" />
-                <span>Inactive (Left Round {{ player.leftRound }})</span>
+                <span>Inactive (Left Stage {{ player.leftStage }})</span>
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -324,21 +324,21 @@
                   :style="{ width: getWinPercentage(player) + '%' }"
                 ></div>
               </div>
-              <span class="text-gray-400 min-w-max">{{ Math.round(getWinPercentage(player)) }}% wins</span>
+              <span class="text-gray-400 min-w-max">{{ Math.stage(getWinPercentage(player)) }}% wins</span>
             </div>
 
             <!-- Painting Progress -->
-            <div v-if="getPlayerPaintingStats(player.id, currentRound, armies).totalModels > 0" class="flex items-center space-x-2 text-xs">
+            <div v-if="getPlayerPaintingStats(player.id, currentStage, armies).totalModels > 0" class="flex items-center space-x-2 text-xs">
               <Paintbrush :size="14" class="text-gray-400" />
               <div class="flex-1 bg-gray-600 rounded-full h-2">
                 <div
                   class="rounded-full h-2 transition-all duration-300"
-                  :class="getPaintProgressClass(getPlayerPaintingStats(player.id, currentRound, armies).percentage)"
-                  :style="{ width: getPlayerPaintingStats(player.id, currentRound, armies).percentage + '%' }"
+                  :class="getPaintProgressClass(getPlayerPaintingStats(player.id, currentStage, armies).percentage)"
+                  :style="{ width: getPlayerPaintingStats(player.id, currentStage, armies).percentage + '%' }"
                 ></div>
               </div>
-              <span class="min-w-max" :class="getPaintPercentageColor(getPlayerPaintingStats(player.id, currentRound, armies).percentage)">
-                {{ getPlayerPaintingStats(player.id, currentRound, armies).painted }}/{{ getPlayerPaintingStats(player.id, currentRound, armies).totalModels }}
+              <span class="min-w-max" :class="getPaintPercentageColor(getPlayerPaintingStats(player.id, currentStage, armies).percentage)">
+                {{ getPlayerPaintingStats(player.id, currentStage, armies).painted }}/{{ getPlayerPaintingStats(player.id, currentStage, armies).totalModels }}
               </span>
             </div>
             <div v-else class="flex items-center space-x-2 text-xs text-gray-500 italic">

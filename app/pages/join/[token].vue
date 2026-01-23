@@ -235,8 +235,8 @@
               </div>
 
               <div class="flex items-center justify-between">
-                <span class="text-gray-400">Current Round:</span>
-                <span class="text-gray-200 font-medium">Round {{ league.currentRound }}</span>
+                <span class="text-gray-400">Current Stage:</span>
+                <span class="text-gray-200 font-medium">Stage {{ league.currentStage }}</span>
               </div>
 
               <div v-if="league.startDate" class="flex items-center justify-between">

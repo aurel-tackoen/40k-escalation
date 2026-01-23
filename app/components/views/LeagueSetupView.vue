@@ -80,49 +80,49 @@
 
   // Methods
   const saveLeague = () => {
-    // Sort rounds by number
-    editableLeague.value.rounds.sort((a, b) => a.number - b.number)
+    // Sort stages by number
+    editableLeague.value.stages.sort((a, b) => a.number - b.number)
     emit('update-league', editableLeague.value)
     toastSuccess('League settings saved successfully!')
   }
 
-  const addRound = () => {
-    const newRoundNumber = Math.max(...editableLeague.value.rounds.map(r => r.number)) + 1
-    const lastRound = editableLeague.value.rounds[editableLeague.value.rounds.length - 1]
+  const addStage = () => {
+    const newStageNumber = Math.max(...editableLeague.value.stages.map(s => s.number)) + 1
+    const lastStage = editableLeague.value.stages[editableLeague.value.stages.length - 1]
 
     // Calculate next point limit (add 500-1000 points)
-    const nextPointLimit = lastRound.pointLimit + (lastRound.pointLimit < 1000 ? 500 : 1000)
+    const nextPointLimit = lastStage.pointLimit + (lastStage.pointLimit < 1000 ? 500 : 1000)
 
-    // Set start date to day after last round ends
-    const startDate = new Date(lastRound.endDate)
+    // Set start date to day after last stage ends
+    const startDate = new Date(lastStage.endDate)
     startDate.setDate(startDate.getDate() + 1)
 
     // Set end date to 4 weeks later
     const endDate = new Date(startDate)
     endDate.setDate(endDate.getDate() + 28)
 
-    editableLeague.value.rounds.push({
-      number: newRoundNumber,
-      name: `Round ${newRoundNumber}`,
+    editableLeague.value.stages.push({
+      number: newStageNumber,
+      name: `Stage ${newStageNumber}`,
       pointLimit: nextPointLimit,
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0]
     })
   }
 
-  const removeRound = (index) => {
-    if (editableLeague.value.rounds.length > 1) {
-      editableLeague.value.rounds.splice(index, 1)
+  const removeStage = (index) => {
+    if (editableLeague.value.stages.length > 1) {
+      editableLeague.value.stages.splice(index, 1)
 
-      // Renumber remaining rounds
-      editableLeague.value.rounds.forEach((round, i) => {
-        round.number = i + 1
+      // Renumber remaining stages
+      editableLeague.value.stages.forEach((stage, i) => {
+        stage.number = i + 1
       })
 
-      // Ensure current round is valid
-      const maxRound = Math.max(...editableLeague.value.rounds.map(r => r.number))
-      if (editableLeague.value.currentRound > maxRound) {
-        editableLeague.value.currentRound = maxRound
+      // Ensure current stage is valid
+      const maxStage = Math.max(...editableLeague.value.stages.map(s => s.number))
+      if (editableLeague.value.currentStage > maxStage) {
+        editableLeague.value.currentStage = maxStage
       }
     }
   }
@@ -311,10 +311,10 @@
           </div>
 
           <div class="md:col-span-2">
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Current Round</label>
-            <select v-model.number="editableLeague.currentRound" class="input-field">
-              <option v-for="round in editableLeague.rounds" :key="round.number" :value="round.number">
-                Round {{ round.number }} - {{ round.name }}
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">Current Stage</label>
+            <select v-model.number="editableLeague.currentStage" class="input-field">
+              <option v-for="stage in editableLeague.stages" :key="stage.number" :value="stage.number">
+                Stage {{ stage.number }} - {{ stage.name }}
               </option>
             </select>
           </div>
@@ -491,23 +491,23 @@
       </div>
     </div>
 
-    <!-- Round Configuration -->
+    <!-- Stage Configuration -->
     <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Round Configuration</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Stage Configuration</h3>
 
       <div class="space-y-4">
         <div
-          v-for="(round, index) in editableLeague.rounds"
-          :key="round.number"
+          v-for="(stage, index) in editableLeague.stages"
+          :key="stage.number"
           class="bg-gray-700 border border-gray-600 rounded-lg p-4"
         >
           <div class="flex items-center justify-between mb-4">
-            <h4 class="text-lg font-semibold text-yellow-500">Round {{ round.number }}</h4>
+            <h4 class="text-lg font-semibold text-yellow-500">Stage {{ stage.number }}</h4>
             <button
-              v-if="editableLeague.rounds.length > 1"
-              @click="removeRound(index)"
+              v-if="editableLeague.stages.length > 1"
+              @click="removeStage(index)"
               class="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
-              title="Remove Round"
+              title="Remove Stage"
             >
               <Trash2 :size="20" />
             </button>
@@ -515,19 +515,19 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label class="block text-sm font-semibold text-yellow-500 mb-2">Round Name</label>
+              <label class="block text-sm font-semibold text-yellow-500 mb-2">Stage Name</label>
               <input
-                v-model="round.name"
+                v-model="stage.name"
                 type="text"
                 required
                 class="input-field"
-                :placeholder="placeholders.roundName"
+                :placeholder="placeholders.stageName"
               />
             </div>
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">Point Limit</label>
               <input
-                v-model.number="round.pointLimit"
+                v-model.number="stage.pointLimit"
                 type="number"
                 min="500"
                 max="3000"
@@ -540,7 +540,7 @@
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">Start Date</label>
               <input
-                v-model="round.startDate"
+                v-model="stage.startDate"
                 type="date"
                 required
                 class="input-field cursor-pointer"
@@ -550,7 +550,7 @@
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">End Date</label>
               <input
-                v-model="round.endDate"
+                v-model="stage.endDate"
                 type="date"
                 required
                 class="input-field cursor-pointer"
@@ -563,12 +563,12 @@
       <div class="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
         <button @click="saveLeague" type="button" class="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto">
           <Save :size="18" class="flex-shrink-0" />
-          <span>Save Round Settings</span>
+          <span>Save Stage Settings</span>
         </button>
 
-        <button @click="addRound" type="button" class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto">
+        <button @click="addStage" type="button" class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto">
           <Plus :size="18" class="flex-shrink-0" />
-          <span>Add New Round</span>
+          <span>Add New Stage</span>
         </button>
       </div>
     </div>

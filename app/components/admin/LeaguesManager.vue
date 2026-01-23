@@ -24,15 +24,15 @@
     gameSystemId: null,
     status: 'active',
     isPrivate: false,
-    currentRound: 1,
+    currentStage: 1,
     maxPlayers: null,
     rules: ''
   })
 
-  // Round edit modal state
-  const showRoundModal = ref(false)
-  const editingRound = ref(null)
-  const roundForm = ref({
+  // Stage edit modal state
+  const showStageModal = ref(false)
+  const editingStage = ref(null)
+  const stageForm = ref({
     id: null,
     number: 1,
     name: '',
@@ -149,7 +149,7 @@
       gameSystemId: league.gameSystemId,
       status: league.status,
       isPrivate: league.isPrivate,
-      currentRound: league.currentRound,
+      currentStage: league.currentStage,
       maxPlayers: league.maxPlayers,
       rules: league.rules || ''
     }
@@ -166,7 +166,7 @@
       gameSystemId: null,
       status: 'active',
       isPrivate: false,
-      currentRound: 1,
+      currentStage: 1,
       maxPlayers: null,
       rules: ''
     }
@@ -191,7 +191,7 @@
           gameSystemId: editForm.value.gameSystemId,
           status: editForm.value.status,
           isPrivate: editForm.value.isPrivate,
-          currentRound: editForm.value.currentRound,
+          currentStage: editForm.value.currentStage,
           maxPlayers: editForm.value.maxPlayers || null
         }
       })
@@ -257,24 +257,24 @@
     }
   }
 
-  // Round modal functions
-  const openRoundModal = (round) => {
-    editingRound.value = round
-    roundForm.value = {
-      id: round.id,
-      number: round.number,
-      name: round.name,
-      pointLimit: round.pointLimit,
-      startDate: round.startDate,
-      endDate: round.endDate
+  // Stage modal functions
+  const openStageModal = (stage) => {
+    editingStage.value = stage
+    stageForm.value = {
+      id: stage.id,
+      number: stage.number,
+      name: stage.name,
+      pointLimit: stage.pointLimit,
+      startDate: stage.startDate,
+      endDate: stage.endDate
     }
-    showRoundModal.value = true
+    showStageModal.value = true
   }
 
-  const closeRoundModal = () => {
-    showRoundModal.value = false
-    editingRound.value = null
-    roundForm.value = {
+  const closeStageModal = () => {
+    showStageModal.value = false
+    editingStage.value = null
+    stageForm.value = {
       id: null,
       number: 1,
       name: '',
@@ -286,23 +286,23 @@
 
   const saveRound = async () => {
     try {
-      await $fetch(`/api/admin/rounds/${roundForm.value.id}`, {
+      await $fetch(`/api/admin/rounds/${stageForm.value.id}`, {
         method: 'PUT',
         body: {
-          number: roundForm.value.number,
-          name: roundForm.value.name,
-          pointLimit: roundForm.value.pointLimit,
-          startDate: roundForm.value.startDate,
-          endDate: roundForm.value.endDate
+          number: stageForm.value.number,
+          name: stageForm.value.name,
+          pointLimit: stageForm.value.pointLimit,
+          startDate: stageForm.value.startDate,
+          endDate: stageForm.value.endDate
         }
       })
 
       toastSuccess('Round updated successfully')
-      closeRoundModal()
+      closeStageModal()
       fetchLeagues()
     } catch (error) {
-      console.error('Error saving round:', error)
-      toastError('Failed to save round')
+      console.error('Error saving stage:', error)
+      toastError('Failed to save stage')
     }
   }
 
@@ -613,7 +613,7 @@
 
           <!-- Show Rounds Button -->
           <button
-            v-if="league.rounds?.length > 0"
+            v-if="league.stages?.length > 0"
             @click="toggleLeagueExpansion(league.id)"
             class="mt-4 flex items-center gap-2 text-sm text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer"
           >
@@ -622,38 +622,38 @@
               :class="['transition-transform', { 'rotate-90': isLeagueExpanded(league.id) }]"
             />
             <span>
-              {{ isLeagueExpanded(league.id) ? 'Hide' : 'Show' }} Rounds ({{ league.rounds?.length || 0 }})
+              {{ isLeagueExpanded(league.id) ? 'Hide' : 'Show' }} Rounds ({{ league.stages?.length || 0 }})
             </span>
           </button>
         </div>
 
         <!-- Expandable Rounds Section -->
         <div
-          v-if="isLeagueExpanded(league.id) && league.rounds?.length > 0"
+          v-if="isLeagueExpanded(league.id) && league.stages?.length > 0"
           class="border-t border-gray-700 bg-gray-800/50 px-6 py-4"
         >
           <div class="space-y-2">
             <button
-              v-for="round in league.rounds"
-              :key="round.id"
-              @click="openRoundModal(round)"
+              v-for="stage in league.stages"
+              :key="stage.id"
+              @click="openStageModal(stage)"
               class="w-full bg-gray-700 rounded p-4 text-left hover:bg-gray-600 transition-colors cursor-pointer"
             >
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-3">
                   <Target class="w-5 h-5 text-yellow-500" />
-                  <span class="text-white font-semibold">Round {{ round.number }}: {{ round.name }}</span>
+                  <span class="text-white font-semibold">Round {{ stage.number }}: {{ stage.name }}</span>
                 </div>
-                <span class="text-yellow-500 font-bold">{{ round.pointLimit }} pts</span>
+                <span class="text-yellow-500 font-bold">{{ stage.pointLimit }} pts</span>
               </div>
               <div class="grid grid-cols-2 gap-4 text-sm mt-2">
                 <div>
                   <span class="text-gray-400">Start:</span>
-                  <span class="text-white ml-2">{{ formatDate(round.startDate) }}</span>
+                  <span class="text-white ml-2">{{ formatDate(stage.startDate) }}</span>
                 </div>
                 <div>
                   <span class="text-gray-400">End:</span>
-                  <span class="text-white ml-2">{{ formatDate(round.endDate) }}</span>
+                  <span class="text-white ml-2">{{ formatDate(stage.endDate) }}</span>
                 </div>
               </div>
             </button>

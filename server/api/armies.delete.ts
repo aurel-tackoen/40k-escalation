@@ -1,5 +1,5 @@
 /**
- * DELETE /api/armies?leagueId=<leagueId>&playerId=<playerId>&round=<round>
+ * DELETE /api/armies?leagueId=<leagueId>&playerId=<playerId>&stage=<stage>
  * Deletes an army list from the database
  * Requires: user to be the army owner OR league organizer/owner
  */
@@ -16,12 +16,12 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const leagueId = parseInt(query.leagueId as string)
     const playerId = parseInt(query.playerId as string)
-    const round = parseInt(query.round as string)
+    const stage = parseInt(query.stage as string)
 
-    if (!leagueId || isNaN(leagueId) || !playerId || isNaN(playerId) || !round || isNaN(round)) {
+    if (!leagueId || isNaN(leagueId) || !playerId || isNaN(playerId) || !stage || isNaN(stage)) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Valid league ID, player ID and round are required'
+        statusMessage: 'Valid league ID, player ID and stage are required'
       })
     }
 
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
         and(
           eq(armies.leagueId, leagueId),
           eq(armies.playerId, playerId),
-          eq(armies.round, round)
+          eq(armies.stage, stage)
         )
       )
       .returning()

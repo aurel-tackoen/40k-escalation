@@ -148,7 +148,7 @@ export function useDataExport() {
     const formattedMatches = matches.map(match => {
       const base = {
         date: match.datePlayed ? new Date(match.datePlayed).toLocaleDateString() : new Date(match.date).toLocaleDateString(),
-        round: match.round,
+        stage: match.stage,
         player1: match.player1Name || match.player1Id,
         player2: match.player2Name || match.player2Id,
         mission: match.mission || '',

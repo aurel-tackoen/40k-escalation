@@ -1,9 +1,9 @@
 /**
  * PUT /api/leagues?id=<leagueId>
- * Updates an existing league and its rounds
+ * Updates an existing league and its stages
  */
 import { db } from '../../db'
-import { leagues, rounds } from '../../db/schema'
+import { leagues, stages } from '../../db/schema'
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     if (body.description !== undefined) updateData.description = body.description
     if (body.startDate !== undefined) updateData.startDate = body.startDate
     if (body.endDate !== undefined) updateData.endDate = body.endDate
-    if (body.currentRound !== undefined) updateData.currentRound = body.currentRound
+    if (body.currentStage !== undefined) updateData.currentStage = body.currentStage
 
     // Update league
     const updated = await db.update(leagues)
@@ -41,29 +41,29 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Handle rounds updates if provided
+    // Handle stages updates if provided (accepting "rounds" for backward compatibility)
     if (body.rounds && Array.isArray(body.rounds)) {
-      // Get existing rounds for this league
-      const existingRounds = await db.select()
-        .from(rounds)
-        .where(eq(rounds.leagueId, leagueId))
+      // Get existing stages for this league
+      const existingStages = await db.select()
+        .from(stages)
+        .where(eq(stages.leagueId, leagueId))
 
-      const existingRoundIds = new Set(existingRounds.map(r => r.id))
-      const updatedRoundIds = new Set(
+      const existingStageIds = new Set(existingStages.map(r => r.id))
+      const updatedStageIds = new Set(
         body.rounds
           .filter((r: { id?: number }) => r.id)
           .map((r: { id: number }) => r.id)
       )
 
-      // Delete rounds that are no longer in the update
-      const roundsToDelete = existingRounds.filter(r => !updatedRoundIds.has(r.id))
-      for (const round of roundsToDelete) {
-        await db.delete(rounds).where(eq(rounds.id, round.id))
+      // Delete stages that are no longer in the update
+      const stagesToDelete = existingStages.filter(r => !updatedStageIds.has(r.id))
+      for (const stage of stagesToDelete) {
+        await db.delete(stages).where(eq(stages.id, stage.id))
       }
 
-      // Update or insert rounds
+      // Update or insert stages
       for (const round of body.rounds) {
-        const roundData = {
+        const stageData = {
           leagueId,
           number: round.number,
           name: round.name,
@@ -72,30 +72,30 @@ export default defineEventHandler(async (event) => {
           endDate: round.endDate
         }
 
-        if (round.id && existingRoundIds.has(round.id)) {
-          // Update existing round
-          await db.update(rounds)
-            .set(roundData)
-            .where(eq(rounds.id, round.id))
+        if (round.id && existingStageIds.has(round.id)) {
+          // Update existing stage
+          await db.update(stages)
+            .set(stageData)
+            .where(eq(stages.id, round.id))
         } else {
-          // Insert new round
-          await db.insert(rounds).values(roundData)
+          // Insert new stage
+          await db.insert(stages).values(stageData)
         }
       }
     }
 
-    // Fetch updated league with rounds
+    // Fetch updated league with stages
     const updatedLeague = updated[0]
-    const leagueRounds = await db.select()
-      .from(rounds)
-      .where(eq(rounds.leagueId, leagueId))
-      .orderBy(rounds.number)
+    const leagueStages = await db.select()
+      .from(stages)
+      .where(eq(stages.leagueId, leagueId))
+      .orderBy(stages.number)
 
     return {
       success: true,
       data: {
         ...updatedLeague,
-        rounds: leagueRounds
+        stages: leagueStages
       }
     }
   } catch (error) {

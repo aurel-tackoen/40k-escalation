@@ -4,18 +4,18 @@ import { ref, computed } from 'vue'
  * Army form state management and operations
  * Handles army builder form state, unit management, and validation
  *
- * @param {Ref} rounds - Reactive reference to rounds array
+ * @param {Ref} stages - Reactive reference to stages array
  * @param {Function} calculateTotal - Function to calculate army total points
  * @param {Function} isValidArmy - Function to validate army against point limit
  * @returns {Object} Army form utilities
  */
-export function useArmyForm(rounds, calculateTotal, isValidArmy) {
+export function useArmyForm(stages, calculateTotal, isValidArmy) {
   const showBuilder = ref(false)
   const editingArmy = ref(false)
   const newlyAddedUnitId = ref(null)
   const currentArmy = ref({
     playerId: null,
-    round: null,
+    stage: null,
     name: '',
     totalPoints: 0,
     units: [],
@@ -24,13 +24,13 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
   })
 
   /**
-   * Get the point limit for the current army's round
-   * @returns {number} Point limit or 0 if no round selected
+   * Get the point limit for the current army's stage
+   * @returns {number} Point limit or 0 if no stage selected
    */
-  const currentRoundLimit = computed(() => {
-    if (!currentArmy.value.round) return 0
-    const round = rounds.value.find(r => r.number === currentArmy.value.round)
-    return round ? round.pointLimit : 0
+  const currentStageLimit = computed(() => {
+    if (!currentArmy.value.stage) return 0
+    const stage = stages.value.find(s => s.number === currentArmy.value.stage)
+    return stage ? stage.pointLimit : 0
   })
 
   /**
@@ -38,7 +38,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
    * @returns {number} Remaining points (positive = under limit, negative = over limit)
    */
   const remainingPoints = computed(() => {
-    return currentRoundLimit.value - currentArmy.value.totalPoints
+    return currentStageLimit.value - currentArmy.value.totalPoints
   })
 
   /**
@@ -46,17 +46,17 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
    * @returns {boolean} True if army is within point limit
    */
   const isCurrentArmyValid = computed(() => {
-    return isValidArmy(currentArmy.value, currentRoundLimit.value)
+    return isValidArmy(currentArmy.value, currentStageLimit.value)
   })
 
   /**
    * Start building a new army
-   * @param {number} defaultRound - Default round number to select
+   * @param {number} defaultStage - Default stage number to select
    */
-  const startNewArmy = (defaultRound = 1) => {
+  const startNewArmy = (defaultStage = 1) => {
     currentArmy.value = {
       playerId: null,
-      round: defaultRound,
+      stage: defaultStage,
       name: '',
       totalPoints: 0,
       units: [],
@@ -85,7 +85,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
     editingArmy.value = false
     currentArmy.value = {
       playerId: null,
-      round: null,
+      stage: null,
       name: '',
       totalPoints: 0,
       units: [],
@@ -156,13 +156,13 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
   const copyFromPreviousArmy = (previousArmy) => {
     if (previousArmy) {
       currentArmy.value.units = JSON.parse(JSON.stringify(previousArmy.units))
-      currentArmy.value.name = `${previousArmy.name} - Round ${currentArmy.value.round}`
+      currentArmy.value.name = `${previousArmy.name} - Stage ${currentArmy.value.stage}`
       recalculateArmy()
     }
   }
 
   /**
-   * Set up form for escalating an army to next round
+   * Set up form for escalating an army to next stage
    * @param {Object} army - Army to escalate
    * @param {Object} escalatedArmy - Pre-escalated army data
    */
@@ -180,7 +180,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
     newlyAddedUnitId,
 
     // Computed
-    currentRoundLimit,
+    currentStageLimit,
     remainingPoints,
     isCurrentArmyValid,
 

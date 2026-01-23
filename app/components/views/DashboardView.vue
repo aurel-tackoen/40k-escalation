@@ -80,11 +80,11 @@
   }
 
   // Computed properties
-  const currentRound = computed(() => {
-    if (!props.league || !props.league.rounds || props.league.rounds.length === 0) {
+  const currentStage = computed(() => {
+    if (!props.league || !props.league.stages || props.league.stages.length === 0) {
       return { name: 'N/A', pointLimit: 0 }
     }
-    return props.league.rounds.find(r => r.number === props.league.currentRound) || props.league.rounds[0]
+    return props.league.stages.find(s => s.number === props.league.currentStage) || props.league.stages[0]
   })
 
   const sortedPlayers = computed(() => {
@@ -97,9 +97,9 @@
       .slice(0, 5)
   })
 
-  const currentRoundArmies = computed(() => {
+  const currentStageArmies = computed(() => {
     if (!props.league) return 0
-    return props.armies.filter(army => army.round === props.league.currentRound).length
+    return props.armies.filter(army => army.stage === props.league.currentStage).length
   })
 </script>
 
@@ -120,10 +120,10 @@
         <div class="bg-gray-700 p-4 rounded-lg">
           <div class="flex items-center gap-2 mb-2">
             <Calendar :size="20" class="text-yellow-500 flex-shrink-0" />
-            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Current Round</h3>
+            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Current Stage</h3>
           </div>
-          <p class="text-xl sm:text-2xl font-bold">{{ currentRound.name }}</p>
-          <p class="text-xs sm:text-sm text-gray-400">{{ currentRound.pointLimit }} points</p>
+          <p class="text-xl sm:text-2xl font-bold">{{ currentStage.name }}</p>
+          <p class="text-xs sm:text-sm text-gray-400">{{ currentStage.pointLimit }} points</p>
         </div>
         <NuxtLink
           to="/players"
@@ -144,8 +144,8 @@
             <Shield :size="20" class="text-yellow-500 flex-shrink-0" />
             <h3 class="text-base sm:text-lg font-semibold text-yellow-500 group-hover:text-yellow-400">Army Lists</h3>
           </div>
-          <p class="text-xl sm:text-2xl font-bold">{{ currentRoundArmies }}</p>
-          <p class="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300">for current round · Click to view →</p>
+          <p class="text-xl sm:text-2xl font-bold">{{ currentStageArmies }}</p>
+          <p class="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300">for current stage · Click to view →</p>
         </NuxtLink>
         <NuxtLink
           to="/matches"
@@ -223,7 +223,7 @@
       <div>
         <PaintingProgress
           :leaderboard="paintingLeaderboard"
-          :currentRound="league?.currentRound || 1"
+          :currentStage="league?.currentStage || 1"
         />
       </div>
     </div>
@@ -264,25 +264,25 @@
 
 
 
-    <!-- Rounds Information -->
-    <div v-if="league?.rounds && league.rounds.length > 0" class="card">
+    <!-- Stages Information -->
+    <div v-if="league?.stages && league.stages.length > 0" class="card">
       <div class="flex items-center gap-2 mb-4">
         <Calendar :size="24" class="text-yellow-500" />
-        <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Rounds Schedule</h3>
+        <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Stages Schedule</h3>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div
-          v-for="round in league.rounds"
-          :key="round.id"
+          v-for="stage in league.stages"
+          :key="stage.id"
           class="bg-gray-700 p-4 rounded-lg border-2 transition-all"
-          :class="round.number === league.currentRound ? 'border-yellow-500 shadow-lg shadow-yellow-500/20' : 'border-gray-600'"
+          :class="stage.number === league.currentStage ? 'border-yellow-500 shadow-lg shadow-yellow-500/20' : 'border-gray-600'"
         >
           <div class="flex items-center justify-between mb-3">
-            <h4 class="text-lg font-bold" :class="round.number === league.currentRound ? 'text-yellow-500' : 'text-white'">
-              {{ round.name }}
+            <h4 class="text-lg font-bold" :class="stage.number === league.currentStage ? 'text-yellow-500' : 'text-white'">
+              {{ stage.name }}
             </h4>
             <span
-              v-if="round.number === league.currentRound"
+              v-if="stage.number === league.currentStage"
               class="px-2 py-1 text-xs font-bold bg-yellow-500 text-gray-900 rounded"
             >
               ACTIVE
@@ -293,35 +293,35 @@
             <div class="flex items-center gap-2">
               <Shield :size="16" class="text-gray-400 flex-shrink-0" />
               <span class="text-gray-300">
-                <span class="font-semibold text-yellow-500">{{ round.pointLimit }}</span> points
+                <span class="font-semibold text-yellow-500">{{ stage.pointLimit }}</span> points
               </span>
             </div>
 
-            <div v-if="round.startDate" class="flex items-center gap-2">
+            <div v-if="stage.startDate" class="flex items-center gap-2">
               <Calendar :size="16" class="text-gray-400 flex-shrink-0" />
               <span class="text-gray-300">
-                Start: <span class="font-semibold">{{ formatDate(round.startDate) }}</span>
+                Start: <span class="font-semibold">{{ formatDate(stage.startDate) }}</span>
               </span>
             </div>
 
-            <div v-if="round.endDate" class="flex items-center gap-2">
+            <div v-if="stage.endDate" class="flex items-center gap-2">
               <Calendar :size="16" class="text-gray-400 flex-shrink-0" />
               <span class="text-gray-300">
-                End: <span class="font-semibold">{{ formatDate(round.endDate) }}</span>
+                End: <span class="font-semibold">{{ formatDate(stage.endDate) }}</span>
               </span>
             </div>
 
             <div class="flex items-center gap-2 pt-2 border-t border-gray-600">
               <Shield :size="16" class="text-gray-400 flex-shrink-0" />
               <span class="text-gray-300">
-                <span class="font-semibold">{{ armies.filter(a => a.round === round.number).length }}</span> armies submitted
+                <span class="font-semibold">{{ armies.filter(a => a.stage === stage.number).length }}</span> armies submitted
               </span>
             </div>
 
             <div class="flex items-center gap-2">
               <Swords :size="16" class="text-gray-400 flex-shrink-0" />
               <span class="text-gray-300">
-                <span class="font-semibold">{{ matches.filter(m => m.round === round.number).length }}</span> matches played
+                <span class="font-semibold">{{ matches.filter(m => m.stage === stage.number).length }}</span> matches played
               </span>
             </div>
           </div>

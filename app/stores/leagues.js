@@ -83,16 +83,16 @@ export const useLeaguesStore = defineStore('leagues', {
       return role === 'owner' || role === 'organizer'
     },
 
-    // Painting leaderboard for current round
+    // Painting leaderboard for current stage
     paintingLeaderboard(state) {
       // Return empty array if no league is selected
       if (!this.currentLeague) return []
 
       const leaderboard = []
-      const currentRound = this.currentLeague.currentRound || 1
+      const currentStage = this.currentLeague.currentStage || 1
 
       state.players.forEach(player => {
-        const army = state.armies.find(a => a.playerId === player.id && a.round === currentRound)
+        const army = state.armies.find(a => a.playerId === player.id && a.stage === currentStage)
 
         if (army && army.units) {
           const unitsWithModels = army.units.filter(u => u.totalModels > 0)
@@ -152,26 +152,26 @@ export const useLeaguesStore = defineStore('leagues', {
       return this.currentPlayer !== null
     },
 
-    // Pairings for current round
-    currentRoundPairings(state) {
+    // Pairings for current stage
+    currentStagePairings(state) {
       if (!this.currentLeague) return []
-      const currentRound = this.currentLeague.currentRound || 1
-      return state.pairings.filter(p => p.round === currentRound)
+      const currentStage = this.currentLeague.currentStage || 1
+      return state.pairings.filter(p => p.stage === currentStage)
     },
 
-    // Count of unpaired active players in current round
+    // Count of unpaired active players in current stage
     unpairedPlayersCount(state) {
       if (!this.currentLeague) return 0
-      const currentRound = this.currentLeague.currentRound || 1
+      const currentStage = this.currentLeague.currentStage || 1
       const activePlayers = state.players.filter(p =>
         p.isActive &&
-        (p.joinedRound || 1) <= currentRound &&
-        (!p.leftRound || p.leftRound >= currentRound)
+        (p.joinedStage || 1) <= currentStage &&
+        (!p.leftStage || p.leftStage >= currentStage)
       )
 
       const pairedIds = new Set()
       state.pairings
-        .filter(p => p.round === currentRound)
+        .filter(p => p.stage === currentStage)
         .forEach(p => {
           pairedIds.add(p.player1Id)
           if (p.player2Id) pairedIds.add(p.player2Id)
@@ -180,14 +180,14 @@ export const useLeaguesStore = defineStore('leagues', {
       return activePlayers.filter(p => !pairedIds.has(p.id)).length
     },
 
-    // Active players for current round
+    // Active players for current stage
     activePlayers(state) {
       if (!this.currentLeague) return []
-      const currentRound = this.currentLeague.currentRound || 1
+      const currentStage = this.currentLeague.currentStage || 1
       return state.players.filter(p =>
         p.isActive &&
-        (p.joinedRound || 1) <= currentRound &&
-        (!p.leftRound || p.leftRound >= currentRound)
+        (p.joinedStage || 1) <= currentStage &&
+        (!p.leftStage || p.leftStage >= currentStage)
       )
     }
   },
@@ -394,13 +394,13 @@ export const useLeaguesStore = defineStore('leagues', {
             name: response.data.league.name,
             role: 'owner',
             joinedAt: response.data.membership.joinedAt,
-            rounds: response.data.rounds
+            stages: response.data.stages
           })
 
           // Cache league details
           this.leagues[response.data.league.id] = {
             ...response.data.league,
-            rounds: response.data.rounds,
+            stages: response.data.stages,
             memberCount: 1
           }
 
@@ -955,7 +955,7 @@ export const useLeaguesStore = defineStore('leagues', {
         })
         if (response.success) {
           const existingIndex = this.armies.findIndex(a =>
-            a.playerId === army.playerId && a.round === army.round
+            a.playerId === army.playerId && a.stage === army.stage
           )
 
           if (existingIndex !== -1) {
@@ -974,18 +974,18 @@ export const useLeaguesStore = defineStore('leagues', {
     /**
      * Delete army from current league
      */
-    async deleteArmy(playerId, round) {
+    async deleteArmy(playerId, stage) {
       try {
         if (!this.currentLeagueId) {
           throw new Error('No league selected')
         }
 
-        const response = await $fetch(`/api/armies?leagueId=${this.currentLeagueId}&playerId=${playerId}&round=${round}`, {
+        const response = await $fetch(`/api/armies?leagueId=${this.currentLeagueId}&playerId=${playerId}&stage=${stage}`, {
           method: 'DELETE'
         })
         if (response.success) {
           this.armies = this.armies.filter(a =>
-            !(a.playerId === playerId && a.round === round && a.leagueId === this.currentLeagueId)
+            !(a.playerId === playerId && a.stage === stage && a.leagueId === this.currentLeagueId)
           )
         }
         return response
@@ -1000,12 +1000,12 @@ export const useLeaguesStore = defineStore('leagues', {
     /**
      * Fetch pairings for current league
      */
-    async fetchPairings(round = null) {
+    async fetchPairings(stage = null) {
       if (!this.currentLeagueId) return
 
       try {
-        const url = round
-          ? `/api/pairings?leagueId=${this.currentLeagueId}&round=${round}`
+        const url = stage
+          ? `/api/pairings?leagueId=${this.currentLeagueId}&stage=${stage}`
           : `/api/pairings?leagueId=${this.currentLeagueId}`
 
         const response = await $fetch(url)
@@ -1019,9 +1019,9 @@ export const useLeaguesStore = defineStore('leagues', {
     },
 
     /**
-     * Generate pairings for a round
+     * Generate pairings for a stage
      */
-    async generatePairings(round, pairings) {
+    async generatePairings(stage, pairings) {
       if (!this.currentLeagueId) return
 
       try {
@@ -1029,13 +1029,13 @@ export const useLeaguesStore = defineStore('leagues', {
           method: 'POST',
           body: {
             leagueId: this.currentLeagueId,
-            round,
+            stage,
             pairings
           }
         })
 
         if (response.success) {
-          // Refresh ALL pairings (not just the current round)
+          // Refresh ALL pairings (not just the current stage)
           await this.fetchPairings()
         }
 
@@ -1137,13 +1137,13 @@ export const useLeaguesStore = defineStore('leagues', {
     /**
      * Toggle player active status
      */
-    async togglePlayerActive(playerId, isActive, currentRound) {
+    async togglePlayerActive(playerId, isActive, currentStage) {
       try {
         const response = await $fetch(`/api/players/${playerId}/toggle-active`, {
           method: 'PATCH',
           body: {
             isActive,
-            currentRound
+            currentStage
           }
         })
 

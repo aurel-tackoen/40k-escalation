@@ -11,19 +11,19 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
 
     // Validate required fields
-    if (!body.playerId || !body.round || !body.name || !body.units || !body.leagueId) {
+    if (!body.playerId || !body.stage || !body.name || !body.units || !body.leagueId) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Player ID, round, name, units, and leagueId are required'
+        statusMessage: 'Player ID, stage, name, units, and leagueId are required'
       })
     }
 
-    // Check if army already exists for this player and round
+    // Check if army already exists for this player and stage
     const existing = await db.select()
       .from(armies)
       .where(and(
         eq(armies.playerId, body.playerId),
-        eq(armies.round, body.round)
+        eq(armies.stage, body.stage)
       ))
 
     const unitsJson = JSON.stringify(body.units)
@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
       const [newArmy] = await db.insert(armies).values({
         leagueId: body.leagueId,
         playerId: body.playerId,
-        round: body.round,
+        stage: body.stage,
         name: body.name,
         totalPoints: body.totalPoints,
         units: unitsJson,
