@@ -115,14 +115,24 @@ export function useFormatting() {
     if (normalized.endDate) {
       normalized.endDate = formatDateForInput(normalized.endDate)
     }
-    if (normalized.rounds) {
-      normalized.rounds = normalized.rounds.map(round => ({
-        ...round,
-        startDate: formatDateForInput(round.startDate),
-        endDate: formatDateForInput(round.endDate)
+    if (normalized.stages) {
+      normalized.stages = normalized.stages.map(stage => ({
+        ...stage,
+        startDate: formatDateForInput(stage.startDate),
+        endDate: formatDateForInput(stage.endDate)
       }))
     }
     return normalized
+  }
+
+  /**
+   * Format a stage name
+   * @param {number} stageNumber - Stage number
+   * @param {string} customName - Optional custom name
+   * @returns {string} Formatted stage name (e.g., "Stage 1" or custom name)
+   */
+  const formatStageName = (stageNumber, customName = null) => {
+    return customName || `Stage ${stageNumber}`
   }
 
   return {
@@ -135,6 +145,7 @@ export function useFormatting() {
     formatNumber,
     formatScore,
     formatDateForInput,
-    normalizeDates
+    normalizeDates,
+    formatStageName
   }
 }

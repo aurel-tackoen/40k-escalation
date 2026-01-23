@@ -12,30 +12,30 @@ import { unref } from 'vue'
  * @param {Ref<Object>} leagueSettings - Reactive league settings object
  */
 export function usePairings(players, matches, pairings, leagueSettings) {  /**
-   * Get active players for a specific round
-   * @param {number} round - Round number
-   * @returns {Array} Active players for the round
+   * Get active players for a specific stage
+   * @param {number} stage - Stage number
+   * @returns {Array} Active players for the stage
    */
-  const getActivePlayers = (round) => {
+  const getActivePlayers = (stage) => {
     const playersList = unref(players)
     return playersList.filter(p =>
       p.isActive &&
-      (p.joinedRound || 1) <= round &&
-      (!p.leftRound || p.leftRound >= round)
+      (p.joinedStage || 1) <= stage &&
+      (!p.leftStage || p.leftStage >= stage)
     )
   }
 
   /**
    * Create a BYE pairing for a player
    * @param {number} playerId - Player ID
-   * @param {number} round - Round number
+   * @param {number} stage - Stage number
    * @param {number} leagueId - League ID
    * @returns {Object} BYE pairing object
    */
-  const createByePairing = (playerId, round, leagueId) => {
+  const createByePairing = (playerId, stage, leagueId) => {
     return {
       leagueId,
-      round,
+      stage,
       player1Id: playerId,
       player2Id: null,
       isBye: true,
@@ -47,10 +47,10 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
   /**
    * Select player for BYE (prioritizes players with fewest BYEs)
    * @param {Array} activePlayers - Active players list
-   * @param {number} _round - Current round (unused, for future implementation)
+   * @param {number} _stage - Current stage (unused, for future implementation)
    * @returns {Object} Player selected for BYE
    */
-  const selectByePlayer = (activePlayers, _round) => {
+  const selectByePlayer = (activePlayers, _stage) => {
     const pairingsList = unref(pairings)
     const byeCounts = {}
 
@@ -73,17 +73,17 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
    * Check if pairing exists between two players
    * @param {number} p1Id - Player 1 ID
    * @param {number} p2Id - Player 2 ID
-   * @param {number|null} round - Round number (null = any round)
+   * @param {number|null} stage - Stage number (null = any stage)
    * @returns {boolean} True if pairing exists
    */
-  const hasPairing = (p1Id, p2Id, round = null) => {
+  const hasPairing = (p1Id, p2Id, stage = null) => {
     const pairingsList = unref(pairings)
     return pairingsList.some(pair => {
-      const matchesRound = round === null || pair.round === round
+      const matchesStage = stage === null || pair.stage === stage
       const matchesPlayers =
         (pair.player1Id === p1Id && pair.player2Id === p2Id) ||
         (pair.player1Id === p2Id && pair.player2Id === p1Id)
-      return matchesRound && matchesPlayers
+      return matchesStage && matchesPlayers
     })
   }
 
@@ -111,14 +111,14 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
   }
 
   /**
-   * Generate Swiss pairings for a round
+   * Generate Swiss pairings for a stage
    * Pairs players with similar records, avoiding rematches when possible
-   * @param {number} round - Round number
+   * @param {number} stage - Stage number
    * @param {number} leagueId - League ID
    * @returns {Array} Array of pairing objects
    */
-  const generateSwissPairings = (round, leagueId) => {
-    let activePlayers = getActivePlayers(round)
+  const generateSwissPairings = (stage, leagueId) => {
+    let activePlayers = getActivePlayers(stage)
     const newPairings = []
     const settings = unref(leagueSettings)
 
@@ -126,10 +126,10 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
     if (activePlayers.length % 2 === 1) {
       const byePlayer = settings?.byeHandling === 'manual'
         ? null // Organizer will assign manually
-        : selectByePlayer(activePlayers, round)
+        : selectByePlayer(activePlayers, stage)
 
       if (byePlayer) {
-        newPairings.push(createByePairing(byePlayer.id, round, leagueId))
+        newPairings.push(createByePairing(byePlayer.id, stage, leagueId))
         activePlayers = activePlayers.filter(p => p.id !== byePlayer.id)
       }
     }
@@ -155,7 +155,7 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
         if (!hasPlayed || settings?.allowRematches) {
           newPairings.push({
             leagueId,
-            round,
+            stage,
             player1Id: sorted[i].id,
             player2Id: sorted[j].id,
             isBye: false,
@@ -173,7 +173,7 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
           if (!paired.has(sorted[j].id)) {
             newPairings.push({
               leagueId,
-              round,
+              stage,
               player1Id: sorted[i].id,
               player2Id: sorted[j].id,
               isBye: false,
@@ -191,27 +191,27 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
   }
 
   /**
-   * Generate random pairings for a round
-   * @param {number} round - Round number
+   * Generate random pairings for a stage
+   * @param {number} stage - Stage number
    * @param {number} leagueId - League ID
    * @returns {Array} Array of pairing objects
    */
-  const generateRandomPairings = (round, leagueId) => {
-    const activePlayers = getActivePlayers(round)
+  const generateRandomPairings = (stage, leagueId) => {
+    const activePlayers = getActivePlayers(stage)
     const shuffled = [...activePlayers].sort(() => Math.random() - 0.5)
     const newPairings = []
 
     // Handle odd number
     if (shuffled.length % 2 === 1) {
       const byePlayer = shuffled.pop() // Random BYE
-      newPairings.push(createByePairing(byePlayer.id, round, leagueId))
+      newPairings.push(createByePairing(byePlayer.id, stage, leagueId))
     }
 
     // Pair adjacent players
     for (let i = 0; i < shuffled.length; i += 2) {
       newPairings.push({
         leagueId,
-        round,
+        stage,
         player1Id: shuffled[i].id,
         player2Id: shuffled[i + 1].id,
         isBye: false,
@@ -226,29 +226,29 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
    * Create a manual pairing
    * @param {number} player1Id - Player 1 ID
    * @param {number|null} player2Id - Player 2 ID (null for BYE)
-   * @param {number} round - Round number
+   * @param {number} stage - Stage number
    * @param {number} leagueId - League ID
    * @returns {Object} Pairing object
    * @throws {Error} If validation fails
    */
-  const createManualPairing = (player1Id, player2Id, round, leagueId) => {
+  const createManualPairing = (player1Id, player2Id, stage, leagueId) => {
     // Validate players are active
-    const activePlayers = getActivePlayers(round)
+    const activePlayers = getActivePlayers(stage)
     const p1Active = activePlayers.find(p => p.id === player1Id)
     const p2Active = player2Id ? activePlayers.find(p => p.id === player2Id) : true
 
     if (!p1Active || !p2Active) {
-      throw new Error('Both players must be active in this round')
+      throw new Error('Both players must be active in this stage')
     }
 
     // Check if pairing already exists
-    if (player2Id && hasPairing(player1Id, player2Id, round)) {
-      throw new Error('Pairing already exists for this round')
+    if (player2Id && hasPairing(player1Id, player2Id, stage)) {
+      throw new Error('Pairing already exists for this stage')
     }
 
     return {
       leagueId,
-      round,
+      stage,
       player1Id,
       player2Id: player2Id || null,
       isBye: !player2Id,
@@ -257,17 +257,17 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
   }
 
   /**
-   * Get unpaired active players for a round
-   * @param {number} round - Round number
+   * Get unpaired active players for a stage
+   * @param {number} stage - Stage number
    * @returns {Array} Unpaired players
    */
-  const getUnpairedPlayers = (round) => {
-    const activePlayers = getActivePlayers(round)
+  const getUnpairedPlayers = (stage) => {
+    const activePlayers = getActivePlayers(stage)
     const pairingsList = unref(pairings)
     const pairedIds = new Set()
 
     pairingsList
-      .filter(p => p.round === round)
+      .filter(p => p.stage === stage)
       .forEach(p => {
         pairedIds.add(p.player1Id)
         if (p.player2Id) pairedIds.add(p.player2Id)
@@ -277,38 +277,38 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
   }
 
   /**
-   * Suggest pairing method based on round and settings
-   * @param {number} round - Round number
+   * Suggest pairing method based on stage and settings
+   * @param {number} stage - Stage number
    * @returns {string} Suggested method ('swiss', 'random', 'manual')
    */
-  const suggestPairingMethod = (round) => {
+  const suggestPairingMethod = (stage) => {
     const settings = unref(leagueSettings)
-    if (round === 1) {
-      return settings?.firstRoundPairingMethod || 'manual'
+    if (stage === 1) {
+      return settings?.firstStagePairingMethod || 'manual'
     }
-    return settings?.subsequentRoundMethod || 'swiss'
+    return settings?.subsequentStageMethod || 'swiss'
   }
 
   /**
    * Validate a pairing
    * @param {number} p1Id - Player 1 ID
    * @param {number} p2Id - Player 2 ID
-   * @param {number} round - Round number
+   * @param {number} stage - Stage number
    * @returns {Object} Validation result { valid: boolean, error: string }
    */
-  const validatePairing = (p1Id, p2Id, round) => {
-    const activePlayers = getActivePlayers(round)
+  const validatePairing = (p1Id, p2Id, stage) => {
+    const activePlayers = getActivePlayers(stage)
 
     if (!activePlayers.find(p => p.id === p1Id)) {
-      return { valid: false, error: 'Player 1 is not active in this round' }
+      return { valid: false, error: 'Player 1 is not active in this stage' }
     }
 
     if (p2Id && !activePlayers.find(p => p.id === p2Id)) {
-      return { valid: false, error: 'Player 2 is not active in this round' }
+      return { valid: false, error: 'Player 2 is not active in this stage' }
     }
 
-    if (p2Id && hasPairing(p1Id, p2Id, round)) {
-      return { valid: false, error: 'Pairing already exists for this round' }
+    if (p2Id && hasPairing(p1Id, p2Id, stage)) {
+      return { valid: false, error: 'Pairing already exists for this stage' }
     }
 
     return { valid: true }

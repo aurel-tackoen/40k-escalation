@@ -1,9 +1,9 @@
 /**
  * POST /api/leagues
- * Creates a new league with rounds
+ * Creates a new league with stages
  */
 import { db } from '../../db'
-import { leagues, rounds } from '../../db/schema'
+import { leagues, stages } from '../../db/schema'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -23,12 +23,12 @@ export default defineEventHandler(async (event) => {
       description: body.description || null,
       startDate: body.startDate,
       endDate: body.endDate || null,
-      currentRound: body.currentRound || 1
+      currentStage: body.currentStage || 1
     }).returning()
 
-    // Insert rounds if provided
+    // Insert stages if provided (accepting "rounds" for backward compatibility)
     if (body.rounds && Array.isArray(body.rounds)) {
-      const roundsToInsert = body.rounds.map((round: { number: number; name: string; pointLimit: number; startDate: string; endDate: string }) => ({
+      const stagesToInsert = body.rounds.map((round: { number: number; name: string; pointLimit: number; startDate: string; endDate: string }) => ({
         leagueId: newLeague.id,
         number: round.number,
         name: round.name,
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
         endDate: round.endDate
       }))
 
-      await db.insert(rounds).values(roundsToInsert)
+      await db.insert(stages).values(stagesToInsert)
     }
 
     return {

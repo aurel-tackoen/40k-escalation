@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     // Build update object with only provided fields
     const updateData: Record<string, unknown> = {}
 
-    if (body.round !== undefined) updateData.round = body.round
+    if (body.stage !== undefined) updateData.stage = body.stage
     if (body.player1Points !== undefined) updateData.player1Points = body.player1Points
     if (body.player2Points !== undefined) updateData.player2Points = body.player2Points
     if (body.winnerId !== undefined) updateData.winnerId = body.winnerId

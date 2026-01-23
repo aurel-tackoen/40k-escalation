@@ -15,8 +15,8 @@
       v-else
       :players="players"
       :armies="armies"
-      :current-round="league.currentRound"
-      :rounds="league.rounds"
+      :current-stage="league.currentStage"
+      :stages="league.stages"
       @save-army="leaguesStore.saveArmy"
       @delete-army="leaguesStore.deleteArmy"
     />

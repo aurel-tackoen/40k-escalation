@@ -29,8 +29,8 @@
   const leaguesStore = useLeaguesStore()
   const { availableMissions, currentGameSystemName, gameSystems, canManageLeague, currentPlayer, currentLeague, selectedLeague } = storeToRefs(leaguesStore)
 
-  // Get rounds from current league
-  const leagueRounds = computed(() => currentLeague.value?.rounds || [])
+  // Get stages from current league
+  const leagueStages = computed(() => currentLeague.value?.stages || [])
 
   // Composables
   const { getPlayerName, getPlayerFaction } = usePlayerLookup(toRef(props, 'players'))
@@ -107,7 +107,7 @@
       player2ObjectiveCompleted: match.player2ObjectiveCompleted || false,
 
       // Common fields
-      round: match.round,
+      stage: match.stage,
       mission: match.mission || '',
       datePlayed: match.datePlayed ? new Date(match.datePlayed).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       winnerId: match.winnerId,
@@ -157,7 +157,7 @@
     player2ObjectiveCompleted: false,
 
     // Common fields
-    round: null,
+    stage: null,
     mission: '',
     datePlayed: new Date().toISOString().split('T')[0],
     winnerId: undefined, // undefined = not set, null = draw
@@ -175,7 +175,7 @@
   // Use validation composable
   const matchValidation = useMatchValidation(toRef(() => newMatch.value))
 
-  const filterRound = ref('')
+  const filterStage = ref('')
   const filterPlayer = ref('')
   const viewMode = ref('cards') // 'cards' or 'table'
 
@@ -183,8 +183,8 @@
   const filteredMatches = computed(() => {
     let filtered = [...props.matches].sort((a, b) => new Date(b.datePlayed) - new Date(a.datePlayed))
 
-    if (filterRound.value) {
-      filtered = filtered.filter(match => match.round === parseInt(filterRound.value))
+    if (filterStage.value) {
+      filtered = filtered.filter(match => match.stage === parseInt(filterStage.value))
     }
 
     if (filterPlayer.value) {
@@ -262,7 +262,7 @@
       player2ObjectiveCompleted: false,
 
       // Common fields
-      round: null,
+      stage: null,
       mission: '',
       datePlayed: new Date().toISOString().split('T')[0],
       winnerId: undefined, // undefined = not set, null = draw
@@ -370,10 +370,10 @@
       <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="flex items-center gap-2">
           <Filter :size="18" class="text-yellow-500 flex-shrink-0" />
-          <select v-model="filterRound" class="input-field flex-1">
+          <select v-model="filterStage" class="input-field flex-1">
             <option value="">All Rounds</option>
-            <option v-for="round in leagueRounds" :key="round.number" :value="round.number">
-              {{ round.name }}
+            <option v-for="stage in leagueStages" :key="stage.number" :value="stage.number">
+              {{ stage.name }}
             </option>
           </select>
         </div>
@@ -471,7 +471,7 @@
               <!-- Round -->
               <td class="py-3 px-4">
                 <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-semibold text-sm whitespace-nowrap">
-                  Round {{ match.round }}
+                  Round {{ match.stage }}
                 </span>
               </td>
 
@@ -819,10 +819,10 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Round</label>
-            <select v-model.number="newMatch.round" required class="input-field">
+            <select v-model.number="newMatch.stage" required class="input-field">
               <option value="">Select Round</option>
-              <option v-for="round in leagueRounds" :key="round.number" :value="round.number">
-                {{ round.name }}
+              <option v-for="stage in leagueStages" :key="stage.number" :value="stage.number">
+                {{ stage.name }}
               </option>
             </select>
           </div>

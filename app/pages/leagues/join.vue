@@ -181,9 +181,9 @@
           <div class="bg-gray-700 p-4 rounded-lg">
             <div class="flex items-center gap-2 mb-2 text-purple-400">
               <Calendar :size="20" />
-              <span class="font-semibold">Current Round</span>
+              <span class="font-semibold">Current Stage</span>
             </div>
-            <p class="text-2xl font-bold text-gray-100">{{ league.currentRound || 1 }}</p>
+            <p class="text-2xl font-bold text-gray-100">{{ league.currentStage || 1 }}</p>
           </div>
 
           <div class="bg-gray-700 p-4 rounded-lg">

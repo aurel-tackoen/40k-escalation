@@ -1,12 +1,12 @@
 <script setup>
-  import { computed, watch, toRef, ref, nextTick } from 'vue'
+  import { watch, toRef, ref, nextTick } from 'vue'
   import { Shield, Plus, X, Edit, Trash2, Copy, Filter, Users, TrendingUp, Paintbrush, ChevronUp, ChevronDown, CheckCircle, LayoutGrid, TableProperties, Clipboard, ExternalLink } from 'lucide-vue-next'
   import { storeToRefs } from 'pinia'
   import { useLeaguesStore } from '~/stores/leagues'
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
-  import { useRoundLookup } from '~/composables/useRoundLookup'
+  import { useStageLookup } from '~/composables/useStageLookup'
   import { useArmyManagement } from '~/composables/useArmyManagement'
   import { useArrayFiltering } from '~/composables/useArrayFiltering'
   import { useArmyForm } from '~/composables/useArmyForm'
@@ -39,11 +39,11 @@
       type: Array,
       required: true
     },
-    currentRound: {
+    currentStage: {
       type: Number,
       required: true
     },
-    rounds: {
+    stages: {
       type: Array,
       required: true
     }
@@ -65,7 +65,7 @@
 
   const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
   const { formatDateShort } = useFormatting()
-  const { getRoundName, getRoundLimit } = useRoundLookup(toRef(props, 'rounds'))
+  const { getStageName, getStageLimit } = useStageLookup(toRef(props, 'stages'))
 
   // Army deletion state
   const armyToDelete = ref(null)
@@ -79,7 +79,7 @@
   const deleteArmyConfirmed = () => {
     if (armyToDelete.value) {
       const armyName = armyToDelete.value.name || 'Army'
-      emit('delete-army', armyToDelete.value.playerId, armyToDelete.value.round)
+      emit('delete-army', armyToDelete.value.playerId, armyToDelete.value.stage)
       toastSuccess(`${armyName} deleted successfully`)
       armyToDelete.value = null
       showDeleteModal.value = false
@@ -95,10 +95,9 @@
     calculateArmyTotal,
     isValidArmy: checkValidArmy,
     canEscalateArmy,
-    hasPreviousRoundArmy: checkPreviousRoundArmy,
     getPreviousArmy,
-    copyArmyToNextRound
-  } = useArmyManagement(toRef(props, 'armies'), toRef(props, 'rounds'))
+    copyArmyToNextStage
+  } = useArmyManagement(toRef(props, 'armies'), toRef(props, 'stages'))
 
   const {
     sortByField,
@@ -110,7 +109,7 @@
     showBuilder,
     editingArmy,
     currentArmy,
-    currentRoundLimit,
+    currentStageLimit,
     remainingPoints,
     isCurrentArmyValid,
     startNewArmy,
@@ -123,17 +122,17 @@
     setupEscalation,
     isNewlyAdded
   } = useArmyForm(
-    toRef(props, 'rounds'),
+    toRef(props, 'stages'),
     calculateArmyTotal,
     checkValidArmy
   )
 
   // Composables - Filtering
   const {
-    selectedRound,
+    selectedStage,
     selectedPlayer,
     filteredArmies,
-    getArmyCountForRound
+    getArmyCountForStage
   } = useArmyFiltering(
     toRef(props, 'armies'),
     sortByField,
@@ -157,17 +156,13 @@
   }
 
   // Computed - Form helper methods
-  const hasPreviousRoundArmy = computed(() => {
-    return checkPreviousRoundArmy(currentArmy.value.playerId, currentArmy.value.round)
-  })
-
   const getPreviousArmyUnits = () => {
-    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
+    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.stage)
     return previousArmy ? previousArmy.units.length : 0
   }
 
   const getPreviousArmyName = () => {
-    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
+    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.stage)
     return previousArmy ? previousArmy.name : ''
   }
 
@@ -205,7 +200,7 @@
       return
     }
 
-    startNewArmy(props.currentRound)
+    startNewArmy(props.currentStage)
     // Auto-select current player if they have a player entity in this league
     if (currentPlayer.value) {
       currentArmy.value.playerId = currentPlayer.value.id
@@ -213,7 +208,7 @@
 
     // Pre-fill army name with user's saved army name
     if (currentArmyName.value) {
-      currentArmy.value.name = `${currentArmyName.value} - Round ${props.currentRound}`
+      currentArmy.value.name = `${currentArmyName.value} - Stage ${props.currentStage}`
     }
 
     // Scroll to form
@@ -230,8 +225,8 @@
     scrollToForm()
   }
 
-  const handleCopyFromPreviousRound = () => {
-    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
+  const handleCopyFromPreviousStage = () => {
+    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.stage)
     copyFromPreviousArmy(previousArmy)
   }
 
@@ -242,16 +237,16 @@
       toastError('You do not have permission to escalate this army')
       return
     }
-    const nextRound = army.round + 1
-    const escalatedArmy = copyArmyToNextRound(army, nextRound)
+    const nextStage = army.stage + 1
+    const escalatedArmy = copyArmyToNextStage(army, nextStage)
 
     // Override name with saved army name from league membership
     if (currentArmyName.value) {
-      escalatedArmy.name = `${currentArmyName.value} - Round ${nextRound}`
+      escalatedArmy.name = `${currentArmyName.value} - Stage ${nextStage}`
     }
 
     setupEscalation(army, escalatedArmy)
-    toastInfo(`Army escalated to Round ${nextRound} - Ready to add units!`)
+    toastInfo(`Army escalated to Stage ${nextStage} - Ready to add units!`)
     scrollToForm()
   }
 
@@ -322,7 +317,7 @@
           <Shield :size="32" class="text-yellow-500" />
           <div>
             <h2 class="text-2xl font-serif font-bold text-yellow-500">Army List Manager</h2>
-            <p class="text-gray-400 text-sm mt-1">Build and manage army lists for each round of the escalation league.</p>
+            <p class="text-gray-400 text-sm mt-1">Build and manage army lists for each stage of the escalation league.</p>
           </div>
         </div>
         <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()" class="whitespace-nowrap">
@@ -374,10 +369,10 @@
 
       <!-- Mobile Select (visible on mobile only) -->
       <div class="block md:hidden">
-        <select v-model="selectedRound" class="input-field w-full">
-          <option value="">All Rounds ({{ armies.length }} {{ armies.length === 1 ? 'army' : 'armies' }})</option>
-          <option v-for="round in rounds" :key="round.number" :value="round.number">
-            Round {{ round.number }} - {{ round.pointLimit }}pts ({{ getArmyCountForRound(round.number) }} {{ getArmyCountForRound(round.number) === 1 ? 'army' : 'armies' }})
+        <select v-model="selectedStage" class="input-field w-full">
+          <option value="">All Stages ({{ armies.length }} {{ armies.length === 1 ? 'army' : 'armies' }})</option>
+          <option v-for="stage in stages" :key="stage.number" :value="stage.number">
+            Stage {{ stage.number }} - {{ stage.pointLimit }}pts ({{ getArmyCountForStage(stage.number) }} {{ getArmyCountForStage(stage.number) === 1 ? 'army' : 'armies' }})
           </option>
         </select>
       </div>
@@ -391,24 +386,24 @@
         <div class="flex justify-between items-start relative" style="z-index: 1;">
           <!-- All Rounds Button -->
           <button
-            @click="selectedRound = ''"
+            @click="selectedStage = ''"
             :class="[
               'flex flex-col items-center gap-2 transition-all group cursor-pointer',
-              !selectedRound ? 'scale-110' : 'hover:scale-105'
+              !selectedStage ? 'scale-110' : 'hover:scale-105'
             ]"
           >
             <div
               :class="[
                 'w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all',
-                !selectedRound
+                !selectedStage
                   ? 'bg-yellow-500 border-yellow-500 shadow-lg shadow-yellow-500/50'
                   : 'bg-gray-800 border-gray-600 group-hover:border-gray-500'
               ]"
             >
-              <Filter :size="20" :class="!selectedRound ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-300'" />
+              <Filter :size="20" :class="!selectedStage ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-300'" />
             </div>
             <div class="text-center min-w-[80px]">
-              <div :class="['text-sm font-semibold', !selectedRound ? 'text-yellow-500' : 'text-gray-400 group-hover:text-gray-300']">
+              <div :class="['text-sm font-semibold', !selectedStage ? 'text-yellow-500' : 'text-gray-400 group-hover:text-gray-300']">
                 All Rounds
               </div>
               <div class="text-xs text-gray-500">
@@ -417,11 +412,11 @@
             </div>
           </button>
 
-          <!-- Round Buttons -->
+          <!-- Stage Buttons -->
           <button
-            v-for="round in rounds"
-            :key="round.number"
-            @click="selectedRound = round.number"
+            v-for="stage in stages"
+            :key="stage.number"
+            @click="selectedStage = stage.number"
             :class="[
               'flex flex-col items-center gap-2 transition-all group cursor-pointer',
             ]"
@@ -429,24 +424,24 @@
             <div
               :class="[
                 'w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold border-4 transition-all',
-                selectedRound === round.number
+                selectedStage === stage.number
                   ? 'bg-yellow-500 border-yellow-500 text-gray-900 shadow-lg shadow-yellow-500/50'
-                  : round.number <= currentRound
+                  : stage.number <= currentStage
                     ? 'bg-green-600 border-green-600 text-white group-hover:border-green-500'
                     : 'bg-gray-800 border-gray-600 text-gray-400 group-hover:border-gray-500'
               ]"
             >
-              {{ round.number }}
+              {{ stage.number }}
             </div>
             <div class="text-center min-w-[80px]">
-              <div :class="['text-sm font-semibold', selectedRound === round.number ? 'text-yellow-500' : 'text-gray-300 group-hover:text-gray-200']">
-                Round {{ round.number }}
+              <div :class="['text-sm font-semibold', selectedStage === stage.number ? 'text-yellow-500' : 'text-gray-300 group-hover:text-gray-200']">
+                Stage {{ stage.number }}
               </div>
-              <div :class="['text-xs font-medium', selectedRound === round.number ? 'text-yellow-400' : 'text-gray-400']">
-                {{ round.pointLimit }} pts
+              <div :class="['text-xs font-medium', selectedStage === stage.number ? 'text-yellow-400' : 'text-gray-400']">
+                {{ stage.pointLimit }} pts
               </div>
               <div class="text-xs text-gray-500">
-                {{ getArmyCountForRound(round.number) }} {{ getArmyCountForRound(round.number) === 1 ? 'army' : 'armies' }}
+                {{ getArmyCountForStage(stage.number) }} {{ getArmyCountForStage(stage.number) === 1 ? 'army' : 'armies' }}
               </div>
             </div>
           </button>
@@ -517,11 +512,11 @@
               </p>
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-300 mb-2">Round *</label>
-              <select v-model="currentArmy.round" required class="input-field" :disabled="editingArmy">
-                <option value="">Select Round</option>
-                <option v-for="round in rounds" :key="round.number" :value="round.number">
-                  Round {{ round.number }} - {{ round.name }} ({{ round.pointLimit }}pts)
+              <label class="block text-sm font-semibold text-gray-300 mb-2">Stage *</label>
+              <select v-model="currentArmy.stage" required class="input-field" :disabled="editingArmy">
+                <option value="">Select Stage</option>
+                <option v-for="stage in stages" :key="stage.number" :value="stage.number">
+                  Stage {{ stage.number }} - {{ stage.name }} ({{ stage.pointLimit }}pts)
                 </option>
               </select>
             </div>
@@ -552,8 +547,8 @@
           </div>
         </div>
 
-        <!-- Copy from Previous Round (if applicable) -->
-        <div v-if="!editingArmy && currentArmy.round > 1" class="bg-blue-900/30 border border-blue-700 p-4 rounded-lg">
+        <!-- Copy from Previous Stage (if applicable) -->
+        <div v-if="!editingArmy && currentArmy.stage > 1" class="bg-blue-900/30 border border-blue-700 p-4 rounded-lg">
           <div class="flex justify-between items-center">
             <div>
               <h6 class="font-semibold text-blue-300 flex items-center gap-2 mb-1">
@@ -561,7 +556,7 @@
                 Escalate from Previous Round
               </h6>
               <p class="text-sm text-blue-400">
-                Copy your <strong>Round {{ currentArmy.round - 1 }}</strong> army list and add new units
+                Copy your <strong>Round {{ currentArmy.stage - 1 }}</strong> army list and add new units
               </p>
               <p v-if="hasPreviousRoundArmy" class="text-xs text-blue-400 mt-1">
                 ✓ Found {{ getPreviousArmyUnits() }} units from "{{ getPreviousArmyName() }}"
@@ -569,7 +564,7 @@
             </div>
             <button
               type="button"
-              @click="handleCopyFromPreviousRound"
+              @click="handleCopyFromPreviousStage"
               :class="[
                 'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap flex items-center gap-2',
                 hasPreviousRoundArmy
@@ -599,7 +594,7 @@
               </div>
               <div class="text-center p-3 bg-gray-800 rounded-lg">
                 <div class="text-xs text-gray-400 mb-1">Point Limit</div>
-                <div class="text-2xl font-bold text-gray-200">{{ currentRoundLimit }}</div>
+                <div class="text-2xl font-bold text-gray-200">{{ currentStageLimit }}</div>
               </div>
               <div class="text-center p-3 bg-gray-800 rounded-lg">
                 <div class="text-xs text-gray-400 mb-1">Remaining</div>
@@ -863,10 +858,10 @@
 
             <div class="flex items-center gap-2 text-xs">
               <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-semibold">
-                Round {{ army.round }}
+                Round {{ army.stage }}
               </span>
               <span class="text-gray-500">•</span>
-              <span class="text-gray-400">{{ getRoundName(army.round) }}</span>
+              <span class="text-gray-400">{{ getStageName(army.stage) }}</span>
             </div>
           </div>
 
@@ -879,7 +874,7 @@
                   <div class="text-xs text-gray-400 mb-1">Army Points</div>
                   <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-bold text-yellow-500">{{ army.totalPoints }}</span>
-                    <span class="text-gray-400">/ {{ getRoundLimit(army.round) }}</span>
+                    <span class="text-gray-400">/ {{ getStageLimit(army.stage) }}</span>
                   </div>
                 </div>
                 <div class="text-right">
@@ -1095,7 +1090,7 @@
               <!-- Army Name -->
               <td class="py-3 px-4">
                 <div class="font-semibold text-gray-100 whitespace-nowrap">{{ army.name }}</div>
-                <div class="text-xs text-gray-400">{{ getRoundName(army.round) }}</div>
+                <div class="text-xs text-gray-400">{{ getStageName(army.stage) }}</div>
               </td>
 
               <!-- Player -->
@@ -1106,14 +1101,14 @@
               <!-- Round -->
               <td class="py-3 px-4 text-center">
                 <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap">
-                  Round {{ army.round }}
+                  Round {{ army.stage }}
                 </span>
               </td>
 
               <!-- Points -->
               <td class="py-3 px-4 text-right">
                 <div class="font-bold text-yellow-500">{{ army.totalPoints }}</div>
-                <div class="text-xs text-gray-400">/ {{ getRoundLimit(army.round) }}</div>
+                <div class="text-xs text-gray-400">/ {{ getStageLimit(army.stage) }}</div>
               </td>
 
               <!-- Units -->
@@ -1215,7 +1210,7 @@
         <Shield :size="64" class="mx-auto text-gray-700 mb-4" />
         <p class="text-xl text-gray-400 font-medium mb-2">No army lists found</p>
         <p class="text-sm text-gray-500 mb-6">
-          {{ selectedRound ? `No armies for Round ${selectedRound}` : 'Start building your first army list!' }}
+          {{ selectedStage ? `No armies for Round ${selectedStage}` : 'Start building your first army list!' }}
         </p>
         <button @click="handleStartNewArmy" class="btn-primary inline-flex items-center gap-2">
           <Plus :size="20" />

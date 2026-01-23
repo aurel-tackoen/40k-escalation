@@ -64,7 +64,7 @@ export const leagues = pgTable('leagues', {
   gameSystemId: integer('game_system_id').references(() => gameSystems.id).notNull(), // Which game system this league uses
   startDate: date().notNull(),
   endDate: date(),
-  currentRound: integer().default(1).notNull(),
+  currentStage: integer('current_stage').default(1).notNull(),
   createdBy: integer().references(() => users.id).notNull(), // League owner
   isPrivate: boolean().default(false).notNull(), // Private leagues require share links
   shareToken: varchar({ length: 32 }).unique(), // 32-character URL token for direct sharing
@@ -73,8 +73,8 @@ export const leagues = pgTable('leagues', {
   createdAt: timestamp().defaultNow().notNull()
 });
 
-// League rounds table
-export const rounds = pgTable('rounds', {
+// League stages table (formerly rounds)
+export const stages = pgTable('stages', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   leagueId: integer().references(() => leagues.id).notNull(),
   number: integer().notNull(),
@@ -98,8 +98,8 @@ export const players = pgTable('players', {
   totalPoints: integer().default(0).notNull(),
   // Pairing system fields
   isActive: boolean('is_active').default(true).notNull(), // Active in league
-  joinedRound: integer('joined_round').default(1).notNull(), // Round when player joined
-  leftRound: integer('left_round'), // Round when player left (null if active)
+  joinedStage: integer('joined_stage').default(1).notNull(), // Stage when player joined (formerly joinedRound)
+  leftStage: integer('left_stage'), // Stage when player left (null if active)
   createdAt: timestamp().defaultNow().notNull()
 });
 
@@ -124,7 +124,7 @@ export const leagueSettings = pgTable('league_settings', {
 export const pairings = pgTable('pairings', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   leagueId: integer().references(() => leagues.id, { onDelete: 'cascade' }).notNull(),
-  round: integer().notNull(),
+  stage: integer().notNull(), // Stage number (formerly round)
   player1Id: integer().references(() => players.id, { onDelete: 'cascade' }).notNull(),
   player2Id: integer().references(() => players.id, { onDelete: 'cascade' }), // Null for BYE
   matchId: integer('match_id'), // References matches.id - will be set when match is recorded
@@ -138,7 +138,7 @@ export const pairings = pgTable('pairings', {
 export const matches = pgTable('matches', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   leagueId: integer().references(() => leagues.id),
-  round: integer().notNull(),
+  stage: integer().notNull(), // Stage number (formerly round)
   player1Id: integer().references(() => players.id).notNull(),
   player2Id: integer().references(() => players.id).notNull(),
 
@@ -179,7 +179,7 @@ export const armies = pgTable('armies', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   leagueId: integer().references(() => leagues.id, { onDelete: 'cascade' }).notNull(), // League-specific
   playerId: integer().references(() => players.id, { onDelete: 'cascade' }).notNull(),
-  round: integer().notNull(),
+  stage: integer().notNull(), // Stage number (formerly round)
   name: varchar({ length: 255 }).notNull(),
   totalPoints: integer().notNull(),
   units: text().notNull(), // JSON string of units array

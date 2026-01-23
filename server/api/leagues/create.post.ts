@@ -1,12 +1,12 @@
 import { db } from '../../../db'
-import { leagues, leagueMemberships, rounds } from '../../../db/schema'
+import { leagues, leagueMemberships, stages } from '../../../db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAuth } from '../../utils/auth'
 import { generateShareToken } from '../../utils/tokens'
 
 /**
  * POST /api/leagues/create
- * Create a new league with rounds and auto-assign creator as owner
+ * Create a new league with stages and auto-assign creator as owner
  *
  * Body:
  * {
@@ -17,7 +17,7 @@ import { generateShareToken } from '../../utils/tokens'
  *   endDate?: string (ISO date)
  *   isPrivate: boolean
  *   maxPlayers?: number
- *   rounds: Array<{
+ *   stages: Array<{
  *     number: number
  *     name: string
  *     pointLimit: number
@@ -41,10 +41,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (!body.rounds || body.rounds.length === 0) {
+    if (!body.stages || body.stages.length === 0) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'League must have at least one round'
+        statusMessage: 'League must have at least one stage'
       })
     }
 
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
       gameSystemId: body.gameSystemId,
       startDate: body.startDate,
       endDate: body.endDate || null,
-      currentRound: 1,
+      currentStage: 1,
       createdBy: user.id, // ✅ Use authenticated user ID from session
       isPrivate,
       shareToken,
@@ -74,17 +74,17 @@ export default defineEventHandler(async (event) => {
       status: 'active'
     }).returning()
 
-    // Create rounds
-    const roundsToInsert = body.rounds.map((round: { number: number; name: string; pointLimit: number; startDate: string; endDate: string }) => ({
+    // Create stages
+    const stagesToInsert = body.stages.map((stage: { number: number; name: string; pointLimit: number; startDate: string; endDate: string }) => ({
       leagueId: newLeague.id,
-      number: round.number,
-      name: round.name,
-      pointLimit: round.pointLimit,
-      startDate: round.startDate,
-      endDate: round.endDate
+      number: stage.number,
+      name: stage.name,
+      pointLimit: stage.pointLimit,
+      startDate: stage.startDate,
+      endDate: stage.endDate
     }))
 
-    await db.insert(rounds).values(roundsToInsert)
+    await db.insert(stages).values(stagesToInsert)
 
     // Create league membership for creator with 'owner' role
     const [newMembership] = await db.insert(leagueMemberships).values({
@@ -95,24 +95,24 @@ export default defineEventHandler(async (event) => {
       status: 'active'
     }).returning()
 
-    // Fetch complete league data with rounds
-    const leagueWithRounds = await db
+    // Fetch complete league data with stages
+    const leagueWithStages = await db
       .select()
       .from(leagues)
       .where(eq(leagues.id, newLeague.id))
       .limit(1)
 
-    const leagueRounds = await db
+    const leagueStages = await db
       .select()
-      .from(rounds)
-      .where(eq(rounds.leagueId, newLeague.id))
+      .from(stages)
+      .where(eq(stages.leagueId, newLeague.id))
 
     return {
       success: true,
       message: 'League created successfully',
       data: {
-        league: leagueWithRounds[0],
-        rounds: leagueRounds,
+        league: leagueWithStages[0],
+        stages: leagueStages,
         membership: newMembership
       }
     }

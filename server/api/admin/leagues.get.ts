@@ -4,7 +4,7 @@
  * Requires admin role
  */
 import { db } from '../../../db'
-import { leagues, users, gameSystems, leagueMemberships, rounds } from '../../../db/schema'
+import { leagues, users, gameSystems, leagueMemberships, stages } from '../../../db/schema'
 import { requireAdmin } from '../../utils/auth'
 import { eq, and } from 'drizzle-orm'
 
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         gameSystemName: gameSystems.name,
         startDate: leagues.startDate,
         endDate: leagues.endDate,
-        currentRound: leagues.currentRound,
+        currentStage: leagues.currentStage,
         createdBy: leagues.createdBy,
         creatorName: users.name,
         creatorEmail: users.email,
@@ -53,17 +53,17 @@ export default defineEventHandler(async (event) => {
             )
           )
 
-        // Get rounds for this league
-        const leagueRounds = await db
+        // Get stages for this league
+        const leagueStages = await db
           .select()
-          .from(rounds)
-          .where(eq(rounds.leagueId, league.id))
-          .orderBy(rounds.number)
+          .from(stages)
+          .where(eq(stages.leagueId, league.id))
+          .orderBy(stages.number)
 
         return {
           ...league,
           memberCount: members.length,
-          rounds: leagueRounds
+          stages: leagueStages
         }
       })
     )
