@@ -61,12 +61,12 @@ describe('LeagueCard', () => {
     gameSystemId: 1,
     startDate: '2025-01-01',
     endDate: '2025-12-31',
-    currentRound: 2,
+    currentStage: 2,
     memberCount: 8,
     maxPlayers: 12,
     role: 'owner',
     joinedAt: '2025-01-01',
-    rounds: [
+    stages: [
       { number: 1, pointLimit: 500 },
       { number: 2, pointLimit: 1000 },
       { number: 3, pointLimit: 1500 }
@@ -80,7 +80,7 @@ describe('LeagueCard', () => {
     description: 'A public league',
     gameSystemId: 2,
     startDate: '2025-02-01',
-    currentRound: 1,
+    currentStage: 1,
     memberCount: 5,
     maxPlayers: 10,
     status: 'active',
@@ -252,20 +252,20 @@ describe('LeagueCard', () => {
       expect(wrapper.text()).toContain('member')
     })
 
-    it('displays current round for my-league variant', () => {
+    it('displays current stage for my-league variant', () => {
       const wrapper = mountWithMocks({
         league: mockMyLeague
       })
-      expect(wrapper.text()).toContain('Round 2 of 3')
+      expect(wrapper.text()).toContain('Stage 2 of 3')
       expect(wrapper.find('[data-testid="calendar-icon"]').exists()).toBe(true)
     })
 
-    it('displays current round for public variant without total', () => {
+    it('displays current stage for public variant without total', () => {
       const wrapper = mountWithMocks({
-        league: { ...mockPublicLeague, rounds: undefined },
+        league: { ...mockPublicLeague, stages: undefined },
         variant: 'public'
       })
-      expect(wrapper.text()).toContain('Round 1')
+      expect(wrapper.text()).toContain('Stage 1')
     })
 
     it('displays game system name', () => {
