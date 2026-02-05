@@ -5,31 +5,31 @@ import { requireLeagueRole } from '../../utils/auth'
 
 /**
  * POST /api/pairings/generate
- * Generate pairings for a round using Swiss or Random method
+ * Generate pairings for a phase using Swiss or Random method
  * Auth: Owner/Organizer only
  */
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { leagueId, round, pairings: newPairings } = body
+    const { leagueId, phase, pairings: newPairings } = body
 
-    if (!leagueId || !round || !newPairings || !Array.isArray(newPairings)) {
+    if (!leagueId || !phase || !newPairings || !Array.isArray(newPairings)) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Missing required fields: leagueId, round, pairings'
+        statusMessage: 'Missing required fields: leagueId, phase, pairings'
       })
     }
 
     // Require organizer role
     await requireLeagueRole(event, leagueId, ['owner', 'organizer'])
 
-    // Check if pairings already exist for this round
+    // Check if pairings already exist for this phase
     const existingPairings = await db
       .select()
       .from(pairings)
       .where(and(
         eq(pairings.leagueId, leagueId),
-        eq(pairings.round, round)
+        eq(pairings.phase, phase)
       ))
 
     // If pairings exist, delete them first (regenerate)
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
         .delete(pairings)
         .where(and(
           eq(pairings.leagueId, leagueId),
-          eq(pairings.round, round)
+          eq(pairings.phase, phase)
         ))
     }
 
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: insertedPairings,
       count: insertedPairings.length,
-      message: `Generated ${insertedPairings.length} pairings for Round ${round}`
+      message: `Generated ${insertedPairings.length} pairings for Phase ${phase}`
     }
   } catch (error) {
     console.error('Error generating pairings:', error)

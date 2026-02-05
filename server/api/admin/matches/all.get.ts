@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
         id: matches.id,
         leagueId: matches.leagueId,
         leagueName: leagues.name,
-        round: matches.round,
+        phase: matches.phase,
         player1Id: matches.player1Id,
         player2Id: matches.player2Id,
         matchType: matches.matchType,

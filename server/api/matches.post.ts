@@ -12,10 +12,10 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
 
     // Validate required fields
-    if (!body.player1Id || !body.player2Id || body.round === undefined) {
+    if (!body.player1Id || !body.player2Id || body.phase === undefined) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Player IDs and round are required'
+        statusMessage: 'Player IDs and phase are required'
       })
     }
 
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
     // Insert match with all new fields
     const [newMatch] = await db.insert(matches).values({
       leagueId: body.leagueId || null,
-      round: body.round,
+      phase: body.phase,
       player1Id: body.player1Id,
       player2Id: body.player2Id,
 
@@ -84,15 +84,15 @@ export default defineEventHandler(async (event) => {
     }).returning()
 
     // Update corresponding pairing if it exists
-    if (body.leagueId && body.round) {
-      // Find the pairing for these two players in this round
+    if (body.leagueId && body.phase) {
+      // Find the pairing for these two players in this phase
       const [existingPairing] = await db
         .select()
         .from(pairings)
         .where(
           and(
             eq(pairings.leagueId, body.leagueId),
-            eq(pairings.round, body.round),
+            eq(pairings.phase, body.phase),
             eq(pairings.player1Id, body.player1Id),
             eq(pairings.player2Id, body.player2Id)
           )
@@ -107,7 +107,7 @@ export default defineEventHandler(async (event) => {
           .where(
             and(
               eq(pairings.leagueId, body.leagueId),
-              eq(pairings.round, body.round),
+              eq(pairings.phase, body.phase),
               eq(pairings.player1Id, body.player2Id),
               eq(pairings.player2Id, body.player1Id)
             )
