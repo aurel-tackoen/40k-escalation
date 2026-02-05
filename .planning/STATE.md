@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Players can easily track their league progress and see where they stand
-**Current focus:** Phase 4 - Vue Components (in progress)
+**Current focus:** Phase 4 - Vue Components (complete)
 
 ## Current Position
 
 Phase: 4 of 5 (User Interface)
-Plan: 2 of 3 in current phase (04-01, 04-03 COMPLETE)
-Status: In progress
-Last activity: 2026-02-05 - Completed 04-03-PLAN.md (admin components Phase terminology)
+Plan: 3 of 3 in current phase (ALL COMPLETE)
+Status: Phase complete
+Last activity: 2026-02-05 - Completed 04-02-PLAN.md (template text updates)
 
-Progress: [########--] 90%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 6 min
-- Total execution time: 0.7 hours
+- Total execution time: 0.8 hours
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [########--] 90%
 | 01-database-schema | 1 | 12 min | 12 min |
 | 02-api-layer | 2 | 5 min | 2.5 min |
 | 03-state-management | 2 | 9 min | 4.5 min |
-| 04-user-interface | 2 | 13 min | 6.5 min |
+| 04-user-interface | 3 | 21 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 2 min, 8 min, 1 min, 12 min, 1 min
+- Last 5 plans: 8 min, 1 min, 12 min, 1 min, 8 min
 - Trend: Steady
 
 *Updated after each plan completion*
@@ -56,11 +56,12 @@ Recent decisions affecting current work:
 - Composable exported names renamed in Phase 4 (selectedRound -> selectedPhase, etc.)
 - Preserved match.round API property (API/DB still uses round for matches)
 - Admin UI labels show Phase, internal variables remain round (roundForm, showRoundModal, etc.)
+- Changed "BYE Round" to "BYE" in pairing type badge (cleaner terminology)
 
 ### Pending Todos
 
-- DashboardView.vue and LeagueSetupView.vue still have round references (04-02 scope)
-- Plan 04-02 covers remaining template text updates
+- DashboardView.vue and LeagueSetupView.vue still have round references (admin setup pages, lower priority)
+- PlayersView.vue keeps "leftRound" as technical term
 
 ### Blockers/Concerns
 
@@ -69,9 +70,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Plan 04-03 complete, ready for Plan 04-02 (template text updates)
+Stopped at: Plan 04-02 complete, Phase 4 complete, ready for Phase 5
 Resume file: None
 
 ---
 *State initialized: 2026-02-05*
-*Last updated: 2026-02-05 - Plan 04-03 complete (admin components Phase terminology)*
+*Last updated: 2026-02-05 - Plan 04-02 complete (template text updates)*
