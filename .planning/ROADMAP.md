@@ -28,10 +28,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. Database columns use `phase` naming (phase_id, phase_number, current_phase)
   2. Migration runs successfully without data loss on existing leagues
   3. All Drizzle queries compile and execute without errors referencing old column names
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 01-01: Schema rename and migration
+- [ ] 01-01-PLAN.md - Create migration and update schema.ts
 
 ### Phase 2: API Layer
 **Goal**: API endpoints use "phases" terminology in routes and payloads
@@ -94,7 +94,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Database Schema | 0/1 | Not started | - |
+| 1. Database Schema | 0/1 | Planned | - |
 | 2. API Layer | 0/1 | Not started | - |
 | 3. State Management | 0/1 | Not started | - |
 | 4. User Interface | 0/1 | Not started | - |
