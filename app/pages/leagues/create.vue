@@ -184,19 +184,19 @@
     // Validate rounds
     for (const round of form.rounds) {
       if (!round.name.trim()) {
-        error.value = `Round ${round.number} name is required`
+        error.value = `Phase ${round.number} name is required`
         return false
       }
       if (!round.pointLimit || round.pointLimit <= 0) {
-        error.value = `Round ${round.number} must have a valid point limit`
+        error.value = `Phase ${round.number} must have a valid point limit`
         return false
       }
       if (!round.startDate) {
-        error.value = `Round ${round.number} start date is required`
+        error.value = `Phase ${round.number} start date is required`
         return false
       }
       if (!round.endDate) {
-        error.value = `Round ${round.number} end date is required`
+        error.value = `Phase ${round.number} end date is required`
         return false
       }
     }
@@ -445,7 +445,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-gray-700 pb-3">
           <h2 class="text-2xl font-bold text-gray-100 flex items-center gap-2">
             <Calendar :size="24" />
-            Rounds
+            Phases
           </h2>
           <div class="flex gap-2 w-full sm:w-auto">
             <button
@@ -462,7 +462,7 @@
               class="btn-login text-sm flex items-center justify-center gap-2 flex-1 sm:flex-initial"
             >
               <Plus :size="16" />
-              Add Round
+              Add Phase
             </button>
           </div>
         </div>
@@ -474,25 +474,25 @@
             :key="index"
             class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 space-y-4"
           >
-            <!-- Round Header -->
+            <!-- Phase Header -->
             <div class="flex justify-between items-center">
-              <h3 class="text-lg font-bold text-gray-100">Round {{ round.number }}</h3>
+              <h3 class="text-lg font-bold text-gray-100">Phase {{ round.number }}</h3>
               <button
                 v-if="form.rounds.length > 1"
                 type="button"
                 @click="removeRound(index)"
                 class="text-red-400 hover:text-red-300 p-2"
-                title="Remove Round"
+                title="Remove Phase"
               >
                 <X :size="20" />
               </button>
             </div>
 
-            <!-- Round Fields -->
+            <!-- Phase Fields -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-gray-300 text-sm font-semibold mb-2">
-                  Round Name <span class="text-red-400">*</span>
+                  Phase Name <span class="text-red-400">*</span>
                 </label>
                 <input
                   v-model="round.name"
@@ -616,7 +616,7 @@
         <div class="flex justify-between items-center border-b border-gray-700 p-6">
           <h3 class="text-2xl font-bold text-gray-100 flex items-center gap-2">
             <Sparkles :size="24" class="text-purple-400" />
-            Auto-Generate Rounds
+            Auto-Generate Phases
           </h3>
           <button
             @click="showAutoRoundModal = false"
@@ -634,7 +634,7 @@
           </div>
 
           <p class="text-gray-400 text-sm">
-            Set the basic parameters and we'll create the rounds for you. You can edit them afterwards.
+            Set the basic parameters and we'll create the phases for you. You can edit them afterwards.
           </p>
 
           <!-- Configuration Grid (2x2) -->
@@ -667,10 +667,10 @@
               />
             </div>
 
-            <!-- Number of Rounds -->
+            <!-- Number of Phases -->
             <div>
               <label class="block text-gray-300 font-semibold mb-2">
-                Number of Rounds
+                Number of Phases
               </label>
               <input
                 v-model.number="autoConfig.numberOfRounds"
@@ -681,10 +681,10 @@
               />
             </div>
 
-            <!-- Weeks per Round -->
+            <!-- Weeks per Phase -->
             <div>
               <label class="block text-gray-300 font-semibold mb-2">
-                Weeks per Round
+                Weeks per Phase
               </label>
               <input
                 v-model.number="autoConfig.weeksPerRound"
@@ -719,7 +719,7 @@
             :class="{ 'opacity-50 cursor-not-allowed': !form.startDate }"
           >
             <Sparkles :size="16" />
-            Generate Rounds
+            Generate Phases
           </button>
         </div>
       </div>
