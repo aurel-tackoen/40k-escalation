@@ -41,10 +41,11 @@ Plans:
   1. API routes use `/api/phases` instead of `/api/rounds`
   2. Request and response bodies use `phase` property names
   3. API handlers compile and run without referencing old variable names
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: API route and handler rename
+- [ ] 02-01-PLAN.md - Update armies and pairings API handlers
+- [ ] 02-02-PLAN.md - Update match handlers and rename admin folder
 
 ### Phase 3: State Management
 **Goal**: Frontend state management uses "phase" terminology throughout
@@ -94,8 +95,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Database Schema | 1/1 | Complete ✓ | 2026-02-05 |
-| 2. API Layer | 0/1 | Not started | - |
+| 1. Database Schema | 1/1 | Complete | 2026-02-05 |
+| 2. API Layer | 0/2 | Ready | - |
 | 3. State Management | 0/1 | Not started | - |
 | 4. User Interface | 0/1 | Not started | - |
 | 5. Test Verification | 0/1 | Not started | - |
