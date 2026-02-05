@@ -1005,7 +1005,7 @@ export const useLeaguesStore = defineStore('leagues', {
 
       try {
         const url = round
-          ? `/api/pairings?leagueId=${this.currentLeagueId}&phase=${round}`
+          ? `/api/pairings?leagueId=${this.currentLeagueId}&round=${round}`
           : `/api/pairings?leagueId=${this.currentLeagueId}`
 
         const response = await $fetch(url)
