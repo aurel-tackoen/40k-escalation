@@ -13,7 +13,7 @@ This roadmap covers the systematic renaming of "Round" to "Phase" throughout the
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Database Schema** - Rename database columns and update Drizzle queries
-- [ ] **Phase 2: API Layer** - Rename API routes and update request/response properties
+- [x] **Phase 2: API Layer** - Rename API routes and update request/response properties
 - [ ] **Phase 3: State Management** - Rename Pinia store state, getters, actions, and composables
 - [ ] **Phase 4: User Interface** - Update component props, template text, and URL routes
 - [ ] **Phase 5: Test Verification** - Update tests and verify full system integrity
@@ -44,8 +44,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md - Update armies and pairings API handlers
-- [ ] 02-02-PLAN.md - Update match handlers and rename admin folder
+- [x] 02-01-PLAN.md - Update armies and pairings API handlers
+- [x] 02-02-PLAN.md - Update match handlers and rename admin folder
 
 ### Phase 3: State Management
 **Goal**: Frontend state management uses "phase" terminology throughout
@@ -96,7 +96,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Database Schema | 1/1 | Complete | 2026-02-05 |
-| 2. API Layer | 0/2 | Ready | - |
+| 2. API Layer | 2/2 | Complete | 2026-02-05 |
 | 3. State Management | 0/1 | Not started | - |
 | 4. User Interface | 0/1 | Not started | - |
 | 5. Test Verification | 0/1 | Not started | - |

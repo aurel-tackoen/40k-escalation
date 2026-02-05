@@ -11,13 +11,13 @@ Requirements for the Round → Phase terminology rename.
 
 - [ ] **DB-01**: Rename `round` columns to `phase` in schema (e.g., round_id → phase_id, round_number → phase_number, current_round → current_phase)
 - [ ] **DB-02**: Create migration that renames columns without data loss
-- [ ] **DB-03**: Update all Drizzle queries referencing old column names
+- [x] **DB-03**: Update all Drizzle queries referencing old column names
 
 ### API
 
-- [ ] **API-01**: Rename API route files from `rounds` to `phases` (e.g., /api/rounds → /api/phases)
-- [ ] **API-02**: Update request/response property names (round → phase)
-- [ ] **API-03**: Update internal variable names in API handlers
+- [x] **API-01**: Rename API route files from `rounds` to `phases` (e.g., /api/rounds → /api/phases)
+- [x] **API-02**: Update request/response property names (round → phase)
+- [x] **API-03**: Update internal variable names in API handlers
 
 ### Store & Composables
 
@@ -54,10 +54,10 @@ Requirements for the Round → Phase terminology rename.
 |-------------|-------|--------|
 | DB-01 | Phase 1 | Complete |
 | DB-02 | Phase 1 | Complete |
-| DB-03 | Phase 2 | Pending |
-| API-01 | Phase 2 | Pending |
-| API-02 | Phase 2 | Pending |
-| API-03 | Phase 2 | Pending |
+| DB-03 | Phase 2 | Complete |
+| API-01 | Phase 2 | Complete |
+| API-02 | Phase 2 | Complete |
+| API-03 | Phase 2 | Complete |
 | STORE-01 | Phase 3 | Pending |
 | STORE-02 | Phase 3 | Pending |
 | STORE-03 | Phase 3 | Pending |
