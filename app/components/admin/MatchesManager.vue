@@ -513,9 +513,9 @@
                 <span class="text-white font-medium">{{ match.leagueName || 'N/A' }}</span>
               </div>
               <div class="mt-3">
-                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Round</div>
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Phase</div>
                 <div class="text-white">
-                  Round <span class="text-yellow-500 font-bold">{{ match.round }}</span>
+                  Phase <span class="text-yellow-500 font-bold">{{ match.round }}</span>
                 </div>
               </div>
               <div v-if="match.notes" class="mt-3">
@@ -581,7 +581,7 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="admin-label">Round</label>
+            <label class="admin-label">Phase</label>
             <input
               v-model.number="editForm.round"
               type="number"
