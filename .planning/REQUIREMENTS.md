@@ -21,9 +21,9 @@ Requirements for the Round → Phase terminology rename.
 
 ### Store & Composables
 
-- [ ] **STORE-01**: Rename Pinia store state properties (rounds → phases, currentRound → currentPhase)
-- [ ] **STORE-02**: Rename store getters and actions referencing rounds
-- [ ] **STORE-03**: Update composables that reference round data (useRoundLookup → usePhaseLookup, etc.)
+- [x] **STORE-01**: Rename Pinia store state properties (rounds → phases, currentRound → currentPhase)
+- [x] **STORE-02**: Rename store getters and actions referencing rounds
+- [x] **STORE-03**: Update composables that reference round data (useRoundLookup → usePhaseLookup, etc.)
 
 ### UI
 
@@ -58,9 +58,9 @@ Requirements for the Round → Phase terminology rename.
 | API-01 | Phase 2 | Complete |
 | API-02 | Phase 2 | Complete |
 | API-03 | Phase 2 | Complete |
-| STORE-01 | Phase 3 | Pending |
-| STORE-02 | Phase 3 | Pending |
-| STORE-03 | Phase 3 | Pending |
+| STORE-01 | Phase 3 | Complete |
+| STORE-02 | Phase 3 | Complete |
+| STORE-03 | Phase 3 | Complete |
 | UI-01 | Phase 4 | Pending |
 | UI-02 | Phase 4 | Pending |
 | UI-03 | Phase 4 | Pending |
