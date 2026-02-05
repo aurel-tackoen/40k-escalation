@@ -29,8 +29,8 @@
   const leaguesStore = useLeaguesStore()
   const { availableMissions, currentGameSystemName, gameSystems, canManageLeague, currentPlayer, currentLeague, selectedLeague } = storeToRefs(leaguesStore)
 
-  // Get rounds from current league
-  const leagueRounds = computed(() => currentLeague.value?.rounds || [])
+  // Get phases from current league
+  const leaguePhases = computed(() => currentLeague.value?.phases || [])
 
   // Composables
   const { getPlayerName, getPlayerFaction } = usePlayerLookup(toRef(props, 'players'))
@@ -371,9 +371,9 @@
         <div class="flex items-center gap-2">
           <Filter :size="18" class="text-yellow-500 flex-shrink-0" />
           <select v-model="filterRound" class="input-field flex-1">
-            <option value="">All Rounds</option>
-            <option v-for="round in leagueRounds" :key="round.number" :value="round.number">
-              {{ round.name }}
+            <option value="">All Phases</option>
+            <option v-for="phase in leaguePhases" :key="phase.number" :value="phase.number">
+              {{ phase.name }}
             </option>
           </select>
         </div>
@@ -818,11 +818,11 @@
         <!-- Match Details -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Round</label>
+            <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Phase</label>
             <select v-model.number="newMatch.round" required class="input-field">
-              <option value="">Select Round</option>
-              <option v-for="round in leagueRounds" :key="round.number" :value="round.number">
-                {{ round.name }}
+              <option value="">Select Phase</option>
+              <option v-for="phase in leaguePhases" :key="phase.number" :value="phase.number">
+                {{ phase.name }}
               </option>
             </select>
           </div>

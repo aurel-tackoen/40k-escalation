@@ -26,13 +26,13 @@
   const leaguesStore = useLeaguesStore()
   const { currentLeague, leagueSettings, canManageLeague } = storeToRefs(leaguesStore)
 
-  // State - Selected round (defaults to current round)
-  const selectedRound = ref(null)
+  // State - Selected phase (defaults to current phase)
+  const selectedPhase = ref(null)
 
-  // Watch for league changes to set initial round
+  // Watch for league changes to set initial phase
   watch(() => currentLeague.value, (league) => {
-    if (league?.currentRound && !selectedRound.value) {
-      selectedRound.value = league.currentRound
+    if (league?.currentPhase && !selectedPhase.value) {
+      selectedPhase.value = league.currentPhase
     }
   }, { immediate: true })
 
@@ -64,25 +64,25 @@
   const showClearAllModal = ref(false)
 
   // Computed
-  const roundOptions = computed(() => {
-    if (!currentLeague.value?.rounds || !Array.isArray(currentLeague.value.rounds)) {
+  const phaseOptions = computed(() => {
+    if (!currentLeague.value?.phases || !Array.isArray(currentLeague.value.phases)) {
       return []
     }
-    return currentLeague.value.rounds.map(r => ({
+    return currentLeague.value.phases.map(r => ({
       value: r.number,
-      label: `Round ${r.number} - ${r.name}`
+      label: `Phase ${r.number} - ${r.name}`
     }))
   })
 
-  const selectedRoundPairings = computed(() => {
-    if (!selectedRound.value || !props.pairings) return []
-    return props.pairings.filter(p => p.round === selectedRound.value)
+  const selectedPhasePairings = computed(() => {
+    if (!selectedPhase.value || !props.pairings) return []
+    return props.pairings.filter(p => p.phase === selectedPhase.value)
   })
 
-  const selectedRoundUnpairedCount = computed(() => {
-    if (!selectedRound.value || !props.players || !props.pairings) return 0
+  const selectedPhaseUnpairedCount = computed(() => {
+    if (!selectedPhase.value || !props.players || !props.pairings) return 0
     const pairedPlayerIds = new Set()
-    selectedRoundPairings.value.forEach(pairing => {
+    selectedPhasePairings.value.forEach(pairing => {
       pairedPlayerIds.add(pairing.player1Id)
       if (pairing.player2Id) pairedPlayerIds.add(pairing.player2Id)
     })
@@ -91,36 +91,36 @@
   })
 
   const unpairedPlayers = computed(() => {
-    if (!selectedRound.value) return []
-    return getUnpairedPlayers(selectedRound.value)
+    if (!selectedPhase.value) return []
+    return getUnpairedPlayers(selectedPhase.value)
   })
 
   const suggestedMethod = computed(() => {
-    if (!selectedRound.value) return 'swiss'
-    return suggestPairingMethod(selectedRound.value)
+    if (!selectedPhase.value) return 'swiss'
+    return suggestPairingMethod(selectedPhase.value)
   })
 
   // Methods
-  const changeRound = (roundNumber) => {
-    selectedRound.value = roundNumber
+  const changePhase = (phaseNumber) => {
+    selectedPhase.value = phaseNumber
   }
 
   // Methods
   const generatePairings = async (method) => {
-    if (!currentLeague.value || !selectedRound.value) return
+    if (!currentLeague.value || !selectedPhase.value) return
 
     isGenerating.value = true
 
     try {
       let newPairings
       if (method === 'swiss') {
-        newPairings = generateSwissPairings(selectedRound.value, currentLeague.value.id)
+        newPairings = generateSwissPairings(selectedPhase.value, currentLeague.value.id)
       } else if (method === 'random') {
-        newPairings = generateRandomPairings(selectedRound.value, currentLeague.value.id)
+        newPairings = generateRandomPairings(selectedPhase.value, currentLeague.value.id)
       }
 
       // Send to API via store
-      await leaguesStore.generatePairings(selectedRound.value, newPairings)
+      await leaguesStore.generatePairings(selectedPhase.value, newPairings)
 
       toastSuccess(`Generated ${newPairings.length} pairings using ${method} method`)
     } catch (error) {
@@ -132,13 +132,13 @@
   }
 
   const addManualPairing = async () => {
-    if (!currentLeague.value || !manualForm.value.player1Id || !selectedRound.value) return
+    if (!currentLeague.value || !manualForm.value.player1Id || !selectedPhase.value) return
 
     try {
       const pairing = createManualPairing(
         manualForm.value.player1Id,
         manualForm.value.player2Id,
-        selectedRound.value,
+        selectedPhase.value,
         currentLeague.value.id
       )
 
@@ -178,17 +178,17 @@
   }
 
   const clearAllPairingsConfirmed = async () => {
-    if (!selectedRound.value || selectedRoundPairings.value.length === 0) return
+    if (!selectedPhase.value || selectedPhasePairings.value.length === 0) return
 
     try {
-      // Delete all pairings for the selected round
-      const deletePromises = selectedRoundPairings.value.map(pairing =>
+      // Delete all pairings for the selected phase
+      const deletePromises = selectedPhasePairings.value.map(pairing =>
         leaguesStore.deletePairing(pairing.id)
       )
 
       await Promise.all(deletePromises)
 
-      toastSuccess(`Cleared all ${deletePromises.length} pairings for Round ${selectedRound.value}`)
+      toastSuccess(`Cleared all ${deletePromises.length} pairings for Phase ${selectedPhase.value}`)
       showClearAllModal.value = false
     } catch (error) {
       console.error('Error clearing all pairings:', error)
@@ -207,13 +207,13 @@
     <p class="text-gray-400 text-lg">Loading league data...</p>
   </div>
 
-  <div v-else-if="roundOptions.length === 0" class="text-center py-12">
-    <p class="text-gray-400 text-lg">No rounds configured for this league.</p>
-    <p class="text-gray-500 text-sm mt-2">Set up rounds in League Setup first.</p>
+  <div v-else-if="phaseOptions.length === 0" class="text-center py-12">
+    <p class="text-gray-400 text-lg">No phases configured for this league.</p>
+    <p class="text-gray-500 text-sm mt-2">Set up phases in League Setup first.</p>
   </div>
 
   <div v-else class="space-y-6">
-    <!-- Header with Round Selector -->
+    <!-- Header with Phase Selector -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
         <h2 class="text-2xl font-bold flex items-center gap-3">
@@ -221,24 +221,24 @@
           Pairings
         </h2>
 
-        <!-- Round Selector -->
+        <!-- Phase Selector -->
         <select
-          v-if="roundOptions.length > 0"
-          v-model="selectedRound"
-          @change="changeRound(selectedRound)"
+          v-if="phaseOptions.length > 0"
+          v-model="selectedPhase"
+          @change="changePhase(selectedPhase)"
           class="px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option v-for="option in roundOptions" :key="option.value" :value="option.value">
+          <option v-for="option in phaseOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
 
         <!-- Clear All Button (Organizer Only) -->
         <button
-          v-if="canManageLeague && selectedRoundPairings.length > 0"
+          v-if="canManageLeague && selectedPhasePairings.length > 0"
           @click="confirmClearAll"
           class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold flex items-center gap-2 transition-colors cursor-pointer"
-          title="Clear all pairings for this round"
+          title="Clear all pairings for this phase"
         >
           <Trash2 class="w-4 h-4" />
           Clear All
@@ -246,20 +246,20 @@
       </div>
 
       <div class="text-sm text-gray-400">
-        {{ selectedRoundPairings.length }} pairings •
-        {{ selectedRoundUnpairedCount }} unpaired players
+        {{ selectedPhasePairings.length }} pairings •
+        {{ selectedPhaseUnpairedCount }} unpaired players
       </div>
     </div>
 
     <!-- Generate Pairings (Organizer Only) -->
-    <div v-if="canManageLeague && selectedRoundUnpairedCount > 0" class="card">
+    <div v-if="canManageLeague && selectedPhaseUnpairedCount > 0" class="card">
       <h3 class="text-lg font-semibold mb-4">Generate Pairings</h3>
 
       <div v-if="suggestedMethod" class="mb-4 p-3 bg-blue-900/30 border border-blue-700 rounded">
         <p class="text-sm text-blue-300">
           💡 <strong>Suggested Method:</strong> {{ suggestedMethod }}
-          <span v-if="selectedRound === 1">
-            (First round - use manual or random for balanced start)
+          <span v-if="selectedPhase === 1">
+            (First phase - use manual or random for balanced start)
           </span>
           <span v-else>
             (Based on league settings)
@@ -347,8 +347,8 @@
     <div class="space-y-3">
       <h3 class="text-lg font-semibold">Current Pairings</h3>
 
-      <div v-if="selectedRoundPairings.length === 0" class="card text-center py-8 text-gray-400">
-        <p>No pairings for this round yet.</p>
+      <div v-if="selectedPhasePairings.length === 0" class="card text-center py-8 text-gray-400">
+        <p>No pairings for this phase yet.</p>
         <p v-if="canManageLeague" class="text-sm mt-2">Generate pairings above to get started.</p>
       </div>
 
@@ -367,7 +367,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="pairing in selectedRoundPairings"
+              v-for="pairing in selectedPhasePairings"
               :key="pairing.id"
               class="border-b border-gray-700 hover:bg-gray-700/30 transition-colors"
             >
@@ -477,8 +477,8 @@
     <!-- Clear All Confirmation Modal -->
     <ConfirmationModal
       :show="showClearAllModal"
-      :title="`Clear All Pairings for Round ${selectedRound}?`"
-      :message="`Are you sure you want to delete all ${selectedRoundPairings.length} pairings for this round? This action cannot be undone.`"
+      :title="`Clear All Pairings for Phase ${selectedPhase}?`"
+      :message="`Are you sure you want to delete all ${selectedPhasePairings.length} pairings for this phase? This action cannot be undone.`"
       confirm-text="Clear All"
       @confirm="clearAllPairingsConfirmed"
       @cancel="showClearAllModal = false"
