@@ -22,7 +22,7 @@
       type: Array,
       default: () => []
     },
-    currentRound: {
+    currentPhase: {
       type: Number,
       default: 1
     }
@@ -131,13 +131,13 @@
       await leaguesStore.togglePlayerActive(
         player.id,
         newStatus,
-        props.currentRound
+        props.currentPhase
       )
 
       toastSuccess(
         newStatus
-          ? `${player.name} activated for Round ${props.currentRound}+`
-          : `${player.name} deactivated from Round ${props.currentRound}`
+          ? `${player.name} activated for Phase ${props.currentPhase}+`
+          : `${player.name} deactivated from Phase ${props.currentPhase}`
       )
     } catch (error) {
       console.error('Error toggling player status:', error)
@@ -328,22 +328,22 @@
             </div>
 
             <!-- Painting Progress -->
-            <div v-if="getPlayerPaintingStats(player.id, currentRound, armies).totalModels > 0" class="flex items-center space-x-2 text-xs">
+            <div v-if="getPlayerPaintingStats(player.id, currentPhase, armies).totalModels > 0" class="flex items-center space-x-2 text-xs">
               <Paintbrush :size="14" class="text-gray-400" />
               <div class="flex-1 bg-gray-600 rounded-full h-2">
                 <div
                   class="rounded-full h-2 transition-all duration-300"
-                  :class="getPaintProgressClass(getPlayerPaintingStats(player.id, currentRound, armies).percentage)"
-                  :style="{ width: getPlayerPaintingStats(player.id, currentRound, armies).percentage + '%' }"
+                  :class="getPaintProgressClass(getPlayerPaintingStats(player.id, currentPhase, armies).percentage)"
+                  :style="{ width: getPlayerPaintingStats(player.id, currentPhase, armies).percentage + '%' }"
                 ></div>
               </div>
-              <span class="min-w-max" :class="getPaintPercentageColor(getPlayerPaintingStats(player.id, currentRound, armies).percentage)">
-                {{ getPlayerPaintingStats(player.id, currentRound, armies).painted }}/{{ getPlayerPaintingStats(player.id, currentRound, armies).totalModels }}
+              <span class="min-w-max" :class="getPaintPercentageColor(getPlayerPaintingStats(player.id, currentPhase, armies).percentage)">
+                {{ getPlayerPaintingStats(player.id, currentPhase, armies).painted }}/{{ getPlayerPaintingStats(player.id, currentPhase, armies).totalModels }}
               </span>
             </div>
             <div v-else class="flex items-center space-x-2 text-xs text-gray-500 italic">
               <Paintbrush :size="14" />
-              <span>No army data for current round</span>
+              <span>No army data for current phase</span>
             </div>
           </div>
         </div>

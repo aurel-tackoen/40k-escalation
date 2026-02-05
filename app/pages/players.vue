@@ -20,7 +20,7 @@
       v-else
       :players="players"
       :armies="armies"
-      :currentRound="league?.currentRound || 1"
+      :currentPhase="league?.currentPhase || 1"
       @add-player="leaguesStore.addPlayer"
       @update-player="leaguesStore.updatePlayer"
       @remove-player="handleRemovePlayer"
