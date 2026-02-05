@@ -12,7 +12,7 @@ This roadmap covers the systematic renaming of "Round" to "Phase" throughout the
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Database Schema** - Rename database columns and update Drizzle queries
+- [x] **Phase 1: Database Schema** - Rename database columns and update Drizzle queries
 - [ ] **Phase 2: API Layer** - Rename API routes and update request/response properties
 - [ ] **Phase 3: State Management** - Rename Pinia store state, getters, actions, and composables
 - [ ] **Phase 4: User Interface** - Update component props, template text, and URL routes
@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md - Create migration and update schema.ts
+- [x] 01-01-PLAN.md - Create migration and update schema.ts
 
 ### Phase 2: API Layer
 **Goal**: API endpoints use "phases" terminology in routes and payloads
@@ -94,7 +94,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Database Schema | 0/1 | Planned | - |
+| 1. Database Schema | 1/1 | Complete ✓ | 2026-02-05 |
 | 2. API Layer | 0/1 | Not started | - |
 | 3. State Management | 0/1 | Not started | - |
 | 4. User Interface | 0/1 | Not started | - |
