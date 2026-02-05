@@ -5,6 +5,7 @@
 .nitro
 .cache
 .ideas
+.claude
 dist
 
 # Node dependencies
