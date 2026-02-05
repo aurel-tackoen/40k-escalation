@@ -76,7 +76,7 @@
       <div class="flex justify-between items-start mb-3">
         <div class="flex items-center gap-2">
           <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded text-xs font-semibold">
-            Round {{ match.round }}
+            Phase {{ match.round }}
           </span>
           <span class="text-xs text-gray-400">{{ formatDate(match.datePlayed) }}</span>
         </div>

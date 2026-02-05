@@ -423,7 +423,7 @@
                   v-if="pairing.isBye"
                   class="inline-block text-xs bg-purple-900/50 text-purple-300 px-2 py-1 rounded font-medium whitespace-nowrap"
                 >
-                  BYE Round
+                  BYE
                 </span>
                 <span
                   v-else

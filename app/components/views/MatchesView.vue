@@ -451,7 +451,7 @@
         <table class="w-full">
           <thead>
             <tr class="border-b border-gray-600">
-              <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Round</th>
+              <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Phase</th>
               <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Date</th>
               <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Player 1</th>
               <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Score</th>
@@ -471,7 +471,7 @@
               <!-- Round -->
               <td class="py-3 px-4">
                 <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-semibold text-sm whitespace-nowrap">
-                  Round {{ match.round }}
+                  Phase {{ match.round }}
                 </span>
               </td>
 
