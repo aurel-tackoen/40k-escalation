@@ -322,7 +322,7 @@
           <Shield :size="32" class="text-yellow-500" />
           <div>
             <h2 class="text-2xl font-serif font-bold text-yellow-500">Army List Manager</h2>
-            <p class="text-gray-400 text-sm mt-1">Build and manage army lists for each round of the escalation league.</p>
+            <p class="text-gray-400 text-sm mt-1">Build and manage army lists for each phase of the escalation league.</p>
           </div>
         </div>
         <div v-if="currentGameSystemName" :class="getGameSystemBadgeClasses()" class="whitespace-nowrap">
@@ -1043,7 +1043,7 @@
                   v-if="canEscalateArmy(army) && canModifyArmy(army)"
                   @click="escalateArmy(army)"
                   class="text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 px-2.5 py-1.5 rounded flex items-center gap-1 text-xs font-medium transition-colors cursor-pointer"
-                  title="Escalate to Next Round"
+                  title="Escalate to Next Phase"
                 >
                   <TrendingUp :size="14" />
                   Escalate
@@ -1077,7 +1077,7 @@
             <tr class="border-b border-gray-600">
               <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Army Name</th>
               <th class="text-left py-3 px-4 text-sm font-semibold text-gray-300">Player</th>
-              <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Round</th>
+              <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Phase</th>
               <th class="text-right py-3 px-4 text-sm font-semibold text-gray-300">Points</th>
               <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Units</th>
               <th class="text-center py-3 px-4 text-sm font-semibold text-gray-300">Painting</th>
@@ -1183,7 +1183,7 @@
                     v-if="canEscalateArmy(army) && canModifyArmy(army)"
                     @click="escalateArmy(army)"
                     class="text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 p-1.5 rounded transition-colors cursor-pointer"
-                    title="Escalate to Next Round"
+                    title="Escalate to Next Phase"
                   >
                     <TrendingUp :size="16" />
                   </button>
