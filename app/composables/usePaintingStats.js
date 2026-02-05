@@ -40,12 +40,12 @@ export function usePaintingStats() {
   /**
    * Calculate painting statistics for a player's current army
    * @param {number|string} playerId - ID of the player
-   * @param {number} currentRound - Current round number
+   * @param {number} currentPhase - Current phase number
    * @param {Array} armies - Array of all armies
    * @returns {Object} { totalModels, painted, percentage }
    */
-  const getPlayerPaintingStats = (playerId, currentRound, armies) => {
-    const army = armies.find(a => a.playerId === playerId && a.round === currentRound)
+  const getPlayerPaintingStats = (playerId, currentPhase, armies) => {
+    const army = armies.find(a => a.playerId === playerId && a.phase === currentPhase)
     return getArmyPaintingStats(army)
   }
 
@@ -123,12 +123,12 @@ export function usePaintingStats() {
   /**
    * Calculate painted points for a player's current army
    * @param {number|string} playerId - ID of the player
-   * @param {number} currentRound - Current round number
+   * @param {number} currentPhase - Current phase number
    * @param {Array} armies - Array of all armies
    * @returns {Object} { totalPoints, paintedPoints, percentage }
    */
-  const getPlayerPaintedPoints = (playerId, currentRound, armies) => {
-    const army = armies.find(a => a.playerId === playerId && a.round === currentRound)
+  const getPlayerPaintedPoints = (playerId, currentPhase, armies) => {
+    const army = armies.find(a => a.playerId === playerId && a.phase === currentPhase)
     return getArmyPaintedPoints(army)
   }
 
