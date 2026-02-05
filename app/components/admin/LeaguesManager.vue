@@ -516,7 +516,7 @@
               <div class="mt-3">
                 <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Progress</div>
                 <div class="text-white">
-                  Round <span class="text-yellow-500 font-bold">{{ league.currentRound }}</span>
+                  Phase <span class="text-yellow-500 font-bold">{{ league.currentRound }}</span>
                 </div>
               </div>
             </div>
@@ -622,7 +622,7 @@
               :class="['transition-transform', { 'rotate-90': isLeagueExpanded(league.id) }]"
             />
             <span>
-              {{ isLeagueExpanded(league.id) ? 'Hide' : 'Show' }} Rounds ({{ league.rounds?.length || 0 }})
+              {{ isLeagueExpanded(league.id) ? 'Hide' : 'Show' }} Phases ({{ league.rounds?.length || 0 }})
             </span>
           </button>
         </div>
@@ -642,7 +642,7 @@
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-3">
                   <Target class="w-5 h-5 text-yellow-500" />
-                  <span class="text-white font-semibold">Round {{ round.number }}: {{ round.name }}</span>
+                  <span class="text-white font-semibold">Phase {{ round.number }}: {{ round.name }}</span>
                 </div>
                 <span class="text-yellow-500 font-bold">{{ round.pointLimit }} pts</span>
               </div>
@@ -754,7 +754,7 @@
           </div>
 
           <div>
-            <label class="admin-label">Current Round</label>
+            <label class="admin-label">Current Phase</label>
             <input
               v-model.number="editForm.currentRound"
               type="number"
@@ -804,13 +804,13 @@
     <!-- Round Edit Modal -->
     <AdminModal
       :isOpen="showRoundModal"
-      title="Edit Round"
+      title="Edit Phase"
       @close="closeRoundModal"
     >
       <form @submit.prevent="saveRound" class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="admin-label">Round Number</label>
+            <label class="admin-label">Phase Number</label>
             <input
               v-model.number="roundForm.number"
               type="number"
@@ -833,7 +833,7 @@
         </div>
 
         <div>
-          <label class="admin-label">Round Name</label>
+          <label class="admin-label">Phase Name</label>
           <input
             v-model="roundForm.name"
             type="text"
@@ -872,7 +872,7 @@
           </button>
           <button type="submit" class="admin-btn-secondary">
             <Save class="w-4 h-4" />
-            Update Round
+            Update Phase
           </button>
         </div>
       </form>
