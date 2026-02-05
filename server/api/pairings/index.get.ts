@@ -4,15 +4,15 @@ import { eq, and } from 'drizzle-orm'
 import { requireLeagueMembership } from '../../utils/auth'
 
 /**
- * GET /api/pairings?leagueId=X&round=Y
- * Fetch pairings for a league (optionally filtered by round)
+ * GET /api/pairings?leagueId=X&phase=Y
+ * Fetch pairings for a league (optionally filtered by phase)
  * Auth: Requires league membership
  */
 export default defineEventHandler(async (event) => {
   try {
     const query = getQuery(event)
     const leagueId = query.leagueId ? parseInt(query.leagueId as string) : null
-    const round = query.round ? parseInt(query.round as string) : null
+    const phase = query.phase ? parseInt(query.phase as string) : null
 
     if (!leagueId) {
       throw createError({
@@ -26,8 +26,8 @@ export default defineEventHandler(async (event) => {
 
     // Build where conditions
     const conditions = [eq(pairings.leagueId, leagueId)]
-    if (round !== null) {
-      conditions.push(eq(pairings.round, round))
+    if (phase !== null) {
+      conditions.push(eq(pairings.phase, phase))
     }
 
     // Fetch pairings with player names
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
       .select({
         id: pairings.id,
         leagueId: pairings.leagueId,
-        round: pairings.round,
+        phase: pairings.phase,
         player1Id: pairings.player1Id,
         player2Id: pairings.player2Id,
         matchId: pairings.matchId,

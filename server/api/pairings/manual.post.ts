@@ -10,12 +10,12 @@ import { requireLeagueRole } from '../../utils/auth'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { leagueId, round, player1Id, player2Id, isBye, dueDate } = body
+    const { leagueId, phase, player1Id, player2Id, isBye, dueDate } = body
 
-    if (!leagueId || !round || !player1Id) {
+    if (!leagueId || !phase || !player1Id) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Missing required fields: leagueId, round, player1Id'
+        statusMessage: 'Missing required fields: leagueId, phase, player1Id'
       })
     }
 
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     // Create pairing object
     const newPairing = {
       leagueId,
-      round,
+      phase,
       player1Id,
       player2Id: player2Id || null,
       isBye: isBye ?? !player2Id, // If no player2Id, it's a BYE
