@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Players can easily track their league progress and see where they stand
-**Current focus:** Phase 4 - Vue Components (next)
+**Current focus:** Phase 4 - Vue Components (in progress)
 
 ## Current Position
 
-Phase: 3 of 5 (State Management)
-Plan: 2 of 2 in current phase (COMPLETE)
-Status: Phase complete
-Last activity: 2026-02-05 - Completed 03-02-PLAN.md (gap closure)
+Phase: 4 of 5 (User Interface)
+Plan: 1 of 3 in current phase (COMPLETE)
+Status: In progress
+Last activity: 2026-02-05 - Completed 04-01-PLAN.md (props and composable exports)
 
-Progress: [########__] 80%
+Progress: [########-_] 85%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 6 min
-- Total execution time: 0.5 hours
+- Total plans completed: 6
+- Average duration: 7 min
+- Total execution time: 0.7 hours
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: [########__] 80%
 | 01-database-schema | 1 | 12 min | 12 min |
 | 02-api-layer | 2 | 5 min | 2.5 min |
 | 03-state-management | 2 | 9 min | 4.5 min |
+| 04-user-interface | 1 | 12 min | 12 min |
 
 **Recent Trend:**
-- Last 5 plans: 12 min, 3 min, 2 min, 8 min, 1 min
+- Last 5 plans: 3 min, 2 min, 8 min, 1 min, 12 min
 - Trend: Steady
 
 *Updated after each plan completion*
@@ -52,13 +53,13 @@ Recent decisions affecting current work:
 - Admin folder renamed (rounds -> phases) to match Nuxt file-based routing conventions
 - Preserved firstRoundPairingMethod/subsequentRoundMethod (tournament settings, not phase terminology)
 - Extended Phase 3 scope to include useArmyManagement.js and ArmyListsView.vue to unblock build
-- Composable exported names preserved (selectedRound, setRoundFilter) - will be renamed in Phase 4 with consumers
+- Composable exported names renamed in Phase 4 (selectedRound -> selectedPhase, etc.)
+- Preserved match.round API property (API/DB still uses round for matches)
 
 ### Pending Todos
 
-- Frontend Vue components need updating to match new API response shapes (phases vs rounds)
-- ArmyListsView.vue partially updated in Phase 3 (blocking fix) - verify complete in Phase 4
-- Composable exported names to be renamed in Phase 4 (e.g., selectedRound -> selectedPhase)
+- DashboardView.vue and LeagueSetupView.vue still have round references (out of scope for 04-01)
+- Remaining user-visible template text may need updates in subsequent plans
 
 ### Blockers/Concerns
 
@@ -67,9 +68,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Phase 3 complete (including gap closure), ready for Phase 4
+Stopped at: Plan 04-01 complete, ready for Plan 04-02 (template text updates)
 Resume file: None
 
 ---
 *State initialized: 2026-02-05*
-*Last updated: 2026-02-05 - Phase 3 gap closure complete (03-02)*
+*Last updated: 2026-02-05 - Plan 04-01 complete (props and composable exports)*
