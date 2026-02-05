@@ -71,10 +71,12 @@ Plans:
   2. All user-visible text shows "Phase" instead of "Round"
   3. URL routes use phase terminology (if applicable)
   4. Application renders correctly with no console errors
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: Component and template rename
+- [ ] 04-01-PLAN.md - Component props, composable exports, and parent page bindings
+- [ ] 04-02-PLAN.md - Template text updates (filters, labels, badges, timelines)
+- [ ] 04-03-PLAN.md - Admin components template text updates
 
 ### Phase 5: Test Verification
 **Goal**: All tests pass with updated terminology, confirming rename is complete
@@ -99,7 +101,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Database Schema | 1/1 | Complete | 2026-02-05 |
 | 2. API Layer | 2/2 | Complete | 2026-02-05 |
 | 3. State Management | 2/2 | Complete | 2026-02-05 |
-| 4. User Interface | 0/1 | Not started | - |
+| 4. User Interface | 0/3 | Not started | - |
 | 5. Test Verification | 0/1 | Not started | - |
 
 ---
