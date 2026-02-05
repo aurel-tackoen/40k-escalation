@@ -394,13 +394,13 @@ export const useLeaguesStore = defineStore('leagues', {
             name: response.data.league.name,
             role: 'owner',
             joinedAt: response.data.membership.joinedAt,
-            rounds: response.data.rounds
+            phases: response.data.phases
           })
 
           // Cache league details
           this.leagues[response.data.league.id] = {
             ...response.data.league,
-            rounds: response.data.rounds,
+            phases: response.data.phases,
             memberCount: 1
           }
 
