@@ -54,7 +54,7 @@ Requirements for the Round → Phase terminology rename.
 |-------------|-------|--------|
 | DB-01 | Phase 1 | Pending |
 | DB-02 | Phase 1 | Pending |
-| DB-03 | Phase 1 | Pending |
+| DB-03 | Phase 2 | Pending |
 | API-01 | Phase 2 | Pending |
 | API-02 | Phase 2 | Pending |
 | API-03 | Phase 2 | Pending |

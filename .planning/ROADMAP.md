@@ -23,11 +23,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 ### Phase 1: Database Schema
 **Goal**: Database uses "phase" terminology consistently with no data loss
 **Depends on**: Nothing (first phase)
-**Requirements**: DB-01, DB-02, DB-03
+**Requirements**: DB-01, DB-02
 **Success Criteria** (what must be TRUE):
   1. Database columns use `phase` naming (phase_id, phase_number, current_phase)
   2. Migration runs successfully without data loss on existing leagues
-  3. All Drizzle queries compile and execute without errors referencing old column names
+  3. Schema.ts exports `phases` table and uses phase column names
 **Plans**: 1 plan
 
 Plans:
@@ -36,7 +36,7 @@ Plans:
 ### Phase 2: API Layer
 **Goal**: API endpoints use "phases" terminology in routes and payloads
 **Depends on**: Phase 1
-**Requirements**: API-01, API-02, API-03
+**Requirements**: DB-03, API-01, API-02, API-03
 **Success Criteria** (what must be TRUE):
   1. API routes use `/api/phases` instead of `/api/rounds`
   2. Request and response bodies use `phase` property names
