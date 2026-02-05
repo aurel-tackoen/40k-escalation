@@ -207,14 +207,14 @@ export function useMatchResults(matches) {
   }
 
   /**
-   * Get matches for a specific round
-   * @param {number} roundNumber - Round number
-   * @returns {Array<Object>} Round's matches
+   * Get matches for a specific phase
+   * @param {number} phaseNumber - Phase number
+   * @returns {Array<Object>} Phase's matches
    */
-  const getRoundMatches = (roundNumber) => {
+  const getPhaseMatches = (phaseNumber) => {
     if (!matches.value) return []
 
-    return matches.value.filter(match => match.round === roundNumber)
+    return matches.value.filter(match => match.phase === phaseNumber)
   }
 
   /**
@@ -298,7 +298,7 @@ export function useMatchResults(matches) {
     getAveragePointsScored,
     getHeadToHeadRecord,
     getPlayerMatches,
-    getRoundMatches,
+    getPhaseMatches,
     getWinStreak,
     isOnWinningStreak,
     getMatchQualityText

@@ -15,7 +15,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
   const newlyAddedUnitId = ref(null)
   const currentArmy = ref({
     playerId: null,
-    round: null,
+    phase: null,
     name: '',
     totalPoints: 0,
     units: [],
@@ -24,12 +24,12 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
   })
 
   /**
-   * Get the point limit for the current army's round
-   * @returns {number} Point limit or 0 if no round selected
+   * Get the point limit for the current army's phase
+   * @returns {number} Point limit or 0 if no phase selected
    */
-  const currentRoundLimit = computed(() => {
-    if (!currentArmy.value.round) return 0
-    const round = rounds.value.find(r => r.number === currentArmy.value.round)
+  const currentPhaseLimit = computed(() => {
+    if (!currentArmy.value.phase) return 0
+    const round = rounds.value.find(r => r.number === currentArmy.value.phase)
     return round ? round.pointLimit : 0
   })
 
@@ -38,7 +38,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
    * @returns {number} Remaining points (positive = under limit, negative = over limit)
    */
   const remainingPoints = computed(() => {
-    return currentRoundLimit.value - currentArmy.value.totalPoints
+    return currentPhaseLimit.value - currentArmy.value.totalPoints
   })
 
   /**
@@ -46,17 +46,17 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
    * @returns {boolean} True if army is within point limit
    */
   const isCurrentArmyValid = computed(() => {
-    return isValidArmy(currentArmy.value, currentRoundLimit.value)
+    return isValidArmy(currentArmy.value, currentPhaseLimit.value)
   })
 
   /**
    * Start building a new army
-   * @param {number} defaultRound - Default round number to select
+   * @param {number} defaultPhase - Default phase number to select
    */
-  const startNewArmy = (defaultRound = 1) => {
+  const startNewArmy = (defaultPhase = 1) => {
     currentArmy.value = {
       playerId: null,
-      round: defaultRound,
+      phase: defaultPhase,
       name: '',
       totalPoints: 0,
       units: [],
@@ -85,7 +85,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
     editingArmy.value = false
     currentArmy.value = {
       playerId: null,
-      round: null,
+      phase: null,
       name: '',
       totalPoints: 0,
       units: [],
@@ -156,7 +156,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
   const copyFromPreviousArmy = (previousArmy) => {
     if (previousArmy) {
       currentArmy.value.units = JSON.parse(JSON.stringify(previousArmy.units))
-      currentArmy.value.name = `${previousArmy.name} - Round ${currentArmy.value.round}`
+      currentArmy.value.name = `${previousArmy.name} - Phase ${currentArmy.value.phase}`
       recalculateArmy()
     }
   }
@@ -180,7 +180,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
     newlyAddedUnitId,
 
     // Computed
-    currentRoundLimit,
+    currentPhaseLimit,
     remainingPoints,
     isCurrentArmyValid,
 

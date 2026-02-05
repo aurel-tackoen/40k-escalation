@@ -12,16 +12,16 @@ import { unref } from 'vue'
  * @param {Ref<Object>} leagueSettings - Reactive league settings object
  */
 export function usePairings(players, matches, pairings, leagueSettings) {  /**
-   * Get active players for a specific round
-   * @param {number} round - Round number
-   * @returns {Array} Active players for the round
+   * Get active players for a specific phase
+   * @param {number} phase - Phase number
+   * @returns {Array} Active players for the phase
    */
-  const getActivePlayers = (round) => {
+  const getActivePlayers = (phase) => {
     const playersList = unref(players)
     return playersList.filter(p =>
       p.isActive &&
-      (p.joinedRound || 1) <= round &&
-      (!p.leftRound || p.leftRound >= round)
+      (p.joinedPhase || 1) <= phase &&
+      (!p.leftPhase || p.leftPhase >= phase)
     )
   }
 
@@ -73,17 +73,17 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
    * Check if pairing exists between two players
    * @param {number} p1Id - Player 1 ID
    * @param {number} p2Id - Player 2 ID
-   * @param {number|null} round - Round number (null = any round)
+   * @param {number|null} phase - Phase number (null = any phase)
    * @returns {boolean} True if pairing exists
    */
-  const hasPairing = (p1Id, p2Id, round = null) => {
+  const hasPairing = (p1Id, p2Id, phase = null) => {
     const pairingsList = unref(pairings)
     return pairingsList.some(pair => {
-      const matchesRound = round === null || pair.round === round
+      const matchesPhase = phase === null || pair.phase === phase
       const matchesPlayers =
         (pair.player1Id === p1Id && pair.player2Id === p2Id) ||
         (pair.player1Id === p2Id && pair.player2Id === p1Id)
-      return matchesRound && matchesPlayers
+      return matchesPhase && matchesPlayers
     })
   }
 
@@ -257,17 +257,17 @@ export function usePairings(players, matches, pairings, leagueSettings) {  /**
   }
 
   /**
-   * Get unpaired active players for a round
-   * @param {number} round - Round number
+   * Get unpaired active players for a phase
+   * @param {number} phase - Phase number
    * @returns {Array} Unpaired players
    */
-  const getUnpairedPlayers = (round) => {
-    const activePlayers = getActivePlayers(round)
+  const getUnpairedPlayers = (phase) => {
+    const activePlayers = getActivePlayers(phase)
     const pairingsList = unref(pairings)
     const pairedIds = new Set()
 
     pairingsList
-      .filter(p => p.round === round)
+      .filter(p => p.phase === phase)
       .forEach(p => {
         pairedIds.add(p.player1Id)
         if (p.player2Id) pairedIds.add(p.player2Id)

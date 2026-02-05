@@ -27,96 +27,98 @@ export function useArmyManagement(armies, rounds) {
   }
 
   /**
-   * Check if an army can be escalated to the next round
-   * @param {Object} army - Army object with playerId and round
+   * Check if an army can be escalated to the next phase
+   * @param {Object} army - Army object with playerId and phase
    * @returns {boolean} True if army can be escalated
    */
   const canEscalateArmy = (army) => {
     if (!army) return false
 
-    const nextRound = army.round + 1
-    const hasNextRound = rounds.value?.some(r => r.number === nextRound)
-    const hasNextRoundArmy = armies.value?.some(a =>
-      a.playerId === army.playerId && a.round === nextRound
+    const nextPhase = army.phase + 1
+    const hasNextPhase = rounds.value?.some(r => r.number === nextPhase)
+    const hasNextPhaseArmy = armies.value?.some(a =>
+      a.playerId === army.playerId && a.phase === nextPhase
     )
 
-    return hasNextRound && !hasNextRoundArmy
+    return hasNextPhase && !hasNextPhaseArmy
   }
 
   /**
-   * Check if player has an army for the previous round
+   * Check if player has an army for the previous phase
    * @param {number|string} playerId - Player ID
-   * @param {number} round - Current round number
-   * @returns {boolean} True if previous round army exists
+   * @param {number} phase - Current phase number
+   * @returns {boolean} True if previous phase army exists
    */
-  const hasPreviousRoundArmy = (playerId, round) => {
-    if (!playerId || !round || round <= 1) return false
+  const hasPreviousPhaseArmy = (playerId, phase) => {
+    if (!playerId || !phase || phase <= 1) return false
     return armies.value?.some(army =>
-      army.playerId === playerId && army.round === round - 1
+      army.playerId === playerId && army.phase === phase - 1
     )
   }
 
   /**
-   * Get army from previous round
+   * Get army from previous phase
    * @param {number|string} playerId - Player ID
-   * @param {number} round - Current round number
-   * @returns {Object|undefined} Previous round army or undefined
+   * @param {number} phase - Current phase number
+   * @returns {Object|undefined} Previous phase army or undefined
    */
-  const getPreviousArmy = (playerId, round) => {
-    if (!playerId || !round || round <= 1) return undefined
+  const getPreviousArmy = (playerId, phase) => {
+    if (!playerId || !phase || phase <= 1) return undefined
     return armies.value?.find(army =>
-      army.playerId === playerId && army.round === round - 1
+      army.playerId === playerId && army.phase === phase - 1
     )
   }
 
   /**
-   * Copy army to next round with updated round number and name
+   * Copy army to next phase with updated phase number and name
    * @param {Object} army - Source army to copy
-   * @param {number} nextRoundNumber - Target round number
-   * @returns {Object} New army object for next round
+   * @param {number} nextPhaseNumber - Target phase number
+   * @returns {Object} New army object for next phase
    */
-  const copyArmyToNextRound = (army, nextRoundNumber) => {
-    // Force consistent "Round X" naming
+  const copyArmyToNextPhase = (army, nextPhaseNumber) => {
+    // Force consistent "Phase X" naming
     let baseName = army.name
 
-    // Remove any existing round indicators to get base name
+    // Remove any existing phase/round indicators to get base name
+    baseName = baseName.replace(/\s*-?\s*Phase \d+/i, '')
+    baseName = baseName.replace(/\s*\(Phase \d+\)/i, '')
     baseName = baseName.replace(/\s*-?\s*Round \d+/i, '')
     baseName = baseName.replace(/\s*\(Round \d+\)/i, '')
     baseName = baseName.trim()
 
-    // Always use "Round X" format
-    const newName = `${baseName} Round ${nextRoundNumber}`
+    // Always use "Phase X" format
+    const newName = `${baseName} Phase ${nextPhaseNumber}`
 
     return {
       playerId: army.playerId,
-      round: nextRoundNumber,
+      phase: nextPhaseNumber,
       name: newName,
       totalPoints: army.totalPoints,
       units: JSON.parse(JSON.stringify(army.units)),
-      isValid: false // Needs validation in new round context
+      isValid: false // Needs validation in new phase context
     }
   }
 
   /**
    * Get all armies for a specific player
    * @param {number|string} playerId - Player ID
-   * @returns {Array<Object>} Array of player's armies sorted by round
+   * @returns {Array<Object>} Array of player's armies sorted by phase
    */
   const getPlayerArmies = (playerId) => {
     if (!armies.value || !playerId) return []
     return armies.value
       .filter(army => army.playerId === playerId)
-      .sort((a, b) => a.round - b.round)
+      .sort((a, b) => a.phase - b.phase)
   }
 
   /**
-   * Get all armies for a specific round
-   * @param {number} roundNumber - Round number
-   * @returns {Array<Object>} Array of armies for the round
+   * Get all armies for a specific phase
+   * @param {number} phaseNumber - Phase number
+   * @returns {Array<Object>} Array of armies for the phase
    */
-  const getRoundArmies = (roundNumber) => {
-    if (!armies.value || !roundNumber) return []
-    return armies.value.filter(army => army.round === roundNumber)
+  const getPhaseArmies = (phaseNumber) => {
+    if (!armies.value || !phaseNumber) return []
+    return armies.value.filter(army => army.phase === phaseNumber)
   }
 
   /**
@@ -148,11 +150,11 @@ export function useArmyManagement(armies, rounds) {
     calculateArmyTotal,
     isValidArmy,
     canEscalateArmy,
-    hasPreviousRoundArmy,
+    hasPreviousPhaseArmy,
     getPreviousArmy,
-    copyArmyToNextRound,
+    copyArmyToNextPhase,
     getPlayerArmies,
-    getRoundArmies,
+    getPhaseArmies,
     getArmyComposition
   }
 }

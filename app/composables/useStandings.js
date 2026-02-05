@@ -177,8 +177,8 @@ export function useStandings(players, matches, leagueSettings) {
   }
 
   /**
-   * Calculate standings for a specific round (or overall)
-   * @param {number|null} round - Round number (null for overall)
+   * Calculate standings for a specific phase (or overall)
+   * @param {number|null} round - Phase number (null for overall)
    * @returns {Array} Sorted standings array with calculated stats
    */
   const calculateStandings = (round = null) => {
@@ -214,7 +214,7 @@ export function useStandings(players, matches, leagueSettings) {
   /**
    * Get player rank in current standings
    * @param {number} playerId - Player ID
-   * @param {number|null} round - Round number (null for overall)
+   * @param {number|null} round - Phase number (null for overall)
    * @returns {number} Player rank (1-indexed)
    */
   const getPlayerRank = (playerId, round = null) => {
@@ -226,7 +226,7 @@ export function useStandings(players, matches, leagueSettings) {
   /**
    * Get player statistics with all calculated values
    * @param {number} playerId - Player ID
-   * @param {number|null} round - Round number (null for overall)
+   * @param {number|null} round - Phase number (null for overall)
    * @returns {Object|null} Player stats object
    */
   const getPlayerStats = (playerId, round = null) => {

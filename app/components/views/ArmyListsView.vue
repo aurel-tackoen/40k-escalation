@@ -6,7 +6,7 @@
   import { usePaintingStats } from '~/composables/usePaintingStats'
   import { usePlayerLookup } from '~/composables/usePlayerLookup'
   import { useFormatting } from '~/composables/useFormatting'
-  import { useRoundLookup } from '~/composables/useRoundLookup'
+  import { usePhaseLookup } from '~/composables/usePhaseLookup'
   import { useArmyManagement } from '~/composables/useArmyManagement'
   import { useArrayFiltering } from '~/composables/useArrayFiltering'
   import { useArmyForm } from '~/composables/useArmyForm'
@@ -65,7 +65,7 @@
 
   const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
   const { formatDateShort } = useFormatting()
-  const { getRoundName, getRoundLimit } = useRoundLookup(toRef(props, 'rounds'))
+  const { getPhaseName, getPhaseLimit } = usePhaseLookup(toRef(props, 'rounds'))
 
   // Army deletion state
   const armyToDelete = ref(null)
@@ -79,7 +79,7 @@
   const deleteArmyConfirmed = () => {
     if (armyToDelete.value) {
       const armyName = armyToDelete.value.name || 'Army'
-      emit('delete-army', armyToDelete.value.playerId, armyToDelete.value.round)
+      emit('delete-army', armyToDelete.value.playerId, armyToDelete.value.phase)
       toastSuccess(`${armyName} deleted successfully`)
       armyToDelete.value = null
       showDeleteModal.value = false
@@ -95,9 +95,9 @@
     calculateArmyTotal,
     isValidArmy: checkValidArmy,
     canEscalateArmy,
-    hasPreviousRoundArmy: checkPreviousRoundArmy,
+    hasPreviousPhaseArmy: checkPreviousPhaseArmy,
     getPreviousArmy,
-    copyArmyToNextRound
+    copyArmyToNextPhase
   } = useArmyManagement(toRef(props, 'armies'), toRef(props, 'rounds'))
 
   const {
@@ -110,7 +110,7 @@
     showBuilder,
     editingArmy,
     currentArmy,
-    currentRoundLimit,
+    currentPhaseLimit,
     remainingPoints,
     isCurrentArmyValid,
     startNewArmy,
@@ -157,17 +157,17 @@
   }
 
   // Computed - Form helper methods
-  const hasPreviousRoundArmy = computed(() => {
-    return checkPreviousRoundArmy(currentArmy.value.playerId, currentArmy.value.round)
+  const hasPreviousPhaseArmy = computed(() => {
+    return checkPreviousPhaseArmy(currentArmy.value.playerId, currentArmy.value.phase)
   })
 
   const getPreviousArmyUnits = () => {
-    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
+    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.phase)
     return previousArmy ? previousArmy.units.length : 0
   }
 
   const getPreviousArmyName = () => {
-    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
+    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.phase)
     return previousArmy ? previousArmy.name : ''
   }
 
@@ -230,8 +230,8 @@
     scrollToForm()
   }
 
-  const handleCopyFromPreviousRound = () => {
-    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.round)
+  const handleCopyFromPreviousPhase = () => {
+    const previousArmy = getPreviousArmy(currentArmy.value.playerId, currentArmy.value.phase)
     copyFromPreviousArmy(previousArmy)
   }
 
@@ -242,16 +242,16 @@
       toastError('You do not have permission to escalate this army')
       return
     }
-    const nextRound = army.round + 1
-    const escalatedArmy = copyArmyToNextRound(army, nextRound)
+    const nextPhase = army.phase + 1
+    const escalatedArmy = copyArmyToNextPhase(army, nextPhase)
 
     // Override name with saved army name from league membership
     if (currentArmyName.value) {
-      escalatedArmy.name = `${currentArmyName.value} - Round ${nextRound}`
+      escalatedArmy.name = `${currentArmyName.value} - Phase ${nextPhase}`
     }
 
     setupEscalation(army, escalatedArmy)
-    toastInfo(`Army escalated to Round ${nextRound} - Ready to add units!`)
+    toastInfo(`Army escalated to Phase ${nextPhase} - Ready to add units!`)
     scrollToForm()
   }
 
@@ -517,11 +517,11 @@
               </p>
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-300 mb-2">Round *</label>
-              <select v-model="currentArmy.round" required class="input-field" :disabled="editingArmy">
-                <option value="">Select Round</option>
+              <label class="block text-sm font-semibold text-gray-300 mb-2">Phase *</label>
+              <select v-model="currentArmy.phase" required class="input-field" :disabled="editingArmy">
+                <option value="">Select Phase</option>
                 <option v-for="round in rounds" :key="round.number" :value="round.number">
-                  Round {{ round.number }} - {{ round.name }} ({{ round.pointLimit }}pts)
+                  Phase {{ round.number }} - {{ round.name }} ({{ round.pointLimit }}pts)
                 </option>
               </select>
             </div>
@@ -552,34 +552,34 @@
           </div>
         </div>
 
-        <!-- Copy from Previous Round (if applicable) -->
-        <div v-if="!editingArmy && currentArmy.round > 1" class="bg-blue-900/30 border border-blue-700 p-4 rounded-lg">
+        <!-- Copy from Previous Phase (if applicable) -->
+        <div v-if="!editingArmy && currentArmy.phase > 1" class="bg-blue-900/30 border border-blue-700 p-4 rounded-lg">
           <div class="flex justify-between items-center">
             <div>
               <h6 class="font-semibold text-blue-300 flex items-center gap-2 mb-1">
                 <Copy :size="18" />
-                Escalate from Previous Round
+                Escalate from Previous Phase
               </h6>
               <p class="text-sm text-blue-400">
-                Copy your <strong>Round {{ currentArmy.round - 1 }}</strong> army list and add new units
+                Copy your <strong>Phase {{ currentArmy.phase - 1 }}</strong> army list and add new units
               </p>
-              <p v-if="hasPreviousRoundArmy" class="text-xs text-blue-400 mt-1">
-                ✓ Found {{ getPreviousArmyUnits() }} units from "{{ getPreviousArmyName() }}"
+              <p v-if="hasPreviousPhaseArmy" class="text-xs text-blue-400 mt-1">
+                Found {{ getPreviousArmyUnits() }} units from "{{ getPreviousArmyName() }}"
               </p>
             </div>
             <button
               type="button"
-              @click="handleCopyFromPreviousRound"
+              @click="handleCopyFromPreviousPhase"
               :class="[
                 'px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap flex items-center gap-2',
-                hasPreviousRoundArmy
+                hasPreviousPhaseArmy
                   ? 'bg-blue-600 text-white hover:bg-blue-500'
                   : 'bg-gray-700 text-gray-500 cursor-not-allowed'
               ]"
-              :disabled="!hasPreviousRoundArmy"
+              :disabled="!hasPreviousPhaseArmy"
             >
-              <Clipboard v-if="hasPreviousRoundArmy" :size="18" />
-              <span>{{ hasPreviousRoundArmy ? 'Copy Army' : 'No Previous Army' }}</span>
+              <Clipboard v-if="hasPreviousPhaseArmy" :size="18" />
+              <span>{{ hasPreviousPhaseArmy ? 'Copy Army' : 'No Previous Army' }}</span>
             </button>
           </div>
         </div>
@@ -599,7 +599,7 @@
               </div>
               <div class="text-center p-3 bg-gray-800 rounded-lg">
                 <div class="text-xs text-gray-400 mb-1">Point Limit</div>
-                <div class="text-2xl font-bold text-gray-200">{{ currentRoundLimit }}</div>
+                <div class="text-2xl font-bold text-gray-200">{{ currentPhaseLimit }}</div>
               </div>
               <div class="text-center p-3 bg-gray-800 rounded-lg">
                 <div class="text-xs text-gray-400 mb-1">Remaining</div>
@@ -863,10 +863,10 @@
 
             <div class="flex items-center gap-2 text-xs">
               <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-semibold">
-                Round {{ army.round }}
+                Phase {{ army.phase }}
               </span>
               <span class="text-gray-500">•</span>
-              <span class="text-gray-400">{{ getRoundName(army.round) }}</span>
+              <span class="text-gray-400">{{ getPhaseName(army.phase) }}</span>
             </div>
           </div>
 
@@ -879,7 +879,7 @@
                   <div class="text-xs text-gray-400 mb-1">Army Points</div>
                   <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-bold text-yellow-500">{{ army.totalPoints }}</span>
-                    <span class="text-gray-400">/ {{ getRoundLimit(army.round) }}</span>
+                    <span class="text-gray-400">/ {{ getPhaseLimit(army.phase) }}</span>
                   </div>
                 </div>
                 <div class="text-right">
@@ -1095,7 +1095,7 @@
               <!-- Army Name -->
               <td class="py-3 px-4">
                 <div class="font-semibold text-gray-100 whitespace-nowrap">{{ army.name }}</div>
-                <div class="text-xs text-gray-400">{{ getRoundName(army.round) }}</div>
+                <div class="text-xs text-gray-400">{{ getPhaseName(army.phase) }}</div>
               </td>
 
               <!-- Player -->
@@ -1103,17 +1103,17 @@
                 {{ getPlayerName(army.playerId) }}
               </td>
 
-              <!-- Round -->
+              <!-- Phase -->
               <td class="py-3 px-4 text-center">
                 <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap">
-                  Round {{ army.round }}
+                  Phase {{ army.phase }}
                 </span>
               </td>
 
               <!-- Points -->
               <td class="py-3 px-4 text-right">
                 <div class="font-bold text-yellow-500">{{ army.totalPoints }}</div>
-                <div class="text-xs text-gray-400">/ {{ getRoundLimit(army.round) }}</div>
+                <div class="text-xs text-gray-400">/ {{ getPhaseLimit(army.phase) }}</div>
               </td>
 
               <!-- Units -->
