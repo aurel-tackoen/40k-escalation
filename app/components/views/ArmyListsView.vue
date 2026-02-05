@@ -39,11 +39,11 @@
       type: Array,
       required: true
     },
-    currentRound: {
+    currentPhase: {
       type: Number,
       required: true
     },
-    rounds: {
+    phases: {
       type: Array,
       required: true
     }
@@ -65,7 +65,7 @@
 
   const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
   const { formatDateShort } = useFormatting()
-  const { getPhaseName, getPhaseLimit } = usePhaseLookup(toRef(props, 'rounds'))
+  const { getPhaseName, getPhaseLimit } = usePhaseLookup(toRef(props, 'phases'))
 
   // Army deletion state
   const armyToDelete = ref(null)
@@ -98,7 +98,7 @@
     hasPreviousPhaseArmy: checkPreviousPhaseArmy,
     getPreviousArmy,
     copyArmyToNextPhase
-  } = useArmyManagement(toRef(props, 'armies'), toRef(props, 'rounds'))
+  } = useArmyManagement(toRef(props, 'armies'), toRef(props, 'phases'))
 
   const {
     sortByField,
@@ -123,17 +123,17 @@
     setupEscalation,
     isNewlyAdded
   } = useArmyForm(
-    toRef(props, 'rounds'),
+    toRef(props, 'phases'),
     calculateArmyTotal,
     checkValidArmy
   )
 
   // Composables - Filtering
   const {
-    selectedRound,
+    selectedPhase,
     selectedPlayer,
     filteredArmies,
-    getArmyCountForRound
+    getArmyCountForPhase
   } = useArmyFiltering(
     toRef(props, 'armies'),
     sortByField,
@@ -205,7 +205,7 @@
       return
     }
 
-    startNewArmy(props.currentRound)
+    startNewArmy(props.currentPhase)
     // Auto-select current player if they have a player entity in this league
     if (currentPlayer.value) {
       currentArmy.value.playerId = currentPlayer.value.id
@@ -213,7 +213,7 @@
 
     // Pre-fill army name with user's saved army name
     if (currentArmyName.value) {
-      currentArmy.value.name = `${currentArmyName.value} - Round ${props.currentRound}`
+      currentArmy.value.name = `${currentArmyName.value} - Phase ${props.currentPhase}`
     }
 
     // Scroll to form
@@ -365,19 +365,19 @@
       </div>
     </div>
 
-    <!-- Round Timeline Filter -->
+    <!-- Phase Timeline Filter -->
     <div class="card">
       <div class="flex items-center gap-2 mb-4">
         <Filter :size="20" class="text-yellow-500" />
-        <h4 class="text-lg font-semibold text-gray-200">Filter by Round</h4>
+        <h4 class="text-lg font-semibold text-gray-200">Filter by Phase</h4>
       </div>
 
       <!-- Mobile Select (visible on mobile only) -->
       <div class="block md:hidden">
-        <select v-model="selectedRound" class="input-field w-full">
-          <option value="">All Rounds ({{ armies.length }} {{ armies.length === 1 ? 'army' : 'armies' }})</option>
-          <option v-for="round in rounds" :key="round.number" :value="round.number">
-            Round {{ round.number }} - {{ round.pointLimit }}pts ({{ getArmyCountForRound(round.number) }} {{ getArmyCountForRound(round.number) === 1 ? 'army' : 'armies' }})
+        <select v-model="selectedPhase" class="input-field w-full">
+          <option value="">All Phases ({{ armies.length }} {{ armies.length === 1 ? 'army' : 'armies' }})</option>
+          <option v-for="phase in phases" :key="phase.number" :value="phase.number">
+            Phase {{ phase.number }} - {{ phase.pointLimit }}pts ({{ getArmyCountForPhase(phase.number) }} {{ getArmyCountForPhase(phase.number) === 1 ? 'army' : 'armies' }})
           </option>
         </select>
       </div>
@@ -389,27 +389,27 @@
 
         <!-- Timeline Items -->
         <div class="flex justify-between items-start relative" style="z-index: 1;">
-          <!-- All Rounds Button -->
+          <!-- All Phases Button -->
           <button
-            @click="selectedRound = ''"
+            @click="selectedPhase = ''"
             :class="[
               'flex flex-col items-center gap-2 transition-all group cursor-pointer',
-              !selectedRound ? 'scale-110' : 'hover:scale-105'
+              !selectedPhase ? 'scale-110' : 'hover:scale-105'
             ]"
           >
             <div
               :class="[
                 'w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all',
-                !selectedRound
+                !selectedPhase
                   ? 'bg-yellow-500 border-yellow-500 shadow-lg shadow-yellow-500/50'
                   : 'bg-gray-800 border-gray-600 group-hover:border-gray-500'
               ]"
             >
-              <Filter :size="20" :class="!selectedRound ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-300'" />
+              <Filter :size="20" :class="!selectedPhase ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-300'" />
             </div>
             <div class="text-center min-w-[80px]">
-              <div :class="['text-sm font-semibold', !selectedRound ? 'text-yellow-500' : 'text-gray-400 group-hover:text-gray-300']">
-                All Rounds
+              <div :class="['text-sm font-semibold', !selectedPhase ? 'text-yellow-500' : 'text-gray-400 group-hover:text-gray-300']">
+                All Phases
               </div>
               <div class="text-xs text-gray-500">
                 {{ armies.length }} {{ armies.length === 1 ? 'army' : 'armies' }}
@@ -417,11 +417,11 @@
             </div>
           </button>
 
-          <!-- Round Buttons -->
+          <!-- Phase Buttons -->
           <button
-            v-for="round in rounds"
-            :key="round.number"
-            @click="selectedRound = round.number"
+            v-for="phase in phases"
+            :key="phase.number"
+            @click="selectedPhase = phase.number"
             :class="[
               'flex flex-col items-center gap-2 transition-all group cursor-pointer',
             ]"
@@ -429,24 +429,24 @@
             <div
               :class="[
                 'w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold border-4 transition-all',
-                selectedRound === round.number
+                selectedPhase === phase.number
                   ? 'bg-yellow-500 border-yellow-500 text-gray-900 shadow-lg shadow-yellow-500/50'
-                  : round.number <= currentRound
+                  : phase.number <= currentPhase
                     ? 'bg-green-600 border-green-600 text-white group-hover:border-green-500'
                     : 'bg-gray-800 border-gray-600 text-gray-400 group-hover:border-gray-500'
               ]"
             >
-              {{ round.number }}
+              {{ phase.number }}
             </div>
             <div class="text-center min-w-[80px]">
-              <div :class="['text-sm font-semibold', selectedRound === round.number ? 'text-yellow-500' : 'text-gray-300 group-hover:text-gray-200']">
-                Round {{ round.number }}
+              <div :class="['text-sm font-semibold', selectedPhase === phase.number ? 'text-yellow-500' : 'text-gray-300 group-hover:text-gray-200']">
+                Phase {{ phase.number }}
               </div>
-              <div :class="['text-xs font-medium', selectedRound === round.number ? 'text-yellow-400' : 'text-gray-400']">
-                {{ round.pointLimit }} pts
+              <div :class="['text-xs font-medium', selectedPhase === phase.number ? 'text-yellow-400' : 'text-gray-400']">
+                {{ phase.pointLimit }} pts
               </div>
               <div class="text-xs text-gray-500">
-                {{ getArmyCountForRound(round.number) }} {{ getArmyCountForRound(round.number) === 1 ? 'army' : 'armies' }}
+                {{ getArmyCountForPhase(phase.number) }} {{ getArmyCountForPhase(phase.number) === 1 ? 'army' : 'armies' }}
               </div>
             </div>
           </button>
@@ -520,8 +520,8 @@
               <label class="block text-sm font-semibold text-gray-300 mb-2">Phase *</label>
               <select v-model="currentArmy.phase" required class="input-field" :disabled="editingArmy">
                 <option value="">Select Phase</option>
-                <option v-for="round in rounds" :key="round.number" :value="round.number">
-                  Phase {{ round.number }} - {{ round.name }} ({{ round.pointLimit }}pts)
+                <option v-for="phase in phases" :key="phase.number" :value="phase.number">
+                  Phase {{ phase.number }} - {{ phase.name }} ({{ phase.pointLimit }}pts)
                 </option>
               </select>
             </div>
@@ -1215,7 +1215,7 @@
         <Shield :size="64" class="mx-auto text-gray-700 mb-4" />
         <p class="text-xl text-gray-400 font-medium mb-2">No army lists found</p>
         <p class="text-sm text-gray-500 mb-6">
-          {{ selectedRound ? `No armies for Round ${selectedRound}` : 'Start building your first army list!' }}
+          {{ selectedPhase ? `No armies for Phase ${selectedPhase}` : 'Start building your first army list!' }}
         </p>
         <button @click="handleStartNewArmy" class="btn-primary inline-flex items-center gap-2">
           <Plus :size="20" />

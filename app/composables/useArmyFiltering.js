@@ -2,7 +2,7 @@ import { ref, computed } from 'vue'
 
 /**
  * Army list filtering and sorting utilities
- * Handles player and round filters with advanced sorting
+ * Handles player and phase filters with advanced sorting
  *
  * @param {Ref} armies - Reactive reference to armies array
  * @param {Function} sortByField - Sort function from useArrayFiltering
@@ -10,12 +10,12 @@ import { ref, computed } from 'vue'
  * @returns {Object} Filtering utilities
  */
 export function useArmyFiltering(armies, sortByField, filterByMultipleCriteria) {
-  const selectedRound = ref('')
+  const selectedPhase = ref('')
   const selectedPlayer = ref('')
 
   /**
    * Get filtered and sorted armies based on current filters
-   * Filters by round and player, then sorts by round (desc) and lastModified (desc)
+   * Filters by phase and player, then sorts by phase (desc) and lastModified (desc)
    * @returns {Array} Filtered and sorted armies
    */
   const filteredArmies = computed(() => {
@@ -23,7 +23,7 @@ export function useArmyFiltering(armies, sortByField, filterByMultipleCriteria) 
 
     // Build filter criteria
     const filters = {}
-    if (selectedRound.value) filters.phase = selectedRound.value
+    if (selectedPhase.value) filters.phase = selectedPhase.value
     if (selectedPlayer.value) filters.playerId = selectedPlayer.value
 
     // Apply filters if any exist
@@ -31,7 +31,7 @@ export function useArmyFiltering(armies, sortByField, filterByMultipleCriteria) 
       filtered = filterByMultipleCriteria(filtered, filters)
     }
 
-    // Sort by round (desc) then lastModified (desc)
+    // Sort by phase (desc) then lastModified (desc)
     return sortByField(
       sortByField(filtered, 'lastModified', 'desc'),
       'phase',
@@ -40,28 +40,28 @@ export function useArmyFiltering(armies, sortByField, filterByMultipleCriteria) 
   })
 
   /**
-   * Get count of armies for a specific round
-   * @param {number} roundNumber - Round number to count
-   * @returns {number} Count of armies in that round
+   * Get count of armies for a specific phase
+   * @param {number} phaseNumber - Phase number to count
+   * @returns {number} Count of armies in that phase
    */
-  const getArmyCountForRound = (roundNumber) => {
-    return armies.value.filter(a => a.phase === roundNumber).length
+  const getArmyCountForPhase = (phaseNumber) => {
+    return armies.value.filter(a => a.phase === phaseNumber).length
   }
 
   /**
    * Reset all filters to default state
    */
   const resetFilters = () => {
-    selectedRound.value = ''
+    selectedPhase.value = ''
     selectedPlayer.value = ''
   }
 
   /**
-   * Set round filter
-   * @param {number|string} round - Round number to filter by
+   * Set phase filter
+   * @param {number|string} phase - Phase number to filter by
    */
-  const setRoundFilter = (round) => {
-    selectedRound.value = round
+  const setPhaseFilter = (phase) => {
+    selectedPhase.value = phase
   }
 
   /**
@@ -77,12 +77,12 @@ export function useArmyFiltering(armies, sortByField, filterByMultipleCriteria) 
    * @returns {boolean} True if any filter is set
    */
   const hasActiveFilters = computed(() => {
-    return selectedRound.value !== '' || selectedPlayer.value !== ''
+    return selectedPhase.value !== '' || selectedPlayer.value !== ''
   })
 
   return {
     // State
-    selectedRound,
+    selectedPhase,
     selectedPlayer,
 
     // Computed
@@ -90,9 +90,9 @@ export function useArmyFiltering(armies, sortByField, filterByMultipleCriteria) 
     hasActiveFilters,
 
     // Methods
-    getArmyCountForRound,
+    getArmyCountForPhase,
     resetFilters,
-    setRoundFilter,
+    setPhaseFilter,
     setPlayerFilter
   }
 }
