@@ -38,39 +38,35 @@ describe('LoginButton.vue', () => {
   })
 
   describe('Rendering', () => {
-    it('should render login button when not authenticated', () => {
-      mockIsAuthenticated.value = false
-
+    it('should render login button', () => {
       wrapper = mount(LoginButton)
 
       const button = wrapper.find('button')
       expect(button.exists()).toBe(true)
-      expect(button.text()).toContain('Login')
     })
 
-    it('should not render login button when authenticated', () => {
-      mockIsAuthenticated.value = true
-
+    it('should display login text on larger screens', () => {
       wrapper = mount(LoginButton)
 
-      const button = wrapper.find('button')
-      expect(button.exists()).toBe(false)
+      // The "Login" text is hidden on small screens but visible on larger screens
+      const span = wrapper.find('span.hidden.sm\\:inline-block')
+      expect(span.exists()).toBe(true)
+      expect(span.text()).toBe('Login')
     })
 
     it('should display LogIn icon', () => {
-      mockIsAuthenticated.value = false
-
       wrapper = mount(LoginButton)
 
       // Icon should be rendered (lucide-vue-next components)
       expect(wrapper.html()).toContain('svg')
     })
 
-    it('should have correct button text', () => {
+    it('should have correct button structure', () => {
       wrapper = mount(LoginButton)
 
       const button = wrapper.find('button')
-      expect(button.text()).toBe('Login')
+      expect(button.exists()).toBe(true)
+      expect(button.classes()).toContain('btn-primary')
     })
   })
 
@@ -146,24 +142,26 @@ describe('LoginButton.vue', () => {
   })
 
   describe('State Transitions', () => {
-    it('should disappear when authentication state changes to true', async () => {
+    it('should always render the button regardless of auth state', async () => {
       mockIsAuthenticated.value = false
       wrapper = mount(LoginButton)
 
       expect(wrapper.find('button').exists()).toBe(true)
 
-      // Change auth state
+      // Change auth state - button should still render
+      // (parent component handles visibility based on auth state)
       mockIsAuthenticated.value = true
       await wrapper.vm.$nextTick()
 
-      expect(wrapper.find('button').exists()).toBe(false)
+      expect(wrapper.find('button').exists()).toBe(true)
     })
 
-    it('should appear when authentication state changes to false', async () => {
+    it('button exists even when authenticated', async () => {
       mockIsAuthenticated.value = true
       wrapper = mount(LoginButton)
 
-      expect(wrapper.find('button').exists()).toBe(false)
+      // Component itself doesn't conditionally render - parent component does
+      expect(wrapper.find('button').exists()).toBe(true)
 
       // Change auth state
       mockIsAuthenticated.value = false
