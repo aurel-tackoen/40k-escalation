@@ -23,7 +23,7 @@ export function useArmyFiltering(armies, sortByField, filterByMultipleCriteria) 
 
     // Build filter criteria
     const filters = {}
-    if (selectedRound.value) filters.round = selectedRound.value
+    if (selectedRound.value) filters.phase = selectedRound.value
     if (selectedPlayer.value) filters.playerId = selectedPlayer.value
 
     // Apply filters if any exist
@@ -34,7 +34,7 @@ export function useArmyFiltering(armies, sortByField, filterByMultipleCriteria) 
     // Sort by round (desc) then lastModified (desc)
     return sortByField(
       sortByField(filtered, 'lastModified', 'desc'),
-      'round',
+      'phase',
       'desc'
     )
   })
@@ -45,7 +45,7 @@ export function useArmyFiltering(armies, sortByField, filterByMultipleCriteria) 
    * @returns {number} Count of armies in that round
    */
   const getArmyCountForRound = (roundNumber) => {
-    return armies.value.filter(a => a.round === roundNumber).length
+    return armies.value.filter(a => a.phase === roundNumber).length
   }
 
   /**
