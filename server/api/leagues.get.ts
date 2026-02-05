@@ -1,32 +1,32 @@
 /**
  * GET /api/leagues
- * Fetches all leagues with their rounds
+ * Fetches all leagues with their phases
  */
 import { db } from '../../db'
-import { leagues, rounds } from '../../db/schema'
+import { leagues, phases } from '../../db/schema'
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async () => {
   try {
     const allLeagues = await db.select().from(leagues)
 
-    // Fetch rounds for each league
-    const leaguesWithRounds = await Promise.all(
+    // Fetch phases for each league
+    const leaguesWithPhases = await Promise.all(
       allLeagues.map(async (league) => {
-        const leagueRounds = await db.select()
-          .from(rounds)
-          .where(eq(rounds.leagueId, league.id))
+        const leaguePhases = await db.select()
+          .from(phases)
+          .where(eq(phases.leagueId, league.id))
 
         return {
           ...league,
-          rounds: leagueRounds
+          phases: leaguePhases
         }
       })
     )
 
     return {
       success: true,
-      data: leaguesWithRounds
+      data: leaguesWithPhases
     }
   } catch (error) {
     console.error('Error fetching leagues:', error)

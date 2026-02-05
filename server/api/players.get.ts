@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // ✅ Require league membership to view players
+    // Require league membership to view players
     await requireLeagueMembership(event, leagueId)
 
     // Get players for specific league with membership status (armyName now in players table)
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
         userId: players.userId,
         name: players.name,
         faction: players.faction,
-        armyName: players.armyName, // ✅ Now from players table
+        armyName: players.armyName, // Now from players table
         wins: players.wins,
         losses: players.losses,
         draws: players.draws,
@@ -39,10 +39,10 @@ export default defineEventHandler(async (event) => {
         createdAt: players.createdAt,
         membershipStatus: leagueMemberships.status,
         leftAt: leagueMemberships.leftAt,
-        // ⭐ NEW: Pairing system fields
+        // Pairing system fields
         isActive: players.isActive,
-        joinedRound: players.joinedRound,
-        leftRound: players.leftRound
+        joinedPhase: players.joinedPhase,
+        leftPhase: players.leftPhase
       })
       .from(players)
       .leftJoin(

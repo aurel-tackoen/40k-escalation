@@ -9,7 +9,7 @@ const myLeaguesRef: Ref<unknown[]> = ref([
     id: 1,
     name: 'League 1',
     role: 'owner',
-    currentRound: 2,
+    currentPhase: 2,
     gameSystemId: 1,
     isPrivate: true
   },
@@ -17,7 +17,7 @@ const myLeaguesRef: Ref<unknown[]> = ref([
     id: 2,
     name: 'League 2',
     role: 'organizer',
-    currentRound: 1,
+    currentPhase: 1,
     gameSystemId: 2,
     isPrivate: false
   },
@@ -25,7 +25,7 @@ const myLeaguesRef: Ref<unknown[]> = ref([
     id: 3,
     name: 'League 3',
     role: 'player',
-    currentRound: 3,
+    currentPhase: 3,
     gameSystemId: 1,
     isPrivate: false
   }
@@ -35,7 +35,7 @@ const currentLeagueRef: Ref<Record<string, unknown> | null> = ref({
   id: 1,
   name: 'League 1',
   role: 'owner',
-  currentRound: 2,
+  currentPhase: 2,
   gameSystemId: 1
 })
 
@@ -119,7 +119,7 @@ describe('LeagueSwitcher', () => {
         id: 1,
         name: 'League 1',
         role: 'owner',
-        currentRound: 2,
+        currentPhase: 2,
         gameSystemId: 1,
         isPrivate: true
       },
@@ -127,7 +127,7 @@ describe('LeagueSwitcher', () => {
         id: 2,
         name: 'League 2',
         role: 'organizer',
-        currentRound: 1,
+        currentPhase: 1,
         gameSystemId: 2,
         isPrivate: false
       },
@@ -135,7 +135,7 @@ describe('LeagueSwitcher', () => {
         id: 3,
         name: 'League 3',
         role: 'player',
-        currentRound: 3,
+        currentPhase: 3,
         gameSystemId: 1,
         isPrivate: false
       }
@@ -145,7 +145,7 @@ describe('LeagueSwitcher', () => {
       id: 1,
       name: 'League 1',
       role: 'owner',
-      currentRound: 2,
+      currentPhase: 2,
       gameSystemId: 1
     }
 
@@ -326,7 +326,7 @@ describe('LeagueSwitcher', () => {
       expect(wrapper.text()).toContain('player')
     })
 
-    it.skip('displays current round for each league', async () => {
+    it.skip('displays current phase for each league', async () => {
       const wrapper = mount(LeagueSwitcher, {
         global: {
           stubs: {
@@ -335,9 +335,9 @@ describe('LeagueSwitcher', () => {
         }
       })
       await wrapper.find('button').trigger('click')
-      expect(wrapper.text()).toContain('Round 2')
-      expect(wrapper.text()).toContain('Round 1')
-      expect(wrapper.text()).toContain('Round 3')
+      expect(wrapper.text()).toContain('Phase 2')
+      expect(wrapper.text()).toContain('Phase 1')
+      expect(wrapper.text()).toContain('Phase 3')
     })
 
     it.skip('displays game system for each league', async () => {

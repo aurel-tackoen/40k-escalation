@@ -319,23 +319,23 @@ describe('PaintingProgress', () => {
       expect(wrapper.props('leaderboard')).toEqual(mockLeaderboard)
     })
 
-    it('accepts currentRound prop', () => {
+    it('accepts currentPhase prop', () => {
       const wrapper = mount(PaintingProgress, {
         props: {
           leaderboard: [],
-          currentRound: 3
+          currentPhase: 3
         }
       })
-      expect(wrapper.props('currentRound')).toBe(3)
+      expect(wrapper.props('currentPhase')).toBe(3)
     })
 
-    it('defaults currentRound to 1', () => {
+    it('defaults currentPhase to 1', () => {
       const wrapper = mount(PaintingProgress, {
         props: {
           leaderboard: []
         }
       })
-      expect(wrapper.props('currentRound')).toBe(1)
+      expect(wrapper.props('currentPhase')).toBe(1)
     })
   })
 

@@ -9,7 +9,7 @@ import { requireAdmin } from '../../../utils/auth'
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
-  // ✅ Require admin role
+  // Require admin role
   await requireAdmin(event)
 
   const id = parseInt(event.context.params?.id || '0')
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     if (body.gameSystemId !== undefined) updateData.gameSystemId = body.gameSystemId
     if (body.startDate !== undefined) updateData.startDate = body.startDate
     if (body.endDate !== undefined) updateData.endDate = body.endDate
-    if (body.currentRound !== undefined) updateData.currentRound = body.currentRound
+    if (body.currentPhase !== undefined) updateData.currentPhase = body.currentPhase
     if (body.isPrivate !== undefined) updateData.isPrivate = body.isPrivate
     if (body.maxPlayers !== undefined) updateData.maxPlayers = body.maxPlayers
     if (body.status !== undefined) {

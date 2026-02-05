@@ -12,12 +12,12 @@ export default defineEventHandler(async (event) => {
   try {
     const playerId = parseInt(getRouterParam(event, 'id') || '0')
     const body = await readBody(event)
-    const { isActive, currentRound } = body
+    const { isActive, currentPhase } = body
 
-    if (!playerId || typeof isActive !== 'boolean' || !currentRound) {
+    if (!playerId || typeof isActive !== 'boolean' || !currentPhase) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Missing required fields: playerId, isActive, currentRound'
+        statusMessage: 'Missing required fields: playerId, isActive, currentPhase'
       })
     }
 
@@ -41,19 +41,19 @@ export default defineEventHandler(async (event) => {
     // Update player status
     const updateData: {
       isActive: boolean
-      joinedRound?: number
-      leftRound?: number | null
+      joinedPhase?: number
+      leftPhase?: number | null
     } = {
       isActive
     }
 
     if (isActive) {
       // Reactivating player
-      updateData.joinedRound = currentRound
-      updateData.leftRound = null
+      updateData.joinedPhase = currentPhase
+      updateData.leftPhase = null
     } else {
       // Deactivating player
-      updateData.leftRound = currentRound
+      updateData.leftPhase = currentPhase
     }
 
     const [updatedPlayer] = await db

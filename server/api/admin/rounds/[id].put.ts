@@ -1,15 +1,15 @@
 /**
- * PUT /api/admin/rounds/:id
- * Update a round (admin override)
+ * PUT /api/admin/phases/:id
+ * Update a phase (admin override)
  * Requires admin role
  */
 import { db } from '../../../../db'
-import { rounds } from '../../../../db/schema'
+import { phases } from '../../../../db/schema'
 import { requireAdmin } from '../../../utils/auth'
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
-  // ✅ Require admin role
+  // Require admin role
   await requireAdmin(event)
 
   const id = parseInt(event.context.params?.id || '0')
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Round ID is required'
+      statusMessage: 'Phase ID is required'
     })
   }
 
@@ -32,40 +32,40 @@ export default defineEventHandler(async (event) => {
     if (body.startDate !== undefined) updateData.startDate = body.startDate
     if (body.endDate !== undefined) updateData.endDate = body.endDate
 
-    // Check if round exists
-    const existingRound = await db
+    // Check if phase exists
+    const existingPhase = await db
       .select()
-      .from(rounds)
-      .where(eq(rounds.id, id))
+      .from(phases)
+      .where(eq(phases.id, id))
       .limit(1)
 
-    if (!existingRound || existingRound.length === 0) {
+    if (!existingPhase || existingPhase.length === 0) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'Round not found'
+        statusMessage: 'Phase not found'
       })
     }
 
-    // Update round
+    // Update phase
     await db
-      .update(rounds)
+      .update(phases)
       .set(updateData)
-      .where(eq(rounds.id, id))
+      .where(eq(phases.id, id))
 
-    // Fetch updated round
-    const updatedRound = await db
+    // Fetch updated phase
+    const updatedPhase = await db
       .select()
-      .from(rounds)
-      .where(eq(rounds.id, id))
+      .from(phases)
+      .where(eq(phases.id, id))
       .limit(1)
 
     return {
       success: true,
-      data: updatedRound[0],
-      message: 'Round updated successfully'
+      data: updatedPhase[0],
+      message: 'Phase updated successfully'
     }
   } catch (error: unknown) {
-    console.error('Error updating round:', error)
+    console.error('Error updating phase:', error)
 
     // Re-throw our custom errors
     if (error && typeof error === 'object' && 'statusCode' in error) {
@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to update round'
+      statusMessage: 'Failed to update phase'
     })
   }
 })

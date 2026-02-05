@@ -2,7 +2,7 @@ import { defineEventHandler, getRouterParams, createError } from 'h3'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import { eq } from 'drizzle-orm'
-import { leagues, rounds, leagueMemberships } from '../../../db/schema'
+import { leagues, phases, leagueMemberships } from '../../../db/schema'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -43,12 +43,12 @@ export default defineEventHandler(async (event) => {
 
     const league = leagueResult[0]
 
-    // Fetch rounds for this league
-    const leagueRounds = await db
+    // Fetch phases for this league
+    const leaguePhases = await db
       .select()
-      .from(rounds)
-      .where(eq(rounds.leagueId, leagueId))
-      .orderBy(rounds.number)
+      .from(phases)
+      .where(eq(phases.leagueId, leagueId))
+      .orderBy(phases.number)
 
     // Count members
     const membersResult = await db
@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: {
         ...league,
-        rounds: leagueRounds,
+        phases: leaguePhases,
         memberCount
       }
     }

@@ -18,7 +18,7 @@ export const createMockPlayer = (overrides = {}) => ({
 export const createMockArmy = (overrides = {}) => ({
   id: 1,
   playerId: 1,
-  round: 1,
+  phase: 1,
   name: 'Test Army',
   totalPoints: 500,
   units: JSON.stringify([
@@ -46,7 +46,7 @@ export const createMockArmy = (overrides = {}) => ({
 export const createMockMatch = (overrides = {}) => ({
   id: 1,
   leagueId: 1,
-  round: 1,
+  phase: 1,
   player1Id: 1,
   player2Id: 2,
   player1Points: 85,
@@ -66,12 +66,12 @@ export const createMockLeague = (overrides = {}) => ({
   gameSystemId: 1,
   startDate: new Date('2025-01-01'),
   endDate: new Date('2025-03-31'),
-  currentRound: 1,
+  currentPhase: 1,
   createdAt: new Date('2025-01-01'),
   ...overrides
 })
 
-export const createMockRound = (overrides = {}) => ({
+export const createMockPhase = (overrides = {}) => ({
   id: 1,
   leagueId: 1,
   number: 1,

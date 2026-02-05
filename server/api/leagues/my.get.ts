@@ -1,5 +1,5 @@
 import { db } from '../../../db'
-import { leagues, leagueMemberships, rounds, players } from '../../../db/schema'
+import { leagues, leagueMemberships, phases, players } from '../../../db/schema'
 import { eq, and } from 'drizzle-orm'
 
 /**
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Get leagues with rounds
+    // Get leagues with phases
     const userLeagues = []
 
     for (const membership of memberships) {
@@ -48,10 +48,10 @@ export default defineEventHandler(async (event) => {
         .limit(1)
 
       if (league) {
-        const leagueRounds = await db
+        const leaguePhases = await db
           .select()
-          .from(rounds)
-          .where(eq(rounds.leagueId, league.id))
+          .from(phases)
+          .where(eq(phases.leagueId, league.id))
 
         // Get member count for this league (only active members)
         const memberCountResult = await db
@@ -82,15 +82,15 @@ export default defineEventHandler(async (event) => {
           description: league.description,
           startDate: league.startDate,
           endDate: league.endDate,
-          currentRound: league.currentRound,
+          currentPhase: league.currentPhase,
           gameSystemId: league.gameSystemId,  // Add game system ID
           isPrivate: league.isPrivate,
           maxPlayers: league.maxPlayers,
           status: league.status,
           memberCount,
-          rounds: leagueRounds,
+          phases: leaguePhases,
           role: membership.role,
-          armyName: userArmyName, // ✅ User's army name from players table
+          armyName: userArmyName, // User's army name from players table
           joinedAt: membership.joinedAt
         })
       }

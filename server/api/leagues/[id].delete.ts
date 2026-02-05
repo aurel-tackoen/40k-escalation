@@ -2,7 +2,7 @@ import { defineEventHandler, getRouterParams, createError } from 'h3'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import { eq } from 'drizzle-orm'
-import { leagues, rounds, matches } from '../../../db/schema'
+import { leagues, phases, matches } from '../../../db/schema'
 import { requireLeagueRole } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // ✅ Require owner role only
+    // Require owner role only
     await requireLeagueRole(event, leagueId, ['owner'])
 
     const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL
@@ -32,10 +32,10 @@ export default defineEventHandler(async (event) => {
     const db = drizzle(sql)
 
     // Manual cascade delete for tables without CASCADE constraint
-    // Delete rounds (no CASCADE on rounds.leagueId)
+    // Delete phases (no CASCADE on phases.leagueId)
     await db
-      .delete(rounds)
-      .where(eq(rounds.leagueId, leagueId))
+      .delete(phases)
+      .where(eq(phases.leagueId, leagueId))
 
     // Delete matches (no CASCADE on matches.leagueId)
     await db

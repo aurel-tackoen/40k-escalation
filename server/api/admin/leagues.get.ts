@@ -1,15 +1,15 @@
 /**
  * GET /api/admin/leagues
- * Fetches all leagues with creator info, game system, member counts, and rounds
+ * Fetches all leagues with creator info, game system, member counts, and phases
  * Requires admin role
  */
 import { db } from '../../../db'
-import { leagues, users, gameSystems, leagueMemberships, rounds } from '../../../db/schema'
+import { leagues, users, gameSystems, leagueMemberships, phases } from '../../../db/schema'
 import { requireAdmin } from '../../utils/auth'
 import { eq, and } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
-  // ✅ Require admin role
+  // Require admin role
   await requireAdmin(event)
 
   try {
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         gameSystemName: gameSystems.name,
         startDate: leagues.startDate,
         endDate: leagues.endDate,
-        currentRound: leagues.currentRound,
+        currentPhase: leagues.currentPhase,
         createdBy: leagues.createdBy,
         creatorName: users.name,
         creatorEmail: users.email,
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
       .leftJoin(gameSystems, eq(leagues.gameSystemId, gameSystems.id))
       .orderBy(leagues.createdAt)
 
-    // Add member count and rounds to each league
+    // Add member count and phases to each league
     const leaguesWithDetails = await Promise.all(
       allLeagues.map(async (league) => {
         // Get active member count
@@ -53,17 +53,17 @@ export default defineEventHandler(async (event) => {
             )
           )
 
-        // Get rounds for this league
-        const leagueRounds = await db
+        // Get phases for this league
+        const leaguePhases = await db
           .select()
-          .from(rounds)
-          .where(eq(rounds.leagueId, league.id))
-          .orderBy(rounds.number)
+          .from(phases)
+          .where(eq(phases.leagueId, league.id))
+          .orderBy(phases.number)
 
         return {
           ...league,
           memberCount: members.length,
-          rounds: leagueRounds
+          phases: leaguePhases
         }
       })
     )

@@ -1,9 +1,9 @@
 /**
  * PUT /api/leagues?id=<leagueId>
- * Updates an existing league and its rounds
+ * Updates an existing league and its phases
  */
 import { db } from '../../db'
-import { leagues, rounds } from '../../db/schema'
+import { leagues, phases } from '../../db/schema'
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     if (body.description !== undefined) updateData.description = body.description
     if (body.startDate !== undefined) updateData.startDate = body.startDate
     if (body.endDate !== undefined) updateData.endDate = body.endDate
-    if (body.currentRound !== undefined) updateData.currentRound = body.currentRound
+    if (body.currentPhase !== undefined) updateData.currentPhase = body.currentPhase
 
     // Update league
     const updated = await db.update(leagues)
@@ -41,61 +41,61 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Handle rounds updates if provided
-    if (body.rounds && Array.isArray(body.rounds)) {
-      // Get existing rounds for this league
-      const existingRounds = await db.select()
-        .from(rounds)
-        .where(eq(rounds.leagueId, leagueId))
+    // Handle phases updates if provided
+    if (body.phases && Array.isArray(body.phases)) {
+      // Get existing phases for this league
+      const existingPhases = await db.select()
+        .from(phases)
+        .where(eq(phases.leagueId, leagueId))
 
-      const existingRoundIds = new Set(existingRounds.map(r => r.id))
-      const updatedRoundIds = new Set(
-        body.rounds
-          .filter((r: { id?: number }) => r.id)
-          .map((r: { id: number }) => r.id)
+      const existingPhaseIds = new Set(existingPhases.map(p => p.id))
+      const updatedPhaseIds = new Set(
+        body.phases
+          .filter((p: { id?: number }) => p.id)
+          .map((p: { id: number }) => p.id)
       )
 
-      // Delete rounds that are no longer in the update
-      const roundsToDelete = existingRounds.filter(r => !updatedRoundIds.has(r.id))
-      for (const round of roundsToDelete) {
-        await db.delete(rounds).where(eq(rounds.id, round.id))
+      // Delete phases that are no longer in the update
+      const phasesToDelete = existingPhases.filter(p => !updatedPhaseIds.has(p.id))
+      for (const phase of phasesToDelete) {
+        await db.delete(phases).where(eq(phases.id, phase.id))
       }
 
-      // Update or insert rounds
-      for (const round of body.rounds) {
-        const roundData = {
+      // Update or insert phases
+      for (const phase of body.phases) {
+        const phaseData = {
           leagueId,
-          number: round.number,
-          name: round.name,
-          pointLimit: round.pointLimit,
-          startDate: round.startDate,
-          endDate: round.endDate
+          number: phase.number,
+          name: phase.name,
+          pointLimit: phase.pointLimit,
+          startDate: phase.startDate,
+          endDate: phase.endDate
         }
 
-        if (round.id && existingRoundIds.has(round.id)) {
-          // Update existing round
-          await db.update(rounds)
-            .set(roundData)
-            .where(eq(rounds.id, round.id))
+        if (phase.id && existingPhaseIds.has(phase.id)) {
+          // Update existing phase
+          await db.update(phases)
+            .set(phaseData)
+            .where(eq(phases.id, phase.id))
         } else {
-          // Insert new round
-          await db.insert(rounds).values(roundData)
+          // Insert new phase
+          await db.insert(phases).values(phaseData)
         }
       }
     }
 
-    // Fetch updated league with rounds
+    // Fetch updated league with phases
     const updatedLeague = updated[0]
-    const leagueRounds = await db.select()
-      .from(rounds)
-      .where(eq(rounds.leagueId, leagueId))
-      .orderBy(rounds.number)
+    const leaguePhases = await db.select()
+      .from(phases)
+      .where(eq(phases.leagueId, leagueId))
+      .orderBy(phases.number)
 
     return {
       success: true,
       data: {
         ...updatedLeague,
-        rounds: leagueRounds
+        phases: leaguePhases
       }
     }
   } catch (error) {
