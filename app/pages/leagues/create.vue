@@ -230,7 +230,7 @@
         isPrivate: form.isPrivate,
         maxPlayers: form.maxPlayers || null,
         rules: form.rules,
-        rounds: sanitizedRounds
+        phases: sanitizedRounds
       })
 
       // Success - show create player modal
