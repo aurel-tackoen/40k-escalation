@@ -51,6 +51,8 @@ If matches can't be recorded and standings can't be viewed, nothing else matters
 
 - **Tech stack**: Must stay on Nuxt 4 / Vue 3 / Drizzle / Netlify — no framework changes
 - **Data migration**: PostgreSQL ALTER TABLE RENAME used for zero-downtime migrations
+- **Git workflow**: Never commit to main directly — always use a feature branch per milestone
+- **Deployment**: All work stays local until the final phase of a milestone. The last phase handles push, PR, merge, and deploy. This prevents in-progress migrations/changes from hitting production
 
 ## Key Decisions
 
