@@ -87,10 +87,10 @@ Plans:
   1. All test files use phase terminology
   2. All existing tests pass with the renamed codebase
   3. No references to "round" remain in active code paths
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 05-01: Test updates and verification
+- [ ] 05-01-PLAN.md - Fix remaining source files and run test verification
 
 ## Progress
 
@@ -103,7 +103,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. API Layer | 2/2 | Complete | 2026-02-05 |
 | 3. State Management | 2/2 | Complete | 2026-02-05 |
 | 4. User Interface | 4/4 | Complete | 2026-02-06 |
-| 5. Test Verification | 0/1 | Not started | - |
+| 5. Test Verification | 0/1 | Ready | - |
 
 ---
 *Roadmap created: 2026-02-05*
