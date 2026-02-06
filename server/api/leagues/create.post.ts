@@ -58,7 +58,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (!body.phases || body.phases.length === 0) {
+    // Backward compatibility: UI historically used `rounds` while DB/API uses `phases`
+    const incomingPhases = body.phases ?? body.rounds
+
+    if (!incomingPhases || !Array.isArray(incomingPhases) || incomingPhases.length === 0) {
       throw createError({
         statusCode: 400,
         statusMessage: 'League must have at least one phase'
@@ -93,7 +96,7 @@ export default defineEventHandler(async (event) => {
     }).returning()
 
     // Create phases
-    const phasesToInsert = body.phases.map((phase: { number: number; name: string; pointLimit: number; startDate: string; endDate: string }) => ({
+    const phasesToInsert = incomingPhases.map((phase: { number: number; name: string; pointLimit: number; startDate: string; endDate: string }) => ({
       leagueId: newLeague.id,
       number: phase.number,
       name: phase.name,
