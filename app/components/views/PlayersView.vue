@@ -259,7 +259,7 @@
                 class="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-700 text-gray-400 text-xs mt-1"
               >
                 <Pause :size="12" />
-                <span>Inactive (Left Round {{ player.leftRound }})</span>
+                <span>Inactive (Left Phase {{ player.leftPhase }})</span>
               </div>
             </div>
             <div class="flex items-center gap-2">
