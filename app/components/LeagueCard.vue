@@ -171,16 +171,16 @@
           </span>
         </div>
 
-        <!-- Round Info (My Leagues) -->
+        <!-- Phase Info (My Leagues) -->
         <div v-if="isMyLeague" class="flex items-center gap-2 text-gray-300 text-sm">
           <Calendar :size="16" class="text-gray-500" />
-          <span>Round {{ league.currentRound || 1 }} of {{ league.rounds?.length || 0 }}</span>
+          <span>Phase {{ league.currentPhase || 1 }} of {{ league.phases?.length || 0 }}</span>
         </div>
 
-        <!-- Round Info (Public Leagues) -->
+        <!-- Phase Info (Public Leagues) -->
         <div v-else class="flex items-center gap-2 text-gray-300 text-sm">
           <Calendar :size="16" class="text-gray-500" />
-          <span>Round {{ league.currentRound || 1 }}</span>
+          <span>Phase {{ league.currentPhase || 1 }}</span>
         </div>
 
         <!-- Game System -->
@@ -190,9 +190,9 @@
         </div>
 
         <!-- Point Limit (My Leagues) -->
-        <div v-if="isMyLeague && league.rounds" class="flex items-center gap-2 text-gray-300 text-sm">
+        <div v-if="isMyLeague && league.phases" class="flex items-center gap-2 text-gray-300 text-sm">
           <Trophy :size="16" class="text-gray-500" />
-          <span>{{ league.rounds?.[league.currentRound - 1]?.pointLimit || 0 }} points</span>
+          <span>{{ league.phases?.[league.currentPhase - 1]?.pointLimit || 0 }} points</span>
         </div>
 
         <!-- Status (Public Leagues) -->

@@ -7,7 +7,7 @@
       type: Array,
       required: true
     },
-    currentRound: {
+    currentPhase: {
       type: Number,
       default: 1
     }

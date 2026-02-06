@@ -223,7 +223,7 @@
       <div>
         <PaintingProgress
           :leaderboard="paintingLeaderboard"
-          :currentRound="league?.currentPhase || 1"
+          :currentPhase="league?.currentPhase || 1"
         />
       </div>
     </div>

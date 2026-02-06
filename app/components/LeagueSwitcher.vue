@@ -112,7 +112,7 @@
                 <component :is="getRoleIcon(league.role)" :size="14" :class="getRoleColor(league.role)" />
                 <span class="capitalize">{{ league.role }}</span>
                 <span>•</span>
-                <span>Round {{ league.currentRound || 1 }}</span>
+                <span>Phase {{ league.currentPhase || 1 }}</span>
                 <span v-if="league.gameSystemId">•</span>
                 <span v-if="league.gameSystemId" class="text-purple-400 font-medium">{{ getGameSystemNameWithFallback(league.gameSystemId) }}</span>
               </div>
