@@ -20,15 +20,16 @@ If matches can't be recorded and standings can't be viewed, nothing else matters
 - ✓ Player management with army registration — existing
 - ✓ Match recording with mission selection and scoring — existing
 - ✓ Standings calculation with tiebreakers — existing
-- ✓ Round/phase structure with point escalation — existing
+- ✓ Phase structure with point escalation — v0.1 (renamed from Round)
 - ✓ Pairing generation (random, swiss) — existing
 - ✓ Painting score tracking with photo evidence — existing
 - ✓ Admin panel for game systems, factions, missions — existing
 - ✓ Public league pages for non-members — existing
+- ✓ "Phase" terminology throughout app (database, API, store, UI) — v0.1
 
 ### Active
 
-- [ ] Rename "Round" to "Phase" throughout the application to avoid confusion with Warhammer game rounds
+(None — next milestone not yet planned)
 
 ### Out of Scope
 
@@ -38,23 +39,28 @@ If matches can't be recorded and standings can't be viewed, nothing else matters
 
 ## Context
 
-**Existing codebase:** Nuxt 4 + Vue 3 frontend, Netlify serverless backend, Drizzle ORM with Neon PostgreSQL, Auth0 authentication. ~1700 lines of codebase documentation in `.planning/codebase/`.
+**Existing codebase:** Nuxt 4 + Vue 3 frontend, Netlify serverless backend, Drizzle ORM with Neon PostgreSQL, Auth0 authentication.
 
-**Terminology issue:** "Round" is a loaded term in Warhammer 40k — it refers to game turns (battle rounds). Using "Round" for league progression periods confuses users. Renaming to "Phase" aligns with escalation league terminology and eliminates ambiguity.
+**Shipped v0.1:** Complete Round-to-Phase terminology rename across all layers. 95 files modified, 7,808 lines added. All 14 requirements validated. 210 tests passing.
 
-**Scope of rename:** Database column, API endpoints, store state, component text, URL routes. Need to ensure backwards compatibility for existing data.
+**Known tech debt:**
+- 48 pre-existing test failures in UserMenu.test.ts (Pinia store initialization)
+- Internal admin variable names still use "round" (roundForm, showRoundModal) — intentional for code stability
 
 ## Constraints
 
 - **Tech stack**: Must stay on Nuxt 4 / Vue 3 / Drizzle / Netlify — no framework changes
-- **Data migration**: Existing leagues have rounds; migration must preserve data
-- **URL stability**: If routes change, consider redirects for bookmarked links
+- **Data migration**: PostgreSQL ALTER TABLE RENAME used for zero-downtime migrations
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| "Phase" over "Stage" | Fits escalation league terminology better | — Pending |
+| "Phase" over "Stage" | Fits escalation league terminology better | ✓ Good — implemented in v0.1 |
+| ALTER TABLE RENAME for migration | Zero-downtime, preserves data and FK relationships | ✓ Good — clean migration |
+| Preserve internal variable names | Code stability, only user-visible text matters | ✓ Good — no regressions |
+| Preserve match.round property | Tournament match internals, separate from phase terminology | ✓ Good — clear separation |
+| Preserve firstRoundPairingMethod | Tournament pairing settings, not phase terminology | ✓ Good — correct distinction |
 
 ---
-*Last updated: 2026-02-05 after initialization*
+*Last updated: 2026-02-06 after v0.1 milestone*
