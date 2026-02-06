@@ -84,7 +84,7 @@
 - gameSystemId ✅ (displayed in content + form)
 - startDate ✅ (displayed in content + form)
 - endDate ✅ (displayed in content + form)
-- currentRound ✅ (displayed in content + form)
+- currentPhase ✅ (displayed in content + form)
 - createdBy ✅ (displayed as creatorName/creatorEmail)
 - isPrivate ✅ (displayed in header + form)
 - shareToken ❌ NOT DISPLAYED
@@ -103,7 +103,7 @@
 
 ---
 
-### ✅ 7. Rounds (in Leagues) - COMPLETE
+### ✅ 7. Phases (in Leagues) - COMPLETE
 **Schema Fields:**
 - id ✅ (internal)
 - leagueId ✅ (context)
@@ -121,7 +121,7 @@
 **Schema Fields:**
 - id ✅ (internal)
 - leagueId ✅ (displayed + filter)
-- round ✅ (displayed in content + form)
+- phase ✅ (displayed in content + form)
 - player1Id/player2Id ✅ (displayed as names)
 - matchType ✅ (displayed in header)
 - gameSystemId ✅ (filter available)
@@ -170,7 +170,7 @@
 | Unit Types | 7/7 | 7 | 100% | ✅ Complete |
 | Users | 7/8 | 8 | 87.5% | ⚠️ Missing picture |
 | Leagues | 10/14 | 14 | 71% | ❌ Missing 4 fields |
-| Rounds | 7/7 | 7 | 100% | ✅ Complete |
+| Phases | 7/7 | 7 | 100% | ✅ Complete |
 | Matches | 11/20 | 20 | 55% | ❌ Missing game-specific fields |
 
 ---
