@@ -5,6 +5,7 @@
   import { useLeagueRules } from '~/composables/useLeagueRules'
   import { usePlaceholders } from '~/composables/usePlaceholders'
   import { useToast } from '~/composables/useToast'
+  import { getFormatsForGameSystem } from '~/data/format-registry'
   import { Plus, X, Calendar, Lock, Swords, RefreshCw, FileText, Sparkles } from 'lucide-vue-next'
   import CreatePlayerModal from '~/components/CreatePlayerModal.vue'
 
@@ -17,6 +18,7 @@
     name: '',
     description: '',
     gameSystemId: null, // NEW: Required field for game system selection
+    format: '',         // Format key, e.g., 'ow-ptg'
     startDate: '',
     endDate: '',
     isPrivate: true, // Default to private league
@@ -37,6 +39,19 @@
   const selectedGameSystem = computed(() => {
     if (!form.gameSystemId) return null
     return gameSystems.value.find(gs => gs.id === form.gameSystemId)
+  })
+
+  // Available formats for the selected game system
+  const availableFormats = computed(() => {
+    if (!form.gameSystemId) return []
+    const gameSystem = gameSystems.value.find(gs => gs.id === form.gameSystemId)
+    if (!gameSystem) return []
+    return getFormatsForGameSystem(gameSystem.shortName)
+  })
+
+  // Clear format when game system changes
+  watch(() => form.gameSystemId, () => {
+    form.format = ''
   })
 
   // Get game-specific rules
@@ -169,6 +184,11 @@
       return false
     }
 
+    if (!form.format) {
+      error.value = 'Please select a league format'
+      return false
+    }
+
     if (!form.startDate) {
       error.value = 'Start date is required'
       return false
@@ -225,6 +245,7 @@
         name: form.name,
         description: form.description,
         gameSystemId: form.gameSystemId,
+        format: form.format,
         startDate: form.startDate,
         endDate: form.endDate || null,
         isPrivate: form.isPrivate,
@@ -342,6 +363,31 @@
           </select>
           <p class="text-sm text-gray-400 mt-1">
             This determines which factions and missions are available for your league
+          </p>
+        </div>
+
+        <!-- Format Selection -->
+        <div v-if="form.gameSystemId && availableFormats.length > 0">
+          <label class="block text-gray-300 font-semibold mb-2">
+            League Format <span class="text-red-400">*</span>
+          </label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <button
+              v-for="fmt in availableFormats"
+              :key="fmt.key"
+              type="button"
+              @click="form.format = fmt.key"
+              class="text-left p-4 rounded-lg border-2 transition-all"
+              :class="form.format === fmt.key
+                ? 'border-purple-500 bg-purple-500/10'
+                : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'"
+            >
+              <span class="block font-semibold text-gray-100">{{ fmt.name }}</span>
+              <span class="block text-sm text-gray-400 mt-1">{{ fmt.description }}</span>
+            </button>
+          </div>
+          <p class="text-sm text-gray-400 mt-2">
+            The format determines scoring rules, match recording, and available features
           </p>
         </div>
 
