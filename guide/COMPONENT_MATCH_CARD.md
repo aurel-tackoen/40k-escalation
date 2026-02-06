@@ -71,7 +71,7 @@ Created a reusable `MatchCard` component that displays match information with al
 ```javascript
 {
   id: 1,
-  round: 1,
+  phase: 1,
   player1Id: 1,
   player2Id: 2,
   player1Points: 85,
@@ -248,7 +248,7 @@ Created a reusable `MatchCard` component that displays match information with al
 ```
 MatchCard.vue
 ├── Header Row
-│   ├── Round & Date
+│   ├── Phase & Date
 │   └── Mission Badge + Quality Badge + Delete Button (optional)
 ├── Scoreboard
 │   ├── Mobile Layout (sm:hidden)

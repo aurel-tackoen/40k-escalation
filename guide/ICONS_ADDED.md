@@ -13,7 +13,7 @@ Successfully integrated Lucide icons throughout the Warhammer 40K Escalation Lea
 - **Settings** - League Setup navigation
 
 ### Dashboard (DashboardView.vue)
-- **Calendar** - Current Round indicator
+- **Calendar** - Current Phase indicator
 - **Users** - Players count
 - **Shield** - Army Lists count
 - **Swords** - Matches Played count
@@ -31,20 +31,20 @@ Successfully integrated Lucide icons throughout the Warhammer 40K Escalation Lea
 ### Matches (MatchesView.vue)
 - **Plus** - Record New Match header and button
 - **Trophy** - Match History header
-- **Filter** - Round filter dropdown
+- **Filter** - Phase filter dropdown
 - **Users** - Player filter dropdown
-- **Target** - Round indicator in match cards
+- **Target** - Phase indicator in match cards
 - **Calendar** - Date indicator in match cards
 - **X** - Reset Form button
 
 ### Army Lists (ArmyListsView.vue)
 - **Shield** - Army List Manager header
-- **Filter** - Round filter
+- **Filter** - Phase filter
 - **Users** - Player filter
 - **Plus** - Build New Army and Add Unit buttons
 - **Edit** - Edit army button
 - **Trash2** - Delete army and remove unit buttons
-- **Copy** - Copy from Previous Round feature
+- **Copy** - Copy from Previous Phase feature
 - **TrendingUp** - Escalate army button
 - **Paintbrush** - Painting progress indicator
 - **X** - Close builder button
@@ -52,8 +52,8 @@ Successfully integrated Lucide icons throughout the Warhammer 40K Escalation Lea
 ### League Setup (LeagueSetupView.vue)
 - **Settings** - League Configuration header
 - **Save** - Save League Settings button
-- **Trash2** - Remove Round button
-- **Plus** - Add New Round button
+- **Trash2** - Remove Phase button
+- **Plus** - Add New Phase button
 - **Download** - Export Data button
 - **Upload** - Import Data button
 

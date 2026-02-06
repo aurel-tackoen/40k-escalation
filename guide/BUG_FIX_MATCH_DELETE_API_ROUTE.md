@@ -20,7 +20,7 @@ The API endpoint file was named `matches.[id].delete.ts` using Nuxt 3's dynamic 
 ### Pattern Inconsistency
 
 **Other DELETE endpoints in the codebase:**
-- `armies.delete.ts` → Uses `?leagueId=X&playerId=Y&round=Z`
+- `armies.delete.ts` → Uses `?leagueId=X&playerId=Y&phase=Z`
 - `players.delete.ts` → Uses `?id=X`
 
 **Our endpoint (incorrect):**

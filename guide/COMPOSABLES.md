@@ -392,7 +392,7 @@ const { getPlayerName } = usePlayerLookup(toRef(props, 'players'))
 ## Future Composables
 
 See `/guide/COMPOSABLE_SUGGESTIONS.md` for a list of additional composables that could be created:
-- useRoundLookup
+- usePhaseLookup
 - useArmyManagement
 - useConfirmation
 - useArrayFiltering

@@ -12,7 +12,7 @@ A comprehensive composable that provides all painting statistics calculations an
 **Exported Functions:**
 - `getUnitPaintPercentage(unit)` - Calculate percentage for a single unit
 - `getArmyPaintingStats(army)` - Calculate stats for an entire army
-- `getPlayerPaintingStats(playerId, currentRound, armies)` - Get player stats for specific round
+- `getPlayerPaintingStats(playerId, currentPhase, armies)` - Get player stats for specific phase
 - `getPaintProgressClass(percentage)` - Get Tailwind CSS gradient class for progress bars
 - `getPaintPercentageColor(percentage)` - Get Tailwind CSS text color class
 
@@ -39,7 +39,7 @@ Complete documentation with:
 **Changes:**
 - Added import for `usePaintingStats` composable
 - Removed duplicate function definitions (getPlayerPaintingStats, getPaintProgressClass, getPaintPercentageColor)
-- Updated template calls to pass required parameters (playerId, currentRound, armies)
+- Updated template calls to pass required parameters (playerId, currentPhase, armies)
 - Now uses composable functions instead
 
 **Lines Removed:** ~30 lines of duplicate code

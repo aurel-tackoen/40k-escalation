@@ -133,7 +133,7 @@ Available factories:
 - `createMockArmy()`
 - `createMockMatch()`
 - `createMockLeague()`
-- `createMockRound()`
+- `createMockPhase()`
 - `createMockGameSystem()`
 - `createMockFaction()`
 - `createMockMission()`

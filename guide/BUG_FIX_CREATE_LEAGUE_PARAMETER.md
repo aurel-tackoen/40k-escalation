@@ -84,7 +84,7 @@ await leaguesStore.createLeague({
   isPublic: form.isPublic,
   joinPassword: form.isPublic ? null : form.joinPassword,
   maxPlayers: form.maxPlayers || null,
-  rounds: form.rounds
+  phases: form.phases
 })
 ```
 
@@ -95,7 +95,7 @@ await leaguesStore.createLeague({
 ### Testing Steps
 1. ✅ Navigate to `/leagues/create`
 2. ✅ Fill out league creation form with valid data
-3. ✅ Add at least one round
+3. ✅ Add at least one phase
 4. ✅ Click "Create League"
 5. ✅ Verify successful creation and redirect to `/leagues`
 

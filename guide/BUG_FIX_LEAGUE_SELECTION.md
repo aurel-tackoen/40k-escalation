@@ -200,7 +200,7 @@ Changed three getters from arrow functions with `getters` parameter to regular f
 // BEFORE (BROKEN)
 paintingLeaderboard: (state, getters) => {
   if (!getters.currentLeague) return []
-  const currentRound = getters.currentLeague.currentRound || 1
+  const currentPhase = getters.currentLeague.currentPhase || 1
   // ...
 }
 
@@ -216,7 +216,7 @@ canManageLeague: (state, getters) => {
 // AFTER (FIXED)
 paintingLeaderboard(state) {
   if (!this.currentLeague) return []
-  const currentRound = this.currentLeague.currentRound || 1
+  const currentPhase = this.currentLeague.currentPhase || 1
   // ...
 }
 

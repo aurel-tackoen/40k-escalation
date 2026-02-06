@@ -9,7 +9,7 @@ Users were experiencing a **500 Internal Server Error** when trying to add match
 
 ## Root Cause
 
-**Field Name Mismatch**: The frontend was sending `round` but the API and database schema expected `phase`.
+**Field Name Mismatch**: The frontend was sending the legacy field name for phase, but the API and database schema expected `phase`.
 
 ### Technical Details
 
@@ -33,7 +33,7 @@ Users were experiencing a **500 Internal Server Error** when trying to add match
    }
    ```
 
-3. **Frontend Components**: Were sending `round` instead of `phase`
+3. **Frontend Components**: Were sending the wrong field name (should be `phase`)
    - `MatchesView.vue` - Match recording form
    - `MatchCard.vue` - Match display card
    - `MatchesManager.vue` - Admin match editor
@@ -48,30 +48,23 @@ Users were experiencing a **500 Internal Server Error** when trying to add match
 ### 2. Fixed Frontend Components
 
 #### `app/components/views/MatchesView.vue`
-- ✅ Changed `newMatch.round` → `newMatch.phase` in reactive ref
-- ✅ Changed `newMatch.round` → `newMatch.phase` in `resetForm()`
-- ✅ Changed `newMatch.round` → `newMatch.phase` in `startEditMatch()`
-- ✅ Changed `v-model="newMatch.round"` → `v-model="newMatch.phase"` in template
-- ✅ Changed `match.round` → `match.phase` in `filteredMatches` filter
-- ✅ Changed `match.round` → `match.phase` in table display
+- ✅ Updated the match form state to use the `phase` field consistently
+- ✅ Updated template bindings to use `phase`
+- ✅ Updated filtering and display logic to read `phase`
 
 #### `app/components/MatchCard.vue`
-- ✅ Changed `match.round` → `match.phase` in badge display
+- ✅ Updated badge display to read `phase`
 
 #### `app/components/admin/MatchesManager.vue`
-- ✅ Changed `editForm.round` → `editForm.phase` in reactive ref initialization
-- ✅ Changed `editForm.round` → `editForm.phase` in `openEditModal()`
-- ✅ Changed `editForm.round` → `editForm.phase` in `closeEditModal()`
-- ✅ Changed `editForm.round` → `editForm.phase` in `saveMatch()`
-- ✅ Changed `v-model="editForm.round"` → `v-model="editForm.phase"` in template
-- ✅ Changed `match.round` → `match.phase` in table display
+- ✅ Updated edit form state and template bindings to use `phase`
+- ✅ Updated admin table display to read `phase`
 
 ## Testing Instructions
 
 ### 1. Test Match Creation
 1. Navigate to the Matches page
 2. Fill in the match form:
-   - Select a **Phase** (previously labeled as "Round")
+   - Select a **Phase**
    - Select two players
    - Enter victory points/casualties/objectives (depending on game system)
    - Select mission
@@ -105,7 +98,7 @@ Users were experiencing a **500 Internal Server Error** when trying to add match
    Match creation request body: {
      "player1Id": 1,
      "player2Id": 2,
-     "phase": 1,  // ← Should now be "phase" instead of "round"
+       "phase": 1,
      ...
    }
    ```

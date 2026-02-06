@@ -101,7 +101,7 @@ All 4 LOW priority composables have been successfully created and fully integrat
 - ✅ Replaced manual filtering logic with `filterByMultipleCriteria()`
 - ✅ Replaced complex sorting with chained `sortByField()` calls
 - ✅ Added CSV export button for army lists
-- ✅ Export includes: Player, Army Name, Round, Total Points, Status, Faction
+- ✅ Export includes: Player, Army Name, Phase, Total Points, Status, Faction
 
 **Code Impact:**
 - **Lines Eliminated**: ~15 lines of filtering/sorting logic
@@ -113,7 +113,7 @@ All 4 LOW priority composables have been successfully created and fully integrat
 ┌─────────────────────────────────────────┐
 │ 🏆 Army Lists        [📥 Export CSV]    │ ← New export button
 ├─────────────────────────────────────────┤
-│ [Filter by Round ▼] [Filter Player ▼]  │
+│ [Filter by Phase ▼] [Filter Player ▼]  │
 │                                         │
 │ Army List Cards...                      │
 └─────────────────────────────────────────┘
@@ -168,7 +168,7 @@ All 4 LOW priority composables have been successfully created and fully integrat
 │ 🏆 Match History    [📥 Export CSV]     │ ← New export button
 ├─────────────────────────────────────────┤
 │ ┌─────────────────────────────────────┐ │
-│ │ Round 1  2024-01-15  [🔥 Close!]   │ │ ← Match quality badge
+│ │ Phase 1  2024-01-15  [🔥 Close!]   │ │ ← Match quality badge
 │ ├─────────────────────────────────────┤ │
 │ │  Player A          VS          Player B│
 │ │  35 pts                       30 pts  │
@@ -259,8 +259,8 @@ All 4 LOW priority composables have been successfully created and fully integrat
 const filteredArmies = computed(() => {
   let filtered = props.armies
   
-  if (filterRound.value) {
-    filtered = filtered.filter(army => army.round === filterRound.value)
+  if (filterPhase.value) {
+    filtered = filtered.filter(army => army.phase === filterPhase.value)
   }
   
   if (filterPlayer.value) {
@@ -268,7 +268,7 @@ const filteredArmies = computed(() => {
   }
   
   return filtered.sort((a, b) => {
-    if (a.round !== b.round) return a.round - b.round
+    if (a.phase !== b.phase) return a.phase - b.phase
     return getPlayerName(a.playerId).localeCompare(getPlayerName(b.playerId))
   })
 })
@@ -278,11 +278,11 @@ const filteredArmies = computed(() => {
 ```javascript
 const filteredArmies = computed(() => {
   const criteria = {}
-  if (filterRound.value) criteria.round = filterRound.value
+  if (filterPhase.value) criteria.phase = filterPhase.value
   if (filterPlayer.value) criteria.playerId = filterPlayer.value
   
   return filterByMultipleCriteria(props.armies, criteria)
-    .sortByField('round')
+    .sortByField('phase')
     .sortByField(army => getPlayerName(army.playerId))
 })
 ```

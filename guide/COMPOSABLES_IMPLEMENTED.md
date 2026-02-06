@@ -228,7 +228,7 @@ const { getWinPercentage } = usePlayerStats()
 Additional composables suggested in `/guide/COMPOSABLE_SUGGESTIONS.md`:
 
 ### Medium Priority
-5. **useRoundLookup** - Round data access utilities
+5. **usePhaseLookup** - Phase data access utilities
 6. **useArmyManagement** - Army operations and validation
 7. **useConfirmation** - Reusable modal pattern
 

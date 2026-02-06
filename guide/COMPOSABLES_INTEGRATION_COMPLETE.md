@@ -32,21 +32,21 @@ All **11 composables** (100%) have been successfully created and integrated into
 
 2. **Export Functionality Added**
    - Added `exportArmies()` method using `formatForExport()` and `downloadCSV()`
-   - Export includes: Player, Army Name, Round, Total Points, Status, Faction
+  - Export includes: Player, Army Name, Phase, Total Points, Status, Faction
    - Added Export CSV button with Download icon in header
 
 **Before:**
 ```javascript
 const filteredArmies = computed(() => {
   let filtered = props.armies
-  if (filterRound.value) {
-    filtered = filtered.filter(army => army.round === filterRound.value)
+  if (filterPhase.value) {
+    filtered = filtered.filter(army => army.phase === filterPhase.value)
   }
   if (filterPlayer.value) {
     filtered = filtered.filter(army => army.playerId === filterPlayer.value)
   }
   return filtered.sort((a, b) => {
-    if (a.round !== b.round) return a.round - b.round
+    if (a.phase !== b.phase) return a.phase - b.phase
     return getPlayerName(a.playerId).localeCompare(getPlayerName(b.playerId))
   })
 })
@@ -56,11 +56,11 @@ const filteredArmies = computed(() => {
 ```javascript
 const filteredArmies = computed(() => {
   const criteria = {}
-  if (filterRound.value) criteria.round = filterRound.value
+  if (filterPhase.value) criteria.phase = filterPhase.value
   if (filterPlayer.value) criteria.playerId = filterPlayer.value
   
   return filterByMultipleCriteria(props.armies, criteria)
-    .sortByField('round')
+    .sortByField('phase')
     .sortByField(army => getPlayerName(army.playerId))
 })
 ```
@@ -144,7 +144,7 @@ const submitPlayer = () => {
 
 3. **Export Functionality Added**
    - Added `exportMatches()` method with comprehensive match data
-   - Export includes: Date, Round, Mission, Players, Factions, Points, Winner, Point Difference, Match Type, Notes
+  - Export includes: Date, Phase, Mission, Players, Factions, Points, Winner, Point Difference, Match Type, Notes
    - Match quality analysis in export (Close Game, Decisive Victory, etc.)
    - Added Export CSV button with Download icon in header
 
@@ -180,8 +180,8 @@ const submitPlayer = () => {
 ---
 
 ### Filtering & Sorting Features (useArrayFiltering)
-✅ **ArmyListsView**: Multi-criteria filtering (round, player)  
-✅ **ArmyListsView**: Multi-field chained sorting (round, player name)  
+✅ **ArmyListsView**: Multi-criteria filtering (phase, player)  
+✅ **ArmyListsView**: Multi-field chained sorting (phase, player name)  
 
 **Result**: Cleaner, more maintainable filtering logic
 

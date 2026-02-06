@@ -44,7 +44,7 @@ const response = await $fetch(`/api/leagues/my?userId=${authStore.user.id}`)
 ```javascript
 userLeagues.push({
   ...league,
-  rounds: leagueRounds,
+  phases: leaguePhases,
   userRole: membership.role,  // ❌ Wrong field name
   joinedAt: membership.joinedAt
 })
@@ -58,11 +58,11 @@ userLeagues.push({
   description: league.description,
   startDate: league.startDate,
   endDate: league.endDate,
-  currentRound: league.currentRound,
+  currentPhase: league.currentPhase,
   isPublic: league.isPublic,
   maxPlayers: league.maxPlayers,
   status: league.status,
-  rounds: leagueRounds,
+  phases: leaguePhases,
   role: membership.role,  // ✅ Correct field name
   joinedAt: membership.joinedAt
 })
@@ -143,11 +143,11 @@ userLeagues.push({
       "description": "8-week campaign",
       "startDate": "2025-01-15",
       "endDate": "2025-03-15",
-      "currentRound": 1,
+      "currentPhase": 1,
       "isPublic": true,
       "maxPlayers": 20,
       "status": "active",
-      "rounds": [
+      "phases": [
         {
           "id": 1,
           "leagueId": 1,

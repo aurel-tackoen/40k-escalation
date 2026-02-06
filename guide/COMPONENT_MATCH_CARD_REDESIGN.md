@@ -19,7 +19,7 @@ The MatchCard component has been completely redesigned to match the visual consi
 ### 2. **Three-Section Vertical Layout**
 
 #### **Header Section** (Match Info)
-- **Round badge**: Yellow 500/20 background with yellow 400 text
+- **Phase badge**: Yellow 500/20 background with yellow 400 text
 - **Date**: Gray 400 text
 - **Mission**: Yellow gradient badge (consistent with other components)
 - **Quality badge**: Conditional (Close Game, Decisive Victory, etc.)

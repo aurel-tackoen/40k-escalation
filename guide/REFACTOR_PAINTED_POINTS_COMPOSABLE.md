@@ -22,7 +22,7 @@ Added painted points calculation functions:
 getUnitPaintedPoints(unit)            // Calculate painted points for a unit
 getUnitPaintedPointsPercentage(unit)  // Get percentage for a unit
 getArmyPaintedPoints(army)            // Get army-wide stats (uses army.totalPoints)
-getPlayerPaintedPoints(playerId, round, armies) // Get player stats
+getPlayerPaintedPoints(playerId, phase, armies) // Get player stats
 ```
 
 **Key Feature**: `getArmyPaintedPoints` now uses `army.totalPoints` for total points (not just sum of units with models) - this ensures accuracy against the army's actual point value.

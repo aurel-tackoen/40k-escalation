@@ -66,7 +66,7 @@ Transform single-league application into multi-league platform where users can c
 
 **Features**:
 - League cards with stats and actions
-- Multi-step creation form with rounds builder
+- Multi-step creation form with phases builder
 - Public league browser with password support
 - Quick league switcher in navigation
 - Role-based UI (leave/delete buttons)

@@ -54,7 +54,7 @@ For authenticated users viewing their own leagues.
 - Clickable card to switch leagues
 - Current league badge indicator
 - Role badge (owner/organizer/player)
-- Full stats (round X of Y, point limit)
+- Full stats (phase X of Y, point limit)
 - Joined date display
 - Action buttons:
   - Settings (owner/organizer)
@@ -219,11 +219,11 @@ For non-authenticated guests on landing page.
 
 ### Stats Display
 
-| Variant | Round Info | Point Limit | Member Max | Joined Date |
+| Variant | Phase Info | Point Limit | Member Max | Joined Date |
 |---------|------------|-------------|------------|-------------|
-| my-league | Round X of Y | ✓ Points | ❌ | ✓ |
-| public | Round X | ❌ | ✓ / Max | ❌ |
-| public-guest | Round X | ❌ | ✓ / Max | ❌ |
+| my-league | Phase X of Y | ✓ Points | ❌ | ✓ |
+| public | Phase X | ❌ | ✓ / Max | ❌ |
+| public-guest | Phase X | ❌ | ✓ / Max | ❌ |
 
 ### Actions
 
@@ -299,7 +299,7 @@ const cardClass = computed(() => {
 1. **Edit Mode**: Inline league editing for owners
 2. **Stats Tooltip**: Hover for detailed league stats
 3. **Member Avatars**: Show first 3 member avatars
-4. **Progress Bar**: Visual round progress indicator
+4. **Progress Bar**: Visual phase progress indicator
 5. **Favorite Toggle**: Star/bookmark favorite leagues
 6. **Share Button**: Share league link with others
 

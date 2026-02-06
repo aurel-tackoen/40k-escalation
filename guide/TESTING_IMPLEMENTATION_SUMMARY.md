@@ -45,7 +45,7 @@ Mock data generators:
 - ✅ createMockArmy()
 - ✅ createMockMatch()
 - ✅ createMockLeague()
-- ✅ createMockRound()
+- ✅ createMockPhase()
 - ✅ createMockGameSystem()
 - ✅ createMockFaction()
 - ✅ createMockMission()
@@ -221,7 +221,7 @@ npm run test:coverage
    - useFormatting
    - useFormManagement
    - usePlayerLookup
-   - useRoundLookup
+   - usePhaseLookup
    - useUser
 
 2. Add more integration tests:
