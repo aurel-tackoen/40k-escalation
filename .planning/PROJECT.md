@@ -29,7 +29,17 @@ If matches can't be recorded and standings can't be viewed, nothing else matters
 
 ### Active
 
-(None — next milestone not yet planned)
+- [ ] Game-specific league formats (format selection per league, format-driven behavior)
+- [ ] Game-specific match recording (different fields per game system + format)
+- [ ] Game-specific standings & scoring (different calculations per format)
+- [ ] Old World Path to Glory progression (unit XP, veteran abilities, battlefield losses, character death)
+- [ ] 40k Crusade progression (Order of Battle, XP/ranks, battle honours/scars, requisition points)
+- [ ] AoS Path to Glory progression (renown/ranks, hero paths, glory points, quests, enhancements)
+- [ ] HH Matched Play league (VP-based scoring, no progression)
+
+## Current Milestone: v0.2 Game-Specific League Formats
+
+**Goal:** Make each league behave differently depending on the game system and format, with full progression tracking for campaign formats.
 
 ### Out of Scope
 
@@ -65,4 +75,4 @@ If matches can't be recorded and standings can't be viewed, nothing else matters
 | Preserve firstRoundPairingMethod | Tournament pairing settings, not phase terminology | ✓ Good — correct distinction |
 
 ---
-*Last updated: 2026-02-06 after v0.1 milestone*
+*Last updated: 2026-02-06 after v0.2 milestone start*

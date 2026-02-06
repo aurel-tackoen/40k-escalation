@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** Players can easily track their league progress and see where they stand
-**Current focus:** Planning next milestone
+**Current focus:** v0.2 Game-Specific League Formats
 
 ## Current Position
 
-Phase: v0.1 complete
-Plan: N/A
-Status: Between milestones — ready to plan next
-Last activity: 2026-02-06 — v0.1 milestone archived
+Phase: Not started (defining roadmap)
+Plan: —
+Status: Requirements defined, awaiting roadmap creation
+Last activity: 2026-02-06 — Milestone v0.2 started
 
-Progress: v0.1 [##########] 100% SHIPPED
+Progress: v0.2 [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -40,9 +40,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: v0.1 milestone completed and archived
+Stopped at: Requirements defined, roadmap next
 Resume file: None
 
 ---
 *State initialized: 2026-02-05*
-*Last updated: 2026-02-06 — v0.1 milestone archived*
+*Last updated: 2026-02-06 — v0.2 milestone started*
