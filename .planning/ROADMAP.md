@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v0.1 Round-to-Phase Rename** — Phases 1-5 (shipped 2026-02-06) — [archive](milestones/v0.1-ROADMAP.md)
-- 🚧 **v0.2 Game-Specific League Formats** — Phases 6-12 (in progress)
+- 🚧 **v0.2 Game-Specific League Formats** — Phases 1-7 (in progress)
 
 ## Phases
 
@@ -22,19 +22,19 @@
 
 **Milestone Goal:** Make each league behave differently depending on the game system and format, with full progression tracking for campaign formats.
 
-- [ ] **Phase 6: Format System Foundation** — Format registry, league creation integration, format-driven behavior routing
-- [ ] **Phase 7: Game-Specific Match Recording** — All 7 match types across 4 game systems with format-aware forms
-- [ ] **Phase 8: Game-Specific Standings & Scoring** — All 7 scoring systems with format-driven calculations and tiebreakers
-- [ ] **Phase 9: Old World Path to Glory Progression** — Unit rosters, XP tracking, veteran abilities, battlefield losses, character death
-- [ ] **Phase 10: 40k Crusade Progression** — Order of Battle, XP/ranks, battle honours/scars, requisition points
-- [ ] **Phase 11: AoS Path to Glory Progression** — Order of Battle, renown/ranks, hero paths, glory points, quests
-- [ ] **Phase 12: Release & Deploy** — Push branch, create PR, merge to main, deploy to production
+- [ ] **Phase 1: Format System Foundation** — Format registry, league creation integration, format-driven behavior routing
+- [ ] **Phase 2: Game-Specific Match Recording** — All 7 match types across 4 game systems with format-aware forms
+- [ ] **Phase 3: Game-Specific Standings & Scoring** — All 7 scoring systems with format-driven calculations and tiebreakers
+- [ ] **Phase 4: Old World Path to Glory Progression** — Unit rosters, XP tracking, veteran abilities, battlefield losses, character death
+- [ ] **Phase 5: 40k Crusade Progression** — Order of Battle, XP/ranks, battle honours/scars, requisition points
+- [ ] **Phase 6: AoS Path to Glory Progression** — Order of Battle, renown/ranks, hero paths, glory points, quests
+- [ ] **Phase 7: Release & Deploy** — Push branch, create PR, merge to main, deploy to production
 
 ## Phase Details
 
-### Phase 6: Format System Foundation
+### Phase 1: Format System Foundation
 **Goal**: Organizers can create leagues with a specific game format, and the app routes behavior based on that format
-**Depends on**: Phase 5 (v0.1 complete)
+**Depends on**: v0.1 complete
 **Requirements**: FMT-01, FMT-02, FMT-03, FMT-04
 **Success Criteria** (what must be TRUE):
   1. Organizer sees available formats (e.g., "Old World — Path to Glory", "40k — Crusade") when creating a league and must select one
@@ -44,12 +44,12 @@
 **Plans**: TBD
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 01-01: TBD
+- [ ] 01-02: TBD
 
-### Phase 7: Game-Specific Match Recording
+### Phase 2: Game-Specific Match Recording
 **Goal**: Players can record matches using the correct fields for their league's game system and format
-**Depends on**: Phase 6
+**Depends on**: Phase 1
 **Requirements**: MTH-01, MTH-02, MTH-03, MTH-04, MTH-05, MTH-06, MTH-07
 **Success Criteria** (what must be TRUE):
   1. Old World PtG match form shows opponent, mission, result (crushing victory/victory/draw/loss), and enforces the 2-game CP cap per phase
@@ -60,13 +60,13 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
-- [ ] 07-03: TBD
+- [ ] 02-01: TBD
+- [ ] 02-02: TBD
+- [ ] 02-03: TBD
 
-### Phase 8: Game-Specific Standings & Scoring
+### Phase 3: Game-Specific Standings & Scoring
 **Goal**: Each league displays standings calculated correctly for its game format, with proper tiebreakers
-**Depends on**: Phase 7
+**Depends on**: Phase 2
 **Requirements**: STD-01, STD-02, STD-03, STD-04, STD-05, STD-06, STD-07
 **Success Criteria** (what must be TRUE):
   1. Old World PtG standings rank by total CP (with 2-game cap enforced) and use VP as tiebreaker
@@ -77,12 +77,12 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [ ] 03-01: TBD
+- [ ] 03-02: TBD
 
-### Phase 9: Old World Path to Glory Progression
+### Phase 4: Old World Path to Glory Progression
 **Goal**: Old World PtG players can manage unit rosters with XP, veteran abilities, battlefield losses, and character death tracking
-**Depends on**: Phase 7
+**Depends on**: Phase 2
 **Requirements**: OWP-01, OWP-02, OWP-03, OWP-04, OWP-05, OWP-06, OWP-07
 **Success Criteria** (what must be TRUE):
   1. Player can create and manage a roster of named units with type (infantry/cavalry/character)
@@ -93,13 +93,13 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
-- [ ] 09-03: TBD
+- [ ] 04-01: TBD
+- [ ] 04-02: TBD
+- [ ] 04-03: TBD
 
-### Phase 10: 40k Crusade Progression
+### Phase 5: 40k Crusade Progression
 **Goal**: 40k Crusade players can manage an Order of Battle with XP/ranks, battle honours/scars, and requisition points
-**Depends on**: Phase 7
+**Depends on**: Phase 2
 **Requirements**: CRU-01, CRU-02, CRU-03, CRU-04, CRU-05, CRU-06, CRU-07, CRU-08
 **Success Criteria** (what must be TRUE):
   1. Player can create an Order of Battle with named units showing points and crusade points, and see Supply Limit vs Supply Used
@@ -110,13 +110,13 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 10-01: TBD
-- [ ] 10-02: TBD
-- [ ] 10-03: TBD
+- [ ] 05-01: TBD
+- [ ] 05-02: TBD
+- [ ] 05-03: TBD
 
-### Phase 11: AoS Path to Glory Progression
+### Phase 6: AoS Path to Glory Progression
 **Goal**: AoS PtG players can manage an Order of Battle with renown/ranks, hero paths, glory points, quests, and enhancements
-**Depends on**: Phase 7
+**Depends on**: Phase 2
 **Requirements**: APG-01, APG-02, APG-03, APG-04, APG-05, APG-06, APG-07
 **Success Criteria** (what must be TRUE):
   1. Player can create an Order of Battle (starting 1000pts) with named units and a designated warlord
@@ -127,13 +127,13 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 11-01: TBD
-- [ ] 11-02: TBD
-- [ ] 11-03: TBD
+- [ ] 06-01: TBD
+- [ ] 06-02: TBD
+- [ ] 06-03: TBD
 
-### Phase 12: Release & Deploy
+### Phase 7: Release & Deploy
 **Goal**: v0.2 milestone is pushed, reviewed, merged to main, and deployed to production
-**Depends on**: Phases 8, 9, 10, 11 (all feature work complete)
+**Depends on**: Phases 3, 4, 5, 6 (all feature work complete)
 **Requirements**: None (delivery phase)
 **Success Criteria** (what must be TRUE):
   1. All v0.2 changes are pushed to the milestone/v0.2 branch on the remote
@@ -142,48 +142,43 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 12-01: TBD
+- [ ] 07-01: TBD
 
 ## Dependency Graph
 
 ```
-Phase 6 (Format System)
+Phase 1 (Format System)
   |
   v
-Phase 7 (Match Recording)
+Phase 2 (Match Recording)
   |
-  +--> Phase 8 (Standings & Scoring)
+  +--> Phase 3 (Standings & Scoring)
   |
-  +--> Phase 9 (OW PtG Progression)
+  +--> Phase 4 (OW PtG Progression)
   |
-  +--> Phase 10 (40k Crusade Progression)
+  +--> Phase 5 (40k Crusade Progression)
   |
-  +--> Phase 11 (AoS PtG Progression)
+  +--> Phase 6 (AoS PtG Progression)
   |
-  v  (all of 8-11 complete)
-Phase 12 (Release & Deploy)
+  v  (all of 3-6 complete)
+Phase 7 (Release & Deploy)
 ```
 
-Phases 9, 10, 11 can execute in any order (they are independent progression systems). Phase 8 can also execute in parallel with 9-11 since standings depend on match data (Phase 7), not progression data.
+Phases 4, 5, 6 can execute in any order (they are independent progression systems). Phase 3 can also execute in parallel with 4-6 since standings depend on match data (Phase 2), not progression data.
 
 ## Progress
 
-**Execution Order:** 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12
+**Execution Order:** 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Database Schema | v0.1 | 1/1 | Complete | 2026-02-05 |
-| 2. API Layer | v0.1 | 2/2 | Complete | 2026-02-05 |
-| 3. State Management | v0.1 | 2/2 | Complete | 2026-02-05 |
-| 4. User Interface | v0.1 | 4/4 | Complete | 2026-02-06 |
-| 5. Test Verification | v0.1 | 1/1 | Complete | 2026-02-06 |
-| 6. Format System Foundation | v0.2 | 0/TBD | Not started | - |
-| 7. Game-Specific Match Recording | v0.2 | 0/TBD | Not started | - |
-| 8. Game-Specific Standings & Scoring | v0.2 | 0/TBD | Not started | - |
-| 9. OW Path to Glory Progression | v0.2 | 0/TBD | Not started | - |
-| 10. 40k Crusade Progression | v0.2 | 0/TBD | Not started | - |
-| 11. AoS Path to Glory Progression | v0.2 | 0/TBD | Not started | - |
-| 12. Release & Deploy | v0.2 | 0/TBD | Not started | - |
+| 1. Format System Foundation | v0.2 | 0/TBD | Not started | - |
+| 2. Game-Specific Match Recording | v0.2 | 0/TBD | Not started | - |
+| 3. Game-Specific Standings & Scoring | v0.2 | 0/TBD | Not started | - |
+| 4. OW Path to Glory Progression | v0.2 | 0/TBD | Not started | - |
+| 5. 40k Crusade Progression | v0.2 | 0/TBD | Not started | - |
+| 6. AoS Path to Glory Progression | v0.2 | 0/TBD | Not started | - |
+| 7. Release & Deploy | v0.2 | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-05*
