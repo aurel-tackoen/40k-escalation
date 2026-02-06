@@ -81,11 +81,11 @@ Lines Saved: ~25 lines
 Status: ✅ Implemented and refactored
 ```
 
-### 5. 🔄 useRoundLookup ✅ **COMPLETED**
-**Impact:** MEDIUM - Round data access
+### 5. 🔄 usePhaseLookup ✅ **COMPLETED**
+**Impact:** MEDIUM - Phase data access
 ```
 Components: ArmyListsView
-Functions: getRoundName(), getRoundLimit(), getRound(), getCurrentRound(), roundExists(), getSortedRounds(), getRoundByDate()
+Functions: getPhaseName(), getPhaseLimit(), getPhase(), getCurrentPhase(), phaseExists(), getSortedPhases(), getPhaseByDate()
 Lines Saved: ~15 lines
 Status: ✅ Implemented and refactored
 ```
@@ -103,7 +103,7 @@ Status: ✅ Implemented and refactored
 **Impact:** HIGH - Army business logic
 ```
 Components: ArmyListsView
-Functions: calculateArmyTotal(), isValidArmy(), canEscalateArmy(), hasPreviousRoundArmy(), getPreviousArmy(), copyArmyToNextRound(), getPlayerArmies(), getRoundArmies(), getArmyComposition()
+Functions: calculateArmyTotal(), isValidArmy(), canEscalateArmy(), hasPreviousPhaseArmy(), getPreviousArmy(), copyArmyToNextPhase(), getPlayerArmies(), getPhaseArmies(), getArmyComposition()
 Lines Saved: ~50 lines
 Status: ✅ Implemented and refactored
 ```
@@ -118,7 +118,7 @@ Status: ✅ Implemented and refactored
 | 2 | usePlayerLookup | ✅ HIGH | 3 | 5 | ~30 lines | ✅ **DONE** |
 | 3 | useFormatting | ✅ HIGH | 3 | 8 | ~25 lines | ✅ **DONE** |
 | 4 | usePlayerStats | ✅ HIGH | 2 | 9 | ~40 lines | ✅ **DONE** |
-| 5 | useRoundLookup | ✅ MEDIUM | 1 | 7 | ~15 lines | ✅ **DONE** |
+| 5 | usePhaseLookup | ✅ MEDIUM | 1 | 7 | ~15 lines | ✅ **DONE** |
 | 6 | useConfirmation | ✅ MEDIUM | 2 | 5 | ~20 lines | ✅ **DONE** |
 | 7 | useArmyManagement | ✅ MEDIUM | 1 | 9 | ~50 lines | ✅ **DONE** |
 | 8 | useFormManagement | ✅ LOW | 0* | 13 | ~15 lines | ✅ **DONE** |
@@ -176,12 +176,12 @@ All **4 high-priority** and **3 medium-priority** composables have been successf
    - ArmyListsView.vue
 ```
 
-### Medium Priority - Step 5: useRoundLookup ✅ **DONE**
+### Medium Priority - Step 5: usePhaseLookup ✅ **DONE**
 ```bash
-✅ Created: app/composables/useRoundLookup.js
+✅ Created: app/composables/usePhaseLookup.js
 ✅ 7 functions implemented
 ✅ Components updated:
-   - ArmyListsView.vue (getRoundName, getRoundLimit)
+   - ArmyListsView.vue (getPhaseName, getPhaseLimit)
 ```
 
 ### Medium Priority - Step 6: useConfirmation ✅ **DONE**
@@ -377,7 +377,7 @@ export function usePlayerLookup(players) {
 - [x] ✅ **High Priority**: Created & tested `usePlayerLookup` (5 functions)
 - [x] ✅ **High Priority**: Created & tested `useFormatting` (8 functions)
 - [x] ✅ **High Priority**: Created & tested `usePlayerStats` (9 functions)
-- [x] ✅ **Medium Priority**: Created & tested `useRoundLookup` (7 functions)
+- [x] ✅ **Medium Priority**: Created & tested `usePhaseLookup` (7 functions)
 - [x] ✅ **Medium Priority**: Created & tested `useConfirmation` (5 functions)
 - [x] ✅ **Medium Priority**: Created & tested `useArmyManagement` (9 functions)
 - [x] ✅ **Documentation**: Created comprehensive guides
@@ -480,7 +480,7 @@ Everything should work perfectly! ✨
 - `/app/composables/usePlayerLookup.js` ✅
 - `/app/composables/useFormatting.js` ✅
 - `/app/composables/usePlayerStats.js` ✅
-- `/app/composables/useRoundLookup.js` ✅
+- `/app/composables/usePhaseLookup.js` ✅
 - `/app/composables/useConfirmation.js` ✅
 - `/app/composables/useArmyManagement.js` ✅
 - `/app/composables/useFormManagement.js` ✅ NEW!
