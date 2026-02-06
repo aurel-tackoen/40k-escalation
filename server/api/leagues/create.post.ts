@@ -137,12 +137,13 @@ export default defineEventHandler(async (event) => {
         membership: newMembership
       }
     }
-  } catch (error) {
+  } catch (err) {
     // Re-throw validation errors (4xx) as-is
+    const error = err as { statusCode?: number }
     if (error.statusCode && error.statusCode < 500) {
-      throw error
+      throw err
     }
-    console.error('Error creating league:', error)
+    console.error('Error creating league:', err)
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to create league'
