@@ -41,11 +41,13 @@
   2. Each game system offers its correct format options (OW: PtG/Matched, 40k: Crusade/Matched, AoS: PtG/Matched, HH: Matched)
   3. A league's format determines which match form, scoring rules, and progression features appear throughout the app
   4. Default scoring rules are automatically applied when a format is selected — organizer does not need to configure scoring manually
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — Format registry data file and database schema migration
+- [ ] 01-02-PLAN.md — League creation form with format selection and API validation
+- [ ] 01-03-PLAN.md — Migration script for existing leagues (CP scoring recalculation)
+- [ ] 01-04-PLAN.md — Format badges, settings immutability, and endpoint updates
 
 ### Phase 2: Game-Specific Match Recording
 **Goal**: Players can record matches using the correct fields for their league's game system and format
@@ -172,7 +174,7 @@ Phases 4, 5, 6 can execute in any order (they are independent progression system
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Format System Foundation | v0.2 | 0/TBD | Not started | - |
+| 1. Format System Foundation | v0.2 | 0/4 | Planning complete | - |
 | 2. Game-Specific Match Recording | v0.2 | 0/TBD | Not started | - |
 | 3. Game-Specific Standings & Scoring | v0.2 | 0/TBD | Not started | - |
 | 4. OW Path to Glory Progression | v0.2 | 0/TBD | Not started | - |
@@ -182,4 +184,4 @@ Phases 4, 5, 6 can execute in any order (they are independent progression system
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-06 — v0.2 roadmap created*
+*Last updated: 2026-02-06 — Phase 1 planned (4 plans in 3 waves)*
