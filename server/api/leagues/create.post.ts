@@ -3,6 +3,7 @@ import { leagues, leagueMemberships, phases } from '../../../db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAuth } from '../../utils/auth'
 import { generateShareToken } from '../../utils/tokens'
+import { getFormatConfig } from '../../../app/data/format-registry'
 
 /**
  * POST /api/leagues/create
@@ -13,6 +14,7 @@ import { generateShareToken } from '../../utils/tokens'
  *   name: string
  *   description?: string
  *   gameSystemId: number (required - which game system this league uses)
+ *   format: string (required - format key from format-registry, e.g., 'ow-ptg')
  *   startDate: string (ISO date)
  *   endDate?: string (ISO date)
  *   isPrivate: boolean
@@ -41,6 +43,21 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (!body.format) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'League format is required'
+      })
+    }
+
+    const formatConfig = getFormatConfig(body.format)
+    if (!formatConfig) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid league format'
+      })
+    }
+
     if (!body.phases || body.phases.length === 0) {
       throw createError({
         statusCode: 400,
@@ -64,6 +81,7 @@ export default defineEventHandler(async (event) => {
       description: body.description || null,
       rules: body.rules || null,
       gameSystemId: body.gameSystemId,
+      format: body.format,
       startDate: body.startDate,
       endDate: body.endDate || null,
       currentPhase: 1,
@@ -117,6 +135,10 @@ export default defineEventHandler(async (event) => {
       }
     }
   } catch (error) {
+    // Re-throw validation errors (4xx) as-is
+    if (error.statusCode && error.statusCode < 500) {
+      throw error
+    }
     console.error('Error creating league:', error)
     throw createError({
       statusCode: 500,
