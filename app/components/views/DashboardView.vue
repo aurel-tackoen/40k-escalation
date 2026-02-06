@@ -8,6 +8,7 @@
   import { usePlayerStats } from '~/composables/usePlayerStats'
   import { useMatchResults } from '~/composables/useMatchResults'
   import { useMarkdown } from '~/composables/useMarkdown'
+  import { getFormatDisplayName } from '~/data/format-registry'
   import MatchCard from '~/components/MatchCard.vue'
 
   // Get current game system
@@ -101,6 +102,11 @@
     if (!props.league) return 0
     return props.armies.filter(army => army.phase === props.league.currentPhase).length
   })
+
+  // Format display name for badge
+  const formatName = computed(() => {
+    return props.league?.format ? getFormatDisplayName(props.league.format) : null
+  })
 </script>
 
 <template>
@@ -109,7 +115,15 @@
     <div class="card">
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
         <div>
-          <h2 class="text-2xl sm:text-3xl font-serif font-bold text-yellow-500">{{ league?.name || 'League' }}</h2>
+          <div class="flex items-center gap-3 flex-wrap">
+            <h2 class="text-2xl sm:text-3xl font-serif font-bold text-yellow-500">{{ league?.name || 'League' }}</h2>
+            <span
+              v-if="formatName"
+              class="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-700 text-gray-300 border border-gray-600"
+            >
+              {{ formatName }}
+            </span>
+          </div>
           <p class="text-sm sm:text-base text-gray-300">{{ league?.description || '' }}</p>
         </div>
         <div v-if="currentGameSystemName" class="bg-purple-900/30 border border-purple-500 px-3 py-1 rounded-lg whitespace-nowrap">

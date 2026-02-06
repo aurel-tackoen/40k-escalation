@@ -5,6 +5,7 @@
   import { useLeaguesStore } from '~/stores/leagues'
   import { useFormatting } from '~/composables/useFormatting'
   import { useGameSystems } from '~/composables/useGameSystems'
+  import { getFormatDisplayName } from '~/data/format-registry'
 
   const props = defineProps({
     league: {
@@ -41,6 +42,11 @@
   // Get game system name for this league
   const gameSystemName = computed(() => {
     return getGameSystemName(props.league.gameSystemId)
+  })
+
+  // Get format display name for badge
+  const formatName = computed(() => {
+    return props.league?.format ? getFormatDisplayName(props.league.format) : null
   })
 
   const getRoleBadgeClass = (role) => {
@@ -144,6 +150,12 @@
           >
             {{ league.name }}
           </h3>
+          <span
+            v-if="formatName"
+            class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-gray-700 text-gray-300 border border-gray-600 mt-1"
+          >
+            {{ formatName }}
+          </span>
           <p v-if="league.description" class="text-gray-400 text-sm mt-1 line-clamp-2">
             {{ league.description }}
           </p>
