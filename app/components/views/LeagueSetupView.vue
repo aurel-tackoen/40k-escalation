@@ -103,7 +103,7 @@
 
     editableLeague.value.rounds.push({
       number: newRoundNumber,
-      name: `Round ${newRoundNumber}`,
+      name: `Phase ${newRoundNumber}`,
       pointLimit: nextPointLimit,
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0]
@@ -119,10 +119,10 @@
         round.number = i + 1
       })
 
-      // Ensure current round is valid
+      // Ensure current phase is valid
       const maxRound = Math.max(...editableLeague.value.rounds.map(r => r.number))
-      if (editableLeague.value.currentRound > maxRound) {
-        editableLeague.value.currentRound = maxRound
+      if (editableLeague.value.currentPhase > maxRound) {
+        editableLeague.value.currentPhase = maxRound
       }
     }
   }
@@ -311,10 +311,10 @@
           </div>
 
           <div class="md:col-span-2">
-            <label class="block text-sm font-semibold text-yellow-500 mb-2">Current Round</label>
-            <select v-model.number="editableLeague.currentRound" class="input-field">
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">Current Phase</label>
+            <select v-model.number="editableLeague.currentPhase" class="input-field">
               <option v-for="round in editableLeague.rounds" :key="round.number" :value="round.number">
-                Round {{ round.number }} - {{ round.name }}
+                Phase {{ round.number }} - {{ round.name }}
               </option>
             </select>
           </div>
@@ -493,7 +493,7 @@
 
     <!-- Round Configuration -->
     <div class="card">
-      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Round Configuration</h3>
+      <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Phase Configuration</h3>
 
       <div class="space-y-4">
         <div
@@ -502,12 +502,12 @@
           class="bg-gray-700 border border-gray-600 rounded-lg p-4"
         >
           <div class="flex items-center justify-between mb-4">
-            <h4 class="text-lg font-semibold text-yellow-500">Round {{ round.number }}</h4>
+            <h4 class="text-lg font-semibold text-yellow-500">Phase {{ round.number }}</h4>
             <button
               v-if="editableLeague.rounds.length > 1"
               @click="removeRound(index)"
               class="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
-              title="Remove Round"
+              title="Remove Phase"
             >
               <Trash2 :size="20" />
             </button>
@@ -515,7 +515,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label class="block text-sm font-semibold text-yellow-500 mb-2">Round Name</label>
+              <label class="block text-sm font-semibold text-yellow-500 mb-2">Phase Name</label>
               <input
                 v-model="round.name"
                 type="text"
@@ -563,12 +563,12 @@
       <div class="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
         <button @click="saveLeague" type="button" class="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto">
           <Save :size="18" class="flex-shrink-0" />
-          <span>Save Round Settings</span>
+          <span>Save Phase Settings</span>
         </button>
 
         <button @click="addRound" type="button" class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto">
           <Plus :size="18" class="flex-shrink-0" />
-          <span>Add New Round</span>
+          <span>Add New Phase</span>
         </button>
       </div>
     </div>
