@@ -81,10 +81,10 @@
 
   // Computed properties
   const currentPhase = computed(() => {
-    if (!props.league || !props.league.rounds || props.league.rounds.length === 0) {
+    if (!props.league || !props.league.phases || props.league.phases.length === 0) {
       return { name: 'N/A', pointLimit: 0 }
     }
-    return props.league.rounds.find(r => r.number === props.league.currentPhase) || props.league.rounds[0]
+    return props.league.phases.find(p => p.number === props.league.currentPhase) || props.league.phases[0]
   })
 
   const sortedPlayers = computed(() => {
@@ -264,25 +264,25 @@
 
 
 
-    <!-- Rounds Information -->
-    <div v-if="league?.rounds && league.rounds.length > 0" class="card">
+    <!-- Phases Information -->
+    <div v-if="league?.phases && league.phases.length > 0" class="card">
       <div class="flex items-center gap-2 mb-4">
         <Calendar :size="24" class="text-yellow-500" />
         <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Phases Schedule</h3>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div
-          v-for="round in league.rounds"
-          :key="round.id"
+          v-for="phase in league.phases"
+          :key="phase.id"
           class="bg-gray-700 p-4 rounded-lg border-2 transition-all"
-          :class="round.number === league.currentPhase ? 'border-yellow-500 shadow-lg shadow-yellow-500/20' : 'border-gray-600'"
+          :class="phase.number === league.currentPhase ? 'border-yellow-500 shadow-lg shadow-yellow-500/20' : 'border-gray-600'"
         >
           <div class="flex items-center justify-between mb-3">
-            <h4 class="text-lg font-bold" :class="round.number === league.currentPhase ? 'text-yellow-500' : 'text-white'">
-              {{ round.name }}
+            <h4 class="text-lg font-bold" :class="phase.number === league.currentPhase ? 'text-yellow-500' : 'text-white'">
+              {{ phase.name }}
             </h4>
             <span
-              v-if="round.number === league.currentPhase"
+              v-if="phase.number === league.currentPhase"
               class="px-2 py-1 text-xs font-bold bg-yellow-500 text-gray-900 rounded"
             >
               ACTIVE
@@ -293,35 +293,35 @@
             <div class="flex items-center gap-2">
               <Shield :size="16" class="text-gray-400 flex-shrink-0" />
               <span class="text-gray-300">
-                <span class="font-semibold text-yellow-500">{{ round.pointLimit }}</span> points
+                <span class="font-semibold text-yellow-500">{{ phase.pointLimit }}</span> points
               </span>
             </div>
 
-            <div v-if="round.startDate" class="flex items-center gap-2">
+            <div v-if="phase.startDate" class="flex items-center gap-2">
               <Calendar :size="16" class="text-gray-400 flex-shrink-0" />
               <span class="text-gray-300">
-                Start: <span class="font-semibold">{{ formatDate(round.startDate) }}</span>
+                Start: <span class="font-semibold">{{ formatDate(phase.startDate) }}</span>
               </span>
             </div>
 
-            <div v-if="round.endDate" class="flex items-center gap-2">
+            <div v-if="phase.endDate" class="flex items-center gap-2">
               <Calendar :size="16" class="text-gray-400 flex-shrink-0" />
               <span class="text-gray-300">
-                End: <span class="font-semibold">{{ formatDate(round.endDate) }}</span>
+                End: <span class="font-semibold">{{ formatDate(phase.endDate) }}</span>
               </span>
             </div>
 
             <div class="flex items-center gap-2 pt-2 border-t border-gray-600">
               <Shield :size="16" class="text-gray-400 flex-shrink-0" />
               <span class="text-gray-300">
-                <span class="font-semibold">{{ armies.filter(a => a.round === round.number).length }}</span> armies submitted
+                <span class="font-semibold">{{ armies.filter(a => a.phase === phase.number).length }}</span> armies submitted
               </span>
             </div>
 
             <div class="flex items-center gap-2">
               <Swords :size="16" class="text-gray-400 flex-shrink-0" />
               <span class="text-gray-300">
-                <span class="font-semibold">{{ matches.filter(m => m.round === round.number).length }}</span> matches played
+                <span class="font-semibold">{{ matches.filter(m => m.phase === phase.number).length }}</span> matches played
               </span>
             </div>
           </div>

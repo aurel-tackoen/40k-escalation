@@ -149,7 +149,7 @@
       gameSystemId: league.gameSystemId,
       status: league.status,
       isPrivate: league.isPrivate,
-      currentRound: league.currentRound,
+      currentRound: league.currentPhase,
       maxPlayers: league.maxPlayers,
       rules: league.rules || ''
     }
@@ -516,7 +516,7 @@
               <div class="mt-3">
                 <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Progress</div>
                 <div class="text-white">
-                  Phase <span class="text-yellow-500 font-bold">{{ league.currentRound }}</span>
+                  Phase <span class="text-yellow-500 font-bold">{{ league.currentPhase }}</span>
                 </div>
               </div>
             </div>
@@ -611,9 +611,9 @@
             </div>
           </div>
 
-          <!-- Show Rounds Button -->
+          <!-- Show Phases Button -->
           <button
-            v-if="league.rounds?.length > 0"
+            v-if="league.phases?.length > 0"
             @click="toggleLeagueExpansion(league.id)"
             class="mt-4 flex items-center gap-2 text-sm text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer"
           >
@@ -622,38 +622,38 @@
               :class="['transition-transform', { 'rotate-90': isLeagueExpanded(league.id) }]"
             />
             <span>
-              {{ isLeagueExpanded(league.id) ? 'Hide' : 'Show' }} Phases ({{ league.rounds?.length || 0 }})
+              {{ isLeagueExpanded(league.id) ? 'Hide' : 'Show' }} Phases ({{ league.phases?.length || 0 }})
             </span>
           </button>
         </div>
 
-        <!-- Expandable Rounds Section -->
+        <!-- Expandable Phases Section -->
         <div
-          v-if="isLeagueExpanded(league.id) && league.rounds?.length > 0"
+          v-if="isLeagueExpanded(league.id) && league.phases?.length > 0"
           class="border-t border-gray-700 bg-gray-800/50 px-6 py-4"
         >
           <div class="space-y-2">
             <button
-              v-for="round in league.rounds"
-              :key="round.id"
-              @click="openRoundModal(round)"
+              v-for="phase in league.phases"
+              :key="phase.id"
+              @click="openRoundModal(phase)"
               class="w-full bg-gray-700 rounded p-4 text-left hover:bg-gray-600 transition-colors cursor-pointer"
             >
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-3">
                   <Target class="w-5 h-5 text-yellow-500" />
-                  <span class="text-white font-semibold">Phase {{ round.number }}: {{ round.name }}</span>
+                  <span class="text-white font-semibold">Phase {{ phase.number }}: {{ phase.name }}</span>
                 </div>
-                <span class="text-yellow-500 font-bold">{{ round.pointLimit }} pts</span>
+                <span class="text-yellow-500 font-bold">{{ phase.pointLimit }} pts</span>
               </div>
               <div class="grid grid-cols-2 gap-4 text-sm mt-2">
                 <div>
                   <span class="text-gray-400">Start:</span>
-                  <span class="text-white ml-2">{{ formatDate(round.startDate) }}</span>
+                  <span class="text-white ml-2">{{ formatDate(phase.startDate) }}</span>
                 </div>
                 <div>
                   <span class="text-gray-400">End:</span>
-                  <span class="text-white ml-2">{{ formatDate(round.endDate) }}</span>
+                  <span class="text-white ml-2">{{ formatDate(phase.endDate) }}</span>
                 </div>
               </div>
             </button>
