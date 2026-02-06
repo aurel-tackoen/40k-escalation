@@ -42,7 +42,29 @@
   })
 
   // Reactive data
-  const editableLeague = ref(normalizeDates(props.league))
+  const ensureLeagueHasRoundsAndPhases = (league) => {
+    if (!league || typeof league !== 'object') return league
+
+    const phasesArray = Array.isArray(league.phases) ? league.phases : null
+    const roundsArray = Array.isArray(league.rounds) ? league.rounds : null
+
+    // Prefer `phases` as the canonical source (API contract)
+    if (phasesArray) {
+      league.rounds = phasesArray
+      return league
+    }
+
+    if (roundsArray) {
+      league.phases = roundsArray
+      return league
+    }
+
+    league.phases = []
+    league.rounds = league.phases
+    return league
+  }
+
+  const editableLeague = ref(ensureLeagueHasRoundsAndPhases(normalizeDates(props.league)))
   const shareUrl = ref('')
   const isGeneratingUrl = ref(false)
   const urlCopied = ref(false)
@@ -81,7 +103,7 @@
 
   // Watchers
   watch(() => props.league, (newLeague) => {
-    editableLeague.value = normalizeDates(newLeague)
+    editableLeague.value = ensureLeagueHasRoundsAndPhases(normalizeDates(newLeague))
     // Set default rules if none exist
     if (!editableLeague.value.rules && generatedRules.value) {
       editableLeague.value.rules = generatedRules.value
@@ -104,9 +126,15 @@
 
   // Methods
   const saveLeague = () => {
-    // Sort rounds by number
-    editableLeague.value.rounds.sort((a, b) => a.number - b.number)
-    emit('update-league', editableLeague.value)
+    // Normalize + sort phases (and keep `rounds` alias in sync for the UI)
+    ensureLeagueHasRoundsAndPhases(editableLeague.value)
+    const phasesToSort = editableLeague.value.phases
+    phasesToSort.sort((a, b) => a.number - b.number)
+
+    emit('update-league', {
+      ...editableLeague.value,
+      phases: phasesToSort
+    })
     toastSuccess('League settings saved successfully!')
   }
 
