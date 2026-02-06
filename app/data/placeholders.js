@@ -6,7 +6,7 @@ export const placeholders = {
   '40k': {
     leagueName: 'e.g., Winter Crusade 2025',
     armyName: "e.g., Emperor's Fist",
-    armyNameHint: '"Emperor\'s Fist - Round 1", "Storm Wardens - 500pts"',
+    armyNameHint: '"Emperor\'s Fist - Phase 1", "Storm Wardens - 500pts"',
     armyExamples: '"Emperor\'s Fist", "The Crimson Crusade", "Task Force Omega"',
     unitName: 'e.g., Tactical Squad, Intercessor Squad',
     roundName: 'e.g., Combat Patrol (500pts)',
@@ -17,7 +17,7 @@ export const placeholders = {
   'aos': {
     leagueName: 'e.g., Storm of Sigmar Campaign 2025',
     armyName: 'e.g., The Bloodbound Reavers',
-    armyNameHint: '"Bloodbound Reavers - Round 1", "Stormcast Eternals - 500pts"',
+    armyNameHint: '"Bloodbound Reavers - Phase 1", "Stormcast Eternals - 500pts"',
     armyExamples: '"Bloodbound Reavers", "The Golden Legion", "Nighthaunt Host"',
     unitName: 'e.g., Blood Warriors, Liberators',
     roundName: 'e.g., Vanguard (500pts)',
@@ -28,7 +28,7 @@ export const placeholders = {
   'tow': {
     leagueName: 'e.g., Return to the Old World 2025',
     armyName: 'e.g., The Iron Legion',
-    armyNameHint: '"The Iron Legion - Round 1", "Vampire Counts - 500pts"',
+    armyNameHint: '"The Iron Legion - Phase 1", "Vampire Counts - 500pts"',
     armyExamples: '"The Iron Legion", "Skaven Horde", "High Elf Spearhost"',
     unitName: 'e.g., Spearmen Regiment, Black Knights',
     roundName: 'e.g., Border Patrol (500pts)',
@@ -39,7 +39,7 @@ export const placeholders = {
   'mesbg': {
     leagueName: 'e.g., War of the Ring Campaign 2025',
     armyName: 'e.g., Rangers of the North',
-    armyNameHint: '"Rangers of the North - Round 1", "Mordor Orcs - 300pts"',
+    armyNameHint: '"Rangers of the North - Phase 1", "Mordor Orcs - 300pts"',
     armyExamples: '"Rangers of the North", "Moria Goblins", "Riders of Rohan"',
     unitName: 'e.g., Warriors of Minas Tirith, Uruk-hai Scouts',
     roundName: 'e.g., Skirmish (300pts)',
@@ -50,7 +50,7 @@ export const placeholders = {
   'hh': {
     leagueName: 'e.g., Age of Darkness Campaign 2025',
     armyName: 'e.g., Sons of Horus 7th Company',
-    armyNameHint: '"Sons of Horus 7th Company - Round 1", "Imperial Fists - 500pts"',
+    armyNameHint: '"Sons of Horus 7th Company - Phase 1", "Imperial Fists - 500pts"',
     armyExamples: '"Sons of Horus 7th Company", "Death Guard Plague Marines", "Blood Angels Host"',
     unitName: 'e.g., Legion Tactical Squad, Cataphractii Terminators',
     roundName: 'e.g., Zone Mortalis (500pts)',
@@ -62,7 +62,7 @@ export const placeholders = {
 export const genericPlaceholders = {
   leagueName: 'e.g., Winter Escalation League 2025',
   armyName: 'e.g., My Army Name',
-  armyNameHint: '"My Army Name - Round 1", "Battle Force - 500pts"',
+  armyNameHint: '"My Army Name - Phase 1", "Battle Force - 500pts"',
   armyExamples: '"Strike Force Alpha", "The Warband", "Battle Group One"',
   unitName: 'e.g., Infantry Squad, Elite Unit',
   roundName: 'e.g., 500 Points',

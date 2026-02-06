@@ -17,14 +17,14 @@ Welcome to the ${gameSystemName} escalation league! Please read these rules care
   armyBuilding: `## Army Building
 
 ### Point Limits
-- Each round has a specific point limit (see Round Configuration)
-- Armies **must not exceed** the current round's point limit
+- Each phase has a specific point limit (see Phase Configuration)
+- Armies **must not exceed** the current phase's point limit
 - Under-strength armies are allowed but not recommended
 
 ### List Submission
-- Army lists must be submitted **before each round begins**
+- Army lists must be submitted **before each phase begins**
 - Late submissions may result in match forfeits
-- Lists can be modified between rounds, but not during a round
+- Lists can be modified between phases, but not during a phase
 
 ### Army Composition
 - Follow official army construction rules for your faction
@@ -42,12 +42,12 @@ Welcome to the ${gameSystemName} escalation league! Please read these rules care
 `,
 
   matchScheduling: `### Playing Matches
-- Each player must complete **at least one match per round**
+- Each player must complete **at least one match per phase**
 - Matches should use missions from the current game's official rules
 - Both players should agree on mission, deployment, and any special rules
 
 ### Scheduling
-- Matches must be completed within the round timeframe
+- Matches must be completed within the phase timeframe
 - Coordinate with opponents to schedule games
 - Report any scheduling conflicts to the league organizer
 
@@ -64,7 +64,7 @@ Welcome to the ${gameSystemName} escalation league! Please read these rules care
   leagueStandings: `## League Standings
 
 ### Championship
-- Final standings at the end of all rounds determine the league champion
+- Final standings at the end of all phases determine the league champion
 - Top 3 players receive recognition and eternal glory
 - Special awards may be given for painting, sportsmanship, and narrative excellence
 
