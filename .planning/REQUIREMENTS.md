@@ -33,8 +33,8 @@ Requirements for the Round → Phase terminology rename.
 
 ### Testing
 
-- [ ] **TEST-01**: Update test files to use new terminology
-- [ ] **TEST-02**: Verify all existing tests pass after rename
+- [x] **TEST-01**: Update test files to use new terminology
+- [x] **TEST-02**: Verify all existing tests pass after rename
 
 ## v2 Requirements
 
@@ -64,14 +64,15 @@ Requirements for the Round → Phase terminology rename.
 | UI-01 | Phase 4 | Complete |
 | UI-02 | Phase 4 | Complete |
 | UI-03 | Phase 4 | Complete |
-| TEST-01 | Phase 5 | Pending |
-| TEST-02 | Phase 5 | Pending |
+| TEST-01 | Phase 5 | Complete |
+| TEST-02 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 14 total
 - Mapped to phases: 14
 - Unmapped: 0 ✓
+- **All requirements complete** ✓
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 after initial definition*
+*Last updated: 2026-02-06 - All requirements complete*
