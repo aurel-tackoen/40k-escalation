@@ -57,6 +57,13 @@ export default defineEventHandler(async (event) => {
       .from(users)
       .where(eq(users.auth0Id, auth0Id))
 
+    if (!user && email) {
+      ;[user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+    }
+
     if (!user) {
       // Create new user
       const [newUser] = await db
@@ -77,8 +84,11 @@ export default defineEventHandler(async (event) => {
       const [updatedUser] = await db
         .update(users)
         .set({
+          auth0Id,
           lastLoginAt: new Date(),
-          role
+          role,
+          name,
+          picture
         })
         .where(eq(users.id, user.id))
         .returning()
