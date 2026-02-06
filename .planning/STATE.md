@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 1 of 5 (Format System Foundation)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-06 — Completed 01-02-PLAN.md (Format Selection in League Creation)
+Last activity: 2026-02-06 — Completed 01-03-PLAN.md (Format Migration Script)
 
-Progress: v0.2 [██░░░░░░░░░░░] 2/13 plans (15%)
+Progress: v0.2 [███░░░░░░░░░░] 3/13 plans (23%)
 
 ## Performance Metrics
 
@@ -24,9 +24,9 @@ Progress: v0.2 [██░░░░░░░░░░░] 2/13 plans (15%)
 - Total execution time: 0.88 hours
 
 **v0.2 Velocity:**
-- Plans completed: 2
+- Plans completed: 3
 - Average duration: 4 min
-- Total execution time: 8 min
+- Total execution time: 11 min
 
 ## Accumulated Context
 
@@ -42,6 +42,9 @@ All v0.1 decisions archived in PROJECT.md Key Decisions table.
 | 01 | 01 | Manual migration creation | drizzle-kit generate blocked by stale snapshot; manual creation also fixes snapshot |
 | 01 | 02 | Store unchanged for format passthrough | leagueData body passthrough and response spread naturally include format |
 | 01 | 02 | Fixed error handler to re-throw 4xx errors | Pre-existing bug: catch block swallowed validation errors as 500 |
+| 01 | 03 | Auto-discover leagues with explicit ID fallback | Dev DB has multiple leagues per system; --league-40k=ID --league-ow=ID override |
+| 01 | 03 | Exclude format column from discovery query | Migration 0023 may not be applied yet; column doesn't exist in DB |
+| 01 | 03 | 100% painting threshold for CP bonus | All models painted across all units = fully painted army |
 
 ### Pending Todos
 
@@ -55,10 +58,10 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-06T19:53Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-02-06T19:54Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None
 
 ---
 *State initialized: 2026-02-05*
-*Last updated: 2026-02-06 — completed 01-02 (format selection in league creation)*
+*Last updated: 2026-02-06 — completed 01-03 (format migration script)*
