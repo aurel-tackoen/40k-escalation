@@ -19,7 +19,7 @@ All **7 composables** successfully implemented with **zero errors**!
 
 ## ⭐ Medium-Priority Composables (Just Completed!)
 
-5. **useRoundLookup** - 7 functions - Used in 1 component
+5. **usePhaseLookup** - 7 functions - Used in 1 component
 6. **useConfirmation** - 5 functions - Used in 2 components
 7. **useArmyManagement** - 9 functions - Used in 1 component
 
@@ -48,7 +48,7 @@ Uses **6 composables** (the most!)
 - ✅ usePaintingStats
 - ✅ usePlayerLookup
 - ✅ useFormatting
-- ✅ useRoundLookup
+- ✅ usePhaseLookup
 - ✅ useConfirmation
 - ✅ useArmyManagement
 
@@ -80,7 +80,7 @@ Uses **3 composables**
 - ✅ `/app/composables/usePlayerLookup.js`
 - ✅ `/app/composables/useFormatting.js`
 - ✅ `/app/composables/usePlayerStats.js`
-- ⭐ `/app/composables/useRoundLookup.js` - NEW
+- ⭐ `/app/composables/usePhaseLookup.js` - NEW
 - ⭐ `/app/composables/useConfirmation.js` - NEW
 - ⭐ `/app/composables/useArmyManagement.js` - NEW
 

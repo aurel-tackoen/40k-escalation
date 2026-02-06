@@ -303,7 +303,7 @@ await leaguesStore.addMatch({ player1Id, player2Id, ... })
 // Calls: POST /api/matches with { ..., leagueId: currentLeagueId }
 
 // Army operations
-await leaguesStore.saveArmy({ playerId, round, units, ... })
+await leaguesStore.saveArmy({ playerId, phase, units, ... })
 // Calls: POST /api/armies with { ..., leagueId: currentLeagueId }
 ```
 
@@ -323,7 +323,7 @@ await leaguesStore.createLeague({
   startDate: '2025-02-01',
   isPublic: true,
   joinPassword: 'secret123',
-  rounds: [
+  phases: [
     { number: 1, name: '500 Points', pointLimit: 500, ... }
   ]
 })
@@ -337,7 +337,7 @@ await leaguesStore.leaveLeague()
 // Update league settings (owner/organizer)
 await leaguesStore.updateLeague({
   name: 'Updated Name',
-  currentRound: 2
+  currentPhase: 2
 })
 
 // Delete league (owner only)
