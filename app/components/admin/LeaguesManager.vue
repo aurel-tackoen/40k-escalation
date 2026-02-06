@@ -24,15 +24,15 @@
     gameSystemId: null,
     status: 'active',
     isPrivate: false,
-    currentRound: 1,
+    currentPhase: 1,
     maxPlayers: null,
     rules: ''
   })
 
-  // Round edit modal state
-  const showRoundModal = ref(false)
-  const editingRound = ref(null)
-  const roundForm = ref({
+  // Phase edit modal state
+  const showPhaseModal = ref(false)
+  const editingPhase = ref(null)
+  const phaseForm = ref({
     id: null,
     number: 1,
     name: '',
@@ -149,7 +149,7 @@
       gameSystemId: league.gameSystemId,
       status: league.status,
       isPrivate: league.isPrivate,
-      currentRound: league.currentPhase,
+      currentPhase: league.currentPhase,
       maxPlayers: league.maxPlayers,
       rules: league.rules || ''
     }
@@ -166,7 +166,7 @@
       gameSystemId: null,
       status: 'active',
       isPrivate: false,
-      currentRound: 1,
+      currentPhase: 1,
       maxPlayers: null,
       rules: ''
     }
@@ -191,7 +191,7 @@
           gameSystemId: editForm.value.gameSystemId,
           status: editForm.value.status,
           isPrivate: editForm.value.isPrivate,
-          currentRound: editForm.value.currentRound,
+          currentPhase: editForm.value.currentPhase,
           maxPlayers: editForm.value.maxPlayers || null
         }
       })
@@ -257,24 +257,24 @@
     }
   }
 
-  // Round modal functions
-  const openRoundModal = (round) => {
-    editingRound.value = round
-    roundForm.value = {
-      id: round.id,
-      number: round.number,
-      name: round.name,
-      pointLimit: round.pointLimit,
-      startDate: round.startDate,
-      endDate: round.endDate
+  // Phase modal functions
+  const openPhaseModal = (phase) => {
+    editingPhase.value = phase
+    phaseForm.value = {
+      id: phase.id,
+      number: phase.number,
+      name: phase.name,
+      pointLimit: phase.pointLimit,
+      startDate: phase.startDate,
+      endDate: phase.endDate
     }
-    showRoundModal.value = true
+    showPhaseModal.value = true
   }
 
-  const closeRoundModal = () => {
-    showRoundModal.value = false
-    editingRound.value = null
-    roundForm.value = {
+  const closePhaseModal = () => {
+    showPhaseModal.value = false
+    editingPhase.value = null
+    phaseForm.value = {
       id: null,
       number: 1,
       name: '',
@@ -284,25 +284,25 @@
     }
   }
 
-  const saveRound = async () => {
+  const savePhase = async () => {
     try {
-      await $fetch(`/api/admin/rounds/${roundForm.value.id}`, {
+      await $fetch(`/api/admin/phases/${phaseForm.value.id}`, {
         method: 'PUT',
         body: {
-          number: roundForm.value.number,
-          name: roundForm.value.name,
-          pointLimit: roundForm.value.pointLimit,
-          startDate: roundForm.value.startDate,
-          endDate: roundForm.value.endDate
+          number: phaseForm.value.number,
+          name: phaseForm.value.name,
+          pointLimit: phaseForm.value.pointLimit,
+          startDate: phaseForm.value.startDate,
+          endDate: phaseForm.value.endDate
         }
       })
 
       toastSuccess('Phase updated successfully')
-      closeRoundModal()
+      closePhaseModal()
       fetchLeagues()
     } catch (error) {
-      console.error('Error saving round:', error)
-      toastError('Failed to save round')
+      console.error('Error saving phase:', error)
+      toastError('Failed to save phase')
     }
   }
 
@@ -636,7 +636,7 @@
             <button
               v-for="phase in league.phases"
               :key="phase.id"
-              @click="openRoundModal(phase)"
+              @click="openPhaseModal(phase)"
               class="w-full bg-gray-700 rounded p-4 text-left hover:bg-gray-600 transition-colors cursor-pointer"
             >
               <div class="flex items-center justify-between mb-2">
@@ -756,7 +756,7 @@
           <div>
             <label class="admin-label">Current Phase</label>
             <input
-              v-model.number="editForm.currentRound"
+              v-model.number="editForm.currentPhase"
               type="number"
               min="1"
               required
@@ -801,18 +801,18 @@
       </form>
     </AdminModal>
 
-    <!-- Round Edit Modal -->
+    <!-- Phase Edit Modal -->
     <AdminModal
-      :isOpen="showRoundModal"
+      :isOpen="showPhaseModal"
       title="Edit Phase"
-      @close="closeRoundModal"
+      @close="closePhaseModal"
     >
-      <form @submit.prevent="saveRound" class="space-y-4">
+      <form @submit.prevent="savePhase" class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="admin-label">Phase Number</label>
             <input
-              v-model.number="roundForm.number"
+              v-model.number="phaseForm.number"
               type="number"
               min="1"
               required
@@ -823,7 +823,7 @@
           <div>
             <label class="admin-label">Point Limit</label>
             <input
-              v-model.number="roundForm.pointLimit"
+              v-model.number="phaseForm.pointLimit"
               type="number"
               min="1"
               required
@@ -835,7 +835,7 @@
         <div>
           <label class="admin-label">Phase Name</label>
           <input
-            v-model="roundForm.name"
+            v-model="phaseForm.name"
             type="text"
             required
             class="admin-input"
@@ -847,7 +847,7 @@
           <div>
             <label class="admin-label">Start Date</label>
             <input
-              v-model="roundForm.startDate"
+              v-model="phaseForm.startDate"
               type="date"
               required
               class="admin-input"
@@ -857,7 +857,7 @@
           <div>
             <label class="admin-label">End Date</label>
             <input
-              v-model="roundForm.endDate"
+              v-model="phaseForm.endDate"
               type="date"
               required
               class="admin-input"
@@ -866,7 +866,7 @@
         </div>
 
         <div class="flex gap-3 pt-4">
-          <button type="button" @click="closeRoundModal" class="admin-btn-neutral">
+          <button type="button" @click="closePhaseModal" class="admin-btn-neutral">
             <X class="w-4 h-4" />
             Cancel
           </button>

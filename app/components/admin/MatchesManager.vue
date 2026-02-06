@@ -505,7 +505,7 @@
         <!-- Content Section -->
         <div class="px-6 py-4">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- League & Round Info -->
+            <!-- League & Phase Info -->
             <div class="space-y-3">
               <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">League</div>
               <div class="flex items-center gap-2">

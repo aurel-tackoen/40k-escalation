@@ -41,29 +41,15 @@
   })
 
   // Reactive data
-  const ensureLeagueHasRoundsAndPhases = (league) => {
+  const ensureLeagueHasPhases = (league) => {
     if (!league || typeof league !== 'object') return league
-
-    const phasesArray = Array.isArray(league.phases) ? league.phases : null
-    const roundsArray = Array.isArray(league.rounds) ? league.rounds : null
-
-    // Prefer `phases` as the canonical source (API contract)
-    if (phasesArray) {
-      league.rounds = phasesArray
-      return league
+    if (!Array.isArray(league.phases)) {
+      league.phases = []
     }
-
-    if (roundsArray) {
-      league.phases = roundsArray
-      return league
-    }
-
-    league.phases = []
-    league.rounds = league.phases
     return league
   }
 
-  const editableLeague = ref(ensureLeagueHasRoundsAndPhases(normalizeDates(props.league)))
+  const editableLeague = ref(ensureLeagueHasPhases(normalizeDates(props.league)))
   const shareUrl = ref('')
   const isGeneratingUrl = ref(false)
   const urlCopied = ref(false)
@@ -86,7 +72,7 @@
 
   // Watchers
   watch(() => props.league, (newLeague) => {
-    editableLeague.value = ensureLeagueHasRoundsAndPhases(normalizeDates(newLeague))
+    editableLeague.value = ensureLeagueHasPhases(normalizeDates(newLeague))
     // Set default rules if none exist
     if (!editableLeague.value.rules && generatedRules.value) {
       editableLeague.value.rules = generatedRules.value
@@ -102,10 +88,7 @@
 
   // Methods
   const saveLeague = () => {
-    // Normalize + sort phases (and keep `rounds` alias in sync for the UI)
-    ensureLeagueHasRoundsAndPhases(editableLeague.value)
-    const phasesToSort = editableLeague.value.phases
-    phasesToSort.sort((a, b) => a.number - b.number)
+    const phasesToSort = [...(editableLeague.value.phases || [])].sort((a, b) => a.number - b.number)
 
     emit('update-league', {
       ...editableLeague.value,
@@ -114,43 +97,50 @@
     toastSuccess('League settings saved successfully!')
   }
 
-  const addRound = () => {
-    const newRoundNumber = Math.max(...editableLeague.value.rounds.map(r => r.number)) + 1
-    const lastRound = editableLeague.value.rounds[editableLeague.value.rounds.length - 1]
+  const addPhase = () => {
+    const existingPhases = editableLeague.value.phases || []
+    const newPhaseNumber = existingPhases.length > 0
+      ? Math.max(...existingPhases.map(p => p.number)) + 1
+      : 1
+
+    const lastPhase = existingPhases.length > 0 ? existingPhases[existingPhases.length - 1] : null
 
     // Calculate next point limit (add 500-1000 points)
-    const nextPointLimit = lastRound.pointLimit + (lastRound.pointLimit < 1000 ? 500 : 1000)
+    const lastPointLimit = lastPhase?.pointLimit || 500
+    const nextPointLimit = lastPointLimit + (lastPointLimit < 1000 ? 500 : 1000)
 
-    // Set start date to day after last round ends
-    const startDate = new Date(lastRound.endDate)
-    startDate.setDate(startDate.getDate() + 1)
+    // Set start date to day after last phase ends (or today if missing)
+    const startDate = new Date(lastPhase?.endDate || new Date())
+    if (lastPhase?.endDate) {
+      startDate.setDate(startDate.getDate() + 1)
+    }
 
     // Set end date to 4 weeks later
     const endDate = new Date(startDate)
     endDate.setDate(endDate.getDate() + 28)
 
-    editableLeague.value.rounds.push({
-      number: newRoundNumber,
-      name: `Phase ${newRoundNumber}`,
+    editableLeague.value.phases.push({
+      number: newPhaseNumber,
+      name: `Phase ${newPhaseNumber}`,
       pointLimit: nextPointLimit,
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0]
     })
   }
 
-  const removeRound = (index) => {
-    if (editableLeague.value.rounds.length > 1) {
-      editableLeague.value.rounds.splice(index, 1)
+  const removePhase = (index) => {
+    if (editableLeague.value.phases.length > 1) {
+      editableLeague.value.phases.splice(index, 1)
 
-      // Renumber remaining rounds
-      editableLeague.value.rounds.forEach((round, i) => {
-        round.number = i + 1
+      // Renumber remaining phases
+      editableLeague.value.phases.forEach((phase, i) => {
+        phase.number = i + 1
       })
 
       // Ensure current phase is valid
-      const maxRound = Math.max(...editableLeague.value.rounds.map(r => r.number))
-      if (editableLeague.value.currentPhase > maxRound) {
-        editableLeague.value.currentPhase = maxRound
+      const maxPhase = Math.max(...editableLeague.value.phases.map(p => p.number))
+      if (editableLeague.value.currentPhase > maxPhase) {
+        editableLeague.value.currentPhase = maxPhase
       }
     }
   }
@@ -341,8 +331,8 @@
           <div class="md:col-span-2">
             <label class="block text-sm font-semibold text-yellow-500 mb-2">Current Phase</label>
             <select v-model.number="editableLeague.currentPhase" class="input-field">
-              <option v-for="round in editableLeague.rounds" :key="round.number" :value="round.number">
-                Phase {{ round.number }} - {{ round.name }}
+              <option v-for="phase in editableLeague.phases" :key="phase.number" :value="phase.number">
+                Phase {{ phase.number }} - {{ phase.name }}
               </option>
             </select>
           </div>
@@ -519,21 +509,21 @@
       </div>
     </div>
 
-    <!-- Round Configuration -->
+    <!-- Phase Configuration -->
     <div class="card">
       <h3 class="text-2xl font-serif font-bold text-yellow-500 mb-6">Phase Configuration</h3>
 
       <div class="space-y-4">
         <div
-          v-for="(round, index) in editableLeague.rounds"
-          :key="round.number"
+          v-for="(phase, index) in editableLeague.phases"
+          :key="phase.number"
           class="bg-gray-700 border border-gray-600 rounded-lg p-4"
         >
           <div class="flex items-center justify-between mb-4">
-            <h4 class="text-lg font-semibold text-yellow-500">Phase {{ round.number }}</h4>
+            <h4 class="text-lg font-semibold text-yellow-500">Phase {{ phase.number }}</h4>
             <button
-              v-if="editableLeague.rounds.length > 1"
-              @click="removeRound(index)"
+              v-if="editableLeague.phases.length > 1"
+              @click="removePhase(index)"
               class="text-red-400 hover:text-red-300 transition-colors cursor-pointer"
               title="Remove Phase"
             >
@@ -545,17 +535,17 @@
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">Phase Name</label>
               <input
-                v-model="round.name"
+                v-model="phase.name"
                 type="text"
                 required
                 class="input-field"
-                :placeholder="placeholders.roundName"
+                :placeholder="placeholders.phaseName"
               />
             </div>
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">Point Limit</label>
               <input
-                v-model.number="round.pointLimit"
+                v-model.number="phase.pointLimit"
                 type="number"
                 min="500"
                 max="3000"
@@ -568,7 +558,7 @@
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">Start Date</label>
               <input
-                v-model="round.startDate"
+                v-model="phase.startDate"
                 type="date"
                 required
                 class="input-field cursor-pointer"
@@ -578,7 +568,7 @@
             <div>
               <label class="block text-sm font-semibold text-yellow-500 mb-2">End Date</label>
               <input
-                v-model="round.endDate"
+                v-model="phase.endDate"
                 type="date"
                 required
                 class="input-field cursor-pointer"
@@ -594,7 +584,7 @@
           <span>Save Phase Settings</span>
         </button>
 
-        <button @click="addRound" type="button" class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto">
+        <button @click="addPhase" type="button" class="btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto">
           <Plus :size="18" class="flex-shrink-0" />
           <span>Add New Phase</span>
         </button>

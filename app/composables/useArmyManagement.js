@@ -2,7 +2,7 @@
  * Composable for army management operations
  * Provides reusable functions for army-related business logic
  */
-export function useArmyManagement(armies, rounds) {
+export function useArmyManagement(armies, phases) {
   /**
    * Calculate total points for an army's units
    * @param {Array<Object>} units - Array of unit objects with points
@@ -35,7 +35,7 @@ export function useArmyManagement(armies, rounds) {
     if (!army) return false
 
     const nextPhase = army.phase + 1
-    const hasNextPhase = rounds.value?.some(r => r.number === nextPhase)
+    const hasNextPhase = phases.value?.some(p => p.number === nextPhase)
     const hasNextPhaseArmy = armies.value?.some(a =>
       a.playerId === army.playerId && a.phase === nextPhase
     )
@@ -79,11 +79,9 @@ export function useArmyManagement(armies, rounds) {
     // Force consistent "Phase X" naming
     let baseName = army.name
 
-    // Remove any existing phase/round indicators to get base name
+    // Remove any existing phase indicators to get base name
     baseName = baseName.replace(/\s*-?\s*Phase \d+/i, '')
     baseName = baseName.replace(/\s*\(Phase \d+\)/i, '')
-    baseName = baseName.replace(/\s*-?\s*Round \d+/i, '')
-    baseName = baseName.replace(/\s*\(Round \d+\)/i, '')
     baseName = baseName.trim()
 
     // Always use "Phase X" format

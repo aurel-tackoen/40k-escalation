@@ -4,12 +4,12 @@ import { ref, computed } from 'vue'
  * Army form state management and operations
  * Handles army builder form state, unit management, and validation
  *
- * @param {Ref} rounds - Reactive reference to rounds array
+ * @param {Ref} phases - Reactive reference to phases array
  * @param {Function} calculateTotal - Function to calculate army total points
  * @param {Function} isValidArmy - Function to validate army against point limit
  * @returns {Object} Army form utilities
  */
-export function useArmyForm(rounds, calculateTotal, isValidArmy) {
+export function useArmyForm(phases, calculateTotal, isValidArmy) {
   const showBuilder = ref(false)
   const editingArmy = ref(false)
   const newlyAddedUnitId = ref(null)
@@ -29,8 +29,8 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
    */
   const currentPhaseLimit = computed(() => {
     if (!currentArmy.value.phase) return 0
-    const round = rounds.value.find(r => r.number === currentArmy.value.phase)
-    return round ? round.pointLimit : 0
+    const phase = phases.value.find(p => p.number === currentArmy.value.phase)
+    return phase ? phase.pointLimit : 0
   })
 
   /**
@@ -162,7 +162,7 @@ export function useArmyForm(rounds, calculateTotal, isValidArmy) {
   }
 
   /**
-   * Set up form for escalating an army to next round
+   * Set up form for escalating an army to next phase
    * @param {Object} army - Army to escalate
    * @param {Object} escalatedArmy - Pre-escalated army data
    */

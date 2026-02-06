@@ -4,12 +4,12 @@ A comprehensive web application for managing Warhammer 40K escalation league cam
 
 ## 🎮 Features
 
-- **League Management**: Configure multi-round escalation campaigns with point limits
+- **League Management**: Configure multi-phase escalation campaigns with point limits
 - **Player Tracking**: Add players, track wins/losses, and maintain standings
 - **Army Lists**: Build and manage army lists with unit tracking and point validation
 - **Match Recording**: Record battle results with points and outcomes
-- **Dashboard**: View league standings, statistics, and current round information
-- **Army Escalation**: Copy armies between rounds and escalate existing lists
+- **Dashboard**: View league standings, statistics, and current phase information
+- **Army Escalation**: Copy armies between phases and escalate existing lists
 
 ## 🛠️ Technology Stack
 
@@ -116,21 +116,21 @@ If your app uses environment variables, configure them in Netlify:
 
 ### Creating Army Lists
 1. Go to the **Army Lists** tab
-2. Select a player and round
+2. Select a player and phase
 3. Add units with names, roles, and point costs
-4. Save the army list (validates against round point limit)
+4. Save the army list (validates against phase point limit)
 
 ### Recording Matches
 1. Visit the **Matches** tab
-2. Select two players and the round
+2. Select two players and the phase
 3. Enter battle points for each player
 4. Save the match (automatically updates player stats)
 
 ### League Configuration
 1. Access the **League Setup** tab
 2. Configure league name, description, and dates
-3. Define rounds with point limits and date ranges
-4. Set the current active round
+3. Define phases with point limits and date ranges
+4. Set the current active phase
 
 ## 🚀 Future Enhancements
 

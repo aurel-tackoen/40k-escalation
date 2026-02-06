@@ -22,7 +22,7 @@
     isPrivate: true, // Default to private league
     maxPlayers: null,
     rules: '', // Will be populated when game system is selected
-    rounds: [
+    phases: [
       {
         number: 1,
         name: '500 Points',
@@ -55,27 +55,27 @@
 
   const error = ref('')
   const loading = ref(false)
-  const showAutoRoundModal = ref(false)
+  const showAutoPhaseModal = ref(false)
 
   // Create Player Modal state
   const showCreatePlayerModal = ref(false)
   const createdLeagueName = ref('')
   const creatingPlayer = ref(false)
 
-  // Auto-round configuration
+  // Auto-phase configuration
   const autoConfig = reactive({
     startingPoints: 500,
     pointsStep: 500,
-    numberOfRounds: 4,
-    weeksPerRound: 4
+    numberOfPhases: 4,
+    weeksPerPhase: 4
   })
 
-  const addRound = () => {
-    const lastRound = form.rounds[form.rounds.length - 1]
-    const nextNumber = lastRound.number + 1
-    const nextLimit = lastRound.pointLimit + 500
+  const addPhase = () => {
+    const lastPhase = form.phases[form.phases.length - 1]
+    const nextNumber = lastPhase.number + 1
+    const nextLimit = lastPhase.pointLimit + 500
 
-    form.rounds.push({
+    form.phases.push({
       number: nextNumber,
       name: `${nextLimit} Points`,
       pointLimit: nextLimit,
@@ -84,77 +84,77 @@
     })
   }
 
-  const removeRound = (index) => {
-    if (form.rounds.length > 1) {
-      form.rounds.splice(index, 1)
-      // Renumber remaining rounds
-      form.rounds.forEach((round, idx) => {
-        round.number = idx + 1
+  const removePhase = (index) => {
+    if (form.phases.length > 1) {
+      form.phases.splice(index, 1)
+      // Renumber remaining phases
+      form.phases.forEach((phase, idx) => {
+        phase.number = idx + 1
       })
       // Update league end date
       updateLeagueEndDate()
     }
   }
 
-  // Auto-update league end date based on rounds
+  // Auto-update league end date based on phases
   const updateLeagueEndDate = () => {
-    if (form.rounds.length > 0) {
-      const roundsWithDates = form.rounds.filter(r => r.endDate)
-      if (roundsWithDates.length > 0) {
+    if (form.phases.length > 0) {
+      const phasesWithDates = form.phases.filter(p => p.endDate)
+      if (phasesWithDates.length > 0) {
         // Find the latest end date
-        const latestEndDate = roundsWithDates.reduce((latest, round) => {
-          return round.endDate > latest ? round.endDate : latest
-        }, roundsWithDates[0].endDate)
+        const latestEndDate = phasesWithDates.reduce((latest, phase) => {
+          return phase.endDate > latest ? phase.endDate : latest
+        }, phasesWithDates[0].endDate)
         form.endDate = latestEndDate
       }
     }
   }
 
-  // Watch for changes in round dates to auto-update league end date
-  watch(() => form.rounds.map(r => r.endDate), () => {
+  // Watch for changes in phase dates to auto-update league end date
+  watch(() => form.phases.map(p => p.endDate), () => {
     updateLeagueEndDate()
   }, { deep: true })
 
-  const generateAutoRounds = () => {
+  const generateAutoPhases = () => {
     if (!form.startDate || form.startDate === '') {
       error.value = 'Please set a league start date first'
-      showAutoRoundModal.value = false
+      showAutoPhaseModal.value = false
       return
     }
 
     const startDate = new Date(form.startDate)
-    const generatedRounds = []
+    const generatedPhases = []
     let currentDate = new Date(startDate)
     let currentPoints = autoConfig.startingPoints
 
-    for (let i = 0; i < autoConfig.numberOfRounds; i++) {
-      const roundStartDate = new Date(currentDate)
-      const roundEndDate = new Date(currentDate)
-      roundEndDate.setDate(roundEndDate.getDate() + (autoConfig.weeksPerRound * 7))
+    for (let i = 0; i < autoConfig.numberOfPhases; i++) {
+      const phaseStartDate = new Date(currentDate)
+      const phaseEndDate = new Date(currentDate)
+      phaseEndDate.setDate(phaseEndDate.getDate() + (autoConfig.weeksPerPhase * 7))
 
-      generatedRounds.push({
+      generatedPhases.push({
         number: i + 1,
         name: `${currentPoints} Points`,
         pointLimit: currentPoints,
-        startDate: roundStartDate.toISOString().split('T')[0],
-        endDate: roundEndDate.toISOString().split('T')[0]
+        startDate: phaseStartDate.toISOString().split('T')[0],
+        endDate: phaseEndDate.toISOString().split('T')[0]
       })
 
-      // Next round starts day after current ends
-      currentDate = new Date(roundEndDate)
+      // Next phase starts day after current ends
+      currentDate = new Date(phaseEndDate)
       currentDate.setDate(currentDate.getDate() + 1)
       currentPoints += autoConfig.pointsStep
     }
 
-    // Set league end date to last round's end
-    const lastRound = generatedRounds[generatedRounds.length - 1]
-    form.endDate = lastRound.endDate
+    // Set league end date to last phase's end
+    const lastPhase = generatedPhases[generatedPhases.length - 1]
+    form.endDate = lastPhase.endDate
 
-    // Update form rounds
-    form.rounds = generatedRounds
+    // Update form phases
+    form.phases = generatedPhases
 
     // Close modal
-    showAutoRoundModal.value = false
+    showAutoPhaseModal.value = false
     error.value = ''
   }
 
@@ -176,27 +176,27 @@
 
     // No additional validation needed for private leagues - invite codes are auto-generated
 
-    if (form.rounds.length === 0) {
-      error.value = 'At least one round is required'
+    if (form.phases.length === 0) {
+      error.value = 'At least one phase is required'
       return false
     }
 
-    // Validate rounds
-    for (const round of form.rounds) {
-      if (!round.name.trim()) {
-        error.value = `Phase ${round.number} name is required`
+    // Validate phases
+    for (const phase of form.phases) {
+      if (!phase.name.trim()) {
+        error.value = `Phase ${phase.number} name is required`
         return false
       }
-      if (!round.pointLimit || round.pointLimit <= 0) {
-        error.value = `Phase ${round.number} must have a valid point limit`
+      if (!phase.pointLimit || phase.pointLimit <= 0) {
+        error.value = `Phase ${phase.number} must have a valid point limit`
         return false
       }
-      if (!round.startDate) {
-        error.value = `Phase ${round.number} start date is required`
+      if (!phase.startDate) {
+        error.value = `Phase ${phase.number} start date is required`
         return false
       }
-      if (!round.endDate) {
-        error.value = `Phase ${round.number} end date is required`
+      if (!phase.endDate) {
+        error.value = `Phase ${phase.number} end date is required`
         return false
       }
     }
@@ -212,11 +212,11 @@
     error.value = ''
 
     try {
-      // Sanitize rounds data - convert empty strings to null
-      const sanitizedRounds = form.rounds.map(round => ({
-        ...round,
-        startDate: round.startDate || null,
-        endDate: round.endDate || null
+      // Sanitize phases data - convert empty strings to null
+      const sanitizedPhases = form.phases.map(phase => ({
+        ...phase,
+        startDate: phase.startDate || null,
+        endDate: phase.endDate || null
       }))
 
       // Create league
@@ -230,7 +230,7 @@
         isPrivate: form.isPrivate,
         maxPlayers: form.maxPlayers || null,
         rules: form.rules,
-        phases: sanitizedRounds
+        phases: sanitizedPhases
       })
 
       // Success - show create player modal
@@ -388,7 +388,7 @@
           </div>
           <div>
             <label class="block text-gray-300 font-semibold mb-2">
-              End Date <span class="text-gray-500">(auto-set from rounds)</span>
+              End Date <span class="text-gray-500">(auto-set from phases)</span>
             </label>
             <input
               v-model="form.endDate"
@@ -397,7 +397,7 @@
               disabled
             />
             <p class="text-xs text-gray-500 mt-1">
-              Will be automatically set to the last round's end date
+              Will be automatically set to the last phase's end date
             </p>
           </div>
         </div>
@@ -440,7 +440,7 @@
         </div>
       </div>
 
-      <!-- Rounds Section -->
+      <!-- Phases Section -->
       <div class="card space-y-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-gray-700 pb-3">
           <h2 class="text-2xl font-bold text-gray-100 flex items-center gap-2">
@@ -450,7 +450,7 @@
           <div class="flex gap-2 w-full sm:w-auto">
             <button
               type="button"
-              @click="showAutoRoundModal = true"
+              @click="showAutoPhaseModal = true"
               class="btn-primary text-sm flex items-center justify-center gap-2 flex-1 sm:flex-initial"
             >
               <Sparkles :size="16" />
@@ -458,7 +458,7 @@
             </button>
             <button
               type="button"
-              @click="addRound"
+              @click="addPhase"
               class="btn-login text-sm flex items-center justify-center gap-2 flex-1 sm:flex-initial"
             >
               <Plus :size="16" />
@@ -467,20 +467,20 @@
           </div>
         </div>
 
-        <!-- Rounds List -->
+        <!-- Phases List -->
         <div class="space-y-4">
           <div
-            v-for="(round, index) in form.rounds"
+            v-for="(phase, index) in form.phases"
             :key="index"
             class="bg-gray-800/50 border border-gray-700 rounded-lg p-4 space-y-4"
           >
             <!-- Phase Header -->
             <div class="flex justify-between items-center">
-              <h3 class="text-lg font-bold text-gray-100">Phase {{ round.number }}</h3>
+              <h3 class="text-lg font-bold text-gray-100">Phase {{ phase.number }}</h3>
               <button
-                v-if="form.rounds.length > 1"
+                v-if="form.phases.length > 1"
                 type="button"
-                @click="removeRound(index)"
+                @click="removePhase(index)"
                 class="text-red-400 hover:text-red-300 p-2"
                 title="Remove Phase"
               >
@@ -495,10 +495,10 @@
                   Phase Name <span class="text-red-400">*</span>
                 </label>
                 <input
-                  v-model="round.name"
+                  v-model="phase.name"
                   type="text"
                   class="input-field w-full"
-                  :placeholder="placeholders.roundName"
+                  :placeholder="placeholders.phaseName"
                   required
                 />
               </div>
@@ -507,7 +507,7 @@
                   Point Limit <span class="text-red-400">*</span>
                 </label>
                 <input
-                  v-model.number="round.pointLimit"
+                  v-model.number="phase.pointLimit"
                   type="number"
                   min="1"
                   class="input-field w-full"
@@ -520,7 +520,7 @@
                   Start Date <span class="text-red-400">*</span>
                 </label>
                 <input
-                  v-model="round.startDate"
+                  v-model="phase.startDate"
                   type="date"
                   class="input-field w-full cursor-pointer"
                   required
@@ -532,7 +532,7 @@
                   End Date <span class="text-red-400">*</span>
                 </label>
                 <input
-                  v-model="round.endDate"
+                  v-model="phase.endDate"
                   type="date"
                   class="input-field w-full cursor-pointer"
                   required
@@ -605,11 +605,11 @@
       </div>
     </form>
 
-    <!-- Auto-Generate Rounds Modal -->
+    <!-- Auto-Generate Phases Modal -->
     <div
-      v-if="showAutoRoundModal"
+      v-if="showAutoPhaseModal"
       class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
-      @click.self="showAutoRoundModal = false"
+      @click.self="showAutoPhaseModal = false"
     >
       <div class="bg-gray-800 rounded-lg max-w-md w-full border border-gray-700">
         <!-- Modal Header -->
@@ -619,7 +619,7 @@
             Auto-Generate Phases
           </h3>
           <button
-            @click="showAutoRoundModal = false"
+            @click="showAutoPhaseModal = false"
             class="text-gray-400 hover:text-gray-300"
           >
             <X :size="24" />
@@ -630,7 +630,7 @@
         <div class="p-6 space-y-6">
           <!-- Warning if no start date -->
           <div v-if="!form.startDate" class="bg-yellow-900/20 border border-yellow-500 text-yellow-300 px-4 py-3 rounded text-sm">
-            ⚠️ Please set a league start date in the Basic Information section before generating rounds.
+            ⚠️ Please set a league start date in the Basic Information section before generating phases.
           </div>
 
           <p class="text-gray-400 text-sm">
@@ -673,7 +673,7 @@
                 Number of Phases
               </label>
               <input
-                v-model.number="autoConfig.numberOfRounds"
+                v-model.number="autoConfig.numberOfPhases"
                 type="number"
                 min="1"
                 max="10"
@@ -687,7 +687,7 @@
                 Weeks per Phase
               </label>
               <input
-                v-model.number="autoConfig.weeksPerRound"
+                v-model.number="autoConfig.weeksPerPhase"
                 type="number"
                 min="1"
                 max="8"
@@ -706,14 +706,14 @@
         <div class="flex justify-end gap-3 border-t border-gray-700 p-6">
           <button
             type="button"
-            @click="showAutoRoundModal = false"
+            @click="showAutoPhaseModal = false"
             class="btn-secondary"
           >
             Cancel
           </button>
           <button
             type="button"
-            @click="generateAutoRounds"
+            @click="generateAutoPhases"
             class="btn-primary flex items-center gap-2"
             :disabled="!form.startDate"
             :class="{ 'opacity-50 cursor-not-allowed': !form.startDate }"

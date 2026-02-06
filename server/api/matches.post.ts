@@ -10,7 +10,7 @@ import { eq, and } from 'drizzle-orm'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    
+
     // Log request body for debugging
     console.log('Match creation request body:', JSON.stringify(body, null, 2))
 
@@ -205,7 +205,7 @@ export default defineEventHandler(async (event) => {
 
     // Return more detailed error in development
     const isDev = process.env.NODE_ENV === 'development'
-    
+
     throw createError({
       statusCode: error.statusCode || 500,
       statusMessage: isDev ? `Failed to create match: ${error.message}` : 'Failed to create match'

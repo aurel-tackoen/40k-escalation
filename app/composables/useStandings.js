@@ -178,10 +178,10 @@ export function useStandings(players, matches, leagueSettings) {
 
   /**
    * Calculate standings for a specific phase (or overall)
-   * @param {number|null} round - Phase number (null for overall)
+   * @param {number|null} phase - Phase number (null for overall)
    * @returns {Array} Sorted standings array with calculated stats
    */
-  const calculateStandings = (round = null) => {
+  const calculateStandings = (phase = null) => {
     const playersList = unref(players)
 
     // Calculate stats for each player
@@ -196,7 +196,7 @@ export function useStandings(players, matches, leagueSettings) {
         totalScored,
         sos,
         totalGames: player.wins + player.losses + player.draws,
-        round // Include round for context
+        phase // Include phase for context
       }
     })
 
@@ -214,11 +214,11 @@ export function useStandings(players, matches, leagueSettings) {
   /**
    * Get player rank in current standings
    * @param {number} playerId - Player ID
-   * @param {number|null} round - Phase number (null for overall)
+   * @param {number|null} phase - Phase number (null for overall)
    * @returns {number} Player rank (1-indexed)
    */
-  const getPlayerRank = (playerId, round = null) => {
-    const standings = calculateStandings(round)
+  const getPlayerRank = (playerId, phase = null) => {
+    const standings = calculateStandings(phase)
     const playerStanding = standings.find(p => p.id === playerId)
     return playerStanding?.rank || null
   }
@@ -226,11 +226,11 @@ export function useStandings(players, matches, leagueSettings) {
   /**
    * Get player statistics with all calculated values
    * @param {number} playerId - Player ID
-   * @param {number|null} round - Phase number (null for overall)
+   * @param {number|null} phase - Phase number (null for overall)
    * @returns {Object|null} Player stats object
    */
-  const getPlayerStats = (playerId, round = null) => {
-    const standings = calculateStandings(round)
+  const getPlayerStats = (playerId, phase = null) => {
+    const standings = calculateStandings(phase)
     return standings.find(p => p.id === playerId) || null
   }
 

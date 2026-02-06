@@ -41,8 +41,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Backward compatibility: older UI used `rounds` while API uses `phases`
-    const incomingPhases = body.phases ?? body.rounds
+    const incomingPhases = body.phases
 
     if (!incomingPhases || !Array.isArray(incomingPhases) || incomingPhases.length === 0) {
       throw createError({

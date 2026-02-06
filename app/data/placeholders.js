@@ -9,7 +9,7 @@ export const placeholders = {
     armyNameHint: '"Emperor\'s Fist - Phase 1", "Storm Wardens - 500pts"',
     armyExamples: '"Emperor\'s Fist", "The Crimson Crusade", "Task Force Omega"',
     unitName: 'e.g., Tactical Squad, Intercessor Squad',
-    roundName: 'e.g., Combat Patrol (500pts)',
+    phaseName: 'e.g., Combat Patrol (500pts)',
     scenarioObjective: 'Describe mission objective (e.g., "Purge the Enemy", "Take and Hold")'
   },
 
@@ -20,7 +20,7 @@ export const placeholders = {
     armyNameHint: '"Bloodbound Reavers - Phase 1", "Stormcast Eternals - 500pts"',
     armyExamples: '"Bloodbound Reavers", "The Golden Legion", "Nighthaunt Host"',
     unitName: 'e.g., Blood Warriors, Liberators',
-    roundName: 'e.g., Vanguard (500pts)',
+    phaseName: 'e.g., Vanguard (500pts)',
     scenarioObjective: 'Describe battleplan objective (e.g., "Steal the Prize", "Battle for the Pass")'
   },
 
@@ -31,7 +31,7 @@ export const placeholders = {
     armyNameHint: '"The Iron Legion - Phase 1", "Vampire Counts - 500pts"',
     armyExamples: '"The Iron Legion", "Skaven Horde", "High Elf Spearhost"',
     unitName: 'e.g., Spearmen Regiment, Black Knights',
-    roundName: 'e.g., Border Patrol (500pts)',
+    phaseName: 'e.g., Border Patrol (500pts)',
     scenarioObjective: 'Describe scenario objective (e.g., "Pitched Battle", "Border Dispute")'
   },
 
@@ -42,7 +42,7 @@ export const placeholders = {
     armyNameHint: '"Rangers of the North - Phase 1", "Mordor Orcs - 300pts"',
     armyExamples: '"Rangers of the North", "Moria Goblins", "Riders of Rohan"',
     unitName: 'e.g., Warriors of Minas Tirith, Uruk-hai Scouts',
-    roundName: 'e.g., Skirmish (300pts)',
+    phaseName: 'e.g., Skirmish (300pts)',
     scenarioObjective: 'e.g., "Control the Ring", "Defend the Village", "Escape the Caves"'
   },
 
@@ -53,7 +53,7 @@ export const placeholders = {
     armyNameHint: '"Sons of Horus 7th Company - Phase 1", "Imperial Fists - 500pts"',
     armyExamples: '"Sons of Horus 7th Company", "Death Guard Plague Marines", "Blood Angels Host"',
     unitName: 'e.g., Legion Tactical Squad, Cataphractii Terminators',
-    roundName: 'e.g., Zone Mortalis (500pts)',
+    phaseName: 'e.g., Zone Mortalis (500pts)',
     scenarioObjective: 'Describe mission objective (e.g., "Onslaught", "The Price of Betrayal")'
   }
 }
@@ -65,7 +65,7 @@ export const genericPlaceholders = {
   armyNameHint: '"My Army Name - Phase 1", "Battle Force - 500pts"',
   armyExamples: '"Strike Force Alpha", "The Warband", "Battle Group One"',
   unitName: 'e.g., Infantry Squad, Elite Unit',
-  roundName: 'e.g., 500 Points',
+  phaseName: 'e.g., 500 Points',
   scenarioObjective: 'Describe the scenario objective...'
 }
 

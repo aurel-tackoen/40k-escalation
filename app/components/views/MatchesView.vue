@@ -468,7 +468,7 @@
               :key="match.id"
               class="border-b border-gray-700 hover:bg-gray-700/30 transition-colors"
             >
-              <!-- Round -->
+              <!-- Phase -->
               <td class="py-3 px-4">
                 <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-semibold text-sm whitespace-nowrap">
                   Phase {{ match.phase }}
