@@ -1000,12 +1000,12 @@ export const useLeaguesStore = defineStore('leagues', {
     /**
      * Fetch pairings for current league
      */
-    async fetchPairings(round = null) {
+    async fetchPairings(phase = null) {
       if (!this.currentLeagueId) return
 
       try {
-        const url = round
-          ? `/api/pairings?leagueId=${this.currentLeagueId}&round=${round}`
+        const url = phase
+          ? `/api/pairings?leagueId=${this.currentLeagueId}&phase=${phase}`
           : `/api/pairings?leagueId=${this.currentLeagueId}`
 
         const response = await $fetch(url)
@@ -1019,9 +1019,9 @@ export const useLeaguesStore = defineStore('leagues', {
     },
 
     /**
-     * Generate pairings for a round
+     * Generate pairings for a phase
      */
-    async generatePairings(round, pairings) {
+    async generatePairings(phase, pairings) {
       if (!this.currentLeagueId) return
 
       try {
@@ -1029,7 +1029,7 @@ export const useLeaguesStore = defineStore('leagues', {
           method: 'POST',
           body: {
             leagueId: this.currentLeagueId,
-            round,
+            phase,
             pairings
           }
         })

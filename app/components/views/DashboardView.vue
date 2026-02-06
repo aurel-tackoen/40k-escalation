@@ -99,7 +99,7 @@
 
   const currentPhaseArmies = computed(() => {
     if (!props.league) return 0
-    return props.armies.filter(army => army.round === props.league.currentPhase).length
+    return props.armies.filter(army => army.phase === props.league.currentPhase).length
   })
 </script>
 
