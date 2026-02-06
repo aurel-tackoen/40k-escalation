@@ -87,52 +87,52 @@ Deferred to later milestones.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FMT-01 | — | Pending |
-| FMT-02 | — | Pending |
-| FMT-03 | — | Pending |
-| FMT-04 | — | Pending |
-| MTH-01 | — | Pending |
-| MTH-02 | — | Pending |
-| MTH-03 | — | Pending |
-| MTH-04 | — | Pending |
-| MTH-05 | — | Pending |
-| MTH-06 | — | Pending |
-| MTH-07 | — | Pending |
-| STD-01 | — | Pending |
-| STD-02 | — | Pending |
-| STD-03 | — | Pending |
-| STD-04 | — | Pending |
-| STD-05 | — | Pending |
-| STD-06 | — | Pending |
-| STD-07 | — | Pending |
-| OWP-01 | — | Pending |
-| OWP-02 | — | Pending |
-| OWP-03 | — | Pending |
-| OWP-04 | — | Pending |
-| OWP-05 | — | Pending |
-| OWP-06 | — | Pending |
-| OWP-07 | — | Pending |
-| CRU-01 | — | Pending |
-| CRU-02 | — | Pending |
-| CRU-03 | — | Pending |
-| CRU-04 | — | Pending |
-| CRU-05 | — | Pending |
-| CRU-06 | — | Pending |
-| CRU-07 | — | Pending |
-| CRU-08 | — | Pending |
-| APG-01 | — | Pending |
-| APG-02 | — | Pending |
-| APG-03 | — | Pending |
-| APG-04 | — | Pending |
-| APG-05 | — | Pending |
-| APG-06 | — | Pending |
-| APG-07 | — | Pending |
+| FMT-01 | Phase 6 | Pending |
+| FMT-02 | Phase 6 | Pending |
+| FMT-03 | Phase 6 | Pending |
+| FMT-04 | Phase 6 | Pending |
+| MTH-01 | Phase 7 | Pending |
+| MTH-02 | Phase 7 | Pending |
+| MTH-03 | Phase 7 | Pending |
+| MTH-04 | Phase 7 | Pending |
+| MTH-05 | Phase 7 | Pending |
+| MTH-06 | Phase 7 | Pending |
+| MTH-07 | Phase 7 | Pending |
+| STD-01 | Phase 8 | Pending |
+| STD-02 | Phase 8 | Pending |
+| STD-03 | Phase 8 | Pending |
+| STD-04 | Phase 8 | Pending |
+| STD-05 | Phase 8 | Pending |
+| STD-06 | Phase 8 | Pending |
+| STD-07 | Phase 8 | Pending |
+| OWP-01 | Phase 9 | Pending |
+| OWP-02 | Phase 9 | Pending |
+| OWP-03 | Phase 9 | Pending |
+| OWP-04 | Phase 9 | Pending |
+| OWP-05 | Phase 9 | Pending |
+| OWP-06 | Phase 9 | Pending |
+| OWP-07 | Phase 9 | Pending |
+| CRU-01 | Phase 10 | Pending |
+| CRU-02 | Phase 10 | Pending |
+| CRU-03 | Phase 10 | Pending |
+| CRU-04 | Phase 10 | Pending |
+| CRU-05 | Phase 10 | Pending |
+| CRU-06 | Phase 10 | Pending |
+| CRU-07 | Phase 10 | Pending |
+| CRU-08 | Phase 10 | Pending |
+| APG-01 | Phase 11 | Pending |
+| APG-02 | Phase 11 | Pending |
+| APG-03 | Phase 11 | Pending |
+| APG-04 | Phase 11 | Pending |
+| APG-05 | Phase 11 | Pending |
+| APG-06 | Phase 11 | Pending |
+| APG-07 | Phase 11 | Pending |
 
 **Coverage:**
 - v0.2 requirements: 40 total
-- Mapped to phases: 0
-- Unmapped: 40 ⚠️
+- Mapped to phases: 40
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 after initial definition*
+*Last updated: 2026-02-06 — traceability updated with v0.2 phase mappings*
