@@ -6,15 +6,15 @@ What it does
 
 Supports 5 game systems: 40k, Age of Sigmar, The Old World, MESBG, Horus Heresy
 
-League setup in minutes: name, dates, rounds, point limits
+League setup in minutes: name, dates, phases, point limits
 
-Player & army management: add players, build lists per round, validate points
+Player & army management: add players, build lists per phase, validate points
 
 Match recording tailored to each game (VPs, %/casualties for ToW, scenario objectives for MESBG)
 
 Standings & stats: win streaks, close/decisive games, head-to-head
 
-Painting tracker + leaderboard: unit progress, round averages, “fully painted” callouts
+Painting tracker + leaderboard: unit progress, phase averages, “fully painted” callouts
 
 Easy sharing: private join links for your league
 
@@ -150,7 +150,7 @@ app/                          # Nuxt 4 application directory
 │   ├── usePairings.js       # Pairing algorithms (11 functions) ⭐ NEW
 │   ├── usePlayerLookup.js   # Player data lookups (4 functions)
 │   ├── usePlayerStats.js    # Player statistics (6 functions)
-│   ├── useRoundLookup.js    # Round data access (5 functions)
+│   ├── usePhaseLookup.js    # Phase data access (7 functions)
 │   ├── useStandings.js      # Advanced standings with tiebreakers (10 functions) ⭐ NEW
 │   └── useUser.js           # User profile management (new)
 ├── data/                     # Static reference data (NEW: Multi-game system)
@@ -174,7 +174,7 @@ app/                          # Nuxt 4 application directory
     ├── auth.js              # Auth store (user, login, logout)
     └── leagues.js           # Multi-league Pinia store with pairing support (1000+ lines) ⭐ UPDATED
                             # New state: pairings[], leagueSettings
-                            # New getters: currentRoundPairings, unpairedPlayersCount, activePlayers
+                            # New getters: currentPhasePairings, unpairedPlayersCount, activePlayers
                             # New actions: fetchPairings, generatePairings, createManualPairing, deletePairing,
                             #              fetchLeagueSettings, updateLeagueSettings, togglePlayerActive
 
@@ -303,19 +303,13 @@ const { function1, function2 } = useComposableName(toRef(props, 'data'))
 Army validation, escalation, and point calculations
 - `calculateArmyTotal(units)` - Sum unit points
 - `isValidArmy(army, pointLimit)` - Validate against limit
-- `canEscalateArmy(army)` - Check if can copy to next round
-- `hasPreviousRoundArmy(playerId, round)` - Check for prior army
-- `getPreviousRoundArmy(playerId, round)` - Fetch prior army
-- `getArmyStatus(army, pointLimit)` - Get validation status
-- `getArmyStatusText(status)` - Human-readable status
-- `getArmyStatusClass(status)` - Tailwind color class
-- `getArmyIcon(status)` - Icon component for status
-- `calculateRemainingPoints(army, pointLimit)` - Points available
-- `getPlayerArmies(playerId)` - All armies for player
-- `getArmiesForRound(round)` - All armies in round
-- `hasArmyForRound(playerId, round)` - Check army exists
-- `sortArmiesByRound()` - Sort ascending by round
-- `sortArmiesByPlayer(players)` - Sort by player name
+- `canEscalateArmy(army)` - Check if can copy to next phase
+- `hasPreviousPhaseArmy(playerId, phase)` - Check for prior phase army
+- `getPreviousArmy(playerId, phase)` - Fetch prior phase army
+- `copyArmyToNextPhase(army, nextPhaseNumber)` - Copy army into next phase
+- `getPlayerArmies(playerId)` - All armies for player (sorted by phase)
+- `getPhaseArmies(phaseNumber)` - All armies in a phase
+- `getArmyComposition(army)` - Composition stats (units by type, averages)
 
 #### 2. **useArrayFiltering.js** (16 functions)
 Advanced filtering, sorting, and array operations
@@ -354,15 +348,16 @@ CSV export with custom formatting
 
 #### 5. **useFormatting.js** (9 functions)
 Date and number formatting
-- `formatDate(date, options)` - Flexible date formatting
-- `formatRelativeDate(date)` - "2 days ago" format
-- `formatNumber(number, decimals)` - Number with decimals
-- `formatPercentage(value, total, decimals)` - Calculate %
-- `formatPoints(points)` - Game points with formatting
-- `pluralize(count, singular, plural)` - Smart pluralization
-- `truncateText(text, length)` - Text truncation with ellipsis
-- `formatWinLossRecord(wins, losses, draws)` - "5-2-1" format
-- `formatRoundName(roundNumber)` - "Round 1" or custom
+- `formatDate(dateString, options)` - Flexible date formatting
+- `formatDateShort(dateString)` - Short date formatting
+- `formatDateLong(dateString)` - Long date formatting
+- `formatPoints(points)` - Points with formatting
+- `formatPercentage(value, decimals)` - Percentage formatting
+- `formatRecord(wins, losses, draws)` - Record formatting
+- `formatNumber(number)` - Number formatting
+- `formatScore(score1, score2)` - Score formatting
+- `formatDateForInput(date)` - Date input formatting (yyyy-MM-dd)
+- `normalizeDates(league)` - Normalize league + phase dates for inputs
 
 #### 6. **useFormManagement.js** (13 functions)
 Form state management and validation
@@ -438,26 +433,26 @@ Game-specific match validation and winner determination
 Painting progress calculations and visualization
 - `getUnitPaintPercentage(unit)` - Unit % painted
 - `getArmyPaintingStats(army)` - Army totals & %
-- `getPlayerPaintingStats(playerId, round, armies)` - Player stats
+- `getPlayerPaintingStats(playerId, phase, armies)` - Player stats
 - `getPaintProgressClass(percentage)` - Progress bar color
 - `getPaintStatusText(percentage)` - "Battle Ready", etc.
 - `isPaintingComplete(army)` - Check if 100%
-- `calculatePaintingLeaderboard(players, armies, round)` - Rankings
+- `calculatePaintingLeaderboard(players, armies, phase)` - Rankings
 - `getAverageArmyCompletion(armies)` - League-wide average
 
 #### 13. **usePairings.js** (11 functions) ⭐ NEW
 Pairing algorithms and BYE handling
-- `generateSwissPairings(players, matches, round)` - Swiss pairing algorithm (pairs similar records, avoids rematches)
-- `generateRandomPairings(players, round)` - Random shuffled pairings
-- `createManualPairing(player1Id, player2Id, round)` - Organizer-created pairing
-- `selectByePlayer(players, matches)` - Select player for BYE (fairness-based rotation)
-- `getActivePlayers(players, round)` - Filter active players for current round
-- `getUnpairedPlayers(players, pairings)` - Find players without pairings
-- `hasPlayedBefore(p1Id, p2Id, matches)` - Check for previous match
-- `getPreviousByes(playerId, pairings)` - Count player's BYEs
-- `isPairingValid(player1Id, player2Id, matches)` - Validate pairing (no rematches)
-- `formatPairingForDisplay(pairing, players)` - Format pairing for UI
-- `getPairingStatus(pairing, matches)` - Get pairing status (pending/completed)
+- `generateSwissPairings(phase, leagueId)` - Swiss pairing algorithm (pairs similar records, avoids rematches)
+- `generateRandomPairings(phase, leagueId)` - Random shuffled pairings
+- `createManualPairing(player1Id, player2Id, phase, leagueId)` - Organizer-created pairing (or BYE)
+- `getActivePlayers(phase)` - Filter active players for current phase
+- `getUnpairedPlayers(phase)` - Find active players without pairings
+- `createByePairing(playerId, phase, leagueId)` - Create BYE pairing object
+- `selectByePlayer(activePlayers, phase)` - Select player for BYE (fairness-based rotation)
+- `hasPairing(p1Id, p2Id, phase)` - Check if pairing already exists
+- `getPointsDifferential(playerId)` - Points differential (tiebreaker helper)
+- `suggestPairingMethod(phase)` - Suggest method based on settings
+- `validatePairing(p1Id, p2Id, phase)` - Validate pairing inputs
 
 #### 14. **usePlayerLookup.js** (4 functions)
 Player data access helpers
@@ -475,13 +470,15 @@ Player statistics and rankings
 - `getPlayerStats(playerId, matches)` - Detailed statistics
 - `comparePlayerStats(p1Id, p2Id, players, matches)` - Compare two
 
-#### 16. **useRoundLookup.js** (5 functions)
-Round data access and validation
-- `getRoundByNumber(roundNumber)` - Get round object
-- `getRoundName(roundNumber)` - Get round name
-- `getRoundPointLimit(roundNumber)` - Get point limit
-- `isValidRound(roundNumber)` - Check if round exists
-- `getCurrentRound()` - Get active round
+#### 16. **usePhaseLookup.js** (7 functions)
+Phase data access and validation
+- `getPhaseName(phaseNumber)` - Get phase name
+- `getPhaseLimit(phaseNumber)` - Get point limit
+- `getPhase(phaseNumber)` - Get phase object
+- `getCurrentPhase(league)` - Get active phase object
+- `phaseExists(phaseNumber)` - Check if phase exists
+- `getSortedPhases()` - Get phases sorted by number
+- `getPhaseByDate(date)` - Find phase by date
 
 #### 17. **useStandings.js** (10 functions) ⭐ NEW
 Advanced standings calculation with multi-level tiebreakers
@@ -563,21 +560,21 @@ Advanced standings calculation with multi-level tiebreakers
   gameSystemId: integer (FK -> game_systems.id) - REQUIRED game system
   startDate: date - Start date
   endDate: date - End date (optional)
-  currentRound: integer - Active round (default: 1)
+  currentPhase: integer - Active phase (default: 1)
   createdAt: timestamp - Creation timestamp
 }
 ```
 
-#### 6. **rounds** (Round Configuration)
+#### 6. **phases** (Phase Configuration)
 ```typescript
 {
   id: integer (PK, auto-increment)
   leagueId: integer (FK -> leagues.id)
-  number: integer - Round number (1, 2, 3...)
-  name: varchar(255) - Round name ("500 Points", etc.)
-  pointLimit: integer - Max points for round
-  startDate: date - Round start
-  endDate: date - Round end
+  number: integer - Phase number (1, 2, 3...)
+  name: varchar(255) - Phase name ("500 Points", etc.)
+  pointLimit: integer - Max points for phase
+  startDate: date - Phase start
+  endDate: date - Phase end
 }
 ```
 
@@ -598,8 +595,8 @@ Advanced standings calculation with multi-level tiebreakers
   
   // ⭐ NEW: Pairing system fields
   isActive: boolean - Active status for pairings (default: true)
-  joinedRound: integer - Round when player joined (default: 1)
-  leftRound: integer - Round when player left (optional, null if active)
+  joinedPhase: integer - Phase when player joined (default: 1)
+  leftPhase: integer - Phase when player left (optional, null if active)
 }
 ```
 
@@ -608,7 +605,7 @@ Advanced standings calculation with multi-level tiebreakers
 {
   id: integer (PK, auto-increment)
   leagueId: integer (FK -> leagues.id, optional)
-  round: integer - Round number
+  phase: integer - Phase number
   player1Id: integer (FK -> players.id)
   player2Id: integer (FK -> players.id)
   player1Points: integer - Player 1 battle points
@@ -645,7 +642,7 @@ Advanced standings calculation with multi-level tiebreakers
 {
   id: integer (PK, auto-increment)
   leagueId: integer (FK -> leagues.id) - League reference
-  round: integer - Round number
+  phase: integer - Phase number
   player1Id: integer (FK -> players.id) - First player
   player2Id: integer (FK -> players.id, optional) - Second player (null for BYE)
   matchId: integer (FK -> matches.id, optional) - Linked match result
@@ -664,17 +661,15 @@ Advanced standings calculation with multi-level tiebreakers
   leagueId: integer (FK -> leagues.id, unique) - One settings per league
   pairingMethod: varchar(50) - Default method: 'swiss', 'random', 'manual' (default: 'swiss')
   allowRematches: boolean - Allow repeat matchups (default: false)
-  autoAdvanceRound: boolean - Auto-advance after all matches complete (default: false)
-  defaultDueDateDays: integer - Default days until match due (default: 7)
-  byeRotation: varchar(50) - BYE assignment: 'fairest', 'bottom_standing', 'random' (default: 'fairest')
-  tiebreaker1: varchar(50) - 1st tiebreaker: 'wins', 'point_differential', 'sos', 'total_points' (default: 'wins')
-  tiebreaker2: varchar(50) - 2nd tiebreaker (default: 'point_differential')
-  tiebreaker3: varchar(50) - 3rd tiebreaker (default: 'sos')
-  tiebreaker4: varchar(50) - 4th tiebreaker (default: 'total_points')
-  useHeadToHead: boolean - Use H2H before other tiebreakers (default: true)
-  notifyOnPairing: boolean - Notify players when paired (default: false)
+  autoGeneratePairings: boolean - Auto-generate pairings (default: false)
+  tiebreakMethod: varchar(50) - Tiebreak method: 'points_differential', 'head_to_head', 'sos' (default: 'points_differential')
+  playoffEnabled: boolean - Enable playoffs (default: false)
+  playoffTopN: integer - Top N players in playoffs (default: 4)
+  allowMidLeagueJoins: boolean - Allow joins after phase 1 (default: true)
+  byeHandling: varchar(50) - BYE handling: 'auto', 'manual', 'rotate' (default: 'auto')
+  firstPhasePairingMethod: varchar(50) - Pairing method for phase 1 (default: 'manual')
+  subsequentPhaseMethod: varchar(50) - Pairing method for phase 2+ (default: 'swiss')
   createdAt: timestamp - Settings creation
-  updatedAt: timestamp - Last settings update
 }
 ```
 
@@ -682,8 +677,9 @@ Advanced standings calculation with multi-level tiebreakers
 ```typescript
 {
   id: integer (PK, auto-increment)
+  leagueId: integer (FK -> leagues.id)
   playerId: integer (FK -> players.id)
-  round: integer - Round number
+  phase: integer - Phase number
   name: varchar(255) - Army name
   totalPoints: integer - Total army points
   units: text - JSON string of units array
@@ -778,7 +774,7 @@ All endpoints follow RESTful conventions and return JSON. All **protected** endp
   ```json
   {
     "leagueId": 1,
-    "round": 1,
+    "phase": 1,
     "method": "swiss"  // "swiss", "random", or "manual"
   }
   ```
@@ -786,7 +782,7 @@ All endpoints follow RESTful conventions and return JSON. All **protected** endp
   ```json
   {
     "leagueId": 1,
-    "round": 1,
+    "phase": 1,
     "player1Id": 1,
     "player2Id": 2  // null for BYE
   }
@@ -815,7 +811,7 @@ All endpoints follow RESTful conventions and return JSON. All **protected** endp
   ```json
   {
     "leagueId": 1,
-    "round": 1,
+    "phase": 1,
     "player1Id": 1,
     "player2Id": 2,
     "player1Points": 85,
@@ -846,7 +842,7 @@ All endpoints follow RESTful conventions and return JSON. All **protected** endp
 
 **Key Features**:
 - Game system badge in header (NEW)
-- League info cards (current round, player count, armies, matches)
+- League info cards (current phase, player count, armies, matches)
 - Current standings table with W-L-D records
 - Recent matches list
 - Painting leaderboard widget (PaintingProgress component)
@@ -897,7 +893,7 @@ emit('delete-player', playerId)
 - `usePaintingStats` - Painting calculations
 - `usePlayerLookup` - Get player names
 - `useFormatting` - Format dates
-- `useRoundLookup` - Get round info
+- `usePhaseLookup` - Get phase info
 - `useConfirmation` - Delete confirmations
 - `useArmyManagement` - Army validation & escalation
 - `useArrayFiltering` - Filter & sort armies
@@ -907,9 +903,9 @@ emit('delete-player', playerId)
 - Army list builder with unit editor
 - **Users can only create armies for themselves** (security enforced)
 - **Organizers can create armies for any player** (role-based permissions)
-- Point validation against round limit
-- Army escalation (copy from previous round)
-- Advanced filtering (by player, round, status)
+- Point validation against phase limit
+- Army escalation (copy from previous phase)
+- Advanced filtering (by player, phase, status)
 - Status indicators (Valid/Invalid/Over Limit)
 - Painting progress tracking per unit
 - Export to CSV
@@ -920,7 +916,7 @@ emit('delete-player', playerId)
 {
   players: Array,
   armies: Array,
-  rounds: Array
+  phases: Array
 }
 ```
 
@@ -995,8 +991,8 @@ emit('delete-army', armyId)
 
 **Events Emitted**:
 ```javascript
-emit('generate-pairings', { round, method })
-emit('add-manual-pairing', { player1Id, player2Id, round })
+emit('generate-pairings', { phase, method })
+emit('add-manual-pairing', { player1Id, player2Id, phase })
 emit('delete-pairing', pairingId)
 ```
 
@@ -1016,7 +1012,7 @@ emit('delete-pairing', pairingId)
 - Dynamic faction dropdown (shows factions for current game system)
 - **Player Active/Inactive Toggle** ⭐ NEW
   - Play/Pause icon buttons (organizer/owner only)
-  - Visual inactive badge with "Left Round X" indicator
+  - Visual inactive badge with "Left Phase X" indicator
   - Confirmation modal for status changes
   - Excludes inactive players from future pairings
 - Player cards with faction, record, and painting progress
@@ -1033,14 +1029,14 @@ emit('toggle-player-status', playerId)
 ```
 
 ### 7. **LeagueSetupView.vue** (League Configuration)
-**Purpose**: Configure league settings and rounds
+**Purpose**: Configure league settings and phases
 
 **Key Features**:
 - League name, description, dates
-- Multiple rounds configuration
-- Point limits per round
-- Current round selector
-- Add/remove rounds dynamically
+- Multiple phases configuration
+- Point limits per phase
+- Current phase selector
+- Add/remove phases dynamically
 
 **Events Emitted**:
 ```javascript
@@ -1054,7 +1050,7 @@ emit('save-league', leagueData)
 ```javascript
 {
   leaderboard: Array,  // Pre-calculated by Pinia store
-  currentRound: Number
+  currentPhase: Number
 }
 ```
 
