@@ -8,38 +8,38 @@ Successfully implemented **3 medium-priority composables** and refactored **2 co
 
 ## 🎯 What Was Added
 
-### 1. **useRoundLookup**
-📁 `/app/composables/useRoundLookup.js`
+### 1. **usePhaseLookup**
+📁 `/app/composables/usePhaseLookup.js`
 
-**Purpose:** Centralized round data lookup utilities
+**Purpose:** Centralized phase data lookup utilities
 
 **Functions:**
-- `getRoundName(roundNumber)` → Get round name by number
-- `getRoundLimit(roundNumber)` → Get round point limit  
-- `getRound(roundNumber)` → Get complete round object
-- `getCurrentRound()` → Get current round object
-- `roundExists(roundNumber)` → Check if round exists
-- `getSortedRounds()` → Get rounds sorted by number
-- `getRoundByDate(date)` → Find round by date
+- `getPhaseName(phaseNumber)` → Get phase name by number
+- `getPhaseLimit(phaseNumber)` → Get phase point limit
+- `getPhase(phaseNumber)` → Get complete phase object
+- `getCurrentPhase()` → Get current phase object
+- `phaseExists(phaseNumber)` → Check if phase exists
+- `getSortedPhases()` → Get phases sorted by number
+- `getPhaseByDate(date)` → Find phase by date
 
 **Before:**
 ```javascript
 // ArmyListsView.vue - DUPLICATE
-const getRoundName = (roundNumber) => {
-  const round = props.rounds.find(r => r.number === roundNumber)
-  return round ? round.name : `Round ${roundNumber}`
+const getPhaseName = (phaseNumber) => {
+  const phase = props.phases.find(p => p.number === phaseNumber)
+  return phase ? phase.name : `Phase ${phaseNumber}`
 }
 
-const getRoundLimit = (roundNumber) => {
-  const round = props.rounds.find(r => r.number === roundNumber)
-  return round ? round.pointLimit : 0
+const getPhaseLimit = (phaseNumber) => {
+  const phase = props.phases.find(p => p.number === phaseNumber)
+  return phase ? phase.pointLimit : 0
 }
 ```
 
 **After:**
 ```javascript
 // ArmyListsView.vue - CLEAN
-const { getRoundName, getRoundLimit } = useRoundLookup(toRef(props, 'rounds'))
+const { getPhaseName, getPhaseLimit } = usePhaseLookup(toRef(props, 'phases'))
 ```
 
 **Impact:** 
@@ -108,12 +108,12 @@ const {
 **Functions:**
 - `calculateArmyTotal(units)` → Calculate total army points
 - `isValidArmy(army, pointLimit)` → Validate army against point limit
-- `canEscalateArmy(army)` → Check if army can escalate to next round
-- `hasPreviousRoundArmy(playerId, round)` → Check for previous round army
-- `getPreviousArmy(playerId, round)` → Get previous round army
-- `copyArmyToNextRound(army, nextRound)` → Copy army with updated round
+- `canEscalateArmy(army)` → Check if army can escalate to next phase
+- `hasPreviousPhaseArmy(playerId, phase)` → Check for previous phase army
+- `getPreviousArmy(playerId, phase)` → Get previous phase army
+- `copyArmyToNextPhase(army, nextPhaseNumber)` → Copy army with updated phase
 - `getPlayerArmies(playerId)` → Get all armies for a player
-- `getRoundArmies(roundNumber)` → Get all armies for a round
+- `getPhaseArmies(phaseNumber)` → Get all armies for a phase
 - `getArmyComposition(army)` → Get army composition statistics
 
 **Before:**
@@ -128,31 +128,31 @@ const calculateTotal = () => {
 
 const isValidArmy = computed(() => {
   return currentArmy.value.units.length > 0 &&
-    currentArmy.value.totalPoints <= currentRoundLimit.value &&
+    currentArmy.value.totalPoints <= currentPhaseLimit.value &&
     currentArmy.value.totalPoints > 0
 })
 
 const canEscalateArmy = (army) => {
-  const nextRound = army.round + 1
-  const hasNextRound = props.rounds.some(r => r.number === nextRound)
-  const hasNextRoundArmy = props.armies.some(a =>
-    a.playerId === army.playerId && a.round === nextRound
+  const nextPhase = army.phase + 1
+  const hasNextPhase = props.phases.some(p => p.number === nextPhase)
+  const hasNextPhaseArmy = props.armies.some(a =>
+    a.playerId === army.playerId && a.phase === nextPhase
   )
-  return hasNextRound && !hasNextRoundArmy
+  return hasNextPhase && !hasNextPhaseArmy
 }
 
 const escalateArmy = (army) => {
-  const nextRound = army.round + 1
-  const nextRoundData = props.rounds.find(r => r.number === nextRound)
+  const nextPhase = army.phase + 1
+  const nextPhaseData = props.phases.find(p => p.number === nextPhase)
   
-  if (nextRoundData) {
+  if (nextPhaseData) {
     currentArmy.value = {
       playerId: army.playerId,
-      round: nextRound,
-      name: `${army.name} (Round ${nextRound})`,
+      phase: nextPhase,
+      name: `${army.name} (Phase ${nextPhase})`,
       totalPoints: army.totalPoints,
       units: JSON.parse(JSON.stringify(army.units)),
-      isValid: army.totalPoints <= nextRoundData.pointLimit
+      isValid: army.totalPoints <= nextPhaseData.pointLimit
     }
     editingArmy.value = false
     showBuilder.value = true
@@ -167,10 +167,10 @@ const {
   calculateArmyTotal,
   isValidArmy: checkValidArmy,
   canEscalateArmy,
-  hasPreviousRoundArmy: checkPreviousRoundArmy,
+  hasPreviousPhaseArmy: checkPreviousPhaseArmy,
   getPreviousArmy,
-  copyArmyToNextRound
-} = useArmyManagement(toRef(props, 'armies'), toRef(props, 'rounds'))
+  copyArmyToNextPhase
+} = useArmyManagement(toRef(props, 'armies'), toRef(props, 'phases'))
 
 const calculateTotal = () => {
   currentArmy.value.totalPoints = calculateArmyTotal(currentArmy.value.units)
@@ -178,12 +178,12 @@ const calculateTotal = () => {
 }
 
 const isValidArmy = computed(() => {
-  return checkValidArmy(currentArmy.value, currentRoundLimit.value)
+  return checkValidArmy(currentArmy.value, currentPhaseLimit.value)
 })
 
 const escalateArmy = (army) => {
-  const nextRound = army.round + 1
-  currentArmy.value = copyArmyToNextRound(army, nextRound)
+  const nextPhase = army.phase + 1
+  currentArmy.value = copyArmyToNextPhase(army, nextPhase)
   editingArmy.value = false
   showBuilder.value = true
 }
@@ -205,7 +205,7 @@ const escalateArmy = (army) => {
 | usePlayerLookup | 5 | 3 | ~30 |
 | useFormatting | 8 | 3 | ~25 |
 | usePlayerStats | 9 | 2 | ~40 |
-| **useRoundLookup** ⭐ | 7 | 1 | ~15 |
+| **usePhaseLookup** ⭐ | 7 | 1 | ~15 |
 | **useConfirmation** ⭐ | 5 | 2 | ~20 |
 | **useArmyManagement** ⭐ | 9 | 1 | ~50 |
 | **TOTAL** | **48** | **4** | **~205** |
@@ -215,7 +215,7 @@ const escalateArmy = (army) => {
 | Component | Composables Used | Status |
 |-----------|------------------|--------|
 | DashboardView.vue | usePlayerLookup, useFormatting, usePlayerStats | ✅ Complete |
-| ArmyListsView.vue | usePaintingStats, usePlayerLookup, useFormatting, **useRoundLookup**, **useConfirmation**, **useArmyManagement** | ✅ Complete (6 composables!) |
+| ArmyListsView.vue | usePaintingStats, usePlayerLookup, useFormatting, **usePhaseLookup**, **useConfirmation**, **useArmyManagement** | ✅ Complete (6 composables!) |
 | MatchesView.vue | usePlayerLookup, useFormatting | ✅ Complete |
 | PlayersView.vue | usePaintingStats, usePlayerStats, **useConfirmation** | ✅ Complete |
 
@@ -231,7 +231,7 @@ This component received the most benefit from the medium-priority composables:
 1. usePaintingStats
 2. usePlayerLookup
 3. useFormatting
-4. useRoundLookup ⭐ NEW
+4. usePhaseLookup ⭐ NEW
 5. useConfirmation ⭐ NEW
 6. useArmyManagement ⭐ NEW
 
@@ -239,7 +239,7 @@ This component received the most benefit from the medium-priority composables:
 - 723 lines total
 - ~85 lines of duplicate/reusable logic
 - Complex army validation and escalation code
-- Manual round lookups
+- Manual phase lookups
 - Custom confirmation modal
 
 **After:**

@@ -43,51 +43,51 @@ export function usePlayerLookup(players) {
 
 ---
 
-## 2. **useRoundLookup** - Round Data Utilities
+## 2. **usePhaseLookup** - Phase Data Utilities
 
 **Duplicate Functions Found:**
-- `getRoundName(roundNumber)` - Found in ArmyListsView
-- `getRoundLimit(roundNumber)` - Found in ArmyListsView
-- Similar logic in DashboardView for `currentRound`
+- `getPhaseName(phaseNumber)` - Found in ArmyListsView
+- `getPhaseLimit(phaseNumber)` - Found in ArmyListsView
+- Similar logic in DashboardView for `currentPhase`
 
 **Suggested Composable:**
 ```js
-// app/composables/useRoundLookup.js
-export function useRoundLookup(rounds) {
-  const getRoundName = (roundNumber) => {
-    const round = rounds.value?.find(r => r.number === roundNumber)
-    return round ? round.name : `Round ${roundNumber}`
+// app/composables/usePhaseLookup.js
+export function usePhaseLookup(phases) {
+  const getPhaseName = (phaseNumber) => {
+    const phase = phases.value?.find(p => p.number === phaseNumber)
+    return phase ? phase.name : `Phase ${phaseNumber}`
   }
 
-  const getRoundLimit = (roundNumber) => {
-    const round = rounds.value?.find(r => r.number === roundNumber)
-    return round ? round.pointLimit : 0
+  const getPhaseLimit = (phaseNumber) => {
+    const phase = phases.value?.find(p => p.number === phaseNumber)
+    return phase ? phase.pointLimit : 0
   }
 
-  const getRound = (roundNumber) => {
-    return rounds.value?.find(r => r.number === roundNumber)
+  const getPhase = (phaseNumber) => {
+    return phases.value?.find(p => p.number === phaseNumber)
   }
 
-  const getCurrentRound = (league) => {
-    if (!league.value?.rounds || league.value.rounds.length === 0) {
+  const getCurrentPhase = (league) => {
+    if (!league.value?.phases || league.value.phases.length === 0) {
       return { name: 'N/A', pointLimit: 0, number: 1 }
     }
-    return league.value.rounds.find(r => r.number === league.value.currentRound) || league.value.rounds[0]
+    return league.value.phases.find(p => p.number === league.value.currentPhase) || league.value.phases[0]
   }
 
   return {
-    getRoundName,
-    getRoundLimit,
-    getRound,
-    getCurrentRound
+    getPhaseName,
+    getPhaseLimit,
+    getPhase,
+    getCurrentPhase
   }
 }
 ```
 
 **Benefits:**
-- Eliminates duplicate round lookups
-- Consistent round data access
-- Easy to extend with more round utilities
+- Eliminates duplicate phase lookups
+- Consistent phase data access
+- Easy to extend with more phase utilities
 
 ---
 
@@ -365,14 +365,14 @@ export function useArrayFiltering(items) {
 **Functions Found in ArmyListsView:**
 - `calculateTotal()`
 - `canEscalateArmy(army)`
-- `hasPreviousRoundArmy`
+- `hasPreviousPhaseArmy`
 - `getPreviousArmyUnits()`
 - `getPreviousArmyName()`
 
 **Suggested Composable:**
 ```js
 // app/composables/useArmyManagement.js
-export function useArmyManagement(armies, rounds) {
+export function useArmyManagement(armies, phases) {
   const calculateArmyTotal = (units) => {
     return units.reduce((sum, unit) => sum + (unit.points || 0), 0)
   }
@@ -384,35 +384,35 @@ export function useArmyManagement(armies, rounds) {
   }
 
   const canEscalateArmy = (army) => {
-    const nextRound = army.round + 1
-    const hasNextRound = rounds.value?.some(r => r.number === nextRound)
-    const hasNextRoundArmy = armies.value?.some(a =>
-      a.playerId === army.playerId && a.round === nextRound
+    const nextPhase = army.phase + 1
+    const hasNextPhase = phases.value?.some(p => p.number === nextPhase)
+    const hasNextPhaseArmy = armies.value?.some(a =>
+      a.playerId === army.playerId && a.phase === nextPhase
     )
-    return hasNextRound && !hasNextRoundArmy
+    return hasNextPhase && !hasNextPhaseArmy
   }
 
-  const hasPreviousRoundArmy = (playerId, round) => {
-    if (!playerId || !round) return false
+  const hasPreviousPhaseArmy = (playerId, phase) => {
+    if (!playerId || !phase) return false
     return armies.value?.some(army =>
-      army.playerId === playerId && army.round === round - 1
+      army.playerId === playerId && army.phase === phase - 1
     )
   }
 
-  const getPreviousArmy = (playerId, round) => {
+  const getPreviousArmy = (playerId, phase) => {
     return armies.value?.find(army =>
-      army.playerId === playerId && army.round === round - 1
+      army.playerId === playerId && army.phase === phase - 1
     )
   }
 
-  const copyArmyToNextRound = (army, nextRoundNumber) => {
+  const copyArmyToNextPhase = (army, nextPhaseNumber) => {
     return {
       playerId: army.playerId,
-      round: nextRoundNumber,
-      name: `${army.name} (Round ${nextRoundNumber})`,
+      phase: nextPhaseNumber,
+      name: `${army.name} (Phase ${nextPhaseNumber})`,
       totalPoints: army.totalPoints,
       units: JSON.parse(JSON.stringify(army.units)),
-      isValid: false // Needs validation in new round context
+      isValid: false // Needs validation in new phase context
     }
   }
 
@@ -420,9 +420,9 @@ export function useArmyManagement(armies, rounds) {
     calculateArmyTotal,
     isValidArmy,
     canEscalateArmy,
-    hasPreviousRoundArmy,
+    hasPreviousPhaseArmy,
     getPreviousArmy,
-    copyArmyToNextRound
+    copyArmyToNextPhase
   }
 }
 ```
@@ -573,7 +573,7 @@ export function useDataExport() {
 4. 🔥 **usePlayerStats** - Core statistics logic
 
 ### Medium Priority (Good Improvements)
-5. 📊 **useRoundLookup** - Centralizes round data access
+5. 📊 **usePhaseLookup** - Centralizes phase data access
 6. 🔧 **useArmyManagement** - Complex army logic
 7. 🎯 **useConfirmation** - Reusable modal pattern
 

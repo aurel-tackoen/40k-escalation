@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (!body.format) {
+if (!body.format) {
       throw createError({
         statusCode: 400,
         statusMessage: 'League format is required'

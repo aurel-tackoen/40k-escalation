@@ -64,7 +64,7 @@ New "Public Leagues" section displays:
 - **League cards** with:
   - League name and description
   - Member count (with max players if set)
-  - Current round
+  - Current phase
   - Status (active/completed/archived)
   - Start/end dates
   - **Join button** - Links to join flow
@@ -123,7 +123,7 @@ The system automatically:
       "description": "Open league for all players",
       "startDate": "2025-01-01",
       "endDate": "2025-12-31",
-      "currentRound": 3,
+      "currentPhase": 3,
       "status": "active",
       "maxPlayers": 50,
       "memberCount": 23

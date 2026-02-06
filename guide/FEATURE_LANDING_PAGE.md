@@ -80,7 +80,7 @@ const authStore = useAuthStore()
 
 3. **Public Leagues Section**
    - Browse active public leagues
-   - See member counts and current round
+  - See member counts and current phase
    - "Join League" button (links to login)
    - Option to create private league
 
@@ -127,7 +127,7 @@ const authStore = useAuthStore()
 const publicLeagues = await db
   .select({
     id, name, description, startDate, endDate,
-    currentRound, status, maxPlayers,
+    currentPhase, status, maxPlayers,
     memberCount: sql`(SELECT COUNT(*)::int FROM league_memberships WHERE leagueId = leagues.id)`
   })
   .from(leagues)
@@ -151,7 +151,7 @@ const publicLeagues = await db
       "id": 1,
       "name": "Weekly Campaign",
       "description": "Join our competitive league!",
-      "currentRound": 2,
+      "currentPhase": 2,
       "memberCount": 8,
       "startDate": "2025-01-01",
       "endDate": "2025-12-31",
@@ -179,7 +179,7 @@ const publicLeagues = await db
 3. Browse public leagues
     ├─ See league names
     ├─ See member counts
-    └─ See current rounds
+    └─ See current phases
     ↓
 4. Click "Join League" or "Create Account"
     ↓
@@ -251,7 +251,7 @@ Logged-out user:
   - Public badge
   - Description (2-line clamp)
   - Member count
-  - Current round
+  - Current phase
   - "Join League" button
 
 **Visual States**:
@@ -380,7 +380,7 @@ server/api/
     description: string | null
     startDate: string
     endDate: string | null
-    currentRound: number
+    currentPhase: number
     status: string
     maxPlayers: number | null
     memberCount: number

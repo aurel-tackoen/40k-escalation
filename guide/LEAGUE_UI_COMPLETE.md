@@ -20,7 +20,7 @@ Created complete user interface for multi-league management including league lis
 - ✅ Grid display of user's leagues with cards
 - ✅ Current league indicator (ring + badge)
 - ✅ Role badges (Owner/Organizer/Player)
-- ✅ League stats (members, round, points)
+- ✅ League stats (members, phase, points)
 - ✅ Quick switch by clicking card
 - ✅ Leave league button (non-owners)
 - ✅ Delete league button (owners only with double confirm)
@@ -57,22 +57,22 @@ handleDelete(leagueId) - Delete with double confirmation
    - Join password (required for private)
    - Max players (optional)
 
-3. **Rounds Configuration**
-   - Dynamic rounds builder
-   - Add/remove rounds
-   - Per-round fields:
-     - Round number (auto)
-     - Round name
+3. **Phases Configuration**
+    - Dynamic phases builder
+    - Add/remove phases
+    - Per-phase fields:
+       - Phase number (auto)
+       - Phase name
      - Point limit
      - Start/end dates
-   - Default: 1 round (500 points)
+    - Default: 1 phase (500 points)
 
 **Validation**:
 - ✅ League name required
 - ✅ Start date required
 - ✅ Password required for private leagues
-- ✅ At least 1 round required
-- ✅ All rounds must have name and point limit
+- ✅ At least 1 phase required
+- ✅ All phases must have name and point limit
 
 **Features**:
 - Real-time validation
@@ -82,8 +82,8 @@ handleDelete(leagueId) - Delete with double confirmation
 - Cancel button returns to /leagues
 
 **Smart Defaults**:
-- First round: "500 Points" @ 500pts
-- Each added round: +500pts from last round
+- First phase: "500 Points" @ 500pts
+- Each added phase: +500pts from last phase
 - Public league by default
 
 ### 3. `/pages/leagues/join.vue` - Join League Page
@@ -96,7 +96,7 @@ handleDelete(leagueId) - Delete with double confirmation
 - ✅ League cards with details:
   - Name & description
   - Member count (vs max players if set)
-  - Current round
+   - Current phase
   - Start date
   - Password required indicator
 - ✅ Password input (shows when password-protected league selected)
@@ -128,7 +128,7 @@ handleDelete(leagueId) - Delete with double confirmation
 - ✅ List of user's leagues with:
   - League name
   - Role emoji badge (👑 owner, ⚙️ organizer, 🎯 player)
-  - Current round number
+   - Current phase number
   - Checkmark for active league
 - ✅ "Create League" link
 - ✅ "Join League" link
@@ -300,7 +300,7 @@ useLeaguesStore: "readonly",  // Updated from useLeagueStore
 ### League Creation
 - ✅ Full-featured creation form
 - ✅ Privacy controls
-- ✅ Dynamic rounds builder
+- ✅ Dynamic phases builder
 - ✅ Validation & error handling
 - ✅ Smart defaults
 
@@ -318,7 +318,7 @@ useLeaguesStore: "readonly",  // Updated from useLeagueStore
 ### Manual Testing Needed
 - [ ] Create public league
 - [ ] Create private league with password
-- [ ] Add multiple rounds to league
+- [ ] Add multiple phases to league
 - [ ] Join public league
 - [ ] Join private league with password
 - [ ] Join private league with wrong password (should fail)

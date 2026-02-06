@@ -44,9 +44,9 @@ Run escalation leagues for **5 different Warhammer game systems** in one app:
 
 ### 📊 League Management
 - **Create multiple leagues** - Run separate campaigns for different game systems or groups
-- **Multi-round escalation** - Configure point limits per round (e.g., 500pts → 1000pts → 1500pts)
-- **Flexible scheduling** - Set start/end dates for leagues and individual rounds
-- **Current round tracking** - Automatically track which round is active
+- **Multi-phase escalation** - Configure point limits per phase (e.g., 500pts → 1000pts → 1500pts)
+- **Flexible scheduling** - Set start/end dates for leagues and individual phases
+- **Current phase tracking** - Automatically track which phase is active
 - **Share links** - Generate private invite links for your league (no manual player adds needed!)
 - **League visibility** - Create public leagues (anyone can join) or private (invite-only)
 
@@ -59,11 +59,11 @@ Run escalation leagues for **5 different Warhammer game systems** in one app:
 
 ### 🎨 Army List Builder
 - **Full army list creation** - Add units with names, roles, points, and model counts
-- **Point validation** - Real-time validation against round point limits
-- **Army escalation** - Copy armies from previous rounds and add new units
+- **Point validation** - Real-time validation against phase point limits
+- **Army escalation** - Copy armies from previous phases and add new units
 - **Unit painting tracking** - Track painted vs total models per unit
 - **Status indicators** - Visual badges for Valid/Invalid/Over Limit armies
-- **Advanced filtering** - Filter by player, round, or validation status
+- **Advanced filtering** - Filter by player, phase, or validation status
 - **Role-based permissions** - Players create their own armies, organizers can create for anyone
 
 ### ⚔️ Match Recording & Analytics
@@ -85,7 +85,7 @@ Run escalation leagues for **5 different Warhammer game systems** in one app:
 - **Match history** - Full searchable record with dates, missions, scores
 
 ### 📈 Dashboard & Standings
-- **League overview** - Quick stats (rounds, players, armies, matches)
+- **League overview** - Quick stats (phases, players, armies, matches)
 - **Current standings table** - Sortable by wins, losses, draws, total points
 - **Win/Loss/Draw records** - See everyone's record at a glance
 - **Recent matches** - Latest 5 battles with scores and winners
@@ -144,7 +144,7 @@ Export everything to CSV for external analysis or record-keeping:
 ## 📝 Quick Start (For Organizers)
 
 1. **Create a league** - Choose game system, set name & dates
-2. **Configure rounds** - Set point limits (500, 1000, 1500, etc.)
+2. **Configure phases** - Set point limits (500, 1000, 1500, etc.)
 3. **Share invite link** - Send to your players
 4. **Players join** - They create accounts and select factions
 5. **Players build armies** - Track units & painting progress

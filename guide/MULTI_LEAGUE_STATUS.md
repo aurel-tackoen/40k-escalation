@@ -60,7 +60,7 @@
 ## ✅ Phase 2: Backend API (PARTIAL)
 
 ### New Endpoints Created
-- ✅ `POST /api/leagues/create` - Create league with rounds
+- ✅ `POST /api/leagues/create` - Create league with phases
 - ✅ `POST /api/leagues/:id/join` - Join league with password
 - ✅ `POST /api/leagues/:id/leave` - Leave league
 - ✅ `GET /api/leagues/my` - Get user's leagues

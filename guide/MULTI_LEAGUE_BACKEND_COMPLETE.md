@@ -27,7 +27,7 @@ Completed full backend refactor to support multiple independent leagues with:
 - description
 - startDate
 - endDate
-- currentRound
+- currentPhase
 + createdBy (FK -> users.id) NOT NULL
 + isPublic (default true)
 + joinPassword (hashed with bcrypt)
@@ -55,7 +55,7 @@ Completed full backend refactor to support multiple independent leagues with:
 - id (PK)
 - playerId (FK -> players.id)
 + leagueId (FK -> leagues.id) NOT NULL CASCADE DELETE
-- round
+- phase
 - name
 - totalPoints
 - units (JSON)
@@ -92,7 +92,7 @@ UNIQUE (leagueId, userId)
 ### League Management (9 endpoints)
 
 #### **POST /api/leagues/create**
-Create new league with rounds and password
+Create new league with phases and password
 ```json
 // Request
 {
@@ -104,7 +104,7 @@ Create new league with rounds and password
   "isPublic": true,
   "joinPassword": "secret123",
   "maxPlayers": 20,
-  "rounds": [
+  "phases": [
     { "number": 1, "name": "500 Points", "pointLimit": 500, "startDate": "2025-02-01", "endDate": "2025-02-14" }
   ]
 }
@@ -112,16 +112,16 @@ Create new league with rounds and password
 // Response
 {
   "success": true,
-  "data": { league, rounds, membership }
+  "data": { league, phases, membership }
 }
 ```
 
 #### **GET /api/leagues**
-List all leagues (with rounds)
+List all leagues (with phases)
 ```json
 {
   "success": true,
-  "data": [{ ...league, rounds: [...] }],
+  "data": [{ ...league, phases: [...] }],
   "count": 1
 }
 ```
@@ -131,7 +131,7 @@ Get single league with details
 ```json
 {
   "success": true,
-  "data": { ...league, rounds: [...], memberCount: 5 }
+  "data": { ...league, phases: [...], memberCount: 5 }
 }
 ```
 
@@ -142,7 +142,7 @@ Update league settings (owner/organizer only)
 {
   "userId": 1,
   "name": "Updated Name",
-  "currentRound": 2,
+  "currentPhase": 2,
   "status": "completed"
 }
 
@@ -178,7 +178,7 @@ Get user's leagues with roles
       "name": "Autumn Escalation",
       "role": "owner",
       "joinedAt": "2025-01-15",
-      "rounds": [...]
+      "phases": [...]
     }
   ],
   "count": 1
@@ -305,7 +305,7 @@ Create/update army (requires leagueId)
 {
   "playerId": 1,
   "leagueId": 1,
-  "round": 1,
+  "phase": 1,
   "name": "Strike Force",
   "totalPoints": 500,
   "units": [
@@ -335,7 +335,7 @@ Record match (leagueId already supported)
 // Request
 {
   "leagueId": 1,
-  "round": 1,
+  "phase": 1,
   "player1Id": 1,
   "player2Id": 2,
   "player1Points": 85,
@@ -515,13 +515,13 @@ export const useLeaguesStore = defineStore('leagues', {
 
 #### **/pages/leagues.vue** - League List
 - Display myLeagues
-- Cards with league name, member count, current round
+- Cards with league name, member count, current phase
 - "Create League" button
 - "Join League" button
 
 #### **/pages/leagues/create.vue** - League Creation
 - Form with name, description, dates, password
-- Rounds builder
+- Phases builder
 - Public/private toggle
 - Max players setting
 
@@ -587,7 +587,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 - [ ] League statistics dashboard
 - [ ] Cross-league player profiles
 - [ ] League seasons (multiple campaigns under one league)
-- [ ] Advanced permissions (per-round organizers)
+- [ ] Advanced permissions (per-phase organizers)
 
 ---
 

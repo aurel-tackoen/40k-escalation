@@ -59,7 +59,7 @@ All critical user interactions now provide instant, non-blocking feedback throug
 | Save army | Success | "Army list saved successfully!" |
 | Delete army | Success | "{armyName} deleted successfully" |
 | Escalate army (no permission) | Error | "You do not have permission to escalate this army" |
-| Escalate army | Info | "Army escalated to Round {nextRound} - Ready to add units!" |
+| Escalate army | Info | "Army escalated to Phase {nextPhase} - Ready to add units!" |
 | Delete army (no permission) | Error | "You do not have permission to delete this army" |
 
 ### leagues/create.vue (2 toasts)

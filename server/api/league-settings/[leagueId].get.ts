@@ -41,8 +41,8 @@ export default defineEventHandler(async (event) => {
         playoffTopN: 4,
         allowMidLeagueJoins: true,
         byeHandling: 'auto',
-        firstRoundPairingMethod: 'manual',
-        subsequentRoundMethod: 'swiss'
+        firstPhasePairingMethod: 'manual',
+        subsequentPhaseMethod: 'swiss'
       }
 
       const [newSettings] = await db

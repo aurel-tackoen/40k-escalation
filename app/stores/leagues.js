@@ -1036,7 +1036,7 @@ export const useLeaguesStore = defineStore('leagues', {
         })
 
         if (response.success) {
-          // Refresh ALL pairings (not just the current round)
+          // Refresh ALL pairings (not just the current phase)
           await this.fetchPairings()
         }
 

@@ -12,10 +12,10 @@ Users were unable to delete armies. When clicking the delete button and confirmi
 
 ### Issue 1: Missing League ID in Delete Operation
 
-The `armies` table has a composite key that includes `leagueId`, `playerId`, and `round`. However, the delete operation was only using `playerId` and `round`, which:
+The `armies` table has a composite key that includes `leagueId`, `playerId`, and `phase`. However, the delete operation was only using `playerId` and `phase`, which:
 - Could fail to find the correct army in multi-league scenarios
 - Violated the database schema's intent for league-specific data
-- Could potentially delete the wrong army if a player had the same round in different leagues
+- Could potentially delete the wrong army if a player had the same phase in different leagues
 
 ### Issue 2: Broken Confirmation Composable
 
@@ -32,29 +32,29 @@ The `useConfirmation` composable had a design flaw where:
 **File**: `app/stores/leagues.js`
 ```javascript
 // BEFORE
-async deleteArmy(playerId, round) {
-  const response = await $fetch(`/api/armies?playerId=${playerId}&round=${round}`, {
+async deleteArmy(playerId, phase) {
+  const response = await $fetch(`/api/armies?playerId=${playerId}&phase=${phase}`, {
     method: 'DELETE'
   })
   if (response.success) {
     this.armies = this.armies.filter(a =>
-      !(a.playerId === playerId && a.round === round)
+      !(a.playerId === playerId && a.phase === phase)
     )
   }
 }
 
 // AFTER
-async deleteArmy(playerId, round) {
+async deleteArmy(playerId, phase) {
   if (!this.currentLeagueId) {
     throw new Error('No league selected')
   }
 
-  const response = await $fetch(`/api/armies?leagueId=${this.currentLeagueId}&playerId=${playerId}&round=${round}`, {
+  const response = await $fetch(`/api/armies?leagueId=${this.currentLeagueId}&playerId=${playerId}&phase=${phase}`, {
     method: 'DELETE'
   })
   if (response.success) {
     this.armies = this.armies.filter(a =>
-      !(a.playerId === playerId && a.round === round && a.leagueId === this.currentLeagueId)
+      !(a.playerId === playerId && a.phase === phase && a.leagueId === this.currentLeagueId)
     )
   }
 }
@@ -64,25 +64,25 @@ async deleteArmy(playerId, round) {
 ```typescript
 // BEFORE
 const playerId = parseInt(query.playerId as string)
-const round = parseInt(query.round as string)
+const phase = parseInt(query.phase as string)
 
 const deleted = await db.delete(armies)
   .where(
     and(
       eq(armies.playerId, playerId),
-      eq(armies.round, round)
+      eq(armies.phase, phase)
     )
   )
 
 // AFTER
 const leagueId = parseInt(query.leagueId as string)
 const playerId = parseInt(query.playerId as string)
-const round = parseInt(query.round as string)
+const phase = parseInt(query.phase as string)
 
-if (!leagueId || isNaN(leagueId) || !playerId || isNaN(playerId) || !round || isNaN(round)) {
+if (!leagueId || isNaN(leagueId) || !playerId || isNaN(playerId) || !phase || isNaN(phase)) {
   throw createError({
     statusCode: 400,
-    statusMessage: 'Valid league ID, player ID and round are required'
+    statusMessage: 'Valid league ID, player ID and phase are required'
   })
 }
 
@@ -91,7 +91,7 @@ const deleted = await db.delete(armies)
     and(
       eq(armies.leagueId, leagueId),
       eq(armies.playerId, playerId),
-      eq(armies.round, round)
+      eq(armies.phase, phase)
     )
   )
 ```
@@ -135,7 +135,7 @@ export function useConfirmation(defaultCallback = null) {
 
 ### Manual Test Steps
 1. Navigate to the Army Lists page
-2. Create an army for a player in a round
+2. Create an army for a player in a phase
 3. Click the delete (trash) icon on the army
 4. Confirm deletion in the modal
 5. ✅ Army should be removed from the list
@@ -158,7 +158,7 @@ export function useConfirmation(defaultCallback = null) {
 No schema changes required. The fix properly uses the existing composite key:
 - `leagueId` (integer, FK to leagues.id)
 - `playerId` (integer, FK to players.id)
-- `round` (integer)
+- `phase` (integer)
 
 ## Backward Compatibility
 

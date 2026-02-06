@@ -10,21 +10,21 @@
 
 Two related issues prevented successful league creation via the UI form at `/leagues/create`:
 
-1. **Bug #4**: Invalid date syntax - Empty strings sent for round dates
+1. **Bug #4**: Invalid date syntax - Empty strings sent for phase dates
 2. **Bug #5**: Missing membership data - API response missing `membership` object
 
 Both bugs occurred during the same user action (submitting the create league form) but were separate issues requiring different fixes.
 
 ---
 
-## Bug #4: Invalid Date Syntax for Round Dates
+## Bug #4: Invalid Date Syntax for Phase Dates
 
 ### Issue Description
 
-When creating a league with rounds that had empty date fields, the API failed with:
+When creating a league with phases that had empty date fields, the API failed with:
 
 ```
-ERROR Error creating league: Failed query: insert into "rounds" 
+ERROR Error creating league: Failed query: insert into "phases" 
 params: 6,1,500 Points,500,,
 
 [cause]: invalid input syntax for type date: ""
@@ -33,16 +33,16 @@ params: 6,1,500 Points,500,,
 ### Root Cause
 
 **Empty String vs Null Problem**:
-- Form initialized round dates as empty strings: `startDate: ''`, `endDate: ''`
+- Form initialized phase dates as empty strings: `startDate: ''`, `endDate: ''`
 - HTML date inputs left empty return empty strings (`""`)
 - PostgreSQL `date` type rejects empty strings but accepts `null`
-- No validation checked if round dates were filled in
+- No validation checked if phase dates were filled in
 - Empty strings were passed directly to database causing SQL error
 
 ### User Impact
 - Users could not create leagues even with valid data
 - Form appeared to submit but failed with cryptic database error
-- No clear indication that round dates were required
+- No clear indication that phase dates were required
 
 ---
 
@@ -51,18 +51,18 @@ params: 6,1,500 Points,500,,
 Implemented **three-layer defense**:
 
 #### 1. Client-Side Validation
-Added validation to check round dates are filled:
+Added validation to check phase dates are filled:
 
 ```javascript
 // app/pages/leagues/create.vue - validateForm()
-for (const round of form.rounds) {
+for (const phase of form.phases) {
   // ... existing validations
-  if (!round.startDate) {
-    error.value = `Round ${round.number} start date is required`
+  if (!phase.startDate) {
+    error.value = `Phase ${phase.number} start date is required`
     return false
   }
-  if (!round.endDate) {
-    error.value = `Round ${round.number} end date is required`
+  if (!phase.endDate) {
+    error.value = `Phase ${phase.number} end date is required`
     return false
   }
 }
@@ -74,14 +74,14 @@ Made date inputs required in the form:
 ```vue
 <!-- app/pages/leagues/create.vue -->
 <input
-  v-model="round.startDate"
+  v-model="phase.startDate"
   type="date"
   class="input-field w-full"
   required    <!-- ✅ Added -->
 />
 
 <input
-  v-model="round.endDate"
+  v-model="phase.endDate"
   type="date"
   class="input-field w-full"
   required    <!-- ✅ Added -->
@@ -93,15 +93,15 @@ Convert empty strings to `null` before sending to API:
 
 ```javascript
 // app/pages/leagues/create.vue - handleSubmit()
-const sanitizedRounds = form.rounds.map(round => ({
-  ...round,
-  startDate: round.startDate || null,  // Empty string → null
-  endDate: round.endDate || null        // Empty string → null
+const sanitizedPhases = form.phases.map(phase => ({
+  ...phase,
+  startDate: phase.startDate || null,  // Empty string → null
+  endDate: phase.endDate || null        // Empty string → null
 }))
 
 await leaguesStore.createLeague({
   // ... other fields
-  rounds: sanitizedRounds  // Use sanitized data
+  phases: sanitizedPhases  // Use sanitized data
 })
 ```
 
@@ -111,7 +111,7 @@ await leaguesStore.createLeague({
 
 ### Issue Description
 
-After successfully creating the league and rounds, the store failed when trying to access the membership data:
+After successfully creating the league and phases, the store failed when trying to access the membership data:
 
 ```
 Error creating league: TypeError: Cannot read properties of undefined (reading 'joinedAt')
@@ -124,7 +124,7 @@ Error creating league: TypeError: Cannot read properties of undefined (reading '
 - **API Endpoint** (`server/api/leagues/create.post.ts`):
   - Created membership record (line 82)
   - Did NOT return membership in response (line 105)
-  - Returned only: `{ success, message, data: { league, rounds } }`
+  - Returned only: `{ success, message, data: { league, phases } }`
 
 - **Store** (`app/stores/leagues.js` line 173):
   - Expected: `response.data.membership.joinedAt`
@@ -158,8 +158,8 @@ await db.insert(leagueMemberships).values({
 return {
   success: true,
   data: {
-    league: leagueWithRounds[0],
-    rounds: leagueRounds
+    league: leagueWithPhases[0],
+    phases: leaguePhases
     // ❌ No membership
   }
 }
@@ -175,8 +175,8 @@ const [newMembership] = await db.insert(leagueMemberships).values({
 return {
   success: true,
   data: {
-    league: leagueWithRounds[0],
-    rounds: leagueRounds,
+    league: leagueWithPhases[0],
+    phases: leaguePhases,
     membership: newMembership  // ✅ Include in response
   }
 }
@@ -186,11 +186,11 @@ return {
 
 ## Files Changed
 
-### Bug #4 (Round Dates)
+### Bug #4 (Phase Dates)
 **File**: `app/pages/leagues/create.vue`
 
 **Changes**:
-1. Added round date validation (lines ~77-84)
+1. Added phase date validation (lines ~77-84)
 2. Added `required` attribute to date inputs (lines ~324, ~332)
 3. Added data sanitization in `handleSubmit()` (lines ~102-106)
 
@@ -209,8 +209,8 @@ return {
 ### Testing Steps
 1. ✅ Navigate to `/leagues/create`
 2. ✅ Fill in league name and start date
-3. ✅ Leave round dates empty initially → See validation error
-4. ✅ Fill in round dates (start and end)
+3. ✅ Leave phase dates empty initially → See validation error
+4. ✅ Fill in phase dates (start and end)
 5. ✅ Click "Create League"
 6. ✅ Verify successful creation
 7. ✅ Verify redirect to dashboard
@@ -221,8 +221,8 @@ return {
 -- Check league was created
 SELECT * FROM leagues ORDER BY id DESC LIMIT 1;
 
--- Check rounds were created with valid dates
-SELECT * FROM rounds WHERE leagueId = [newLeagueId];
+-- Check phases were created with valid dates
+SELECT * FROM phases WHERE leagueId = [newLeagueId];
 
 -- Check membership was created with joinedAt timestamp
 SELECT * FROM league_memberships WHERE leagueId = [newLeagueId];
@@ -245,7 +245,7 @@ User fills form → Submit
     ↓
 Client-side validation (Bug #4 fix)
     ├─ League name, dates required
-    └─ Round dates required ✅ NEW
+  └─ Phase dates required ✅ NEW
     ↓
 Data sanitization (Bug #4 fix)
     └─ Empty strings → null ✅ NEW
@@ -254,12 +254,12 @@ POST /api/leagues/create
     ↓
 API creates league in database
     ├─ Insert league record
-    ├─ Insert rounds with dates ✅ Fixed
+  ├─ Insert phases with dates ✅ Fixed
     └─ Insert membership with .returning() ✅ Fixed
     ↓
 API returns complete data
     ├─ league object
-    ├─ rounds array
+  ├─ phases array
     └─ membership object ✅ Fixed
     ↓
 Store processes response
@@ -302,7 +302,7 @@ export interface CreateLeagueRequest {
   name: string
   startDate: string
   endDate?: string | null
-  rounds: Array<{
+  phases: Array<{
     number: number
     name: string
     pointLimit: number
@@ -316,7 +316,7 @@ export interface CreateLeagueResponse {
   message: string
   data: {
     league: League
-    rounds: Round[]
+    phases: Phase[]
     membership: Membership  // Must include joinedAt
   }
 }
@@ -328,7 +328,7 @@ Consider using a validation library like Zod:
 ```javascript
 import { z } from 'zod'
 
-const roundSchema = z.object({
+const phaseSchema = z.object({
   number: z.number().positive(),
   name: z.string().min(1),
   pointLimit: z.number().positive(),
@@ -339,7 +339,7 @@ const roundSchema = z.object({
 const leagueSchema = z.object({
   name: z.string().min(1),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  rounds: z.array(roundSchema).min(1)
+  phases: z.array(phaseSchema).min(1)
 })
 ```
 
@@ -360,12 +360,12 @@ Add E2E tests for critical paths:
 
 ```javascript
 // tests/e2e/create-league.spec.js
-test('creates league with rounds', async () => {
+test('creates league with phases', async () => {
   await page.goto('/leagues/create')
   await page.fill('[name="name"]', 'Test League')
   await page.fill('[name="startDate"]', '2025-01-01')
-  await page.fill('[name="rounds[0].startDate"]', '2025-01-01')
-  await page.fill('[name="rounds[0].endDate"]', '2025-01-31')
+  await page.fill('[name="phases[0].startDate"]', '2025-01-01')
+  await page.fill('[name="phases[0].endDate"]', '2025-01-31')
   await page.click('button[type="submit"]')
   await expect(page).toHaveURL('/dashboard')
 })
@@ -375,12 +375,12 @@ test('creates league with rounds', async () => {
 Add constraints to prevent invalid data:
 
 ```sql
-ALTER TABLE rounds 
-  ADD CONSTRAINT rounds_dates_not_null 
+ALTER TABLE phases 
+  ADD CONSTRAINT phases_dates_not_null 
   CHECK (startDate IS NOT NULL AND endDate IS NOT NULL);
 
-ALTER TABLE rounds
-  ADD CONSTRAINT rounds_dates_valid
+ALTER TABLE phases
+  ADD CONSTRAINT phases_dates_valid
   CHECK (endDate >= startDate);
 ```
 
@@ -391,7 +391,7 @@ ALTER TABLE rounds
 **BOTH BUGS RESOLVED** ✅
 
 The league creation form now:
-- ✅ Requires all round dates (client-side validation)
+- ✅ Requires all phase dates (client-side validation)
 - ✅ Sanitizes empty strings to null (defensive programming)
 - ✅ Receives complete API response with membership data
 - ✅ Successfully creates leagues and switches to them
@@ -403,7 +403,7 @@ Ready for user testing of the complete create league flow.
 
 ## Timeline
 
-- **Bug #4 Discovered**: User submitted form with empty round dates
+- **Bug #4 Discovered**: User submitted form with empty phase dates
 - **Bug #4 Root Cause**: Empty strings sent to database date fields
 - **Bug #4 Fixed**: Added validation, required attributes, data sanitization
 - **Bug #5 Discovered**: Immediately after #4 fix, store crashed on membership access
@@ -416,14 +416,14 @@ Ready for user testing of the complete create league flow.
 
 ## Additional Notes
 
-### Why Rounds Need Dates
+### Why Phases Need Dates
 
-The rounds feature is designed to manage escalation campaigns with time-boxed phases. Each round represents a different points level (500, 1000, 1500, etc.) with a defined start and end date. This allows:
+The phases feature is designed to manage escalation campaigns with time-boxed phases. Each phase represents a different points level (500, 1000, 1500, etc.) with a defined start and end date. This allows:
 
 - Tournament organizers to schedule matches
 - Players to know when armies are due
-- System to track which round is currently active
-- Automatic progression to next round on dates
+- System to track which phase is currently active
+- Automatic progression to next phase on dates
 
 Making dates required ensures the feature works as designed and prevents incomplete data.
 

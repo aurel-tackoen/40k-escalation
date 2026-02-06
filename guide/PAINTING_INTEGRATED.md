@@ -72,7 +72,7 @@ Automatically calculated from all units:
 - Visual "Fully Painted" badge at 100%
 
 ### Leaderboard
-Players ranked by painting completion percentage for the current round.
+Players ranked by painting completion percentage for the current phase.
 
 ## 🎨 Color Coding
 
@@ -117,7 +117,7 @@ The store automatically calculates leaderboard from army data:
 ```javascript
 // In store getters:
 paintingLeaderboard: (state) => {
-  // Finds all armies for current round
+  // Finds all armies for current phase
   // Calculates painted percentage per player
   // Sorts by percentage (highest first)
   // Returns leaderboard array
@@ -132,10 +132,10 @@ paintingLeaderboard: (state) => {
 ## 📝 Files Changed
 
 ### Modified:
-- ✏️ `app/components/ArmyListsView.vue` - Added painting fields to units
+- ✏️ `app/components/views/ArmyListsView.vue` - Added painting fields to units
 - ✏️ `app/components/PaintingProgress.vue` - Simplified to leaderboard only
-- ✏️ `app/components/DashboardView.vue` - Added painting leaderboard
-- ✏️ `app/stores/league.js` - Simplified painting calculation
+- ✏️ `app/components/views/DashboardView.vue` - Added painting leaderboard
+- ✏️ `app/stores/leagues.js` - Simplified painting calculation
 - ✏️ `app/pages/dashboard.vue` - Pass leaderboard prop
 - ✏️ `app/layouts/default.vue` - Removed separate painting nav link
 

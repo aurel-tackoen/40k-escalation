@@ -182,7 +182,7 @@ Separate major sections visually
 ### Clarity Enhancements
 1. **VP vs LP explained** - Distinguishes Victory Points from League Points
 2. **Tiebreakers detailed** - Clear hierarchy for standings
-3. **Deadlines specified** - 48-hour reporting, round timeframes
+3. **Deadlines specified** - 48-hour reporting, phase timeframes
 4. **Policies clarified** - Proxies, legends, painting standards
 
 ### Coverage Expansions
@@ -255,7 +255,7 @@ Organizers can easily modify:
 ### Add Custom Rules
 ```markdown
 ### House Rules
-- No aircraft in rounds 1-2
+- No aircraft in phases 1-2
 - Maximum 2 Lords of War
 - Custom mission pack required
 ```
@@ -326,9 +326,9 @@ The following units are not allowed in this league:
 ## ❓ Frequently Asked Questions
 
 **Q: Can I change my army faction between rounds?**
-A: Yes! You can switch factions at the start of any new round.
+A: Yes! You can switch factions at the start of any new phase.
 
-**Q: What if I can't attend a round?**
+**Q: What if I can't attend a phase?**
 A: Contact the organizer. You may be able to play makeup matches.
 ```
 

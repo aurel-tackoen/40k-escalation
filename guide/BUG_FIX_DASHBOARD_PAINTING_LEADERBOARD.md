@@ -32,7 +32,7 @@ Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'c
 
 **Unguarded Getter Access**:
 
-The `paintingLeaderboard` getter in the store attempted to access `getters.currentLeague.currentRound` without checking if `currentLeague` was defined.
+The `paintingLeaderboard` getter in the store attempted to access `currentLeague.currentPhase` without checking if `currentLeague` was defined.
 
 ### Timeline of Events
 
@@ -45,7 +45,7 @@ The `paintingLeaderboard` getter in the store attempted to access `getters.curre
 7. Dashboard component mounts and renders
 8. Dashboard template references `leaguesStore.paintingLeaderboard` ❌
 9. Getter accesses `getters.currentLeague` which evaluates to `undefined` ❌
-10. Trying to read `.currentRound` on undefined crashes ❌
+10. Trying to read `.currentPhase` on undefined crashes ❌
 
 ### Why Was currentLeague Undefined?
 
@@ -75,10 +75,10 @@ Added **guard clause** to the `paintingLeaderboard` getter to return an empty ar
 
 **Before (BROKEN)**:
 ```javascript
-// Painting leaderboard for current round
+// Painting leaderboard for current phase
 paintingLeaderboard: (state, getters) => {
   const leaderboard = []
-  const currentRound = getters.currentLeague?.currentRound || 1  // ❌ Optional chaining not enough
+  const currentPhase = getters.currentLeague?.currentPhase || 1  // ❌ Optional chaining not enough
   
   state.players.forEach(player => {
     // ... processing logic
@@ -90,13 +90,13 @@ paintingLeaderboard: (state, getters) => {
 
 **After (FIXED)**:
 ```javascript
-// Painting leaderboard for current round
-paintingLeaderboard: (state, getters) => {
+// Painting leaderboard for current phase
+paintingLeaderboard(state) {
   // Return empty array if no league is selected
-  if (!getters.currentLeague) return []  // ✅ Guard clause
+  if (!this.currentLeague) return []
   
   const leaderboard = []
-  const currentRound = getters.currentLeague.currentRound || 1  // ✅ Safe to access now
+  const currentPhase = this.currentLeague.currentPhase || 1
   
   state.players.forEach(player => {
     // ... processing logic
@@ -110,9 +110,9 @@ paintingLeaderboard: (state, getters) => {
 
 ## Why Optional Chaining Wasn't Enough
 
-The original code used optional chaining: `getters.currentLeague?.currentRound`
+The original code used optional chaining: `currentLeague?.currentPhase`
 
-This prevents the error when accessing `.currentRound`, but:
+This prevents the error when accessing `.currentPhase`, but:
 1. The getter still **executes the forEach loop** on players
 2. Other parts of the getter might assume `currentLeague` exists
 3. Vue's reactivity might still trigger issues during render
@@ -126,7 +126,7 @@ This prevents the error when accessing `.currentRound`, but:
 
 ### Testing Steps
 1. ✅ Create a new league via `/leagues/create`
-2. ✅ Fill in all required fields including round dates
+2. ✅ Fill in all required fields including phase dates
 3. ✅ Submit the form
 4. ✅ League creates successfully
 5. ✅ Redirect to `/dashboard` works
@@ -231,7 +231,7 @@ currentLeague: (state) => {
     return {
       id: null,
       name: 'No League Selected',
-      currentRound: 1,
+      currentPhase: 1,
       // ... other defaults
     }
   }

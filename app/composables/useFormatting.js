@@ -115,11 +115,11 @@ export function useFormatting() {
     if (normalized.endDate) {
       normalized.endDate = formatDateForInput(normalized.endDate)
     }
-    if (normalized.rounds) {
-      normalized.rounds = normalized.rounds.map(round => ({
-        ...round,
-        startDate: formatDateForInput(round.startDate),
-        endDate: formatDateForInput(round.endDate)
+    if (normalized.phases) {
+      normalized.phases = normalized.phases.map(phase => ({
+        ...phase,
+        startDate: formatDateForInput(phase.startDate),
+        endDate: formatDateForInput(phase.endDate)
       }))
     }
     return normalized

@@ -116,8 +116,8 @@ export const leagueSettings = pgTable('league_settings', {
   playoffTopN: integer('playoff_top_n').default(4).notNull(),
   allowMidLeagueJoins: boolean('allow_mid_league_joins').default(true).notNull(),
   byeHandling: varchar('bye_handling', { length: 50 }).default('auto').notNull(), // 'auto', 'manual', 'rotate'
-  firstRoundPairingMethod: varchar('first_round_pairing_method', { length: 50 }).default('manual').notNull(), // 'manual', 'swiss', 'random'
-  subsequentRoundMethod: varchar('subsequent_round_method', { length: 50 }).default('swiss').notNull(), // 'swiss', 'random', 'manual'
+  firstPhasePairingMethod: varchar('first_phase_pairing_method', { length: 50 }).default('manual').notNull(), // 'manual', 'swiss', 'random'
+  subsequentPhaseMethod: varchar('subsequent_phase_method', { length: 50 }).default('swiss').notNull(), // 'swiss', 'random', 'manual'
   createdAt: timestamp().defaultNow().notNull()
 });
 
@@ -130,7 +130,7 @@ export const pairings = pgTable('pairings', {
   player2Id: integer().references(() => players.id, { onDelete: 'cascade' }), // Null for BYE
   matchId: integer('match_id'), // References matches.id - will be set when match is recorded
   status: varchar({ length: 50 }).default('pending').notNull(), // 'pending', 'completed', 'bye'
-  isBye: boolean('is_bye').default(false).notNull(), // True if this is a BYE round
+  isBye: boolean('is_bye').default(false).notNull(), // True if this is a BYE pairing
   dueDate: date('due_date'), // Optional deadline for match completion
   createdAt: timestamp().defaultNow().notNull()
 });
