@@ -9,8 +9,8 @@ Requirements for the Round → Phase terminology rename.
 
 ### Database
 
-- [ ] **DB-01**: Rename `round` columns to `phase` in schema (e.g., round_id → phase_id, round_number → phase_number, current_round → current_phase)
-- [ ] **DB-02**: Create migration that renames columns without data loss
+- [x] **DB-01**: Rename `round` columns to `phase` in schema (e.g., round_id → phase_id, round_number → phase_number, current_round → current_phase)
+- [x] **DB-02**: Create migration that renames columns without data loss
 - [x] **DB-03**: Update all Drizzle queries referencing old column names
 
 ### API
@@ -27,9 +27,9 @@ Requirements for the Round → Phase terminology rename.
 
 ### UI
 
-- [ ] **UI-01**: Update component props and data properties
-- [ ] **UI-02**: Update template text (labels, headings, messages)
-- [ ] **UI-03**: Update URL routes if rounds appear in paths
+- [x] **UI-01**: Update component props and data properties
+- [x] **UI-02**: Update template text (labels, headings, messages)
+- [x] **UI-03**: Update URL routes if rounds appear in paths
 
 ### Testing
 
@@ -61,9 +61,9 @@ Requirements for the Round → Phase terminology rename.
 | STORE-01 | Phase 3 | Complete |
 | STORE-02 | Phase 3 | Complete |
 | STORE-03 | Phase 3 | Complete |
-| UI-01 | Phase 4 | Pending |
-| UI-02 | Phase 4 | Pending |
-| UI-03 | Phase 4 | Pending |
+| UI-01 | Phase 4 | Complete |
+| UI-02 | Phase 4 | Complete |
+| UI-03 | Phase 4 | Complete |
 | TEST-01 | Phase 5 | Pending |
 | TEST-02 | Phase 5 | Pending |
 

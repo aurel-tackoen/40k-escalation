@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Database Schema** - Rename database columns and update Drizzle queries
 - [x] **Phase 2: API Layer** - Rename API routes and update request/response properties
 - [x] **Phase 3: State Management** - Rename Pinia store state, getters, actions, and composables
-- [ ] **Phase 4: User Interface** - Update component props, template text, and URL routes
+- [x] **Phase 4: User Interface** - Update component props, template text, and URL routes
 - [ ] **Phase 5: Test Verification** - Update tests and verify full system integrity
 
 ## Phase Details
@@ -71,12 +71,13 @@ Plans:
   2. All user-visible text shows "Phase" instead of "Round"
   3. URL routes use phase terminology (if applicable)
   4. Application renders correctly with no console errors
-**Plans**: 3 plans
+**Plans**: 4 plans
 
 Plans:
-- [ ] 04-01-PLAN.md - Component props, composable exports, and parent page bindings
-- [ ] 04-02-PLAN.md - Template text updates (filters, labels, badges, timelines)
-- [ ] 04-03-PLAN.md - Admin components template text updates
+- [x] 04-01-PLAN.md - Component props, composable exports, and parent page bindings
+- [x] 04-02-PLAN.md - Template text updates (filters, labels, badges, timelines)
+- [x] 04-03-PLAN.md - Admin components template text updates
+- [x] 04-04-PLAN.md - Gap closure: DashboardView and LeagueSetupView terminology
 
 ### Phase 5: Test Verification
 **Goal**: All tests pass with updated terminology, confirming rename is complete
@@ -101,7 +102,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Database Schema | 1/1 | Complete | 2026-02-05 |
 | 2. API Layer | 2/2 | Complete | 2026-02-05 |
 | 3. State Management | 2/2 | Complete | 2026-02-05 |
-| 4. User Interface | 0/3 | Not started | - |
+| 4. User Interface | 4/4 | Complete | 2026-02-06 |
 | 5. Test Verification | 0/1 | Not started | - |
 
 ---
