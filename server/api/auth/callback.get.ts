@@ -64,20 +64,32 @@ export default defineEventHandler(async (event) => {
     const { eq } = await import('drizzle-orm')
 
     let dbUser
-    const [existingUser] = await db
+    const auth0Id = user.sub
+    const email = user.email
+
+    const [existingByAuth0Id] = await db
       .select()
       .from(users)
-      .where(eq(users.auth0Id, user.sub))
+      .where(eq(users.auth0Id, auth0Id))
+
+    const [existingByEmail] = !existingByAuth0Id && email
+      ? await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+      : [undefined]
+
+    const existingUser = existingByAuth0Id || existingByEmail
 
     if (!existingUser) {
       // Create new user
       const [newUser] = await db
         .insert(users)
         .values({
-          auth0Id: user.sub,
-          email: user.email,
-          name: user.name || user.email.split('@')[0],
-          picture: user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}`,
+          auth0Id,
+          email,
+          name: user.name || email.split('@')[0],
+          picture: user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || email)}`,
           role,
           lastLoginAt: new Date()
         })
@@ -85,10 +97,12 @@ export default defineEventHandler(async (event) => {
 
       dbUser = newUser
     } else {
-      // Update existing user
+      // Update existing user (also link by email -> auth0Id if needed)
       const [updatedUser] = await db
         .update(users)
         .set({
+          auth0Id,
+          email: email || existingUser.email,
           lastLoginAt: new Date(),
           role,
           name: user.name || existingUser.name,
