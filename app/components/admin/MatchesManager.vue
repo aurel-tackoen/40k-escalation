@@ -18,7 +18,7 @@
   const editingMatch = ref(null)
   const editForm = ref({
     id: null,
-    round: 1,
+    phase: 1,
     matchType: 'victory_points',
     gameSystemId: null,
     player1Points: 0,
@@ -177,7 +177,7 @@
     editingMatch.value = match
     editForm.value = {
       id: match.id,
-      round: match.round,
+      phase: match.phase,
       matchType: match.matchType || 'victory_points',
       gameSystemId: match.gameSystemId,
       player1Points: match.player1Points,
@@ -205,7 +205,7 @@
     editingMatch.value = null
     editForm.value = {
       id: null,
-      round: 1,
+      phase: 1,
       matchType: 'victory_points',
       gameSystemId: null,
       player1Points: 0,
@@ -239,7 +239,7 @@
   const saveMatch = async () => {
     try {
       const updateData = {
-        round: editForm.value.round,
+        phase: editForm.value.phase,
         player1Points: editForm.value.player1Points,
         player2Points: editForm.value.player2Points,
         winnerId: editForm.value.winnerId,
@@ -515,7 +515,7 @@
               <div class="mt-3">
                 <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Phase</div>
                 <div class="text-white">
-                  Phase <span class="text-yellow-500 font-bold">{{ match.round }}</span>
+                  Phase <span class="text-yellow-500 font-bold">{{ match.phase }}</span>
                 </div>
               </div>
               <div v-if="match.notes" class="mt-3">
@@ -583,7 +583,7 @@
           <div>
             <label class="admin-label">Phase</label>
             <input
-              v-model.number="editForm.round"
+              v-model.number="editForm.phase"
               type="number"
               min="1"
               required

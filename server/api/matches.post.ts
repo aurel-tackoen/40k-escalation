@@ -10,9 +10,17 @@ import { eq, and } from 'drizzle-orm'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
+    
+    // Log request body for debugging
+    console.log('Match creation request body:', JSON.stringify(body, null, 2))
 
     // Validate required fields
     if (!body.player1Id || !body.player2Id || body.phase === undefined) {
+      console.error('Validation error: Missing required fields', {
+        player1Id: body.player1Id,
+        player2Id: body.player2Id,
+        phase: body.phase
+      })
       throw createError({
         statusCode: 400,
         statusMessage: 'Player IDs and phase are required'
@@ -189,10 +197,18 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     console.error('Error creating match:', error)
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    })
 
+    // Return more detailed error in development
+    const isDev = process.env.NODE_ENV === 'development'
+    
     throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to create match'
+      statusCode: error.statusCode || 500,
+      statusMessage: isDev ? `Failed to create match: ${error.message}` : 'Failed to create match'
     })
   }
 })

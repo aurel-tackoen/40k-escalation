@@ -107,7 +107,7 @@
       player2ObjectiveCompleted: match.player2ObjectiveCompleted || false,
 
       // Common fields
-      round: match.round,
+      phase: match.phase,
       mission: match.mission || '',
       datePlayed: match.datePlayed ? new Date(match.datePlayed).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       winnerId: match.winnerId,
@@ -157,7 +157,7 @@
     player2ObjectiveCompleted: false,
 
     // Common fields
-    round: null,
+    phase: null,
     mission: '',
     datePlayed: new Date().toISOString().split('T')[0],
     winnerId: undefined, // undefined = not set, null = draw
@@ -184,7 +184,7 @@
     let filtered = [...props.matches].sort((a, b) => new Date(b.datePlayed) - new Date(a.datePlayed))
 
     if (filterRound.value) {
-      filtered = filtered.filter(match => match.round === parseInt(filterRound.value))
+      filtered = filtered.filter(match => match.phase === parseInt(filterRound.value))
     }
 
     if (filterPlayer.value) {
@@ -262,7 +262,7 @@
       player2ObjectiveCompleted: false,
 
       // Common fields
-      round: null,
+      phase: null,
       mission: '',
       datePlayed: new Date().toISOString().split('T')[0],
       winnerId: undefined, // undefined = not set, null = draw
@@ -471,7 +471,7 @@
               <!-- Round -->
               <td class="py-3 px-4">
                 <span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded font-semibold text-sm whitespace-nowrap">
-                  Phase {{ match.round }}
+                  Phase {{ match.phase }}
                 </span>
               </td>
 
@@ -819,7 +819,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm sm:text-base font-semibold text-yellow-500 mb-2">Phase</label>
-            <select v-model.number="newMatch.round" required class="input-field">
+            <select v-model.number="newMatch.phase" required class="input-field">
               <option value="">Select Phase</option>
               <option v-for="phase in leaguePhases" :key="phase.number" :value="phase.number">
                 {{ phase.name }}
