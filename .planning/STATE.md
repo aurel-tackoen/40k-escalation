@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 1 of 5 (Format System Foundation)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-06 — Completed 01-01-PLAN.md (Format Registry + Schema)
+Last activity: 2026-02-06 — Completed 01-02-PLAN.md (Format Selection in League Creation)
 
-Progress: v0.2 [█░░░░░░░░░░░░] 1/13 plans (8%)
+Progress: v0.2 [██░░░░░░░░░░░] 2/13 plans (15%)
 
 ## Performance Metrics
 
@@ -24,9 +24,9 @@ Progress: v0.2 [█░░░░░░░░░░░░] 1/13 plans (8%)
 - Total execution time: 0.88 hours
 
 **v0.2 Velocity:**
-- Plans completed: 1
-- Average duration: 5 min
-- Total execution time: 5 min
+- Plans completed: 2
+- Average duration: 4 min
+- Total execution time: 8 min
 
 ## Accumulated Context
 
@@ -40,6 +40,8 @@ All v0.1 decisions archived in PROJECT.md Key Decisions table.
 | 01 | 01 | varchar(50) over pgEnum for format column | Flexible for adding new formats without DB migration |
 | 01 | 01 | Nullable format column | Existing leagues get null until migration script sets format |
 | 01 | 01 | Manual migration creation | drizzle-kit generate blocked by stale snapshot; manual creation also fixes snapshot |
+| 01 | 02 | Store unchanged for format passthrough | leagueData body passthrough and response spread naturally include format |
+| 01 | 02 | Fixed error handler to re-throw 4xx errors | Pre-existing bug: catch block swallowed validation errors as 500 |
 
 ### Pending Todos
 
@@ -49,13 +51,14 @@ None.
 
 - 48 pre-existing test failures in UserMenu.test.ts (Pinia store initialization) — carried from v0.1
 - Drizzle snapshot was stale from round-to-phase rename (migration 0022); fixed in 0023 snapshot
+- create.vue sends `rounds` but API expects `phases` (incomplete round-to-phase rename from v0.1)
 
 ## Session Continuity
 
-Last session: 2026-02-06T19:49Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-02-06T19:53Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
 
 ---
 *State initialized: 2026-02-05*
-*Last updated: 2026-02-06 — completed 01-01 (format registry + schema)*
+*Last updated: 2026-02-06 — completed 01-02 (format selection in league creation)*
