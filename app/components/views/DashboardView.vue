@@ -80,11 +80,11 @@
   }
 
   // Computed properties
-  const currentRound = computed(() => {
+  const currentPhase = computed(() => {
     if (!props.league || !props.league.rounds || props.league.rounds.length === 0) {
       return { name: 'N/A', pointLimit: 0 }
     }
-    return props.league.rounds.find(r => r.number === props.league.currentRound) || props.league.rounds[0]
+    return props.league.rounds.find(r => r.number === props.league.currentPhase) || props.league.rounds[0]
   })
 
   const sortedPlayers = computed(() => {
@@ -97,9 +97,9 @@
       .slice(0, 5)
   })
 
-  const currentRoundArmies = computed(() => {
+  const currentPhaseArmies = computed(() => {
     if (!props.league) return 0
-    return props.armies.filter(army => army.round === props.league.currentRound).length
+    return props.armies.filter(army => army.round === props.league.currentPhase).length
   })
 </script>
 
@@ -120,10 +120,10 @@
         <div class="bg-gray-700 p-4 rounded-lg">
           <div class="flex items-center gap-2 mb-2">
             <Calendar :size="20" class="text-yellow-500 flex-shrink-0" />
-            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Current Round</h3>
+            <h3 class="text-base sm:text-lg font-semibold text-yellow-500">Current Phase</h3>
           </div>
-          <p class="text-xl sm:text-2xl font-bold">{{ currentRound.name }}</p>
-          <p class="text-xs sm:text-sm text-gray-400">{{ currentRound.pointLimit }} points</p>
+          <p class="text-xl sm:text-2xl font-bold">{{ currentPhase.name }}</p>
+          <p class="text-xs sm:text-sm text-gray-400">{{ currentPhase.pointLimit }} points</p>
         </div>
         <NuxtLink
           to="/players"
@@ -144,8 +144,8 @@
             <Shield :size="20" class="text-yellow-500 flex-shrink-0" />
             <h3 class="text-base sm:text-lg font-semibold text-yellow-500 group-hover:text-yellow-400">Army Lists</h3>
           </div>
-          <p class="text-xl sm:text-2xl font-bold">{{ currentRoundArmies }}</p>
-          <p class="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300">for current round · Click to view →</p>
+          <p class="text-xl sm:text-2xl font-bold">{{ currentPhaseArmies }}</p>
+          <p class="text-xs sm:text-sm text-gray-400 group-hover:text-gray-300">for current phase · Click to view →</p>
         </NuxtLink>
         <NuxtLink
           to="/matches"
@@ -223,7 +223,7 @@
       <div>
         <PaintingProgress
           :leaderboard="paintingLeaderboard"
-          :currentRound="league?.currentRound || 1"
+          :currentRound="league?.currentPhase || 1"
         />
       </div>
     </div>
@@ -268,21 +268,21 @@
     <div v-if="league?.rounds && league.rounds.length > 0" class="card">
       <div class="flex items-center gap-2 mb-4">
         <Calendar :size="24" class="text-yellow-500" />
-        <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Rounds Schedule</h3>
+        <h3 class="text-xl sm:text-2xl font-serif font-bold text-yellow-500">Phases Schedule</h3>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div
           v-for="round in league.rounds"
           :key="round.id"
           class="bg-gray-700 p-4 rounded-lg border-2 transition-all"
-          :class="round.number === league.currentRound ? 'border-yellow-500 shadow-lg shadow-yellow-500/20' : 'border-gray-600'"
+          :class="round.number === league.currentPhase ? 'border-yellow-500 shadow-lg shadow-yellow-500/20' : 'border-gray-600'"
         >
           <div class="flex items-center justify-between mb-3">
-            <h4 class="text-lg font-bold" :class="round.number === league.currentRound ? 'text-yellow-500' : 'text-white'">
+            <h4 class="text-lg font-bold" :class="round.number === league.currentPhase ? 'text-yellow-500' : 'text-white'">
               {{ round.name }}
             </h4>
             <span
-              v-if="round.number === league.currentRound"
+              v-if="round.number === league.currentPhase"
               class="px-2 py-1 text-xs font-bold bg-yellow-500 text-gray-900 rounded"
             >
               ACTIVE
