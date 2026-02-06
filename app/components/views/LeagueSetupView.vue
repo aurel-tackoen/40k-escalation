@@ -9,6 +9,7 @@
   import { useLeagueRules } from '~/composables/useLeagueRules'
   import { usePlaceholders } from '~/composables/usePlaceholders'
   import { useToast } from '~/composables/useToast'
+  import { getFormatsForGameSystem, getFormatDisplayName } from '~/data/format-registry'
   import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
   // Composables
@@ -56,6 +57,22 @@
     return gameSystems.value.find(gs => gs.id === editableLeague.value.gameSystemId)
   })
 
+  // Format immutability: check if matches exist for current league
+  const hasMatches = computed(() => {
+    return leaguesStore.matches && leaguesStore.matches.length > 0
+  })
+
+  // Available formats for current game system
+  const availableFormats = computed(() => {
+    if (!currentGameSystem.value?.shortName) return []
+    return getFormatsForGameSystem(currentGameSystem.value.shortName)
+  })
+
+  // Current format display name
+  const currentFormatName = computed(() => {
+    return editableLeague.value?.format ? getFormatDisplayName(editableLeague.value.format) : 'Not set'
+  })
+
   // Get game-specific placeholders
   const { placeholders } = usePlaceholders(currentGameSystem)
 
@@ -70,6 +87,13 @@
       editableLeague.value.rules = generatedRules.value
     }
   }, { deep: true })
+
+  // Clear format when game system changes (only if no matches -- format is still editable)
+  watch(() => editableLeague.value?.gameSystemId, (newId, oldId) => {
+    if (oldId && newId !== oldId && !hasMatches.value) {
+      editableLeague.value.format = null
+    }
+  })
 
   // Initialize rules on mount
   onMounted(() => {
@@ -308,6 +332,40 @@
               <AlertTriangle :size="14" class="text-yellow-500 flex-shrink-0" />
               <span>Changing the game system will update available factions and missions</span>
             </p>
+          </div>
+
+          <!-- League Format -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-semibold text-yellow-500 mb-2">League Format</label>
+
+            <!-- Locked state: matches exist, format cannot be changed -->
+            <div v-if="hasMatches" class="flex items-center gap-3 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg">
+              <Lock :size="18" class="text-yellow-500 flex-shrink-0" />
+              <div>
+                <span class="text-gray-200 font-medium">{{ currentFormatName }}</span>
+                <p class="text-xs text-gray-400 mt-0.5">Format locked -- matches have been recorded</p>
+              </div>
+            </div>
+
+            <!-- Editable state: no matches, format can be changed -->
+            <div v-else>
+              <select
+                v-model="editableLeague.format"
+                class="input-field"
+              >
+                <option value="" disabled>Select a format</option>
+                <option
+                  v-for="fmt in availableFormats"
+                  :key="fmt.key"
+                  :value="fmt.key"
+                >
+                  {{ fmt.name }} -- {{ fmt.description }}
+                </option>
+              </select>
+              <p v-if="availableFormats.length === 0 && currentGameSystem" class="text-xs text-gray-400 mt-1">
+                No formats available for this game system
+              </p>
+            </div>
           </div>
 
           <div class="md:col-span-2">

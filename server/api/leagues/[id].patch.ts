@@ -1,9 +1,10 @@
 import { defineEventHandler, getRouterParams, readBody, createError } from 'h3'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
-import { eq } from 'drizzle-orm'
-import { leagues, phases } from '../../../db/schema'
+import { eq, sql } from 'drizzle-orm'
+import { leagues, phases, matches } from '../../../db/schema'
 import { requireLeagueRole } from '../../utils/auth'
+import { getFormatConfig } from '../../../app/data/format-registry'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -21,7 +22,7 @@ export default defineEventHandler(async (event) => {
     // Require owner or organizer role
     await requireLeagueRole(event, leagueId, ['owner', 'organizer'])
 
-    const { name, description, rules, gameSystemId, startDate, endDate, currentPhase, isPrivate, shareToken, maxPlayers, status, phases: leaguePhases } = body
+    const { name, description, rules, gameSystemId, startDate, endDate, currentPhase, isPrivate, shareToken, maxPlayers, status, format, phases: leaguePhases } = body
 
     const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL
     if (!databaseUrl) {
@@ -31,8 +32,32 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const sql = neon(databaseUrl)
-    const db = drizzle(sql)
+    const neonSql = neon(databaseUrl)
+    const db = drizzle(neonSql)
+
+    // Format validation and immutability check
+    if (format !== undefined) {
+      // Validate format key exists in registry
+      if (!getFormatConfig(format)) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Invalid league format'
+        })
+      }
+
+      // Check if matches exist -- format locks after first match
+      const matchCount = await db
+        .select({ count: sql`count(*)::int` })
+        .from(matches)
+        .where(eq(matches.leagueId, leagueId))
+
+      if (matchCount[0].count > 0) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Format cannot be changed after matches have been recorded'
+        })
+      }
+    }
 
     // Build update object with only provided fields
     const updateData: Record<string, unknown> = {}
@@ -47,6 +72,7 @@ export default defineEventHandler(async (event) => {
     if (shareToken !== undefined) updateData.shareToken = shareToken
     if (maxPlayers !== undefined) updateData.maxPlayers = maxPlayers
     if (status !== undefined) updateData.status = status
+    if (format !== undefined) updateData.format = format
 
     if (Object.keys(updateData).length === 0 && !leaguePhases) {
       throw createError({

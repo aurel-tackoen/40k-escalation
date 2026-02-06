@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
       id: leagues.id,
       name: leagues.name,
       description: leagues.description,
+      format: leagues.format,
       gameSystemId: leagues.gameSystemId,
       currentPhase: leagues.currentPhase,
       startDate: leagues.startDate,

@@ -80,6 +80,7 @@ export default defineEventHandler(async (event) => {
           id: league.id,
           name: league.name,
           description: league.description,
+          format: league.format,
           startDate: league.startDate,
           endDate: league.endDate,
           currentPhase: league.currentPhase,

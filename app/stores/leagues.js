@@ -538,12 +538,13 @@ export const useLeaguesStore = defineStore('leagues', {
             ...response.data
           }
 
-          // Update in myLeagues
+          // Update in myLeagues (sync name, format, and other key fields)
           const leagueIndex = this.myLeagues.findIndex(l => l.id === this.currentLeagueId)
           if (leagueIndex !== -1) {
             this.myLeagues[leagueIndex] = {
               ...this.myLeagues[leagueIndex],
-              name: response.data.name
+              name: response.data.name,
+              format: response.data.format
             }
           }
 
