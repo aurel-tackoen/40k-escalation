@@ -162,6 +162,13 @@
       "when": 1770307765360,
       "tag": "0022_rename-rounds-to-phases",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1770407062000,
+      "tag": "0023_add-format-to-leagues",
+      "breakpoints": true
     }
   ]
 }
